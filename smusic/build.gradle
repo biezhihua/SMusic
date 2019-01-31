@@ -20,6 +20,20 @@ android {
                 cppFlags ""
             }
         }
+
+        ndk {
+            // Specifies the ABI configurations of your native
+            // libraries Gradle should build and package with your APK.
+            abiFilters 'x86', 'armeabi-v7a'
+        }
+    }
+
+    sourceSets {
+        main {
+            // let gradle pack the shared library into apk
+            jniLibs.srcDir 'src/main/jniLibs'
+            jni.srcDirs = []
+        }
     }
 
     buildTypes {
@@ -34,6 +48,7 @@ android {
             path "src/main/cpp/CMakeLists.txt"
         }
     }
+
 
 }
 
