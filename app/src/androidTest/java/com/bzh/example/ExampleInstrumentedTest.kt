@@ -1,4 +1,4 @@
-package com.bzh.smusic
+package com.bzh.example
 
 import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4

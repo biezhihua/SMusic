@@ -1,4 +1,4 @@
-package com.bzh.smusic
+package com.bzh.example
 
 import org.junit.Test
 
