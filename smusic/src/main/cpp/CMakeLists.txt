@@ -5,40 +5,36 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
-# Creates and names a library, sets it as either STATIC
-# or SHARED, and provides the relative paths to its source code.
-# You can define multiple libraries, and CMake builds them for you.
-# Gradle automatically packages shared libraries with your APK.
+get_filename_component(SPLAYER_ANDROID ${CMAKE_CURRENT_SOURCE_DIR}/../../../.. ABSOLUTE)
 
-add_library( # Sets the name of the library.
-             native-lib
+if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
+    get_filename_component(SPLAYER_FF_OUTPUT ${SPLAYER_ANDROID}/ffmpeg-output/ffmpeg-armv7a ABSOLUTE)
+elseif (${ANDROID_ABI} STREQUAL "x86")
+    get_filename_component(SPLAYER_FF_OUTPUT ${SPLAYER_ANDROID}/ffmpeg-output/ffmpeg-x86 ABSOLUTE)
+endif ()
 
-             # Sets the library as a shared library.
-             SHARED
+get_filename_component(SPLAYER_FF_OUTPUT_INCLUDE ${SPLAYER_FF_OUTPUT}/include/ ABSOLUTE)
 
-             # Provides a relative path to your source file(s).
-             native-lib.cpp )
+get_filename_component(SPLAYER_FF_OUTPUT_SO ${SPLAYER_FF_OUTPUT}/lib/libsffmpeg.so ABSOLUTE)
 
-# Searches for a specified prebuilt library and stores the path as a
-# variable. Because CMake includes system libraries in the search path by
-# default, you only need to specify the name of the public NDK library
-# you want to add. CMake verifies that the library exists before
-# completing its build.
+add_library(sffmpeg
+        SHARED
+        IMPORTED
+        )
 
-find_library( # Sets the name of the path variable.
-              log-lib
+set_target_properties(sffmpeg
+        PROPERTIES IMPORTED_LOCATION
+        ${SPLAYER_FF_OUTPUT_SO}
+        )
 
-              # Specifies the name of the NDK library that
-              # you want CMake to locate.
-              log )
+include_directories(${SPLAYER_FF_OUTPUT_INCLUDE})
 
-# Specifies libraries CMake should link to your target library. You
-# can link multiple libraries, such as libraries you define in this
-# build script, prebuilt third-party libraries, or system libraries.
+add_library(
+        smusic
+        SHARED
+        smusic_jni.cpp)
 
-target_link_libraries( # Specifies the target library.
-                       native-lib
-
-                       # Links the target library to the log library
-                       # included in the NDK.
-                       ${log-lib} )
+target_link_libraries(
+        smusic
+        log
+        sffmpeg)

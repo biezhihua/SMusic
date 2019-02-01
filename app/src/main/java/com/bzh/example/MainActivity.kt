@@ -7,7 +7,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    val demo = Demo()
+    private val demo = Demo()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -15,6 +15,8 @@ class MainActivity : AppCompatActivity() {
 
         // Example of a call to a native method
         sample_text.text = demo.stringFromJNI()
+        sample_text.setOnClickListener {
+            demo.testFFmpeg()
+        }
     }
-
 }

@@ -48,8 +48,6 @@ android {
             path "src/main/cpp/CMakeLists.txt"
         }
     }
-
-
 }
 
 dependencies {
