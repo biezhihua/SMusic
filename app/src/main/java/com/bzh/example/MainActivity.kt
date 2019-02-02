@@ -29,6 +29,22 @@ class MainActivity : AppCompatActivity() {
         demo.mutexThread()
     }
 
+    fun mainThreadCallJava(v: View) {
+        demo.mainThreadCallJava()
+    }
+
+    fun subThreadCallJava(v: View) {
+        demo.subThreadCallJava()
+    }
+
+    fun mainThreadCallStaticJava(v: View) {
+        demo.mainThreadCallStaticJava()
+    }
+
+    fun subThreadCallStaticJava(v: View) {
+        demo.subThreadCallStaticJava()
+    }
+
     companion object {
         private const val TAG = "MainActivity"
     }

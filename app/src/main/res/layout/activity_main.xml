@@ -11,8 +11,7 @@
             android:id="@+id/sample_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
-    />
+            android:text="Hello World!"/>
 
     <Button android:layout_width="match_parent"
             android:text="常规线程"
@@ -23,5 +22,25 @@
             android:text="mutex线程"
             android:layout_height="wrap_content"
             android:onClick="mutexThread"/>
+
+    <Button android:layout_width="match_parent"
+            android:text="主线程调用Java"
+            android:layout_height="wrap_content"
+            android:onClick="mainThreadCallJava"/>
+
+    <Button android:layout_width="match_parent"
+            android:text="子线程调用Java"
+            android:layout_height="wrap_content"
+            android:onClick="subThreadCallJava"/>
+
+    <Button android:layout_width="match_parent"
+            android:text="主线程调用Static Java"
+            android:layout_height="wrap_content"
+            android:onClick="mainThreadCallStaticJava"/>
+
+    <Button android:layout_width="match_parent"
+            android:text="子线程调用Static Java"
+            android:layout_height="wrap_content"
+            android:onClick="subThreadCallStaticJava"/>
 
 </LinearLayout>
