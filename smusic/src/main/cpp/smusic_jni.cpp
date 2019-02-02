@@ -1,6 +1,14 @@
 #include <jni.h>
 #include <string>
 #include <android/log.h>
+#include <pthread.h>
+#include <queue>
+#include <unistd.h>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma ide diagnostic ignored "OCUnusedMacroInspection"
+#pragma clang diagnostic ignored "-Wmissing-noreturn"
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -39,3 +47,69 @@ Java_com_bzh_smusic_Demo_testFFmpeg(JNIEnv *env, jobject /* this */) {
         c_temp = c_temp->next;
     }
 }
+
+
+pthread_t pthread;
+
+void *normalThread(void *data) {
+    LOGD("normal thread create");
+    pthread_exit(&pthread);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_bzh_smusic_Demo_normalThread(JNIEnv *env, jobject /* this */) {
+    pthread_create(&pthread, NULL, normalThread, NULL);
+}
+
+
+pthread_t product;
+pthread_t custom;
+pthread_mutex_t mutex;
+pthread_cond_t cond;
+
+std::queue<int> queue;
+
+void *productThreadCallback(void *data) {
+    LOGD("product thread create");
+    while (1) {
+        pthread_mutex_lock(&mutex);
+        queue.push(1);
+        LOGD("create one product, and notify custom %d", queue.size());
+        pthread_cond_signal(&cond);
+        pthread_mutex_unlock(&mutex);
+        sleep(5);
+    }
+}
+
+void *customThreadCallback(void *data) {
+    LOGD("custom thread create");
+    while (1) {
+        pthread_mutex_lock(&mutex);
+        if (queue.size() > 0) {
+            queue.pop();
+            LOGD("custom one product, residue %d", queue.size());
+        } else {
+            LOGD("custom thread not product, waiting product");
+            pthread_cond_wait(&cond, &mutex);
+        }
+        pthread_mutex_unlock(&mutex);
+        usleep(1000 * 300);
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_bzh_smusic_Demo_mutexThread(JNIEnv *env, jobject /* this */) {
+
+    for (int i = 0; i < 10; i++) {
+        queue.push(i);
+    }
+
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&cond, NULL);
+
+    pthread_create(&product, NULL, productThreadCallback, NULL);
+    pthread_create(&custom, NULL, customThreadCallback, NULL);
+}
+
+
+#pragma clang diagnostic pop
