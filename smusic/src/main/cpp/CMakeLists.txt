@@ -32,8 +32,28 @@ include_directories(${SPLAYER_FF_OUTPUT_INCLUDE})
 add_library(
         smusic
         SHARED
-        SubThreadCallJavaContext.h
-        smusic_jni.cpp
+
+#        test/SubThreadCallJavaContext.h
+#        test/smusic_jni.cpp
+
+        SMainJni.cpp
+
+        SAudio.cpp
+        SAudio.h
+
+        SFFmpeg.cpp
+        SFFmpeg.h
+
+        SJavaMethods.cpp
+        SJavaMethods.h
+
+        SLog.h
+
+        SPlayer.cpp
+        SPlayer.h
+
+        SQueue.cpp
+        SQueue.h
 )
 
 target_link_libraries(

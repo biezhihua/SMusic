@@ -43,4 +43,9 @@
             android:layout_height="wrap_content"
             android:onClick="subThreadCallStaticJava"/>
 
+    <Button android:layout_width="match_parent"
+            android:text="播放MP3"
+            android:layout_height="wrap_content"
+            android:onClick="playMp3"/>
+
 </LinearLayout>

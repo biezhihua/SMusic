@@ -59,8 +59,7 @@ Java_com_bzh_smusic_Demo_stringFromJNI(JNIEnv *env, jobject /* this */) {
     return env->NewStringUTF("Hello from JNI !  Compiled with ABI " ABI ".");
 }
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_bzh_smusic_Demo_testFFmpeg(JNIEnv *env, jobject /* this */) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_Demo_testFFmpeg(JNIEnv *env, jobject /* this */) {
 
     av_register_all();
     AVCodec *c_temp = av_codec_next(NULL);
