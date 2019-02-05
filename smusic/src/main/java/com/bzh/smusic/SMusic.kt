@@ -48,6 +48,12 @@ class SMusic {
     }
 
     @Keep
+    external fun nativeInit()
+
+    @Keep
+    external fun nativeDestroy()
+
+    @Keep
     external fun nativePrepare(source: String)
 
     @Keep

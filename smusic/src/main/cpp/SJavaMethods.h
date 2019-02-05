@@ -5,9 +5,19 @@
 #ifndef SMUSIC_S_JAVA_METHODS_H
 #define SMUSIC_S_JAVA_METHODS_H
 
+#include <jni.h>
 
 class SJavaMethods {
+private:
+    JavaVM *javaVm = NULL;
+    JNIEnv *jniEnv = NULL;
+    jobject javaInstance = NULL;
 
+public:
+
+    SJavaMethods(JavaVM *vm, JNIEnv *pEnv, jobject pJobject);
+
+    ~SJavaMethods();
 };
 
 
