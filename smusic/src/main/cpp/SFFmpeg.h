@@ -5,19 +5,36 @@
 #ifndef SMUSIC_S_FFMPEG_H
 #define SMUSIC_S_FFMPEG_H
 
-#include <string>
 
-using namespace std;
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+};
+
+#include <string>
+#include "SMedia.h"
+#include "SJavaMethods.h"
 
 class SFFmpeg {
+private:
+    AVFormatContext *pFormatContext = NULL;
+    SMedia *pAudio = NULL;
+    SMedia *pVideo = NULL;
+
+public:
+    string *pSource;
+
 public:
 
-    string *source;
-public:
+    SFFmpeg();
+
+    ~SFFmpeg();
 
     void setSource(string *pSource);
 
-    void decodeFFmpeg();
+    int decodeMediaInfo();
+
+    int decodeAudioFrame();
 };
 
 

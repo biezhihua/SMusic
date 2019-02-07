@@ -4,35 +4,69 @@
 
 #include "SPlayer.h"
 
-
 SPlayer::SPlayer(JavaVM *pVm, SJavaMethods *pMethods) {
-    javaVM = pVm;
-    javaMethods = pMethods;
-    sFFmpeg = new SFFmpeg();
+    pJavaVM = pVm;
+    pJavaMethods = pMethods;
+    pSFFmpeg = new SFFmpeg();
 }
 
 SPlayer::~SPlayer() {
-    javaVM = NULL;
-    javaMethods = NULL;
-    source = NULL;
-    delete sFFmpeg;
-    sFFmpeg = NULL;
+    pJavaVM = NULL;
+    pJavaMethods = NULL;
+    pSource = NULL;
+    delete pSFFmpeg;
+    pSFFmpeg = NULL;
 }
 
 void SPlayer::setSource(string *url) {
-    source = url;
-    sFFmpeg->setSource(url);
-}
-
-void *decodeFFmpeg(void *data) {
-    SPlayer *sPlayer = (SPlayer *) data;
-    if (sPlayer != NULL && sPlayer->sFFmpeg != NULL) {
-        sPlayer->sFFmpeg->decodeFFmpeg();
-        pthread_exit(&sPlayer->decodeThread);
+    pSource = url;
+    if (pSFFmpeg != NULL) {
+        pSFFmpeg->setSource(url);
     }
 }
 
+void *prepareDecodeMediaInfo(void *data) {
+    SPlayer *sPlayer = (SPlayer *) data;
+    if (sPlayer != NULL && sPlayer->getSFFmpeg() != NULL) {
+        SFFmpeg *pSFFmpeg = sPlayer->getSFFmpeg();
+        if (pSFFmpeg != NULL) {
+            int result = pSFFmpeg->decodeMediaInfo();
+            if (result >= 0) {
+                sPlayer->getSJavaMethods()->onCallJavaPrepared();
+                LOGD("prepareDecodeMediaInfo end");
+            }
+        }
+        pthread_exit(&sPlayer->prepareDecodeThread);
+    }
+}
 
 void SPlayer::prepare() {
-    pthread_create(&decodeThread, NULL, decodeFFmpeg, this);
+    pthread_create(&prepareDecodeThread, NULL, prepareDecodeMediaInfo, this);
 }
+
+void *startDecodeAudioFrame(void *data) {
+    SPlayer *sPlayer = (SPlayer *) data;
+    if (sPlayer != NULL) {
+        SFFmpeg *pSFFmpeg = sPlayer->getSFFmpeg();
+        if (pSFFmpeg != NULL) {
+            int result = pSFFmpeg->decodeAudioFrame();
+            if (result >= 0) {
+                LOGD("startDecodeAudioFrame end");
+            }
+        }
+        pthread_exit(&sPlayer->startDecodeAudioThread);
+    }
+}
+
+void SPlayer::start() {
+    pthread_create(&startDecodeAudioThread, NULL, startDecodeAudioFrame, this);
+}
+
+SFFmpeg *SPlayer::getSFFmpeg() {
+    return pSFFmpeg;
+}
+
+SJavaMethods *SPlayer::getSJavaMethods() {
+    return pJavaMethods;
+}
+

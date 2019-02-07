@@ -55,6 +55,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun playMp3(v: View) {
+        music.start()
+    }
+
+    fun prepareMp3(v: View) {
         music.setListener(object : IMusicListener {
             override fun onPrepared() {
                 Log.d(TAG, "onPrepared() called")

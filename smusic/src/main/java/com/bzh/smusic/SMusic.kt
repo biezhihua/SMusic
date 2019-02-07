@@ -24,7 +24,7 @@ class SMusic {
     }
 
     fun setDataSource(source: String) {
-        Log.d(TAG, "setDataSource() called with: source = [$source]")
+        Log.d(TAG, "setDataSource() called with: pSource = [$source]")
         this.source = source
     }
 
@@ -46,10 +46,10 @@ class SMusic {
     external fun nativeDestroy()
 
     @Keep
-    external fun nativePrepare(source: String)
+    private external fun nativePrepare(source: String)
 
     @Keep
-    external fun nativeStart()
+    private external fun nativeStart()
 
     companion object {
 

@@ -51,14 +51,18 @@ Java_com_bzh_smusic_SMusic_nativePrepare(JNIEnv *env,
 
     const char *source = env->GetStringUTFChars(source_, 0);
 
-    sPlayer->setSource(new std::string(source));
-    sPlayer->prepare();
+    if (sPlayer != NULL) {
+        sPlayer->setSource(new std::string(source));
+        sPlayer->prepare();
+    }
 
     env->ReleaseStringUTFChars(source_, source);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_SMusic_nativeStart(JNIEnv *env, jobject instance) {
 
-    // TODO
+    if (sPlayer != NULL) {
+        sPlayer->start();
+    }
 
 }

@@ -38,8 +38,8 @@ add_library(
 
         SMainJni.cpp
 
-        SAudio.cpp
-        SAudio.h
+        SMedia.cpp
+        SMedia.h
 
         SFFmpeg.cpp
         SFFmpeg.h

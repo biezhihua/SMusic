@@ -16,17 +16,20 @@ using namespace std;
 class SPlayer {
 
 private:
-    const JavaVM *javaVM = NULL;
 
-    const SJavaMethods *javaMethods = NULL;
+    JavaVM *pJavaVM = NULL;
 
-    string *source = NULL;
+    string *pSource = NULL;
+
+    SJavaMethods *pJavaMethods = NULL;
+
+    SFFmpeg *pSFFmpeg = NULL;
 
 public:
 
-    SFFmpeg *sFFmpeg = NULL;
+    pthread_t prepareDecodeThread;
 
-    pthread_t decodeThread;
+    pthread_t startDecodeAudioThread;
 
 public:
     SPlayer(JavaVM *pVm, SJavaMethods *pMethods);
@@ -36,6 +39,12 @@ public:
     void setSource(string *url);
 
     void prepare();
+
+    SFFmpeg * getSFFmpeg();
+
+    SJavaMethods* getSJavaMethods();
+
+    void start();
 };
 
 
