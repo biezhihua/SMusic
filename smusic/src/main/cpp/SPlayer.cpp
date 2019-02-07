@@ -4,12 +4,35 @@
 
 #include "SPlayer.h"
 
+
 SPlayer::SPlayer(JavaVM *pVm, SJavaMethods *pMethods) {
-    this->javaVM = pVm;
-    this->javaMethods = pMethods;
+    javaVM = pVm;
+    javaMethods = pMethods;
+    sFFmpeg = new SFFmpeg();
 }
 
 SPlayer::~SPlayer() {
-    this->javaVM = NULL;
-    this->javaMethods = NULL;
+    javaVM = NULL;
+    javaMethods = NULL;
+    source = NULL;
+    delete sFFmpeg;
+    sFFmpeg = NULL;
+}
+
+void SPlayer::setSource(string *url) {
+    source = url;
+    sFFmpeg->setSource(url);
+}
+
+void *decodeFFmpeg(void *data) {
+    SPlayer *sPlayer = (SPlayer *) data;
+    if (sPlayer != NULL && sPlayer->sFFmpeg != NULL) {
+        sPlayer->sFFmpeg->decodeFFmpeg();
+        pthread_exit(&sPlayer->decodeThread);
+    }
+}
+
+
+void SPlayer::prepare() {
+    pthread_create(&decodeThread, NULL, decodeFFmpeg, this);
 }

@@ -1,4 +1,5 @@
 #include <jni.h>
+#include <pthread.h>
 #include "SLog.h"
 #include "SPlayer.h"
 #include "SJavaMethods.h"
@@ -50,7 +51,8 @@ Java_com_bzh_smusic_SMusic_nativePrepare(JNIEnv *env,
 
     const char *source = env->GetStringUTFChars(source_, 0);
 
-    // TODO
+    sPlayer->setSource(new std::string(source));
+    sPlayer->prepare();
 
     env->ReleaseStringUTFChars(source_, source);
 }

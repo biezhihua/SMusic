@@ -3,3 +3,11 @@
 //
 
 #include "SFFmpeg.h"
+
+void SFFmpeg::setSource(string *pSource) {
+    source = new string(pSource->c_str());
+}
+
+void SFFmpeg::decodeFFmpeg() {
+
+}

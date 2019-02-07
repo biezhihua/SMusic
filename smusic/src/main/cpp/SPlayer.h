@@ -8,17 +8,34 @@
 
 #include <jni.h>
 #include "SJavaMethods.h"
+#include <string>
+#include "SFFmpeg.h"
+
+using namespace std;
 
 class SPlayer {
 
 private:
-    JavaVM *javaVM = NULL;
-    SJavaMethods *javaMethods = NULL;
+    const JavaVM *javaVM = NULL;
+
+    const SJavaMethods *javaMethods = NULL;
+
+    string *source = NULL;
 
 public:
-    SPlayer(JavaVM *vm, SJavaMethods *pMethods);
+
+    SFFmpeg *sFFmpeg = NULL;
+
+    pthread_t decodeThread;
+
+public:
+    SPlayer(JavaVM *pVm, SJavaMethods *pMethods);
 
     ~SPlayer();
+
+    void setSource(string *url);
+
+    void prepare();
 };
 
 

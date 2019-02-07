@@ -5,9 +5,19 @@
 #ifndef SMUSIC_S_FFMPEG_H
 #define SMUSIC_S_FFMPEG_H
 
+#include <string>
+
+using namespace std;
 
 class SFFmpeg {
+public:
 
+    string *source;
+public:
+
+    void setSource(string *pSource);
+
+    void decodeFFmpeg();
 };
 
 

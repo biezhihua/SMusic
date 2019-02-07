@@ -15,20 +15,12 @@ class SMusic {
         if (source == null) {
             return
         }
-        Thread {
-            kotlin.run {
-                nativePrepare(source!!)
-            }
-        }.start()
+        nativePrepare(source!!)
     }
 
     fun start() {
         Log.d(TAG, "start() called")
-        Thread {
-            kotlin.run {
-                nativeStart()
-            }
-        }.start()
+        nativeStart()
     }
 
     fun setDataSource(source: String) {

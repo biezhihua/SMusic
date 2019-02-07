@@ -6,11 +6,12 @@
 #define SMUSIC_S_JAVA_METHODS_H
 
 #include <jni.h>
+#include "SLog.h"
 
 class SJavaMethods {
 private:
     JavaVM *javaVm = NULL;
-    JNIEnv *jniEnv = NULL;
+    JNIEnv *mainJniEnv = NULL;
     jobject javaInstance = NULL;
 
 public:
@@ -18,6 +19,10 @@ public:
     SJavaMethods(JavaVM *vm, JNIEnv *pEnv, jobject pJobject);
 
     ~SJavaMethods();
+
+    void onCallJavaPrepared();
+
+    bool isMainThread();
 };
 
 

@@ -22,6 +22,12 @@ class MainActivity : AppCompatActivity() {
 //        sample_text.setOnClickListener {
 //            demo.testFFmpeg()
 //        }
+        music.nativeInit()
+    }
+
+    override fun onDestroy() {
+        music.nativeDestroy()
+        super.onDestroy()
     }
 
     fun normalThread(v: View) {
