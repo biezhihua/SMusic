@@ -20,7 +20,6 @@ SFFmpeg::~SFFmpeg() {
     pAudio = NULL;
 }
 
-
 void SFFmpeg::setSource(string *pSource) {
     this->pSource = new string(pSource->c_str());
 }
@@ -55,8 +54,9 @@ int SFFmpeg::decodeMediaInfo() {
     // AVInputFormat (if you pass NULL it'll do the auto detect)
     // and AVDictionary (which are options to the demuxer)
     // http://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#ga31d601155e9035d5b0e7efedc894ee49
-    if (avformat_open_input(&pFormatContext, pSource->c_str(), NULL, NULL) != 0) {
-        LOGE("ERROR could not open the file");
+    int result = avformat_open_input(&pFormatContext, pSource->c_str(), NULL, NULL);
+    if (result != 0) {
+        LOGE("ERROR could not open the file %d", result);
         return -1;
     }
 

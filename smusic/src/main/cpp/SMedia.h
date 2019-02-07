@@ -5,7 +5,10 @@
 #ifndef SMUSIC_S_AUDIO_H
 #define SMUSIC_S_AUDIO_H
 
-#include "../../../../ffmpeg-output/ffmpeg-x86/include/libavcodec/avcodec.h"
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+};
 #include "SQueue.h"
 
 class SMedia {
