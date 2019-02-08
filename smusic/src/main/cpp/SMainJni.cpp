@@ -23,7 +23,7 @@ JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved) {
     _javaVM = NULL;
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_SMusic_nativeInit(JNIEnv *env, jobject instance) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeInit(JNIEnv *env, jobject instance) {
 
     LOGD("nativeInit");
 
@@ -32,7 +32,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_SMusic_nativeInit(JNIEnv *
     sPlayer = new SPlayer(_javaVM, sJavaMethods);
 
 }
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_SMusic_nativeDestroy(JNIEnv *env, jobject instance) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeDestroy(JNIEnv *env, jobject instance) {
 
     LOGD("nativeDestroy");
 
@@ -45,9 +45,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_SMusic_nativeDestroy(JNIEn
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_bzh_smusic_SMusic_nativePrepare(JNIEnv *env,
-                                         jobject instance,
-                                         jstring source_) {
+Java_com_bzh_smusic_lib_SMusic_nativePrepare(JNIEnv *env,
+                                             jobject instance,
+                                             jstring source_) {
 
     const char *source = env->GetStringUTFChars(source_, 0);
 
@@ -59,7 +59,7 @@ Java_com_bzh_smusic_SMusic_nativePrepare(JNIEnv *env,
     env->ReleaseStringUTFChars(source_, source);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_SMusic_nativeStart(JNIEnv *env, jobject instance) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeStart(JNIEnv *env, jobject instance) {
 
     if (sPlayer != NULL) {
         sPlayer->start();
