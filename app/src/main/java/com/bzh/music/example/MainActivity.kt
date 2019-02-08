@@ -63,7 +63,6 @@ class MainActivity : AppCompatActivity() {
         music.setListener(object : IMusicListener {
             override fun onPrepared() {
                 Log.d(TAG, "onPrepared() called")
-                music.start()
             }
         })
         music.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")

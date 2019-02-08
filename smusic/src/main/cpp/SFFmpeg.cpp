@@ -26,10 +26,6 @@ void SFFmpeg::setSource(string *pSource) {
 
 int SFFmpeg::decodeMediaInfo() {
 
-    av_register_all();
-
-    avformat_network_init();
-
     // AVFormatContext holds the header information from the format (Container)
     // Allocating memory for this component
     // http://ffmpeg.org/doxygen/trunk/structAVFormatContext.html
@@ -82,6 +78,7 @@ int SFFmpeg::decodeMediaInfo() {
 
     // loop though all the streams and print its main information
     for (int i = 0; i < pFormatContext->nb_streams; i++) {
+
         AVCodecParameters *pLocalCodecParameters = NULL;
         pLocalCodecParameters = pFormatContext->streams[i]->codecpar;
 
@@ -100,19 +97,16 @@ int SFFmpeg::decodeMediaInfo() {
 
         LOGD("finding the proper decoder (CODEC)");
 
-        AVCodec *pLocalCodec = NULL;
-
-        // finds the registered decoder for a codec ID
-        // https://ffmpeg.org/doxygen/trunk/group__lavc__decoding.html#ga19a0ca553277f019dd5b0fec6e1f9dca
-        pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
-
-        if (pLocalCodec == NULL) {
-            LOGE("ERROR unsupported codec!");
-            return -1;
-        }
-
         // when the stream is a video we store its index, codec parameters and codec
         if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_VIDEO) {
+
+            AVCodec *pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
+
+            if (pLocalCodec == NULL) {
+                LOGE("ERROR unsupported codec!");
+                continue;
+            }
+
 
             pVideo = new SMedia(i, pLocalCodec, pLocalCodecParameters);
 
@@ -120,6 +114,13 @@ int SFFmpeg::decodeMediaInfo() {
             // print its name, id and bitrate
             LOGD("\tCodec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id, pLocalCodecParameters->bit_rate);
         } else if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_AUDIO) {
+
+            AVCodec *pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
+
+            if (pLocalCodec == NULL) {
+                LOGE("ERROR unsupported codec!");
+                continue;
+            }
 
             pAudio = new SMedia(i, pLocalCodec, pLocalCodecParameters);
 
@@ -171,16 +172,14 @@ int SFFmpeg::decodeAudioFrame() {
                 LOGD("fill the Packet with data from the Stream %d", count);
                 pAudio->putAvPacketToQueue(pPacket);
             } else {
-                av_packet_free(&pPacket);
-                av_free(pPacket);
+                LOGD("other stream index");
             }
         } else {
-            LOGE("decode finished");
             av_packet_free(&pPacket);
             av_free(pPacket);
+            LOGD("decode finished");
             break;
         }
     }
-
     return 0;
 }
