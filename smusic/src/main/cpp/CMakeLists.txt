@@ -59,4 +59,5 @@ add_library(
 target_link_libraries(
         smusic
         log
-        sffmpeg)
+        sffmpeg
+        OpenSLES)
