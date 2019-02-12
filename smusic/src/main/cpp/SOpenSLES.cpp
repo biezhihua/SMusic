@@ -106,17 +106,16 @@ void SOpenSLES::bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context
     assert(bq == bqPlayerBufferQueue);
     assert(NULL == context);
     // for streaming playback, replace this test by logic to find and fill the next buffer
-//    if (--nextCount > 0 && NULL != nextBuffer && 0 != nextSize) {
-//        SLresult result;
-//        // enqueue another buffer
-//        result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, nextBuffer, nextSize);
-//        // the most likely other result is SL_RESULT_BUFFER_INSUFFICIENT,
-//        // which for this code example would indicate a programming error
-//        if (SL_RESULT_SUCCESS != result) {
-//            pthread_mutex_unlock(&audioEngineLock);
-//        }
-//        (void) result;
-//    } else {
-//        pthread_mutex_unlock(&audioEngineLock);
-//    }
+    if (--nextCount > 0 && NULL != nextBuffer && 0 != nextSize) {
+        SLresult result;
+        // enqueue another buffer
+        result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, nextBuffer, nextSize);
+        // the most likely other result is SL_RESULT_BUFFER_INSUFFICIENT,
+        // which for this code example would indicate a programming error
+        if (SL_RESULT_SUCCESS != result) {
+            pthread_mutex_unlock(&audioEngineLock);
+        }
+    } else {
+        pthread_mutex_unlock(&audioEngineLock);
+    }
 }

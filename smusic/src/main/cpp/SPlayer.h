@@ -7,11 +7,11 @@
 
 
 #include <jni.h>
-#include "SJavaMethods.h"
 #include <string>
+#include "SJavaMethods.h"
 #include "SFFmpeg.h"
-
-using namespace std;
+#include "SPlayerStatus.h"
+#include "SError.h"
 
 class SPlayer {
 
@@ -25,11 +25,16 @@ private:
 
     SFFmpeg *pSFFmpeg = NULL;
 
+    SPlayerStatus *pPlayerStatus = NULL;
+
 public:
 
     pthread_t prepareDecodeThread;
 
     pthread_t startDecodeAudioThread;
+
+    pthread_t playThread;
+
 
 public:
     SPlayer(JavaVM *pVm, SJavaMethods *pMethods);
@@ -40,11 +45,13 @@ public:
 
     void prepare();
 
-    SFFmpeg * getSFFmpeg();
-
-    SJavaMethods* getSJavaMethods();
-
     void start();
+
+    SFFmpeg *getSFFmpeg();
+
+    SJavaMethods *getSJavaMethods();
+
+    SPlayerStatus *getPlayerStatus();
 };
 
 

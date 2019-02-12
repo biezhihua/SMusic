@@ -9,17 +9,23 @@
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
+#include <libswresample/swresample.h>
 };
 
 #include <string>
 #include "SMedia.h"
 #include "SJavaMethods.h"
+#include "SError.h"
 
 class SFFmpeg {
 private:
     AVFormatContext *pFormatContext = NULL;
     SMedia *pAudio = NULL;
     SMedia *pVideo = NULL;
+    AVPacket *pDecodePacket = NULL;
+    AVPacket *pResamplePacket = NULL;
+    AVFrame *pResampleFrame = NULL;
+    uint8_t *pBuffer = NULL;
 
 public:
     string *pSource;
@@ -35,6 +41,12 @@ public:
     int decodeMediaInfo();
 
     int decodeAudioFrame();
+
+    int resampleAudio();
+
+    SMedia *getAudio();
+
+    SMedia *getVideo();
 };
 
 

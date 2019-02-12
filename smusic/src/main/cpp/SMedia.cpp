@@ -52,3 +52,11 @@ int SMedia::getQueueSize() {
     return 0;
 }
 
+void SMedia::setCodecContext(AVCodecContext *pCodecContext) {
+    this->pCodecContext = pCodecContext;
+}
+
+AVCodecContext *SMedia::getCodecContext() {
+    return this->pCodecContext;
+}
+

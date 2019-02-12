@@ -54,6 +54,11 @@ add_library(
 
         SQueue.cpp
         SQueue.h
+
+        SError.h
+
+        SPlayerStatus.cpp
+        SPlayerStatus.h
 )
 
 target_link_libraries(

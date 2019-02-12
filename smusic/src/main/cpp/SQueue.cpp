@@ -5,7 +5,6 @@
 
 #include "SQueue.h"
 
-
 SQueue::SQueue() {
     pthread_cond_init(&condPacket, NULL);
     pthread_mutex_init(&mutexPacket, NULL);

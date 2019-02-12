@@ -34,10 +34,15 @@ private:
     //    recording is in session [not finished]
     //    user presses record button and another recording coming in
     // The action: when recording/playing back is not finished, ignore the new request
-    static pthread_mutex_t audioEngineLock = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_t audioEngineLock = PTHREAD_MUTEX_INITIALIZER;
+
+    short *nextBuffer;
+    unsigned nextSize;
+    int nextCount;
 
 private:
     void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context);
+
 public:
     SOpenSLES();
 

@@ -9,6 +9,8 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 };
+
+#include "SPlayerStatus.h"
 #include "SQueue.h"
 
 class SMedia {
@@ -18,6 +20,7 @@ private:
     AVCodec *pCodec = NULL;
     AVCodecParameters *pCodecParameters = NULL;
     SQueue *sQueue = NULL;
+    AVCodecContext *pCodecContext = NULL;
 
 public:
 
@@ -36,6 +39,10 @@ public:
     int getAvPacketFromQueue(AVPacket *pPacket);
 
     int getQueueSize();
+
+    void setCodecContext(AVCodecContext *pCodecContext);
+
+    AVCodecContext *getCodecContext();
 };
 
 

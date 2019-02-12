@@ -4,7 +4,9 @@
 
 #include "SFFmpeg.h"
 
+
 SFFmpeg::SFFmpeg() {
+    pBuffer = static_cast<uint8_t *>(av_malloc(44100 * 2 * 2));
 }
 
 SFFmpeg::~SFFmpeg() {
@@ -18,6 +20,9 @@ SFFmpeg::~SFFmpeg() {
 
     delete pAudio;
     pAudio = NULL;
+
+    av_free(pBuffer);
+    pBuffer = NULL;
 }
 
 void SFFmpeg::setSource(string *pSource) {
@@ -132,22 +137,22 @@ int SFFmpeg::decodeMediaInfo() {
 
     if (pAudio != NULL) {
         // https://ffmpeg.org/doxygen/trunk/structAVCodecContext.html
-        AVCodecContext *pCodecContext = avcodec_alloc_context3(pAudio->getCodec());
-        if (pCodecContext == NULL) {
+        pAudio->setCodecContext(avcodec_alloc_context3(pAudio->getCodec()));
+        if (pAudio->getCodecContext() == NULL) {
             LOGE("failed to allocated memory for AVCodecContext");
             return -1;
         }
 
         // Fill the codec context based on the values from the supplied codec parameters
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#gac7b282f51540ca7a99416a3ba6ee0d16
-        if (avcodec_parameters_to_context(pCodecContext, pAudio->getCodecParameters()) < 0) {
+        if (avcodec_parameters_to_context(pAudio->getCodecContext(), pAudio->getCodecParameters()) < 0) {
             LOGE("failed to copy codec params to codec context");
             return -1;
         }
 
         // Initialize the AVCodecContext to use the given AVCodec.
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#ga11f785a188d7d9df71621001465b0f1d
-        if (avcodec_open2(pCodecContext, pAudio->getCodec(), NULL) < 0) {
+        if (avcodec_open2(pAudio->getCodecContext(), pAudio->getCodec(), NULL) < 0) {
             LOGE("failed to open codec through avcodec_open2");
             return -1;
         }
@@ -156,30 +161,135 @@ int SFFmpeg::decodeMediaInfo() {
     return 0;
 }
 
-int SFFmpeg::decodeAudioFrame() {
+int count = 0;
 
+int SFFmpeg::decodeAudioFrame() {
     // https://ffmpeg.org/doxygen/trunk/structAVPacket.html
-    AVPacket *pPacket = av_packet_alloc();
-    if (!pPacket) {
+    pDecodePacket = av_packet_alloc();
+    if (!pDecodePacket) {
         LOGE("failed to allocated memory for AVPacket");
-        return -1;
+        return ERROR_BREAK;
     }
-    int count = 0;
-    while (pAudio != NULL) {
-        if (av_read_frame(pFormatContext, pPacket) == 0) {
-            if (pPacket->stream_index == pAudio->getStreamIndex()) {
-                count++;
-                LOGD("fill the Packet with data from the Stream %d", count);
-                pAudio->putAvPacketToQueue(pPacket);
-            } else {
-                LOGD("other stream index");
-            }
+    if (av_read_frame(pFormatContext, pDecodePacket) == 0) {
+        if (pDecodePacket->stream_index == pAudio->getStreamIndex()) {
+            count++;
+            LOGD("fill the Packet with data from the Stream %d", count);
+            pAudio->putAvPacketToQueue(pDecodePacket);
         } else {
-            av_packet_free(&pPacket);
-            av_free(pPacket);
-            LOGD("decode finished");
-            break;
+            LOGD("other stream index");
         }
+    } else {
+        av_packet_free(&pDecodePacket);
+        av_free(pDecodePacket);
+        LOGD("decode finished");
+        return ERROR_BREAK;
     }
-    return 0;
+
+    return SUCCESS;
+}
+
+int SFFmpeg::resampleAudio() {
+
+    pResamplePacket = av_packet_alloc();
+    if (!pResamplePacket) {
+        LOGE("failed to allocated memory for AVPacket");
+        return ERROR_BREAK;
+    }
+
+    if (pAudio == NULL) {
+        LOGE("audio is null");
+        return ERROR_BREAK;
+    }
+
+    if (pAudio->getAvPacketFromQueue(pResamplePacket) != 0) {
+        av_packet_free(&pResamplePacket);
+        av_free(pResamplePacket);
+        pResamplePacket = NULL;
+        return ERROR_CONTINUE;
+    }
+
+    int result = avcodec_send_packet(pAudio->getCodecContext(), pResamplePacket);
+
+    if (!result) {
+        return ERROR_BREAK;
+    }
+
+    pResampleFrame = av_frame_alloc();
+    result = avcodec_receive_frame(pAudio->getCodecContext(), pResampleFrame);
+    if (!result) {
+        av_packet_free(&pResamplePacket);
+        av_free(pResamplePacket);
+        pResamplePacket = NULL;
+        av_frame_free(&pResampleFrame);
+        av_free(pResampleFrame);
+        pResampleFrame = NULL;
+        return ERROR_CONTINUE;
+    } else {
+
+        // Process exception
+        if (pResampleFrame->channels > 0 && pResampleFrame->channel_layout == 0) {
+            pResampleFrame->channel_layout = (uint64_t)(av_get_default_channel_layout(
+                    pResampleFrame->channels));
+        } else if (pResampleFrame->channels == 0 && pResampleFrame->channel_layout > 0) {
+            pResampleFrame->channels = av_get_channel_layout_nb_channels(pResampleFrame->channel_layout);
+        }
+
+        SwrContext *swrContext = swr_alloc_set_opts(NULL,
+                                                    AV_CH_LAYOUT_STEREO,
+                                                    AV_SAMPLE_FMT_S16,
+                                                    pResampleFrame->sample_rate,
+                                                    pResampleFrame->channel_layout,
+                                                    (AVSampleFormat)(pResampleFrame->format),
+                                                    pResampleFrame->sample_rate,
+                                                    NULL, NULL);
+
+        if (swrContext == NULL || swr_init(swrContext) < 0) {
+            av_packet_free(&pResamplePacket);
+            av_free(pResamplePacket);
+            pResamplePacket = NULL;
+            av_frame_free(&pResampleFrame);
+            av_free(pResampleFrame);
+            pResampleFrame = NULL;
+            if (swrContext != NULL) {
+                swr_free(&swrContext);
+                swrContext = NULL;
+            }
+            return ERROR_CONTINUE;
+        }
+
+        int numbers = swr_convert(swrContext,
+                                  &pBuffer,
+                                  pResampleFrame->nb_samples,
+                                  (const uint8_t **) (pResampleFrame->data),
+                                  pResampleFrame->nb_samples);
+
+        if (numbers < 0) {
+            return ERROR_CONTINUE;
+        }
+
+        int outChannels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
+
+        int dataSize = numbers * outChannels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
+
+        av_packet_free(&pResamplePacket);
+        av_free(pResamplePacket);
+        pResamplePacket = NULL;
+        av_frame_free(&pResampleFrame);
+        av_free(pResampleFrame);
+        pResampleFrame = NULL;
+        swr_free(&swrContext);
+        swrContext = NULL;
+
+        return dataSize;
+    }
+
+    return SUCCESS;
+}
+
+SMedia *SFFmpeg::getAudio() {
+    return this->pAudio;
+}
+
+SMedia *SFFmpeg::getVideo() {
+    return this->pVideo;
 }
