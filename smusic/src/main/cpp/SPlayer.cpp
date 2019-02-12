@@ -10,13 +10,13 @@ void *startDecodeAudioFrameCallback(void *data) {
         SFFmpeg *pSFFmpeg = sPlayer->getSFFmpeg();
         SStatus *pPlayerStatus = sPlayer->getPlayerStatus();
         if (pSFFmpeg != NULL && pPlayerStatus != NULL) {
-            while (!pPlayerStatus->isExit()) {
+            while (!pPlayerStatus->isDestroy()) {
                 int result = pSFFmpeg->decodeAudioFrame();
                 if (result == SUCCESS) {
 
                 } else if (result == ERROR_BREAK) {
                     LOGE("decodeMediaInfo error");
-                    while (!pPlayerStatus->isExit()) {
+                    while (!pPlayerStatus->isDestroy()) {
                         SMedia *pAudio = pSFFmpeg->getAudio();
                         if (pAudio == NULL) {
                             break;
@@ -24,7 +24,7 @@ void *startDecodeAudioFrameCallback(void *data) {
                         if (pAudio->getQueueSize() > 0) {
                             continue;
                         } else {
-                            pPlayerStatus->changeStateToExit();
+                            // pPlayerStatus->changeStateToExit();
                             break;
                         }
                     }
@@ -60,7 +60,7 @@ void *playVideoCallback(void *data) {
         SFFmpeg *pSFFmpeg = sPlayer->getSFFmpeg();
         SStatus *pPlayerStatus = sPlayer->getPlayerStatus();
         if (pPlayerStatus != NULL && pSFFmpeg != NULL) {
-            while (!pPlayerStatus->isExit()) {
+            while (!pPlayerStatus->isDestroy()) {
                 int result = pSFFmpeg->resampleAudio();
                 if (result == ERROR_BREAK) {
                     break;

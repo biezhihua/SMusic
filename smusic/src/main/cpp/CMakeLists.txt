@@ -57,7 +57,6 @@ add_library(
 
         SError.h
 
-        SStatus.cpp
         SStatus.h
 
         SOpenSLES.cpp
