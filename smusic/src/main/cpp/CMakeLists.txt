@@ -59,6 +59,9 @@ add_library(
 
         SPlayerStatus.cpp
         SPlayerStatus.h
+
+        SOpenSLES.cpp
+        SOpenSLES.h
 )
 
 target_link_libraries(

@@ -4,7 +4,6 @@
 
 #include "SPlayer.h"
 
-
 void *startDecodeAudioFrameCallback(void *data) {
     SPlayer *sPlayer = (SPlayer *) data;
     if (sPlayer != NULL) {
@@ -64,9 +63,9 @@ void *playVideoCallback(void *data) {
             while (!pPlayerStatus->isExit()) {
                 int result = pSFFmpeg->resampleAudio();
                 if (result == ERROR_BREAK) {
-//                    break;
+                    break;
                 } else if (result == ERROR_CONTINUE) {
-//                    continue;
+                    continue;
                 } else if (result >= 0) {
 
                 }
@@ -125,5 +124,4 @@ SJavaMethods *SPlayer::getSJavaMethods() {
 SPlayerStatus *SPlayer::getPlayerStatus() {
     return pPlayerStatus;
 }
-
 

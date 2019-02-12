@@ -11,7 +11,7 @@
 
 class SOpenSLES {
 
-private:
+public:
 
     // engine interfaces
     SLObjectItf engineObject = NULL;
@@ -40,9 +40,6 @@ private:
     unsigned nextSize;
     int nextCount;
 
-private:
-    void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context);
-
 public:
     SOpenSLES();
 
@@ -51,6 +48,8 @@ public:
     void createEngine();
 
     void createBufferQueueAudioPlayer();
+
+
 };
 
 

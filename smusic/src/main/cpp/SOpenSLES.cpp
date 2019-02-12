@@ -13,6 +13,29 @@ SOpenSLES::~SOpenSLES() {
 
 }
 
+void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
+
+    SOpenSLES *pSOpenSLES = (SOpenSLES *) context;
+
+    // this callback handler is called every time a buffer finishes playing
+    assert(bq == pSOpenSLES->bqPlayerBufferQueue);
+    assert(NULL == context);
+    // for streaming playback, replace this test by logic to find and fill the next buffer
+    if (--pSOpenSLES->nextCount > 0 && NULL != pSOpenSLES->nextBuffer && 0 != pSOpenSLES->nextSize) {
+        SLresult result;
+        // enqueue another buffer
+        result = (*pSOpenSLES->bqPlayerBufferQueue)->Enqueue(pSOpenSLES->bqPlayerBufferQueue, pSOpenSLES->nextBuffer,
+                                                             pSOpenSLES->nextSize);
+        // the most likely other result is SL_RESULT_BUFFER_INSUFFICIENT,
+        // which for this code example would indicate a programming error
+        if (SL_RESULT_SUCCESS != result) {
+            pthread_mutex_unlock(&pSOpenSLES->audioEngineLock);
+        }
+    } else {
+        pthread_mutex_unlock(&pSOpenSLES->audioEngineLock);
+    }
+}
+
 void SOpenSLES::createEngine() {
 
     SLresult result;
@@ -97,25 +120,7 @@ void SOpenSLES::createBufferQueueAudioPlayer() {
     assert(SL_RESULT_SUCCESS == result);
 
     // register callback on the buffer queue
-    result = (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback, NULL);
+    result = (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback, this);
     assert(SL_RESULT_SUCCESS == result);
 }
 
-void SOpenSLES::bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
-    // this callback handler is called every time a buffer finishes playing
-    assert(bq == bqPlayerBufferQueue);
-    assert(NULL == context);
-    // for streaming playback, replace this test by logic to find and fill the next buffer
-    if (--nextCount > 0 && NULL != nextBuffer && 0 != nextSize) {
-        SLresult result;
-        // enqueue another buffer
-        result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, nextBuffer, nextSize);
-        // the most likely other result is SL_RESULT_BUFFER_INSUFFICIENT,
-        // which for this code example would indicate a programming error
-        if (SL_RESULT_SUCCESS != result) {
-            pthread_mutex_unlock(&audioEngineLock);
-        }
-    } else {
-        pthread_mutex_unlock(&audioEngineLock);
-    }
-}

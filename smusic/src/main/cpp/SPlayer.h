@@ -35,7 +35,6 @@ public:
 
     pthread_t playThread;
 
-
 public:
     SPlayer(JavaVM *pVm, SJavaMethods *pMethods);
 
