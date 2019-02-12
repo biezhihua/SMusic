@@ -8,7 +8,7 @@ void *startDecodeAudioFrameCallback(void *data) {
     SPlayer *sPlayer = (SPlayer *) data;
     if (sPlayer != NULL) {
         SFFmpeg *pSFFmpeg = sPlayer->getSFFmpeg();
-        SPlayerStatus *pPlayerStatus = sPlayer->getPlayerStatus();
+        SStatus *pPlayerStatus = sPlayer->getPlayerStatus();
         if (pSFFmpeg != NULL && pPlayerStatus != NULL) {
             while (!pPlayerStatus->isExit()) {
                 int result = pSFFmpeg->decodeAudioFrame();
@@ -58,7 +58,7 @@ void *playVideoCallback(void *data) {
     SPlayer *sPlayer = (SPlayer *) data;
     if (sPlayer != NULL && sPlayer->getSFFmpeg() != NULL) {
         SFFmpeg *pSFFmpeg = sPlayer->getSFFmpeg();
-        SPlayerStatus *pPlayerStatus = sPlayer->getPlayerStatus();
+        SStatus *pPlayerStatus = sPlayer->getPlayerStatus();
         if (pPlayerStatus != NULL && pSFFmpeg != NULL) {
             while (!pPlayerStatus->isExit()) {
                 int result = pSFFmpeg->resampleAudio();
@@ -80,7 +80,8 @@ SPlayer::SPlayer(JavaVM *pVm, SJavaMethods *pMethods) {
     pJavaVM = pVm;
     pJavaMethods = pMethods;
     pSFFmpeg = new SFFmpeg();
-    pPlayerStatus = new SPlayerStatus();
+    pPlayerStatus = new SStatus();
+    pOpenSLES = new SOpenSLES();
 }
 
 SPlayer::~SPlayer() {
@@ -91,6 +92,8 @@ SPlayer::~SPlayer() {
     pSFFmpeg = NULL;
     delete pPlayerStatus;
     pPlayerStatus = NULL;
+    delete pOpenSLES;
+    pOpenSLES = NULL;
 }
 
 void SPlayer::setSource(string *url) {
@@ -99,7 +102,6 @@ void SPlayer::setSource(string *url) {
         pSFFmpeg->setSource(url);
     }
 }
-
 
 void SPlayer::prepare() {
     pthread_create(&prepareDecodeThread, NULL, prepareDecodeMediaInfoCallback, this);
@@ -121,7 +123,7 @@ SJavaMethods *SPlayer::getSJavaMethods() {
 }
 
 
-SPlayerStatus *SPlayer::getPlayerStatus() {
+SStatus *SPlayer::getPlayerStatus() {
     return pPlayerStatus;
 }
 

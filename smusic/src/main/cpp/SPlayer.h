@@ -10,8 +10,9 @@
 #include <string>
 #include "SJavaMethods.h"
 #include "SFFmpeg.h"
-#include "SPlayerStatus.h"
+#include "SStatus.h"
 #include "SError.h"
+#include "SOpenSLES.h"
 
 class SPlayer {
 
@@ -25,7 +26,9 @@ private:
 
     SFFmpeg *pSFFmpeg = NULL;
 
-    SPlayerStatus *pPlayerStatus = NULL;
+    SStatus *pPlayerStatus = NULL;
+
+    SOpenSLES *pOpenSLES = NULL;
 
 public:
 
@@ -50,7 +53,7 @@ public:
 
     SJavaMethods *getSJavaMethods();
 
-    SPlayerStatus *getPlayerStatus();
+    SStatus *getPlayerStatus();
 };
 
 

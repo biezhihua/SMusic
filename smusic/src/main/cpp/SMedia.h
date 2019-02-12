@@ -10,7 +10,7 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 };
 
-#include "SPlayerStatus.h"
+#include "SStatus.h"
 #include "SQueue.h"
 
 class SMedia {

@@ -41,6 +41,7 @@ public:
     int nextCount;
 
 public:
+
     SOpenSLES();
 
     ~SOpenSLES();
@@ -48,7 +49,6 @@ public:
     void createEngine();
 
     void createBufferQueueAudioPlayer();
-
 
 };
 

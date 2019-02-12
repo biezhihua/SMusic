@@ -1,0 +1,66 @@
+
+
+Global Status:
+
+    Create
+
+        * Player
+
+        * JavaMethod
+
+    Destroy
+
+        * JavaMethod
+
+        * Player
+
+
+Player Status:
+
+    * Create
+
+        * Create FFmpeg
+
+        * Create OpenSLES
+
+        * onPlayerCreate();
+
+    * Start
+
+        * Init Media Info
+
+        * Start Decode Media
+
+        * Start Enqueue Buffer
+
+        * onPlayerStart();
+
+    * Play
+
+        * Continue Decode Media
+
+        * Continue Enqueue Buffer
+
+        * onPlayerPlay();
+
+    * Pause
+
+        * Pause Decode Media
+
+        * Pause Enqueue Buffer
+
+        * onPlayerPause();
+
+    * Stop
+
+        * Stop Decode Meida
+
+        * onPlayerStop();
+
+    * Destroy
+
+        * Destroy OpenSLES
+
+        * Destroy FFmpeg
+
+        * onPlayerDestroy();
