@@ -49,9 +49,13 @@ public:
 
     void setSource(string *url);
 
-    void prepare();
-
     void start();
+
+    void play();
+
+    void pause();
+
+    void stop();
 
     SFFmpeg *getSFFmpeg();
 

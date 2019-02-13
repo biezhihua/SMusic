@@ -23,7 +23,16 @@ JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved) {
     _javaVM = NULL;
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeInit(JNIEnv *env, jobject instance) {
+extern "C" JNIEXPORT void JNICALL
+Java_com_bzh_smusic_lib_SMusic_nativeSetSource(JNIEnv *env, jobject instance, jstring source_) {
+    const char *source = env->GetStringUTFChars(source_, 0);
+    if (sPlayer != NULL) {
+        sPlayer->setSource(new std::string(source));
+    }
+    env->ReleaseStringUTFChars(source_, source);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeCreate(JNIEnv *env, jobject instance) {
 
     LOGD("nativeInit");
 
@@ -32,7 +41,33 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeInit(JNIE
     sPlayer = new SPlayer(_javaVM, env, instance, sJavaMethods);
 
 }
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeRelease(JNIEnv *env, jobject instance) {
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_bzh_smusic_lib_SMusic_nativeStart(JNIEnv *env, jobject instance) {
+    if (sPlayer != NULL) {
+        sPlayer->start();
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativePlay(JNIEnv *env, jobject instance) {
+    if (sPlayer != NULL) {
+        sPlayer->play();
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativePause(JNIEnv *env, jobject instance) {
+    if (sPlayer != NULL) {
+        sPlayer->pause();
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeStop(JNIEnv *env, jobject instance) {
+    if (sPlayer != NULL) {
+        sPlayer->stop();
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeDestroy(JNIEnv *env, jobject instance) {
 
     LOGD("nativeRelease");
 
@@ -41,28 +76,5 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeRelease(J
 
     delete sJavaMethods;
     sJavaMethods = NULL;
-
-}
-
-extern "C" JNIEXPORT void JNICALL
-Java_com_bzh_smusic_lib_SMusic_nativePrepare(JNIEnv *env,
-                                             jobject instance,
-                                             jstring source_) {
-
-    const char *source = env->GetStringUTFChars(source_, 0);
-
-    if (sPlayer != NULL) {
-        sPlayer->setSource(new std::string(source));
-        sPlayer->prepare();
-    }
-
-    env->ReleaseStringUTFChars(source_, source);
-}
-
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeStart(JNIEnv *env, jobject instance) {
-
-    if (sPlayer != NULL) {
-        sPlayer->start();
-    }
 
 }

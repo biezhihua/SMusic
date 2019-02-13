@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     fun createInstance(v: View) {
         music = SMusic()
-        music?.init()
+        music?.create()
     }
 
     fun destroyInstance(v: View) {
@@ -31,23 +31,7 @@ class MainActivity : AppCompatActivity() {
         music = null
     }
 
-    fun mainThreadCallJava(v: View) {
-    }
-
-    fun subThreadCallJava(v: View) {
-    }
-
-    fun mainThreadCallStaticJava(v: View) {
-    }
-
-    fun subThreadCallStaticJava(v: View) {
-    }
-
-    fun playMp3(v: View) {
-        music?.start()
-    }
-
-    fun prepareMp3(v: View) {
+    fun prepare(v: View) {
         music?.setListener(object : IMusicListener {
             override fun onPrepared() {
                 Log.d(TAG, "onPrepared() called")
@@ -55,6 +39,12 @@ class MainActivity : AppCompatActivity() {
         })
         music?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
         music?.prepare()
+    }
+
+    fun play(v: View) {
+    }
+
+    fun stop(v: View) {
     }
 
     companion object {

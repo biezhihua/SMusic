@@ -10,7 +10,6 @@ SFFmpeg::SFFmpeg() {
 }
 
 SFFmpeg::~SFFmpeg() {
-    pFormatContext = NULL;
 
     delete pSource;
     pSource = NULL;
@@ -23,10 +22,15 @@ SFFmpeg::~SFFmpeg() {
 
     av_free(pBuffer);
     pBuffer = NULL;
+
+    avformat_free_context(pFormatContext);
+    pFormatContext = NULL;
 }
 
-void SFFmpeg::setSource(string *pSource) {
-    this->pSource = new string(pSource->c_str());
+void SFFmpeg::setSource(string *source) {
+    if (source != NULL) {
+        pSource = new string(source->c_str());
+    }
 }
 
 int SFFmpeg::decodeMediaInfo() {
@@ -228,7 +232,7 @@ int SFFmpeg::resampleAudio() {
 
         // Process exception
         if (pResampleFrame->channels > 0 && pResampleFrame->channel_layout == 0) {
-            pResampleFrame->channel_layout = (uint64_t)(av_get_default_channel_layout(
+            pResampleFrame->channel_layout = (uint64_t) (av_get_default_channel_layout(
                     pResampleFrame->channels));
         } else if (pResampleFrame->channels == 0 && pResampleFrame->channel_layout > 0) {
             pResampleFrame->channels = av_get_channel_layout_nb_channels(pResampleFrame->channel_layout);
@@ -239,7 +243,7 @@ int SFFmpeg::resampleAudio() {
                                                     AV_SAMPLE_FMT_S16,
                                                     pResampleFrame->sample_rate,
                                                     pResampleFrame->channel_layout,
-                                                    (AVSampleFormat)(pResampleFrame->format),
+                                                    (AVSampleFormat) (pResampleFrame->format),
                                                     pResampleFrame->sample_rate,
                                                     NULL, NULL);
 

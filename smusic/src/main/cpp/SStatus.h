@@ -8,13 +8,14 @@
 #include <pthread.h>
 #include "SLog.h"
 
-#define STATE_NONE  (1000 + 1)
-#define STATE_CREATE (1000 + 2)
-#define STATE_START (1000 + 2)
-#define STATE_PLAY (1000 + 3)
-#define STATE_PAUSE (1000 + 4)
-#define STATE_STOP (1000 + 5)
-#define STATE_DESTROY (1000 + 6)
+#define STATE_NONE  (1000)
+#define STATE_CREATE (STATE_NONE + 1)
+#define STATE_SOURCE (STATE_CREATE + 1)
+#define STATE_START (STATE_SOURCE + 1)
+#define STATE_PLAY (STATE_START + 1)
+#define STATE_PAUSE (STATE_PLAY + 1)
+#define STATE_STOP (STATE_PAUSE + 1)
+#define STATE_DESTROY (STATE_STOP + 1)
 
 class SStatus {
 
@@ -26,6 +27,11 @@ public:
     void moveStatusToCreate() {
         LOGD("moveStatusToCreate");
         state = STATE_CREATE;
+    }
+
+    void moveStatusToSource() {
+        LOGD("moveStatusToStart");
+        state = STATE_SOURCE;
     }
 
     void moveStatusToStart() {
@@ -61,6 +67,10 @@ public:
         return state == STATE_CREATE;
     }
 
+    bool isSource() {
+        return state == STATE_SOURCE;
+    }
+
     bool isStart() {
         return state == STATE_START;
     }
@@ -81,9 +91,11 @@ public:
         return state == STATE_DESTROY;
     }
 
-    bool isLeastState(int state) {
-
-        return this->state >= state;
+    bool isLeastActiveState(int state) {
+        if (state != NR_OPEN && state != STATE_CREATE && state != STATE_DESTROY) {
+            return this->state >= state;
+        }
+        return false;
     }
 };
 

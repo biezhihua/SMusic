@@ -73,12 +73,16 @@ void SJavaMethods::onCallJavaCreate() {
     callJava("onPlayerCreateFromNative", "()V");
 }
 
-void SJavaMethods::onCallJavaPrepared() {
-    callJava("onPlayerPrepareFromNative", "()V");
+void SJavaMethods::onCallJavaStart() {
+    callJava("onPlayerStartFromNative", "()V");
 }
 
 void SJavaMethods::onCallJavaPlay() {
     callJava("onPlayerPlayFromNative", "()V");
+}
+
+void SJavaMethods::onCallJavaPause() {
+    callJava("onPlayerPauseFromNative", "()V");
 }
 
 void SJavaMethods::onCallJavaStop() {
@@ -88,3 +92,4 @@ void SJavaMethods::onCallJavaStop() {
 void SJavaMethods::onCallJavaDestroy() {
     callJava("onPlayerDestroyFromNative", "()V");
 }
+

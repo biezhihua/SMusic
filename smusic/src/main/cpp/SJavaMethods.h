@@ -24,9 +24,11 @@ public:
 
     void onCallJavaCreate();
 
-    void onCallJavaPrepared();
+    void onCallJavaStart();
 
     void onCallJavaPlay();
+
+    void onCallJavaPause();
 
     void onCallJavaStop();
 

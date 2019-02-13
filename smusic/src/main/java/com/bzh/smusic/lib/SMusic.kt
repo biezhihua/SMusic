@@ -6,26 +6,21 @@ import com.bzh.smusic.lib.annotations.CalledByNative
 
 class SMusic {
 
-    private var source: String? = null
-
     private var listener: IMusicListener? = null
 
-    fun prepare() {
-        Log.d(TAG, "prepare() called")
-        if (source == null) {
-            return
-        }
-        nativePrepare(source!!)
-    }
-
-    fun start() {
+    fun asyncPrepare() {
         Log.d(TAG, "start() called")
         nativeStart()
     }
 
+    fun play() {
+        Log.d(TAG, "play() called")
+        nativePlay()
+    }
+
     fun setDataSource(source: String) {
         Log.d(TAG, "setDataSource() called with: pSource = [$source]")
-        this.source = source
+        nativeSetSource(source)
     }
 
     fun setListener(listener: IMusicListener) {
@@ -40,8 +35,8 @@ class SMusic {
 
     @CalledByNative
     @Keep
-    fun onPlayerPrepareFromNative() {
-        Log.d(TAG, "onPlayerPrepareFromNative() called")
+    fun onPlayerStartFromNative() {
+        Log.d(TAG, "onPlayerStartFromNative() called")
         listener?.onPrepared()
     }
 
@@ -49,6 +44,12 @@ class SMusic {
     @Keep
     fun onPlayerPlayFromNative() {
         Log.d(TAG, "onPlayerPlayFromNative() called")
+    }
+
+    @CalledByNative
+    @Keep
+    fun onPlayerPauseFromNative() {
+        Log.d(TAG, "onPlayerPauseFromNative() called")
     }
 
     @CalledByNative
@@ -63,28 +64,36 @@ class SMusic {
         Log.d(TAG, "onPlayerDestroyFromNative() called")
     }
 
-    fun init() {
-        Log.d(TAG, "init() called")
-        nativeInit()
+    fun create() {
+        Log.d(TAG, "create() called")
+        nativeCreate()
     }
-
 
     fun release() {
         Log.d(TAG, "release() called")
-        nativeRelease()
+        nativeDestroy()
     }
 
     @Keep
-    private external fun nativeInit()
+    private external fun nativeSetSource(source: String)
 
     @Keep
-    private external fun nativeRelease()
+    private external fun nativeCreate()
 
     @Keep
-    private external fun nativePrepare(source: String)
+    private external fun nativeDestroy()
 
     @Keep
     private external fun nativeStart()
+
+    @Keep
+    private external fun nativePlay()
+
+    @Keep
+    private external fun nativePause()
+
+    @Keep
+    private external fun nativeStop()
 
     companion object {
 

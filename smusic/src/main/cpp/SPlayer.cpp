@@ -43,7 +43,7 @@ void *prepareDecodeMediaInfoCallback(void *data) {
         if (pSFFmpeg != NULL) {
             int result = pSFFmpeg->decodeMediaInfo();
             if (result >= 0) {
-                sPlayer->getSJavaMethods()->onCallJavaPrepared();
+                sPlayer->getSJavaMethods()->onCallJavaStart();
                 LOGE("prepareDecodeMediaInfoCallback end");
             } else {
                 LOGE("prepareDecodeMediaInfoCallback error");
@@ -94,14 +94,14 @@ SPlayer::SPlayer(JavaVM *pVm, JNIEnv *env, jobject instance, SJavaMethods *pMeth
 SPlayer::~SPlayer() {
     pSource = NULL;
 
-//    delete pOpenSLES;
-//    pOpenSLES = NULL;
-//
-//    delete pSFFmpeg;
-//    pSFFmpeg = NULL;
-//
-//    delete pStatus;
-//    pStatus = NULL;
+    delete pOpenSLES;
+    pOpenSLES = NULL;
+
+    delete pSFFmpeg;
+    pSFFmpeg = NULL;
+
+    delete pStatus;
+    pStatus = NULL;
 
     if (pJavaMethods != NULL) {
         pJavaMethods->onCallJavaDestroy();
@@ -115,17 +115,20 @@ SPlayer::~SPlayer() {
 }
 
 void SPlayer::setSource(string *url) {
-    pSource = url;
-    if (pSFFmpeg != NULL) {
-        pSFFmpeg->setSource(url);
+    if (pStatus->isCreate() || pStatus->isStop()) {
+        pSource = url;
+        if (pSFFmpeg != NULL) {
+            pSFFmpeg->setSource(url);
+        }
+        pStatus->moveStatusToSource();
     }
 }
 
-void SPlayer::prepare() {
+void SPlayer::start() {
     pthread_create(&prepareDecodeThread, NULL, prepareDecodeMediaInfoCallback, this);
 }
 
-void SPlayer::start() {
+void SPlayer::play() {
 
     pthread_create(&startDecodeAudioThread, NULL, startDecodeAudioFrameCallback, this);
 
@@ -143,5 +146,13 @@ SJavaMethods *SPlayer::getSJavaMethods() {
 
 SStatus *SPlayer::getPlayerStatus() {
     return pStatus;
+}
+
+void SPlayer::pause() {
+
+}
+
+void SPlayer::stop() {
+
 }
 

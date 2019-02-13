@@ -26,9 +26,7 @@ private:
     AVPacket *pResamplePacket = NULL;
     AVFrame *pResampleFrame = NULL;
     uint8_t *pBuffer = NULL;
-
-public:
-    string *pSource;
+    string *pSource = NULL;
 
 public:
 
