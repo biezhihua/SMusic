@@ -63,7 +63,7 @@ bool SJavaMethods::isMainThread() {
     if (javaVm != NULL) {
         jint res = javaVm->GetEnv(reinterpret_cast<void **>(&jniEnv), JNI_VERSION_1_6);
         bool result = res != JNI_EDETACHED;
-        LOGD("isMainThread %d %d", res, result);
+        // LOGD("isMainThread %d %d", res, result);
         return result;
     }
     return false;

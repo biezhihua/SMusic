@@ -1,11 +1,9 @@
 package com.bzh.music.example
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.bzh.music.R
-import com.bzh.smusic.lib.IMusicListener
 import com.bzh.smusic.lib.SMusic
 
 class MainActivity : AppCompatActivity() {
@@ -21,30 +19,34 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    fun createInstance(v: View) {
+    fun create(v: View) {
         music = SMusic()
         music?.create()
     }
 
-    fun destroyInstance(v: View) {
-        music?.release()
-        music = null
+    fun setSource(v: View) {
+        music?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
     }
 
-    fun prepare(v: View) {
-        music?.setListener(object : IMusicListener {
-            override fun onPrepared() {
-                Log.d(TAG, "onPrepared() called")
-            }
-        })
-        music?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
-        music?.prepare()
+    fun start(v: View) {
+        music?.start()
     }
 
     fun play(v: View) {
+        music?.play()
+    }
+
+    fun pause(v: View) {
+        music?.pause()
     }
 
     fun stop(v: View) {
+        music?.stop()
+    }
+
+    fun destroy(v: View) {
+        music?.destroy()
+        music = null
     }
 
     companion object {

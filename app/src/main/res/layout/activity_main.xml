@@ -10,40 +10,36 @@
     <Button android:layout_width="match_parent"
             android:text="创建实例"
             android:layout_height="wrap_content"
-            android:onClick="createInstance"/>
+            android:onClick="create"/>
 
     <Button android:layout_width="match_parent"
             android:text="销毁实例"
             android:layout_height="wrap_content"
-            android:onClick="destroyInstance"/>
+            android:onClick="destroy"/>
 
     <Button android:layout_width="match_parent"
-            android:text="主线程调用Java"
+            android:text="设置数据源"
             android:layout_height="wrap_content"
-            android:onClick="prepare"/>
+            android:onClick="setSource"/>
 
     <Button android:layout_width="match_parent"
-            android:text="子线程调用Java"
+            android:text="开始播放"
+            android:layout_height="wrap_content"
+            android:onClick="start"/>
+
+    <Button android:layout_width="match_parent"
+            android:text="继续播放"
             android:layout_height="wrap_content"
             android:onClick="play"/>
 
     <Button android:layout_width="match_parent"
-            android:text="主线程调用Static Java"
+            android:text="暂停播放"
+            android:layout_height="wrap_content"
+            android:onClick="pause"/>
+
+    <Button android:layout_width="match_parent"
+            android:text="停止播放"
             android:layout_height="wrap_content"
             android:onClick="stop"/>
-
-    <Button android:layout_width="match_parent"
-            android:text="子线程调用Static Java"
-            android:layout_height="wrap_content"
-            android:onClick="subThreadCallStaticJava"/>
-
-    <Button android:layout_width="match_parent"
-            android:text="准备MP3"
-            android:layout_height="wrap_content"
-            android:onClick="prepareMp3"/>
-    <Button android:layout_width="match_parent"
-            android:text="播放MP3"
-            android:layout_height="wrap_content"
-            android:onClick="playMp3"/>
 
 </LinearLayout>

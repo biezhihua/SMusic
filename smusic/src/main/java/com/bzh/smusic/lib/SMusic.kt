@@ -6,9 +6,18 @@ import com.bzh.smusic.lib.annotations.CalledByNative
 
 class SMusic {
 
-    private var listener: IMusicListener? = null
+    fun create() {
+        Log.d(TAG, "create() called")
+        nativeCreate()
+    }
 
-    fun asyncPrepare() {
+    fun setDataSource(source: String) {
+        Log.d(TAG, "setDataSource() called with: pSource = [$source]")
+        nativeSetSource(source)
+    }
+
+
+    fun start() {
         Log.d(TAG, "start() called")
         nativeStart()
     }
@@ -18,14 +27,21 @@ class SMusic {
         nativePlay()
     }
 
-    fun setDataSource(source: String) {
-        Log.d(TAG, "setDataSource() called with: pSource = [$source]")
-        nativeSetSource(source)
+    fun pause() {
+        Log.d(TAG, "play() called")
+        nativePause()
     }
 
-    fun setListener(listener: IMusicListener) {
-        this.listener = listener
+    fun stop() {
+        Log.d(TAG, "stop() called")
+        nativeStop()
     }
+
+    fun destroy() {
+        Log.d(TAG, "destroy() called")
+        nativeDestroy()
+    }
+
 
     @CalledByNative
     @Keep
@@ -37,7 +53,6 @@ class SMusic {
     @Keep
     fun onPlayerStartFromNative() {
         Log.d(TAG, "onPlayerStartFromNative() called")
-        listener?.onPrepared()
     }
 
     @CalledByNative
@@ -64,15 +79,6 @@ class SMusic {
         Log.d(TAG, "onPlayerDestroyFromNative() called")
     }
 
-    fun create() {
-        Log.d(TAG, "create() called")
-        nativeCreate()
-    }
-
-    fun release() {
-        Log.d(TAG, "release() called")
-        nativeDestroy()
-    }
 
     @Keep
     private external fun nativeSetSource(source: String)
@@ -94,6 +100,7 @@ class SMusic {
 
     @Keep
     private external fun nativeStop()
+
 
     companion object {
 
