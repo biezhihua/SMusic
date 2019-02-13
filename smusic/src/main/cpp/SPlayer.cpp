@@ -24,7 +24,7 @@ void *startDecodeAudioFrameCallback(void *data) {
                         if (pAudio->getQueueSize() > 0) {
                             continue;
                         } else {
-                            // pPlayerStatus->changeStateToExit();
+                            // pStatus->changeStateToExit();
                             break;
                         }
                     }
@@ -76,24 +76,42 @@ void *playVideoCallback(void *data) {
     return NULL;
 }
 
-SPlayer::SPlayer(JavaVM *pVm, SJavaMethods *pMethods) {
+SPlayer::SPlayer(JavaVM *pVm, JNIEnv *env, jobject instance, SJavaMethods *pMethods) {
     pJavaVM = pVm;
+    mainJniEnv = env;
+    javaInstance = mainJniEnv->NewGlobalRef(instance);
     pJavaMethods = pMethods;
+
+    pStatus = new SStatus();
     pSFFmpeg = new SFFmpeg();
-    pPlayerStatus = new SStatus();
     pOpenSLES = new SOpenSLES();
+
+    if (pJavaMethods != NULL) {
+        pJavaMethods->onCallJavaCreate();
+    }
 }
 
 SPlayer::~SPlayer() {
-    pJavaVM = NULL;
-    pJavaMethods = NULL;
     pSource = NULL;
-    delete pSFFmpeg;
-    pSFFmpeg = NULL;
-    delete pPlayerStatus;
-    pPlayerStatus = NULL;
-    delete pOpenSLES;
-    pOpenSLES = NULL;
+
+//    delete pOpenSLES;
+//    pOpenSLES = NULL;
+//
+//    delete pSFFmpeg;
+//    pSFFmpeg = NULL;
+//
+//    delete pStatus;
+//    pStatus = NULL;
+
+    if (pJavaMethods != NULL) {
+        pJavaMethods->onCallJavaDestroy();
+    }
+
+    pJavaMethods = NULL;
+    mainJniEnv->DeleteGlobalRef(javaInstance);
+    javaInstance = NULL;
+    mainJniEnv = NULL;
+    pJavaVM = NULL;
 }
 
 void SPlayer::setSource(string *url) {
@@ -124,6 +142,6 @@ SJavaMethods *SPlayer::getSJavaMethods() {
 
 
 SStatus *SPlayer::getPlayerStatus() {
-    return pPlayerStatus;
+    return pStatus;
 }
 

@@ -41,7 +41,7 @@ class SMusic {
     @CalledByNative
     @Keep
     fun onPlayerPrepareFromNative() {
-        Log.d(TAG, "onPreparedCallFromNative() called")
+        Log.d(TAG, "onPlayerPrepareFromNative() called")
         listener?.onPrepared()
     }
 
@@ -54,21 +54,31 @@ class SMusic {
     @CalledByNative
     @Keep
     fun onPlayerStopFromNative() {
-        Log.d(TAG, "onPlayerPlayFromNative() called")
+        Log.d(TAG, "onPlayerStopFromNative() called")
     }
 
     @CalledByNative
     @Keep
     fun onPlayerDestroyFromNative() {
-        Log.d(TAG, "onPlayerPlayFromNative() called")
+        Log.d(TAG, "onPlayerDestroyFromNative() called")
+    }
+
+    fun init() {
+        Log.d(TAG, "init() called")
+        nativeInit()
     }
 
 
-    @Keep
-    external fun nativeInit()
+    fun release() {
+        Log.d(TAG, "release() called")
+        nativeRelease()
+    }
 
     @Keep
-    external fun nativeDestroy()
+    private external fun nativeInit()
+
+    @Keep
+    private external fun nativeRelease()
 
     @Keep
     private external fun nativePrepare(source: String)

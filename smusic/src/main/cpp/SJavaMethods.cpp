@@ -13,9 +13,10 @@ SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
 }
 
 SJavaMethods::~SJavaMethods() {
-    javaVm = NULL;
-    mainJniEnv = NULL;
+    mainJniEnv->DeleteGlobalRef(javaInstance);
     javaInstance = NULL;
+    mainJniEnv = NULL;
+    javaVm = NULL;
 }
 
 void SJavaMethods::callJava(const char *methodName, const char *methodSign) {

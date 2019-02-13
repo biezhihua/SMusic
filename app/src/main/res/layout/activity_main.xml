@@ -7,21 +7,15 @@
         android:layout_height="match_parent"
         tools:context=".example.MainActivity">
 
-    <Button
-            android:id="@+id/sample_text"
-            android:layout_width="match_parent"
+    <Button android:layout_width="match_parent"
+            android:text="创建实例"
             android:layout_height="wrap_content"
-            android:text="Hello World!"/>
+            android:onClick="createInstance"/>
 
     <Button android:layout_width="match_parent"
-            android:text="常规线程"
+            android:text="销毁实例"
             android:layout_height="wrap_content"
-            android:onClick="normalThread"/>
-
-    <Button android:layout_width="match_parent"
-            android:text="mutex线程"
-            android:layout_height="wrap_content"
-            android:onClick="mutexThread"/>
+            android:onClick="destroyInstance"/>
 
     <Button android:layout_width="match_parent"
             android:text="主线程调用Java"

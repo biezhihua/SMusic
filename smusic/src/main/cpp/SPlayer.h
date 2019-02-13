@@ -20,13 +20,17 @@ private:
 
     JavaVM *pJavaVM = NULL;
 
+    JNIEnv *mainJniEnv = NULL;
+
+    jobject javaInstance = NULL;
+
     string *pSource = NULL;
 
     SJavaMethods *pJavaMethods = NULL;
 
     SFFmpeg *pSFFmpeg = NULL;
 
-    SStatus *pPlayerStatus = NULL;
+    SStatus *pStatus = NULL;
 
     SOpenSLES *pOpenSLES = NULL;
 
@@ -39,7 +43,7 @@ public:
     pthread_t playThread;
 
 public:
-    SPlayer(JavaVM *pVm, SJavaMethods *pMethods);
+    SPlayer(JavaVM *pVm, JNIEnv *env, jobject instance, SJavaMethods *pMethods);
 
     ~SPlayer();
 

@@ -1,14 +1,14 @@
 
 
-Global Status:
+Instance Status:
 
-    Create
+    Init
 
         * Player
 
         * JavaMethod
 
-    Destroy
+    Release
 
         * JavaMethod
 

@@ -29,18 +29,18 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeInit(JNIE
 
     sJavaMethods = new SJavaMethods(_javaVM, env, instance);
 
-    sPlayer = new SPlayer(_javaVM, sJavaMethods);
+    sPlayer = new SPlayer(_javaVM, env, instance, sJavaMethods);
 
 }
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeDestroy(JNIEnv *env, jobject instance) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeRelease(JNIEnv *env, jobject instance) {
 
-    LOGD("nativeDestroy");
-
-    delete sJavaMethods;
-    sJavaMethods = NULL;
+    LOGD("nativeRelease");
 
     delete sPlayer;
     sPlayer = NULL;
+
+    delete sJavaMethods;
+    sJavaMethods = NULL;
 
 }
 
