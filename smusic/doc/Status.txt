@@ -25,35 +25,25 @@ Player Status:
 
         * onPlayerCreate();
 
-    * Start
+    * Prepare
 
         * Init Media Info
+
+        * onPlayerPrepare();
+
+    * Play
 
         * Start Decode Media
 
         * Start Enqueue Buffer
 
-        * onPlayerStart();
-
-    * Play
-
-        * Continue Decode Media
-
-        * Continue Enqueue Buffer
-
         * onPlayerPlay();
-
-    * Pause
-
-        * Pause Decode Media
-
-        * Pause Enqueue Buffer
-
-        * onPlayerPause();
 
     * Stop
 
-        * Stop Decode Meida
+        * Stop Decode Media
+
+        * Stop Enqueue Buffer
 
         * onPlayerStop();
 

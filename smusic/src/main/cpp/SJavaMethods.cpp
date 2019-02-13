@@ -18,8 +18,7 @@ SJavaMethods::~SJavaMethods() {
     javaInstance = NULL;
 }
 
-void SJavaMethods::onCallJavaPrepared() {
-
+void SJavaMethods::callJava(const char *methodName, const char *methodSign) {
     JNIEnv *jniEnv = NULL;
 
     if (isMainThread()) {
@@ -45,7 +44,7 @@ void SJavaMethods::onCallJavaPrepared() {
         return;
     }
 
-    jmethodID methodId = jniEnv->GetMethodID(clazz, "onPreparedCallFromNative", "()V");
+    jmethodID methodId = jniEnv->GetMethodID(clazz, methodName, methodSign);
 
     if (methodId == NULL) {
         return;
@@ -67,4 +66,24 @@ bool SJavaMethods::isMainThread() {
         return result;
     }
     return false;
+}
+
+void SJavaMethods::onCallJavaCreate() {
+    callJava("onPlayerCreateFromNative", "()V");
+}
+
+void SJavaMethods::onCallJavaPrepared() {
+    callJava("onPlayerPrepareFromNative", "()V");
+}
+
+void SJavaMethods::onCallJavaPlay() {
+    callJava("onPlayerPlayFromNative", "()V");
+}
+
+void SJavaMethods::onCallJavaStop() {
+    callJava("onPlayerStopFromNative", "()V");
+}
+
+void SJavaMethods::onCallJavaDestroy() {
+    callJava("onPlayerDestroyFromNative", "()V");
 }

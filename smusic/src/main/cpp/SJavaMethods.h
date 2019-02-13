@@ -14,13 +14,23 @@ private:
     JNIEnv *mainJniEnv = NULL;
     jobject javaInstance = NULL;
 
+    void callJava(const char *methodName, const char *methodSign);
+
 public:
 
     SJavaMethods(JavaVM *vm, JNIEnv *pEnv, jobject pJobject);
 
     ~SJavaMethods();
 
+    void onCallJavaCreate();
+
     void onCallJavaPrepared();
+
+    void onCallJavaPlay();
+
+    void onCallJavaStop();
+
+    void onCallJavaDestroy();
 
     bool isMainThread();
 };

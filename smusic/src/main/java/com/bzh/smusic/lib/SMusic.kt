@@ -34,10 +34,35 @@ class SMusic {
 
     @CalledByNative
     @Keep
-    fun onPreparedCallFromNative() {
+    fun onPlayerCreateFromNative() {
+        Log.d(TAG, "onPlayerCreateFromNative() called")
+    }
+
+    @CalledByNative
+    @Keep
+    fun onPlayerPrepareFromNative() {
         Log.d(TAG, "onPreparedCallFromNative() called")
         listener?.onPrepared()
     }
+
+    @CalledByNative
+    @Keep
+    fun onPlayerPlayFromNative() {
+        Log.d(TAG, "onPlayerPlayFromNative() called")
+    }
+
+    @CalledByNative
+    @Keep
+    fun onPlayerStopFromNative() {
+        Log.d(TAG, "onPlayerPlayFromNative() called")
+    }
+
+    @CalledByNative
+    @Keep
+    fun onPlayerDestroyFromNative() {
+        Log.d(TAG, "onPlayerPlayFromNative() called")
+    }
+
 
     @Keep
     external fun nativeInit()
