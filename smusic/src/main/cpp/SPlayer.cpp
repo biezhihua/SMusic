@@ -36,7 +36,7 @@ void *startDecodeAudioFrameCallback(void *data) {
     return NULL;
 }
 
-void *prepareDecodeMediaInfoCallback(void *data) {
+void *startDecodeMediaInfoCallback(void *data) {
     SPlayer *sPlayer = (SPlayer *) data;
     if (sPlayer != NULL && sPlayer->getSFFmpeg() != NULL) {
         SFFmpeg *pSFFmpeg = sPlayer->getSFFmpeg();
@@ -44,12 +44,12 @@ void *prepareDecodeMediaInfoCallback(void *data) {
             int result = pSFFmpeg->decodeMediaInfo();
             if (result >= 0) {
                 sPlayer->getSJavaMethods()->onCallJavaStart();
-                LOGE("prepareDecodeMediaInfoCallback end");
+                LOGE("startDecodeMediaInfoCallback end");
             } else {
-                LOGE("prepareDecodeMediaInfoCallback error");
+                LOGE("startDecodeMediaInfoCallback error");
             }
         }
-        pthread_exit(&sPlayer->prepareDecodeThread);
+        pthread_exit(&sPlayer->startDecodeMediaInfoThread);
     }
     return NULL;
 }
@@ -82,30 +82,12 @@ SPlayer::SPlayer(JavaVM *pVm, JNIEnv *env, jobject instance, SJavaMethods *pMeth
     javaInstance = mainJniEnv->NewGlobalRef(instance);
     pJavaMethods = pMethods;
 
-    pStatus = new SStatus();
-    pSFFmpeg = new SFFmpeg();
-    pOpenSLES = new SOpenSLES();
-
-    if (pJavaMethods != NULL) {
-        pJavaMethods->onCallJavaCreate();
-    }
+    create();
 }
 
 SPlayer::~SPlayer() {
-    pSource = NULL;
 
-    delete pOpenSLES;
-    pOpenSLES = NULL;
-
-    delete pSFFmpeg;
-    pSFFmpeg = NULL;
-
-    delete pStatus;
-    pStatus = NULL;
-
-    if (pJavaMethods != NULL) {
-        pJavaMethods->onCallJavaDestroy();
-    }
+    destroy();
 
     pJavaMethods = NULL;
     mainJniEnv->DeleteGlobalRef(javaInstance);
@@ -113,6 +95,21 @@ SPlayer::~SPlayer() {
     mainJniEnv = NULL;
     pJavaVM = NULL;
 }
+
+
+void SPlayer::create() {
+    pStatus = new SStatus();
+    pSFFmpeg = new SFFmpeg();
+    pOpenSLES = new SOpenSLES();
+
+    if (pStatus != NULL) {
+        pStatus->moveStatusToCreate();
+    }
+    if (pJavaMethods != NULL) {
+        pJavaMethods->onCallJavaCreate();
+    }
+}
+
 
 void SPlayer::setSource(string *url) {
     if (pStatus->isCreate() || pStatus->isStop()) {
@@ -125,14 +122,51 @@ void SPlayer::setSource(string *url) {
 }
 
 void SPlayer::start() {
-    pthread_create(&prepareDecodeThread, NULL, prepareDecodeMediaInfoCallback, this);
+    if (pStatus->isSource() || pStatus->isStop()) {
+        pthread_create(&startDecodeMediaInfoThread, NULL, startDecodeMediaInfoCallback, this);
+        pStatus->moveStatusToStart();
+    }
 }
 
 void SPlayer::play() {
+    if (pStatus->isPause()) {
+//        pthread_create(&startDecodeAudioThread, NULL, startDecodeAudioFrameCallback, this);
+//        pthread_create(&playThread, NULL, playVideoCallback, this);
+        pStatus->moveStatusToPlay();
+    }
+}
 
-    pthread_create(&startDecodeAudioThread, NULL, startDecodeAudioFrameCallback, this);
+void SPlayer::pause() {
+    if (pStatus->isPlay()) {
+        pStatus->moveStatusToPause();
+    }
+}
 
-    pthread_create(&playThread, NULL, playVideoCallback, this);
+void SPlayer::stop() {
+    if (pStatus->isLeastActiveState(STATE_SOURCE)) {
+        pStatus->moveStatusToStop();
+    }
+}
+
+void SPlayer::destroy() {
+    delete pOpenSLES;
+    pOpenSLES = NULL;
+
+    delete pSFFmpeg;
+    pSFFmpeg = NULL;
+
+    if (pJavaMethods != NULL) {
+        pJavaMethods->onCallJavaDestroy();
+    }
+
+    if (pStatus != NULL) {
+        pStatus->moveStatusToDestroy();
+    }
+
+    delete pStatus;
+    pStatus = NULL;
+
+    pSource = NULL;
 }
 
 SFFmpeg *SPlayer::getSFFmpeg() {
@@ -148,11 +182,4 @@ SStatus *SPlayer::getPlayerStatus() {
     return pStatus;
 }
 
-void SPlayer::pause() {
-
-}
-
-void SPlayer::stop() {
-
-}
 

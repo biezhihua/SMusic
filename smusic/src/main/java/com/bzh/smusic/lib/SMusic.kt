@@ -28,7 +28,7 @@ class SMusic {
     }
 
     fun pause() {
-        Log.d(TAG, "play() called")
+        Log.d(TAG, "pause() called")
         nativePause()
     }
 

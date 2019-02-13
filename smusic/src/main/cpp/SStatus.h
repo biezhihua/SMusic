@@ -25,37 +25,37 @@ private:
 public:
 
     void moveStatusToCreate() {
-        LOGD("moveStatusToCreate");
+        LOGD("Status: MoveStatusToCreate");
         state = STATE_CREATE;
     }
 
     void moveStatusToSource() {
-        LOGD("moveStatusToStart");
+        LOGD("Status: MoveStatusToSource");
         state = STATE_SOURCE;
     }
 
     void moveStatusToStart() {
-        LOGD("moveStatusToStart");
+        LOGD("Status: MoveStatusToStart");
         state = STATE_START;
     }
 
     void moveStatusToPlay() {
-        LOGD("moveStatusToPlay");
+        LOGD("Status: MoveStatusToPlay");
         state = STATE_PLAY;
     }
 
     void moveStatusToPause() {
-        LOGD("moveStatusToPause");
+        LOGD("Status: MoveStatusToPause");
         state = STATE_PAUSE;
     }
 
     void moveStatusToStop() {
-        LOGD("moveStatusToStop");
+        LOGD("Status: MoveStatusToStop");
         state = STATE_STOP;
     }
 
     void moveStatusToDestroy() {
-        LOGD("moveStatusToDestroy");
+        LOGD("Status: MoveStatusToDestroy");
         state = STATE_DESTROY;
     }
 

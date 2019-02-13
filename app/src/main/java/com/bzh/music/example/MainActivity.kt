@@ -15,11 +15,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
     fun create(v: View) {
+        if (music != null) {
+            music?.destroy()
+        }
         music = SMusic()
         music?.create()
     }

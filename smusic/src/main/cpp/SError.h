@@ -8,6 +8,7 @@
 #define SUCCESS 0
 #define ERROR_BREAK -10000
 #define ERROR_CONTINUE -10001
-#define ERROR -10002
+#define ERROR_INVALID -10002
+#define ERROR -10003
 
 #endif //SMUSIC_SERROR_H

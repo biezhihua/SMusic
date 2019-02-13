@@ -36,11 +36,16 @@ private:
 
 public:
 
-    pthread_t prepareDecodeThread;
+    pthread_t startDecodeMediaInfoThread;
 
     pthread_t startDecodeAudioThread;
 
     pthread_t playThread;
+
+private:
+    void create();
+
+    void destroy();
 
 public:
     SPlayer(JavaVM *pVm, JNIEnv *env, jobject instance, SJavaMethods *pMethods);
@@ -62,6 +67,7 @@ public:
     SJavaMethods *getSJavaMethods();
 
     SStatus *getPlayerStatus();
+
 };
 
 
