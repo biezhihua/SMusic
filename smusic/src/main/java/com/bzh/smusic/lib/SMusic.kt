@@ -1,9 +1,13 @@
 package com.bzh.smusic.lib
 
+import android.annotation.SuppressLint
+import android.os.Looper
 import android.util.Log
 import androidx.annotation.Keep
+import androidx.arch.core.executor.ArchTaskExecutor
 import com.bzh.smusic.lib.annotations.CalledByNative
 
+@SuppressLint("RestrictedApi")
 class SMusic {
 
     fun create() {
@@ -42,43 +46,57 @@ class SMusic {
         nativeDestroy()
     }
 
+    private fun isMainThread(): Boolean {
+        return Looper.getMainLooper().thread === Thread.currentThread()
+    }
 
     @CalledByNative
     @Keep
     fun onPlayerCreateFromNative() {
-        Log.d(TAG, "onPlayerCreateFromNative() called")
+        ArchTaskExecutor.getMainThreadExecutor().execute {
+            Log.d(TAG, "onPlayerCreateFromNative() called: isMainThread : " + isMainThread())
+        }
     }
 
     @CalledByNative
     @Keep
     fun onPlayerStartFromNative() {
-        Log.d(TAG, "onPlayerStartFromNative() called")
+        ArchTaskExecutor.getMainThreadExecutor().execute {
+            Log.d(TAG, "onPlayerStartFromNative() called: isMainThread : " + isMainThread())
+        }
     }
 
     @CalledByNative
     @Keep
     fun onPlayerPlayFromNative() {
-        Log.d(TAG, "onPlayerPlayFromNative() called")
+        ArchTaskExecutor.getMainThreadExecutor().execute {
+            Log.d(TAG, "onPlayerPlayFromNative() called: isMainThread : " + isMainThread())
+        }
     }
 
     @CalledByNative
     @Keep
     fun onPlayerPauseFromNative() {
-        Log.d(TAG, "onPlayerPauseFromNative() called")
+        ArchTaskExecutor.getMainThreadExecutor().execute {
+            Log.d(TAG, "onPlayerPauseFromNative() called: isMainThread : " + isMainThread())
+        }
     }
 
     @CalledByNative
     @Keep
     fun onPlayerStopFromNative() {
-        Log.d(TAG, "onPlayerStopFromNative() called")
+        ArchTaskExecutor.getMainThreadExecutor().execute {
+            Log.d(TAG, "onPlayerStopFromNative() called: isMainThread : " + isMainThread())
+        }
     }
 
     @CalledByNative
     @Keep
     fun onPlayerDestroyFromNative() {
-        Log.d(TAG, "onPlayerDestroyFromNative() called")
+        ArchTaskExecutor.getMainThreadExecutor().execute {
+            Log.d(TAG, "onPlayerDestroyFromNative() called: isMainThread : " + isMainThread())
+        }
     }
-
 
     @Keep
     private external fun nativeSetSource(source: String)

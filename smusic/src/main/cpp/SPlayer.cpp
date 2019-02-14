@@ -12,9 +12,9 @@ void *startDecodeAudioFrameCallback(void *data) {
         if (pSFFmpeg != NULL && pPlayerStatus != NULL) {
             while (!pPlayerStatus->isDestroy()) {
                 int result = pSFFmpeg->decodeAudioFrame();
-                if (result == SUCCESS) {
+                if (result == S_SUCCESS) {
 
-                } else if (result == ERROR_BREAK) {
+                } else if (result == S_ERROR_BREAK) {
                     LOGE("decodeMediaInfo error");
                     while (!pPlayerStatus->isDestroy()) {
                         SMedia *pAudio = pSFFmpeg->getAudio();
@@ -38,14 +38,18 @@ void *startDecodeAudioFrameCallback(void *data) {
 
 void *startDecodeMediaInfoCallback(void *data) {
     SPlayer *sPlayer = (SPlayer *) data;
-    if (sPlayer != NULL && sPlayer->getSFFmpeg() != NULL) {
-        SFFmpeg *pSFFmpeg = sPlayer->getSFFmpeg();
-        if (pSFFmpeg != NULL) {
+    if (sPlayer != NULL) {
+        if (sPlayer->getSFFmpeg() != NULL) {
+            SFFmpeg *pSFFmpeg = sPlayer->getSFFmpeg();
+            SStatus *pSStatus = sPlayer->getPlayerStatus();
             int result = pSFFmpeg->decodeMediaInfo();
-            if (result >= 0) {
+            if (result == S_SUCCESS) {
+                pSStatus->moveStatusToStart();
                 sPlayer->getSJavaMethods()->onCallJavaStart();
-                LOGE("startDecodeMediaInfoCallback end");
             } else {
+                // TODO Release
+                pSStatus->moveStatusToStop();
+                // TODO ERROR
                 LOGE("startDecodeMediaInfoCallback error");
             }
         }
@@ -62,9 +66,9 @@ void *playVideoCallback(void *data) {
         if (pPlayerStatus != NULL && pSFFmpeg != NULL) {
             while (!pPlayerStatus->isDestroy()) {
                 int result = pSFFmpeg->resampleAudio();
-                if (result == ERROR_BREAK) {
+                if (result == S_ERROR_BREAK) {
                     break;
-                } else if (result == ERROR_CONTINUE) {
+                } else if (result == S_ERROR_CONTINUE) {
                     continue;
                 } else if (result >= 0) {
 

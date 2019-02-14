@@ -22,41 +22,57 @@ class SStatus {
 private:
     int state = STATE_NONE;
 
+    pthread_mutex_t mutex;
+
 public:
 
     void moveStatusToCreate() {
         LOGD("Status: MoveStatusToCreate");
+        pthread_mutex_lock(&mutex);
         state = STATE_CREATE;
+        pthread_mutex_unlock(&mutex);
     }
 
     void moveStatusToSource() {
         LOGD("Status: MoveStatusToSource");
+        pthread_mutex_lock(&mutex);
         state = STATE_SOURCE;
+        pthread_mutex_unlock(&mutex);
     }
 
     void moveStatusToStart() {
         LOGD("Status: MoveStatusToStart");
+        pthread_mutex_lock(&mutex);
         state = STATE_START;
+        pthread_mutex_unlock(&mutex);
     }
 
     void moveStatusToPlay() {
         LOGD("Status: MoveStatusToPlay");
+        pthread_mutex_lock(&mutex);
         state = STATE_PLAY;
+        pthread_mutex_unlock(&mutex);
     }
 
     void moveStatusToPause() {
         LOGD("Status: MoveStatusToPause");
+        pthread_mutex_lock(&mutex);
         state = STATE_PAUSE;
+        pthread_mutex_unlock(&mutex);
     }
 
     void moveStatusToStop() {
         LOGD("Status: MoveStatusToStop");
+        pthread_mutex_lock(&mutex);
         state = STATE_STOP;
+        pthread_mutex_unlock(&mutex);
     }
 
     void moveStatusToDestroy() {
         LOGD("Status: MoveStatusToDestroy");
+        pthread_mutex_lock(&mutex);
         state = STATE_DESTROY;
+        pthread_mutex_unlock(&mutex);
     }
 
     bool isNone() {

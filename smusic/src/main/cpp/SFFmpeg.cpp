@@ -42,12 +42,12 @@ int SFFmpeg::decodeMediaInfo() {
 
     if (pFormatContext == NULL) {
         LOGE("decodeMediaInfo: ERROR could not allocate memory for Format Context");
-        return ERROR_INVALID;
+        return S_ERROR_INVALID;
     }
 
     if (pSource == NULL) {
         LOGE("decodeMediaInfo: ERROR source is empty");
-        return ERROR_INVALID;
+        return S_ERROR_INVALID;
     }
 
     LOGD("decodeMediaInfo: Opening the input file (%s) and loading format (container) header", pSource->c_str());
@@ -62,7 +62,7 @@ int SFFmpeg::decodeMediaInfo() {
     int result = avformat_open_input(&pFormatContext, pSource->c_str(), NULL, NULL);
     if (result != 0) {
         LOGE("decodeMediaInfo: ERROR could not open the file %d", result);
-        return ERROR_INVALID;
+        return S_ERROR_INVALID;
     }
 
     // now we have access to some information about our file
@@ -83,7 +83,7 @@ int SFFmpeg::decodeMediaInfo() {
     // https://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#gad42172e27cddafb81096939783b157bb
     if (avformat_find_stream_info(pFormatContext, NULL) < 0) {
         LOGD("decodeMediaInfo: ERROR could not get the stream info");
-        return ERROR_INVALID;
+        return S_ERROR_INVALID;
     }
 
     // loop though all the streams and print its main information
@@ -152,25 +152,25 @@ int SFFmpeg::decodeMediaInfo() {
         pAudio->setCodecContext(avcodec_alloc_context3(pAudio->getCodec()));
         if (pAudio->getCodecContext() == NULL) {
             LOGE("decodeMediaInfo: Failed to allocated memory for AVCodecContext");
-            return ERROR_INVALID;
+            return S_ERROR_INVALID;
         }
 
         // Fill the codec context based on the values from the supplied codec parameters
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#gac7b282f51540ca7a99416a3ba6ee0d16
         if (avcodec_parameters_to_context(pAudio->getCodecContext(), pAudio->getCodecParameters()) < 0) {
             LOGE("decodeMediaInfo: Failed to copy codec params to codec context");
-            return ERROR_INVALID;
+            return S_ERROR_INVALID;
         }
 
         // Initialize the AVCodecContext to use the given AVCodec.
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#ga11f785a188d7d9df71621001465b0f1d
         if (avcodec_open2(pAudio->getCodecContext(), pAudio->getCodec(), NULL) < 0) {
             LOGE("decodeMediaInfo: Failed to open codec through avcodec_open2");
-            return ERROR_INVALID;
+            return S_ERROR_INVALID;
         }
     }
 
-    return SUCCESS;
+    return S_SUCCESS;
 }
 
 int count = 0;
@@ -180,7 +180,7 @@ int SFFmpeg::decodeAudioFrame() {
     pDecodePacket = av_packet_alloc();
     if (!pDecodePacket) {
         LOGE("failed to allocated memory for AVPacket");
-        return ERROR_BREAK;
+        return S_ERROR_BREAK;
     }
     if (av_read_frame(pFormatContext, pDecodePacket) == 0) {
         if (pDecodePacket->stream_index == pAudio->getStreamIndex()) {
@@ -194,10 +194,10 @@ int SFFmpeg::decodeAudioFrame() {
         av_packet_free(&pDecodePacket);
         av_free(pDecodePacket);
         LOGD("decode finished");
-        return ERROR_BREAK;
+        return S_ERROR_BREAK;
     }
 
-    return SUCCESS;
+    return S_SUCCESS;
 }
 
 int SFFmpeg::resampleAudio() {
@@ -205,25 +205,25 @@ int SFFmpeg::resampleAudio() {
     pResamplePacket = av_packet_alloc();
     if (!pResamplePacket) {
         LOGE("failed to allocated memory for AVPacket");
-        return ERROR_BREAK;
+        return S_ERROR_BREAK;
     }
 
     if (pAudio == NULL) {
         LOGE("audio is null");
-        return ERROR_BREAK;
+        return S_ERROR_BREAK;
     }
 
     if (pAudio->getAvPacketFromQueue(pResamplePacket) != 0) {
         av_packet_free(&pResamplePacket);
         av_free(pResamplePacket);
         pResamplePacket = NULL;
-        return ERROR_CONTINUE;
+        return S_ERROR_CONTINUE;
     }
 
     int result = avcodec_send_packet(pAudio->getCodecContext(), pResamplePacket);
 
     if (!result) {
-        return ERROR_BREAK;
+        return S_ERROR_BREAK;
     }
 
     pResampleFrame = av_frame_alloc();
@@ -235,7 +235,7 @@ int SFFmpeg::resampleAudio() {
         av_frame_free(&pResampleFrame);
         av_free(pResampleFrame);
         pResampleFrame = NULL;
-        return ERROR_CONTINUE;
+        return S_ERROR_CONTINUE;
     } else {
 
         // Process exception
@@ -266,7 +266,7 @@ int SFFmpeg::resampleAudio() {
                 swr_free(&swrContext);
                 swrContext = NULL;
             }
-            return ERROR_CONTINUE;
+            return S_ERROR_CONTINUE;
         }
 
         int numbers = swr_convert(swrContext,
@@ -276,7 +276,7 @@ int SFFmpeg::resampleAudio() {
                                   pResampleFrame->nb_samples);
 
         if (numbers < 0) {
-            return ERROR_CONTINUE;
+            return S_ERROR_CONTINUE;
         }
 
         int outChannels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
@@ -295,7 +295,7 @@ int SFFmpeg::resampleAudio() {
         return dataSize;
     }
 
-    return SUCCESS;
+    return S_SUCCESS;
 }
 
 SMedia *SFFmpeg::getAudio() {
