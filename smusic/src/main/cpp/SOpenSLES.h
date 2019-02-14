@@ -8,6 +8,7 @@
 #include <string>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
+#include "SLog.h"
 
 class SOpenSLES {
 
@@ -49,6 +50,12 @@ public:
     void createEngine();
 
     void createBufferQueueAudioPlayer();
+
+    void play();
+
+    void pause();
+
+    void stop();
 
 };
 

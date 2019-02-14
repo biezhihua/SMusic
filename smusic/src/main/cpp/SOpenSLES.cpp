@@ -15,25 +15,28 @@ SOpenSLES::~SOpenSLES() {
 
 void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
 
+    LOGD("OpenSLES: bqPlayerCallback called");
+
     SOpenSLES *pSOpenSLES = (SOpenSLES *) context;
 
     // this callback handler is called every time a buffer finishes playing
     assert(bq == pSOpenSLES->bqPlayerBufferQueue);
-    assert(NULL == context);
-    // for streaming playback, replace this test by logic to find and fill the next buffer
-    if (--pSOpenSLES->nextCount > 0 && NULL != pSOpenSLES->nextBuffer && 0 != pSOpenSLES->nextSize) {
-        SLresult result;
-        // enqueue another buffer
-        result = (*pSOpenSLES->bqPlayerBufferQueue)->Enqueue(pSOpenSLES->bqPlayerBufferQueue, pSOpenSLES->nextBuffer,
-                                                             pSOpenSLES->nextSize);
-        // the most likely other result is SL_RESULT_BUFFER_INSUFFICIENT,
-        // which for this code example would indicate a programming error
-        if (SL_RESULT_SUCCESS != result) {
-            pthread_mutex_unlock(&pSOpenSLES->audioEngineLock);
-        }
-    } else {
-        pthread_mutex_unlock(&pSOpenSLES->audioEngineLock);
-    }
+    assert(NULL != context);
+
+//    // for streaming playback, replace this test by logic to find and fill the next buffer
+//    if (--pSOpenSLES->nextCount > 0 && NULL != pSOpenSLES->nextBuffer && 0 != pSOpenSLES->nextSize) {
+//        SLresult result;
+//        // enqueue another buffer
+//        result = (*pSOpenSLES->bqPlayerBufferQueue)->Enqueue(pSOpenSLES->bqPlayerBufferQueue, pSOpenSLES->nextBuffer,
+//                                                             pSOpenSLES->nextSize);
+//        // the most likely other result is SL_RESULT_BUFFER_INSUFFICIENT,
+//        // which for this code example would indicate a programming error
+//        if (SL_RESULT_SUCCESS != result) {
+//            pthread_mutex_unlock(&pSOpenSLES->audioEngineLock);
+//        }
+//    } else {
+//        pthread_mutex_unlock(&pSOpenSLES->audioEngineLock);
+//    }
 }
 
 void SOpenSLES::createEngine() {
@@ -72,7 +75,7 @@ void SOpenSLES::createEngine() {
     if (SL_RESULT_SUCCESS == result) {
         result = (*outputMixEnvironmentalReverb)->SetEnvironmentalReverbProperties(outputMixEnvironmentalReverb,
                                                                                    &reverbSettings);
-        assert(SL_RESULT_SUCCESS == result);
+        (void) result;
     }
 
     // ignore unsuccessful result codes for environmental reverb, as it is optional for this example
@@ -122,5 +125,26 @@ void SOpenSLES::createBufferQueueAudioPlayer() {
     // register callback on the buffer queue
     result = (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback, this);
     assert(SL_RESULT_SUCCESS == result);
+}
+
+void SOpenSLES::play() {
+    LOGD("OpenSLES: play");
+    if (bqPlayerPlay != NULL) {
+        (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
+    }
+}
+
+void SOpenSLES::pause() {
+    LOGD("OpenSLES: pause");
+    if (bqPlayerPlay != NULL) {
+        (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PAUSED);
+    }
+}
+
+void SOpenSLES::stop() {
+    LOGD("OpenSLES: stop");
+    if (bqPlayerPlay != NULL) {
+        (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_STOPPED);
+    }
 }
 

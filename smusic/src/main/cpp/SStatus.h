@@ -12,7 +12,8 @@
 #define STATE_CREATE (STATE_NONE + 1)
 #define STATE_SOURCE (STATE_CREATE + 1)
 #define STATE_START (STATE_SOURCE + 1)
-#define STATE_PLAY (STATE_START + 1)
+#define STATE_PRE_PLAY (STATE_START + 1)
+#define STATE_PLAY (STATE_PRE_PLAY + 1)
 #define STATE_PAUSE (STATE_PLAY + 1)
 #define STATE_STOP (STATE_PAUSE + 1)
 #define STATE_DESTROY (STATE_STOP + 1)
@@ -44,6 +45,13 @@ public:
         LOGD("Status: MoveStatusToStart");
         pthread_mutex_lock(&mutex);
         state = STATE_START;
+        pthread_mutex_unlock(&mutex);
+    }
+
+    void moveStatusToPrePlay() {
+        LOGD("Status: moveStatusToPrePlay");
+        pthread_mutex_lock(&mutex);
+        state = STATE_PRE_PLAY;
         pthread_mutex_unlock(&mutex);
     }
 

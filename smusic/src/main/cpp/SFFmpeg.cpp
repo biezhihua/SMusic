@@ -41,16 +41,16 @@ int SFFmpeg::decodeMediaInfo() {
     pFormatContext = avformat_alloc_context();
 
     if (pFormatContext == NULL) {
-        LOGE("decodeMediaInfo: ERROR could not allocate memory for Format Context");
+        LOGE("SFFmpeg: decodeMediaInfo: ERROR could not allocate memory for Format Context");
         return S_ERROR_INVALID;
     }
 
     if (pSource == NULL) {
-        LOGE("decodeMediaInfo: ERROR source is empty");
+        LOGE("SFFmpeg: decodeMediaInfo: ERROR source is empty");
         return S_ERROR_INVALID;
     }
 
-    LOGD("decodeMediaInfo: Opening the input file (%s) and loading format (container) header", pSource->c_str());
+    LOGD("SFFmpeg: decodeMediaInfo: Opening the input file (%s) and loading format (container) header", pSource->c_str());
 
     // Open the file and read its header. The codecs are not opened.
     // The function arguments are:
@@ -61,18 +61,18 @@ int SFFmpeg::decodeMediaInfo() {
     // http://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#ga31d601155e9035d5b0e7efedc894ee49
     int result = avformat_open_input(&pFormatContext, pSource->c_str(), NULL, NULL);
     if (result != 0) {
-        LOGE("decodeMediaInfo: ERROR could not open the file %d", result);
+        LOGE("SFFmpeg: decodeMediaInfo: ERROR could not open the file %d", result);
         return S_ERROR_INVALID;
     }
 
     // now we have access to some information about our file
     // since we read its header we can say what format (container) it's
     // and some other information related to the format itself.
-    LOGD("decodeMediaInfo: Format %s, duration %lld us, bit_rate %lld", pFormatContext->iformat->name,
+    LOGD("SFFmpeg: decodeMediaInfo: Format %s, duration %lld us, bit_rate %lld", pFormatContext->iformat->name,
          pFormatContext->duration,
          pFormatContext->bit_rate);
 
-    LOGD("decodeMediaInfo: Finding stream info from format");
+    LOGD("SFFmpeg: decodeMediaInfo: Finding stream info from format");
     // read Packets from the Format to get stream information
     // this function populates pFormatContext->streams
     // (of size equals to pFormatContext->nb_streams)
@@ -82,32 +82,32 @@ int SFFmpeg::decodeMediaInfo() {
     // On return each dictionary will be filled with options that were not found.
     // https://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#gad42172e27cddafb81096939783b157bb
     if (avformat_find_stream_info(pFormatContext, NULL) < 0) {
-        LOGD("decodeMediaInfo: ERROR could not get the stream info");
+        LOGD("SFFmpeg: decodeMediaInfo: ERROR could not get the stream info");
         return S_ERROR_INVALID;
     }
 
     // loop though all the streams and print its main information
     for (int i = 0; i < pFormatContext->nb_streams; i++) {
 
-        LOGD("decodeMediaInfo: ----------------------- ");
+        LOGD("SFFmpeg: decodeMediaInfo: ----------------------- ");
 
         AVCodecParameters *pLocalCodecParameters = NULL;
         pLocalCodecParameters = pFormatContext->streams[i]->codecpar;
 
-        LOGD("decodeMediaInfo: AVStream->time_base before open coded %d/%d",
+        LOGD("SFFmpeg: decodeMediaInfo: AVStream->time_base before open coded %d/%d",
              pFormatContext->streams[i]->time_base.num,
              pFormatContext->streams[i]->time_base.den);
 
-        LOGD("decodeMediaInfo: AVStream->r_frame_rate before open coded %d/%d",
+        LOGD("SFFmpeg: decodeMediaInfo: AVStream->r_frame_rate before open coded %d/%d",
              pFormatContext->streams[i]->r_frame_rate.num,
              pFormatContext->streams[i]->r_frame_rate.den);
 
-        LOGD("decodeMediaInfo: AVStream->start_time %"
+        LOGD("SFFmpeg: decodeMediaInfo: AVStream->start_time %"
                      PRId64, pFormatContext->streams[i]->start_time);
-        LOGD("decodeMediaInfo: AVStream->duration %"
+        LOGD("SFFmpeg: decodeMediaInfo: AVStream->duration %"
                      PRId64, pFormatContext->streams[i]->duration);
 
-        LOGD("decodeMediaInfo: Finding the proper decoder (CODEC)");
+        LOGD("SFFmpeg: decodeMediaInfo: Finding the proper decoder (CODEC)");
 
         // when the stream is a video we store its index, codec parameters and codec
         if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_VIDEO) {
@@ -115,16 +115,16 @@ int SFFmpeg::decodeMediaInfo() {
             AVCodec *pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
 
             if (pLocalCodec == NULL) {
-                LOGD("decodeMediaInfo: ERROR unsupported codec!");
+                LOGD("SFFmpeg: decodeMediaInfo: ERROR unsupported codec!");
                 continue;
             }
 
             pVideo = new SMedia(i, pLocalCodec, pLocalCodecParameters);
 
-            LOGD("decodeMediaInfo: Video Codec: resolution %d x %d", pLocalCodecParameters->width,
+            LOGD("SFFmpeg: decodeMediaInfo: Video Codec: resolution %d x %d", pLocalCodecParameters->width,
                  pLocalCodecParameters->height);
             // print its name, id and bitrate
-            LOGD("decodeMediaInfo: Codec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
+            LOGD("SFFmpeg: decodeMediaInfo: Codec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
                  pLocalCodecParameters->bit_rate);
 
         } else if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -132,40 +132,40 @@ int SFFmpeg::decodeMediaInfo() {
             AVCodec *pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
 
             if (pLocalCodec == NULL) {
-                LOGD("decodeMediaInfo: ERROR unsupported codec!");
+                LOGD("SFFmpeg: decodeMediaInfo: ERROR unsupported codec!");
                 continue;
             }
 
             pAudio = new SMedia(i, pLocalCodec, pLocalCodecParameters);
 
-            LOGD("decodeMediaInfo: Audio Codec: %d channels, sample rate %d", pLocalCodecParameters->channels,
+            LOGD("SFFmpeg: decodeMediaInfo: Audio Codec: %d channels, sample rate %d", pLocalCodecParameters->channels,
                  pLocalCodecParameters->sample_rate);
-            LOGD("decodeMediaInfo: Codec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
+            LOGD("SFFmpeg: decodeMediaInfo: Codec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
                  pLocalCodecParameters->bit_rate);
         }
     }
 
-    LOGD("decodeMediaInfo: ----------------------- ");
+    LOGD("SFFmpeg: decodeMediaInfo: ----------------------- ");
 
     if (pAudio != NULL) {
         // https://ffmpeg.org/doxygen/trunk/structAVCodecContext.html
         pAudio->setCodecContext(avcodec_alloc_context3(pAudio->getCodec()));
         if (pAudio->getCodecContext() == NULL) {
-            LOGE("decodeMediaInfo: Failed to allocated memory for AVCodecContext");
+            LOGE("SFFmpeg: decodeMediaInfo: Failed to allocated memory for AVCodecContext");
             return S_ERROR_INVALID;
         }
 
         // Fill the codec context based on the values from the supplied codec parameters
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#gac7b282f51540ca7a99416a3ba6ee0d16
         if (avcodec_parameters_to_context(pAudio->getCodecContext(), pAudio->getCodecParameters()) < 0) {
-            LOGE("decodeMediaInfo: Failed to copy codec params to codec context");
+            LOGE("SFFmpeg: decodeMediaInfo: Failed to copy codec params to codec context");
             return S_ERROR_INVALID;
         }
 
         // Initialize the AVCodecContext to use the given AVCodec.
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#ga11f785a188d7d9df71621001465b0f1d
         if (avcodec_open2(pAudio->getCodecContext(), pAudio->getCodec(), NULL) < 0) {
-            LOGE("decodeMediaInfo: Failed to open codec through avcodec_open2");
+            LOGE("SFFmpeg: decodeMediaInfo: Failed to open codec through avcodec_open2");
             return S_ERROR_INVALID;
         }
     }

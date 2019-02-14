@@ -63,6 +63,7 @@ class SMusic {
     fun onPlayerStartFromNative() {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerStartFromNative() called: isMainThread : " + isMainThread())
+            play()
         }
     }
 

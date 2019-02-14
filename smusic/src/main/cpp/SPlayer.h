@@ -40,7 +40,7 @@ public:
 
     pthread_t startDecodeAudioThread;
 
-    pthread_t playThread;
+    pthread_t playAudioThread;
 
 private:
     void create();
@@ -67,6 +67,8 @@ public:
     SJavaMethods *getSJavaMethods();
 
     SStatus *getPlayerStatus();
+
+    SOpenSLES * getSOpenSLES();
 
 };
 
