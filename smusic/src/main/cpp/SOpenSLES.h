@@ -51,7 +51,7 @@ public:
 
     void play();
 
-    void pause();
+    int pause();
 
     void stop();
 

@@ -112,7 +112,7 @@ public:
     }
 
     bool isPause() {
-        return state == STATE_PLAY;
+        return state == STATE_PAUSE;
     }
 
     bool isStop() {
@@ -124,7 +124,10 @@ public:
     }
 
     bool isLeastActiveState(int state) {
-        if (state != NR_OPEN && state != STATE_CREATE && state != STATE_DESTROY) {
+        if (this->state != NR_OPEN &&
+            this->state != STATE_CREATE &&
+            this->state != STATE_STOP &&
+            this->state != STATE_DESTROY) {
             return this->state >= state;
         }
         return false;

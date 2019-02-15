@@ -60,6 +60,8 @@ public:
     int getAvPacketFromQueue(AVPacket *pPacket);
 
     uint8_t *getBuffer();
+
+    void reset();
 };
 
 

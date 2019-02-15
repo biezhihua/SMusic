@@ -17,8 +17,6 @@ SOpenSLES::~SOpenSLES() {
 
 void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
 
-    LOGD("OpenSLES: bqPlayerCallback");
-
     SOpenSLES *pOpenSLES = (SOpenSLES *) context;
 
     // this callback handler is called every time a buffer finishes playing
@@ -29,7 +27,7 @@ void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
             pOpenSLES->nextSize = static_cast<unsigned int>(result);
             pOpenSLES->nextBuffer = pOpenSLES->pFFmpeg->getBuffer();
             if (pOpenSLES->nextSize != 0) {
-                LOGD("OpenSLES: bqPlayerCallback: Enqueue");
+                // LOGD("OpenSLES: bqPlayerCallback: Enqueue");
                 (*pOpenSLES->bqPlayerBufferQueue)->Enqueue(pOpenSLES->bqPlayerBufferQueue,
                                                            pOpenSLES->nextBuffer,
                                                            pOpenSLES->nextSize);
@@ -134,11 +132,13 @@ void SOpenSLES::play() {
     }
 }
 
-void SOpenSLES::pause() {
+int SOpenSLES::pause() {
     LOGD("OpenSLES: pause");
     if (bqPlayerPlay != NULL) {
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PAUSED);
+        return S_SUCCESS;
     }
+    return S_ERROR;
 }
 
 void SOpenSLES::stop() {
@@ -152,7 +152,7 @@ int SOpenSLES::resampleAudio() {
     int result = 0;
     while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
         result = pFFmpeg->resampleAudio();
-        LOGD("SOpenSLES: resampleAudio: result = %d", result);
+        // LOGD("SOpenSLES: resampleAudio: result = %d", result);
         if (result == S_ERROR_BREAK) {
             return result;
         } else if (result == S_ERROR_CONTINUE) {

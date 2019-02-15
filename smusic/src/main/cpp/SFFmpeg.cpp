@@ -7,9 +7,9 @@
 
 SFFmpeg::SFFmpeg(SStatus *pStatus) {
     this->pStatus = pStatus;
-    pBuffer = static_cast<uint8_t *>(av_malloc(44100 * 2 * 2));
-    pAudioQueue = new SQueue();
-    pVideoQueue = new SQueue();
+    this->pBuffer = static_cast<uint8_t *>(av_malloc(44100 * 2 * 2));
+    this->pAudioQueue = new SQueue();
+    this->pVideoQueue = new SQueue();
 }
 
 SFFmpeg::~SFFmpeg() {
@@ -252,7 +252,7 @@ int SFFmpeg::resampleAudio() {
         releasePacket();
         releaseFrame();
 
-        LOGE("fSFFmpeg: resampleAudio: receive frame failed");
+        LOGE("SFFmpeg: resampleAudio: receive frame failed");
 
         return S_ERROR_CONTINUE;
 
@@ -363,4 +363,13 @@ int SFFmpeg::getAvPacketFromQueue(AVPacket *pPacket) {
 
 uint8_t *SFFmpeg::getBuffer() {
     return pBuffer;
+}
+
+void SFFmpeg::reset() {
+    if (pAudioQueue != NULL) {
+        pAudioQueue->clear();
+    }
+    if (pVideoQueue != NULL) {
+        pVideoQueue->clear();
+    }
 }

@@ -20,7 +20,7 @@ int SQueue::putAvPacket(AVPacket *pPacket) {
     if (pQueuePacket != NULL && pPacket != NULL) {
         threadLock();
         pQueuePacket->push(pPacket);
-        LOGD("SQueue: putAvPacket: size = %d", pQueuePacket->size());
+        // LOGD("SQueue: putAvPacket: size = %d", pQueuePacket->size());
         pthread_cond_signal(&condPacket);
         threadUnlock();
         return S_SUCCESS;
@@ -45,13 +45,27 @@ int SQueue::getAvPacket(AVPacket *pPacket) {
     }
 }
 
-void SQueue::threadUnlock()  { pthread_mutex_unlock(&mutexPacket); }
+void SQueue::threadUnlock() { pthread_mutex_unlock(&mutexPacket); }
 
-void SQueue::threadLock()  { pthread_mutex_lock(&mutexPacket); }
+void SQueue::threadLock() { pthread_mutex_lock(&mutexPacket); }
 
 int SQueue::getSize() {
     if (pQueuePacket != NULL) {
         return pQueuePacket->size();
     }
     return 0;
+}
+
+void SQueue::clear() {
+    if (pQueuePacket != NULL) {
+        while (!pQueuePacket->empty()) {
+            AVPacket *avPacket = pQueuePacket->front();
+            if (avPacket != NULL) {
+                pQueuePacket->pop();
+                av_packet_free(&avPacket);
+                av_free(avPacket);
+                avPacket = NULL;
+            }
+        }
+    }
 }
