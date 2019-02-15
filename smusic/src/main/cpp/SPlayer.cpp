@@ -7,25 +7,22 @@
 void *startDecodeAudioFrameCallback(void *data) {
     SPlayer *sPlayer = (SPlayer *) data;
     if (sPlayer != NULL) {
-        SFFmpeg *pSFFmpeg = sPlayer->getSFFmpeg();
+        SFFmpeg *pFFmpeg = sPlayer->getSFFmpeg();
         SStatus *pPlayerStatus = sPlayer->getPlayerStatus();
-        SQueue *pAudioQueue = pSFFmpeg->getAudioQueue();
-        if (pSFFmpeg != NULL && pPlayerStatus != NULL && pAudioQueue != NULL) {
-            while (!pPlayerStatus->isDestroy()) {
-                int result = pSFFmpeg->decodeAudioFrame();
-                if (result == S_SUCCESS) {
-
-                } else if (result == S_ERROR_BREAK) {
-                    LOGE("SPlayer: decodeMediaInfo error");
-                    while (!pPlayerStatus->isDestroy()) {
-                        SMedia *pAudio = pSFFmpeg->getAudio();
+        SQueue *pAudioQueue = pFFmpeg->getAudioQueue();
+        if (pFFmpeg != NULL && pPlayerStatus != NULL && pAudioQueue != NULL) {
+            while (pPlayerStatus->isLeastActiveState(STATE_PRE_PLAY)) {
+                int result = pFFmpeg->decodeAudioFrame();
+//                LOGE("SPlayer: startDecodeAudioFrameCallback: %d", result);
+                if (result == S_ERROR_BREAK) {
+                    while (!pPlayerStatus->isLeastActiveState(STATE_PLAY)) {
+                        SMedia *pAudio = pFFmpeg->getAudio();
                         if (pAudio == NULL) {
                             break;
                         }
                         if (pAudioQueue->getSize() > 0) {
                             continue;
                         } else {
-                            // pStatus->changeStateToExit();
                             break;
                         }
                     }
@@ -63,18 +60,23 @@ void *playAudioCallback(void *data) {
     LOGD("SPlayer: playAudioCallback called");
     SPlayer *sPlayer = (SPlayer *) data;
     if (sPlayer != NULL && sPlayer->getSFFmpeg() != NULL) {
-        SFFmpeg *pSFFmpeg = sPlayer->getSFFmpeg();
+        SFFmpeg *pFFmpeg = sPlayer->getSFFmpeg();
         SStatus *pPlayerStatus = sPlayer->getPlayerStatus();
-        SOpenSLES *pSOpenSLES = sPlayer->getSOpenSLES();
+        SOpenSLES *pOpenSLES = sPlayer->getSOpenSLES();
         if (pPlayerStatus != NULL &&
-            pSFFmpeg != NULL &&
-            pSOpenSLES != NULL &&
+            pFFmpeg != NULL &&
+            pOpenSLES != NULL &&
             pPlayerStatus->isLeastActiveState(STATE_PRE_PLAY)) {
 
             LOGD("SPlayer: playAudioCallback called: Init OpenSLES");
-            pSOpenSLES->createEngine();
-            pSOpenSLES->createBufferQueueAudioPlayer();
-            pSOpenSLES->play();
+            pOpenSLES->createEngine();
+            SMedia *audio = pFFmpeg->getAudio();
+            int sampleRate = 0;
+            if (audio != NULL) {
+                sampleRate = audio->getSampleRate();
+            }
+            pOpenSLES->createBufferQueueAudioPlayer(sampleRate);
+            pOpenSLES->play();
 
             pPlayerStatus->moveStatusToPlay();
         }
@@ -106,8 +108,8 @@ SPlayer::~SPlayer() {
 
 void SPlayer::create() {
     pStatus = new SStatus();
-    pSFFmpeg = new SFFmpeg(pStatus);
-    pOpenSLES = new SOpenSLES(pSFFmpeg, pStatus);
+    pFFmpeg = new SFFmpeg(pStatus);
+    pOpenSLES = new SOpenSLES(pFFmpeg, pStatus);
 
     if (pStatus != NULL) {
         pStatus->moveStatusToCreate();
@@ -121,8 +123,8 @@ void SPlayer::create() {
 void SPlayer::setSource(string *url) {
     if (pStatus->isCreate() || pStatus->isStop()) {
         pSource = url;
-        if (pSFFmpeg != NULL) {
-            pSFFmpeg->setSource(url);
+        if (pFFmpeg != NULL) {
+            pFFmpeg->setSource(url);
         }
         pStatus->moveStatusToSource();
     }
@@ -138,8 +140,8 @@ void SPlayer::start() {
 void SPlayer::play() {
     if (pStatus->isStart() || pStatus->isPause()) {
         pStatus->moveStatusToPrePlay();
-//        pthread_create(&startDecodeAudioThread, NULL, startDecodeAudioFrameCallback, this);
         pthread_create(&playAudioThread, NULL, playAudioCallback, this);
+        pthread_create(&startDecodeAudioThread, NULL, startDecodeAudioFrameCallback, this);
     }
 }
 
@@ -147,20 +149,22 @@ void SPlayer::pause() {
     if (pStatus->isPlay()) {
         pStatus->moveStatusToPause();
     }
+    pOpenSLES->pause();
 }
 
 void SPlayer::stop() {
     if (pStatus->isLeastActiveState(STATE_SOURCE)) {
         pStatus->moveStatusToStop();
     }
+    pOpenSLES->stop();
 }
 
 void SPlayer::destroy() {
     delete pOpenSLES;
     pOpenSLES = NULL;
 
-    delete pSFFmpeg;
-    pSFFmpeg = NULL;
+    delete pFFmpeg;
+    pFFmpeg = NULL;
 
     if (pJavaMethods != NULL) {
         pJavaMethods->onCallJavaDestroy();
@@ -177,7 +181,7 @@ void SPlayer::destroy() {
 }
 
 SFFmpeg *SPlayer::getSFFmpeg() {
-    return pSFFmpeg;
+    return pFFmpeg;
 }
 
 SJavaMethods *SPlayer::getSJavaMethods() {

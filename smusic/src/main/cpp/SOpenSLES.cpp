@@ -17,23 +17,23 @@ SOpenSLES::~SOpenSLES() {
 
 void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
 
-    LOGD("OpenSLES: bqPlayerCallback called");
+    LOGD("OpenSLES: bqPlayerCallback");
 
-    SOpenSLES *pSOpenSLES = (SOpenSLES *) context;
+    SOpenSLES *pOpenSLES = (SOpenSLES *) context;
 
     // this callback handler is called every time a buffer finishes playing
-    if (pSOpenSLES != NULL && pSOpenSLES->pFFmpeg != NULL &&
-        pSOpenSLES->bqPlayerBufferQueue != NULL) {
-        int result = pSOpenSLES->resampleAudio();
+    if (pOpenSLES != NULL && pOpenSLES->pFFmpeg != NULL &&
+        pOpenSLES->bqPlayerBufferQueue != NULL) {
+        int result = pOpenSLES->resampleAudio();
         if (result >= 0) {
-            pSOpenSLES->nextSize = static_cast<unsigned int>(result);
-            if (pSOpenSLES->nextSize != 0) {
-                (*pSOpenSLES->bqPlayerBufferQueue)->Enqueue(pSOpenSLES->bqPlayerBufferQueue,
-                                                            pSOpenSLES->nextBuffer,
-                                                            pSOpenSLES->nextSize);
+            pOpenSLES->nextSize = static_cast<unsigned int>(result);
+            pOpenSLES->nextBuffer = pOpenSLES->pFFmpeg->getBuffer();
+            if (pOpenSLES->nextSize != 0) {
+                LOGD("OpenSLES: bqPlayerCallback: Enqueue");
+                (*pOpenSLES->bqPlayerBufferQueue)->Enqueue(pOpenSLES->bqPlayerBufferQueue,
+                                                           pOpenSLES->nextBuffer,
+                                                           pOpenSLES->nextSize);
             }
-        } else {
-
         }
     }
 }
@@ -80,13 +80,13 @@ void SOpenSLES::createEngine() {
     // ignore unsuccessful result codes for environmental reverb, as it is optional for this example
 }
 
-void SOpenSLES::createBufferQueueAudioPlayer() {
+void SOpenSLES::createBufferQueueAudioPlayer(int sampleRate) {
 
     SLresult result;
 
     // configure audio source
     SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
-    SLDataFormat_PCM format_pcm = {SL_DATAFORMAT_PCM, 2, SL_SAMPLINGRATE_44_1,
+    SLDataFormat_PCM format_pcm = {SL_DATAFORMAT_PCM, 2, (SLuint32) getSampleRate(sampleRate),
                                    SL_PCMSAMPLEFORMAT_FIXED_16, SL_PCMSAMPLEFORMAT_FIXED_16,
                                    SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT, SL_BYTEORDER_LITTLEENDIAN};
     /*
@@ -130,6 +130,7 @@ void SOpenSLES::play() {
     LOGD("OpenSLES: play");
     if (bqPlayerPlay != NULL) {
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
+        bqPlayerCallback(bqPlayerBufferQueue, this);
     }
 }
 
@@ -151,7 +152,7 @@ int SOpenSLES::resampleAudio() {
     int result = 0;
     while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
         result = pFFmpeg->resampleAudio();
-        LOGD("playAudioCallback result = %d", result);
+        LOGD("SOpenSLES: resampleAudio: result = %d", result);
         if (result == S_ERROR_BREAK) {
             return result;
         } else if (result == S_ERROR_CONTINUE) {
@@ -161,6 +162,54 @@ int SOpenSLES::resampleAudio() {
         }
     }
     return result;
+}
+
+int SOpenSLES::getSampleRate(int sampleRate) {
+    int rate = 0;
+    switch (sampleRate) {
+        case 8000:
+            rate = SL_SAMPLINGRATE_8;
+            break;
+        case 11025:
+            rate = SL_SAMPLINGRATE_11_025;
+            break;
+        case 12000:
+            rate = SL_SAMPLINGRATE_12;
+            break;
+        case 16000:
+            rate = SL_SAMPLINGRATE_16;
+            break;
+        case 22050:
+            rate = SL_SAMPLINGRATE_22_05;
+            break;
+        case 24000:
+            rate = SL_SAMPLINGRATE_24;
+            break;
+        case 32000:
+            rate = SL_SAMPLINGRATE_32;
+            break;
+        case 44100:
+            rate = SL_SAMPLINGRATE_44_1;
+            break;
+        case 48000:
+            rate = SL_SAMPLINGRATE_48;
+            break;
+        case 64000:
+            rate = SL_SAMPLINGRATE_64;
+            break;
+        case 88200:
+            rate = SL_SAMPLINGRATE_88_2;
+            break;
+        case 96000:
+            rate = SL_SAMPLINGRATE_96;
+            break;
+        case 192000:
+            rate = SL_SAMPLINGRATE_192;
+            break;
+        default:
+            rate = SL_SAMPLINGRATE_44_1;
+    }
+    return rate;
 }
 
 

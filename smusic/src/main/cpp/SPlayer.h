@@ -28,7 +28,7 @@ private:
 
     SJavaMethods *pJavaMethods = NULL;
 
-    SFFmpeg *pSFFmpeg = NULL;
+    SFFmpeg *pFFmpeg = NULL;
 
     SStatus *pStatus = NULL;
 

@@ -37,7 +37,7 @@ int SQueue::getAvPacket(AVPacket *pPacket) {
         av_packet_free(&avPacket);
         av_free(avPacket);
         avPacket = NULL;
-        LOGD("SQueue: getAvPacket: size = %d", pQueuePacket->size());
+        // LOGD("SQueue: getAvPacket: size = %d", pQueuePacket->size());
         return S_SUCCESS;
     } else {
         pthread_cond_wait(&condPacket, &mutexPacket);

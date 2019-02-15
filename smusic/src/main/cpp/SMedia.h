@@ -36,6 +36,8 @@ public:
     void setCodecContext(AVCodecContext *pCodecContext);
 
     AVCodecContext *getCodecContext();
+
+    int getSampleRate();
 };
 
 

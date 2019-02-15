@@ -36,9 +36,8 @@ public:
     SLPlayItf bqPlayerPlay;
     SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue;
 
-    short *nextBuffer = NULL;
+    uint8_t *nextBuffer = NULL;
     unsigned nextSize;
-    int nextCount;
 
 public:
 
@@ -48,7 +47,7 @@ public:
 
     void createEngine();
 
-    void createBufferQueueAudioPlayer();
+    void createBufferQueueAudioPlayer(int sampleRate);
 
     void play();
 
@@ -57,6 +56,8 @@ public:
     void stop();
 
     int resampleAudio();
+
+    int getSampleRate(int sampleRate);
 };
 
 

@@ -37,3 +37,10 @@ AVCodecContext *SMedia::getCodecContext() {
     return this->pCodecContext;
 }
 
+int SMedia::getSampleRate() {
+    if (pCodecParameters != NULL) {
+        return pCodecParameters->sample_rate;
+    }
+    return 0;
+}
+

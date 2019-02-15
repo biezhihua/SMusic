@@ -53,11 +53,13 @@ public:
 
     void releaseFrame();
 
-    SQueue *getAudioQueue() const;
+    SQueue *getAudioQueue();
 
-    SQueue *getPVideoQueue() const;
+    SQueue *getVideoQueue();
 
     int getAvPacketFromQueue(AVPacket *pPacket);
+
+    uint8_t *getBuffer();
 };
 
 
