@@ -42,18 +42,21 @@ int SOpenSLES::init(int sampleRate) {
     // create engine
     result = slCreateEngine(&engineObject, 0, NULL, 0, NULL, NULL);
     if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: slCreateEngine failed");
         return S_ERROR;
     }
 
     // realize the engine
     result = (*engineObject)->Realize(engineObject, SL_BOOLEAN_FALSE);
     if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: engineObject Realize failed");
         return S_ERROR;
     }
 
     // get the engine interface, which is needed in order to create other objects
     result = (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE, &engineEngine);
     if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: engineObject GetInterface engineEngine failed");
         return S_ERROR;
     }
 
@@ -62,12 +65,14 @@ int SOpenSLES::init(int sampleRate) {
     const SLboolean req[1] = {SL_BOOLEAN_FALSE};
     result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 1, ids, req);
     if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: engineEngine CreateOutputMix outputMixObject failed");
         return S_ERROR;
     }
 
     // realize the output mix
     result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
     if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: outputMixObject Realize failed");
         return S_ERROR;
     }
 
@@ -79,6 +84,7 @@ int SOpenSLES::init(int sampleRate) {
                                               SL_IID_ENVIRONMENTALREVERB,
                                               &outputMixEnvironmentalReverb);
     if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: outputMixObject GetInterface SL_IID_ENVIRONMENTALREVERB failed");
         return S_ERROR;
     }
 
@@ -108,30 +114,35 @@ int SOpenSLES::init(int sampleRate) {
     const SLboolean req2[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE,/*SL_BOOLEAN_TRUE,*/ };
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &bqPlayerObject, &audioSrc, &audioSnk, 2, ids2, req2);
     if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: engineEngine CreateAudioPlayer bqPlayerObject failed");
         return S_ERROR;
     }
 
     // realize the player
     result = (*bqPlayerObject)->Realize(bqPlayerObject, SL_BOOLEAN_FALSE);
     if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: bqPlayerObject Realize failed");
         return S_ERROR;
     }
 
     // get the play interface
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_PLAY, &bqPlayerPlay);
     if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: bqPlayerObject GetInterface SL_IID_PLAY failed");
         return S_ERROR;
     }
 
     // get the buffer queue interface
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_BUFFERQUEUE, &bqPlayerBufferQueue);
     if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: bqPlayerObject GetInterface SL_IID_BUFFERQUEUE failed");
         return S_ERROR;
     }
 
     // register callback on the buffer queue
     result = (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback, this);
     if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: bqPlayerBufferQueue RegisterCallback failed");
         return S_ERROR;
     }
 
@@ -234,6 +245,8 @@ int SOpenSLES::getSampleRate(int sampleRate) {
 }
 
 int SOpenSLES::release() {
+
+    LOGD("OpenSLES: release");
 
     if (bqPlayerObject != NULL) {
         (*bqPlayerObject)->Destroy(bqPlayerObject);

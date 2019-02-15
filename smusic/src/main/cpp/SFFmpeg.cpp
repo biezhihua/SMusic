@@ -372,6 +372,7 @@ int SFFmpeg::stop() {
 }
 
 int SFFmpeg::release() {
+    LOGD("SFFmpeg: release");
 
     if (pAudio != NULL) {
         if (pAudio->pCodecContext != NULL) {
