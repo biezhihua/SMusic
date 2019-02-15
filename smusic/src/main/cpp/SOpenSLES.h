@@ -48,15 +48,15 @@ public:
 
     ~SOpenSLES();
 
-    int createEngine();
-
-    int createBufferQueueAudioPlayer(int sampleRate);
+    int init(int sampleRate);
 
     int play();
 
     int pause();
 
     int stop();
+
+    int release();
 
     int resampleAudio();
 

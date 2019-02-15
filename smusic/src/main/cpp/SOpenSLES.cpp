@@ -35,7 +35,7 @@ void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
     }
 }
 
-int SOpenSLES::createEngine() {
+int SOpenSLES::init(int sampleRate) {
 
     SLresult result;
 
@@ -78,20 +78,11 @@ int SOpenSLES::createEngine() {
     result = (*outputMixObject)->GetInterface(outputMixObject,
                                               SL_IID_ENVIRONMENTALREVERB,
                                               &outputMixEnvironmentalReverb);
-    if (SL_RESULT_SUCCESS == result) {
-        result = (*outputMixEnvironmentalReverb)->SetEnvironmentalReverbProperties(outputMixEnvironmentalReverb,
-                                                                                   &reverbSettings);
-        return S_SUCCESS;
-    } else {
+    if (SL_RESULT_SUCCESS != result) {
         return S_ERROR;
     }
 
-    // ignore unsuccessful result codes for environmental reverb, as it is optional for this example
-}
-
-int SOpenSLES::createBufferQueueAudioPlayer(int sampleRate) {
-
-    SLresult result;
+    (*outputMixEnvironmentalReverb)->SetEnvironmentalReverbProperties(outputMixEnvironmentalReverb, &reverbSettings);
 
     // configure audio source
     SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
@@ -113,9 +104,9 @@ int SOpenSLES::createBufferQueueAudioPlayer(int sampleRate) {
      *     fast audio does not support when SL_IID_EFFECTSEND is required, skip it
      *     for fast audio case
      */
-    const SLInterfaceID ids[3] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_EFFECTSEND,/*SL_IID_MUTESOLO,*/};
-    const SLboolean req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE,/*SL_BOOLEAN_TRUE,*/ };
-    result = (*engineEngine)->CreateAudioPlayer(engineEngine, &bqPlayerObject, &audioSrc, &audioSnk, 2, ids, req);
+    const SLInterfaceID ids2[3] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_EFFECTSEND,/*SL_IID_MUTESOLO,*/};
+    const SLboolean req2[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE,/*SL_BOOLEAN_TRUE,*/ };
+    result = (*engineEngine)->CreateAudioPlayer(engineEngine, &bqPlayerObject, &audioSrc, &audioSnk, 2, ids2, req2);
     if (SL_RESULT_SUCCESS != result) {
         return S_ERROR;
     }
@@ -240,6 +231,29 @@ int SOpenSLES::getSampleRate(int sampleRate) {
             rate = SL_SAMPLINGRATE_44_1;
     }
     return rate;
+}
+
+int SOpenSLES::release() {
+
+    if (bqPlayerObject != NULL) {
+        (*bqPlayerObject)->Destroy(bqPlayerObject);
+        bqPlayerObject = NULL;
+        bqPlayerPlay = NULL;
+        bqPlayerBufferQueue = NULL;
+    }
+
+    if (outputMixObject != NULL) {
+        (*outputMixObject)->Destroy(outputMixObject);
+        outputMixObject = NULL;
+        outputMixEnvironmentalReverb = NULL;
+    }
+
+    if (engineObject != NULL) {
+        engineObject = NULL;
+        engineEngine = NULL;
+    }
+
+    return 0;
 }
 
 

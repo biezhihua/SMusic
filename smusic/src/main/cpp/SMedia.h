@@ -16,7 +16,9 @@ extern "C" {
 class SMedia {
 
 private:
+
     int streamIndex;
+public:
     AVCodec *pCodec = NULL;
     AVCodecParameters *pCodecParameters = NULL;
     AVCodecContext *pCodecContext = NULL;
@@ -32,10 +34,6 @@ public:
     AVCodecParameters *getCodecParameters();
 
     int getStreamIndex();
-
-    void setCodecContext(AVCodecContext *pCodecContext);
-
-    AVCodecContext *getCodecContext();
 
     int getSampleRate();
 };

@@ -29,6 +29,14 @@ private:
 
 public:
 
+    SStatus() {
+        pthread_mutex_init(&mutex, NULL);
+    }
+
+    ~SStatus() {
+        pthread_mutex_destroy(&mutex);
+    }
+
     void moveStatusToCreate() {
         LOGD("Status: MoveStatusToCreate");
         pthread_mutex_lock(&mutex);
@@ -144,7 +152,7 @@ public:
     }
 
     bool isLeastActiveState(int state) {
-        if (this->state != NR_OPEN &&
+        if (this->state != STATE_NONE &&
             this->state != STATE_CREATE &&
             this->state != STATE_PRE_STOP &&
             this->state != STATE_STOP &&

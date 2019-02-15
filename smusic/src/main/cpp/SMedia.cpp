@@ -29,14 +29,6 @@ int SMedia::getStreamIndex() {
     return streamIndex;
 }
 
-void SMedia::setCodecContext(AVCodecContext *pCodecContext) {
-    this->pCodecContext = pCodecContext;
-}
-
-AVCodecContext *SMedia::getCodecContext() {
-    return this->pCodecContext;
-}
-
 int SMedia::getSampleRate() {
     if (pCodecParameters != NULL) {
         return pCodecParameters->sample_rate;

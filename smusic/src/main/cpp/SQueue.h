@@ -22,8 +22,8 @@ class SQueue {
 private:
 
     queue<AVPacket *> *pQueuePacket;
-    pthread_mutex_t mutexPacket;
-    pthread_cond_t condPacket;
+    pthread_mutex_t mutexPacketMutex;
+    pthread_cond_t condPacketMutex;
 
 public:
 

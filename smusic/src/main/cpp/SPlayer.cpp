@@ -115,26 +115,18 @@ void *playAudioCallback(void *data) {
             pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
 
             LOGD("SPlayer: playAudioCallback called: Init OpenSLES");
-            int result = pOpenSLES->createEngine();
+            SMedia *audio = pFFmpeg->getAudio();
+            int sampleRate = 0;
+            if (audio != NULL) {
+                sampleRate = audio->getSampleRate();
+            }
+            int result = pOpenSLES->init(sampleRate);
             if (result == S_SUCCESS) {
-                SMedia *audio = pFFmpeg->getAudio();
-                int sampleRate = 0;
-                if (audio != NULL) {
-                    sampleRate = audio->getSampleRate();
-                }
-                result = pOpenSLES->createBufferQueueAudioPlayer(sampleRate);
-                if (result == S_SUCCESS) {
-                    pOpenSLES->play();
+                pOpenSLES->play();
 
-                    pStatus->moveStatusToPlay();
-                    if (pJavaMethods != NULL) {
-                        pJavaMethods->onCallJavaPlay();
-                    }
-                } else {
-                    if (pStatus != NULL &&
-                        pStatus->isPrePlay()) {
-                        pStatus->moveStatusToStop();
-                    }
+                pStatus->moveStatusToPlay();
+                if (pJavaMethods != NULL) {
+                    pJavaMethods->onCallJavaPlay();
                 }
             } else {
                 if (pStatus != NULL &&
@@ -259,13 +251,15 @@ void SPlayer::stop() {
     if (pStatus->isLeastActiveState(STATE_SOURCE)) {
         pStatus->moveStatusToPreStop();
         if (pOpenSLES != NULL && pFFmpeg != NULL && pStatus->isPreStop()) {
-            bool openSLESResult = pOpenSLES->stop() == S_SUCCESS;
-            bool ffmpegResult = pFFmpeg->stop() == S_SUCCESS;
-            if (openSLESResult &&
-                ffmpegResult &&
+
+            if (pOpenSLES->stop() == S_SUCCESS &&
+                pOpenSLES->release() == S_SUCCESS &&
+                pFFmpeg->stop() == S_SUCCESS &&
+                pFFmpeg->release() == S_SUCCESS &&
                 startDecodeMediaInfoThreadComplete &&
                 startDecodeAudioThreadComplete &&
                 playAudioThreadComplete) {
+
                 if (pStatus != NULL) {
                     pStatus->moveStatusToStop();
                     if (pJavaMethods != NULL) {
