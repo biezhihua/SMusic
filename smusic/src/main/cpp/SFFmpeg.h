@@ -22,15 +22,18 @@ private:
     AVFormatContext *pFormatContext = NULL;
     SMedia *pAudio = NULL;
     SMedia *pVideo = NULL;
+    SQueue *pAudioQueue = NULL;
+    SQueue *pVideoQueue = NULL;
     AVPacket *pDecodePacket = NULL;
     AVPacket *pResamplePacket = NULL;
     AVFrame *pResampleFrame = NULL;
     uint8_t *pBuffer = NULL;
     string *pSource = NULL;
+    SStatus *pStatus = NULL;
 
 public:
 
-    SFFmpeg();
+    SFFmpeg(SStatus *pStatus);
 
     ~SFFmpeg();
 
@@ -45,6 +48,16 @@ public:
     SMedia *getAudio();
 
     SMedia *getVideo();
+
+    void releasePacket();
+
+    void releaseFrame();
+
+    SQueue *getAudioQueue() const;
+
+    SQueue *getPVideoQueue() const;
+
+    int getAvPacketFromQueue(AVPacket *pPacket);
 };
 
 

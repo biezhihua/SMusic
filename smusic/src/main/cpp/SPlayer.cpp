@@ -9,7 +9,8 @@ void *startDecodeAudioFrameCallback(void *data) {
     if (sPlayer != NULL) {
         SFFmpeg *pSFFmpeg = sPlayer->getSFFmpeg();
         SStatus *pPlayerStatus = sPlayer->getPlayerStatus();
-        if (pSFFmpeg != NULL && pPlayerStatus != NULL) {
+        SQueue *pAudioQueue = pSFFmpeg->getAudioQueue();
+        if (pSFFmpeg != NULL && pPlayerStatus != NULL && pAudioQueue != NULL) {
             while (!pPlayerStatus->isDestroy()) {
                 int result = pSFFmpeg->decodeAudioFrame();
                 if (result == S_SUCCESS) {
@@ -21,7 +22,7 @@ void *startDecodeAudioFrameCallback(void *data) {
                         if (pAudio == NULL) {
                             break;
                         }
-                        if (pAudio->getQueueSize() > 0) {
+                        if (pAudioQueue->getSize() > 0) {
                             continue;
                         } else {
                             // pStatus->changeStateToExit();
@@ -70,20 +71,6 @@ void *playAudioCallback(void *data) {
             pSOpenSLES != NULL &&
             pPlayerStatus->isLeastActiveState(STATE_PRE_PLAY)) {
 
-//            while (pPlayerStatus->isLeastActiveState(STATE_PLAY)) {
-//                int result = pSFFmpeg->resampleAudio();
-//                LOGD("playAudioCallback result = %d", result);
-//                if (result == S_ERROR_BREAK) {
-//                    // TODO Release
-//                    pPlayerStatus->moveStatusToStop();
-//                    break;
-//                } else if (result == S_ERROR_CONTINUE) {
-//                    continue;
-//                } else if (result >= 0) {
-//
-//                }
-//            }
-
             LOGD("SPlayer: playAudioCallback called: Init OpenSLES");
             pSOpenSLES->createEngine();
             pSOpenSLES->createBufferQueueAudioPlayer();
@@ -119,8 +106,8 @@ SPlayer::~SPlayer() {
 
 void SPlayer::create() {
     pStatus = new SStatus();
-    pSFFmpeg = new SFFmpeg();
-    pOpenSLES = new SOpenSLES();
+    pSFFmpeg = new SFFmpeg(pStatus);
+    pOpenSLES = new SOpenSLES(pSFFmpeg, pStatus);
 
     if (pStatus != NULL) {
         pStatus->moveStatusToCreate();
@@ -143,8 +130,8 @@ void SPlayer::setSource(string *url) {
 
 void SPlayer::start() {
     if (pStatus->isSource() || pStatus->isStop()) {
+        pStatus->moveStatusToPreStart();
         pthread_create(&startDecodeMediaInfoThread, NULL, startDecodeMediaInfoCallback, this);
-        pStatus->moveStatusToStart();
     }
 }
 

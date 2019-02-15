@@ -18,18 +18,17 @@ SQueue::~SQueue() {
 
 int SQueue::putAvPacket(AVPacket *pPacket) {
     if (pQueuePacket != NULL && pPacket != NULL) {
-        pthread_mutex_lock(&mutexPacket);
+        threadLock();
         pQueuePacket->push(pPacket);
-        LOGD("put AVPacket to queue, %d", pQueuePacket->size());
+        LOGD("SQueue: putAvPacket: size = %d", pQueuePacket->size());
         pthread_cond_signal(&condPacket);
-        pthread_mutex_unlock(&mutexPacket);
-        return 0;
+        threadUnlock();
+        return S_SUCCESS;
     }
-    return -1;
+    return S_ERROR;
 }
 
 int SQueue::getAvPacket(AVPacket *pPacket) {
-    pthread_mutex_lock(&mutexPacket);
     if (pQueuePacket != NULL && pQueuePacket->size() > 0) {
         AVPacket *avPacket = pQueuePacket->front();
         if (av_packet_ref(pPacket, avPacket) == 0) {
@@ -38,13 +37,17 @@ int SQueue::getAvPacket(AVPacket *pPacket) {
         av_packet_free(&avPacket);
         av_free(avPacket);
         avPacket = NULL;
-        LOGD("get AVPacket from queue, %d", pQueuePacket->size());
+        LOGD("SQueue: getAvPacket: size = %d", pQueuePacket->size());
+        return S_SUCCESS;
     } else {
         pthread_cond_wait(&condPacket, &mutexPacket);
+        return S_ERROR_CONTINUE;
     }
-    pthread_mutex_unlock(&mutexPacket);
-    return 0;
 }
+
+void SQueue::threadUnlock()  { pthread_mutex_unlock(&mutexPacket); }
+
+void SQueue::threadLock()  { pthread_mutex_lock(&mutexPacket); }
 
 int SQueue::getSize() {
     if (pQueuePacket != NULL) {

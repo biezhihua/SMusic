@@ -13,6 +13,7 @@ extern "C" {
 #include <queue>
 #include <pthread.h>
 #include "SLog.h"
+#include "SError.h"
 
 using namespace std;
 
@@ -36,6 +37,9 @@ public:
 
     int getSize();
 
+    void threadLock();
+
+    void threadUnlock();
 };
 
 

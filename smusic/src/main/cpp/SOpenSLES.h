@@ -9,10 +9,16 @@
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include "SLog.h"
+#include "SMedia.h"
+#include "SFFmpeg.h"
 
 class SOpenSLES {
 
 public:
+
+    SFFmpeg *pFFmpeg = NULL;
+
+    SStatus *pStatus = NULL;
 
     // engine interfaces
     SLObjectItf engineObject = NULL;
@@ -29,21 +35,14 @@ public:
     SLObjectItf bqPlayerObject = NULL;
     SLPlayItf bqPlayerPlay;
     SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue;
-    // a mutext to guard against re-entrance to record & playback
-    // as well as make recording and playing back to be mutually exclusive
-    // this is to avoid crash at situations like:
-    //    recording is in session [not finished]
-    //    user presses record button and another recording coming in
-    // The action: when recording/playing back is not finished, ignore the new request
-    pthread_mutex_t audioEngineLock = PTHREAD_MUTEX_INITIALIZER;
 
-    short *nextBuffer;
+    short *nextBuffer = NULL;
     unsigned nextSize;
     int nextCount;
 
 public:
 
-    SOpenSLES();
+    SOpenSLES(SFFmpeg *pFFmpeg, SStatus *pSStatus);
 
     ~SOpenSLES();
 
@@ -57,6 +56,7 @@ public:
 
     void stop();
 
+    int resampleAudio();
 };
 
 

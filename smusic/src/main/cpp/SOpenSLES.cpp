@@ -5,12 +5,14 @@
 #include <cassert>
 #include "SOpenSLES.h"
 
-SOpenSLES::SOpenSLES() {
-
+SOpenSLES::SOpenSLES(SFFmpeg *pFFmpeg, SStatus *pStatus) {
+    this->pFFmpeg = pFFmpeg;
+    this->pStatus = pStatus;
 }
 
 SOpenSLES::~SOpenSLES() {
-
+    this->pFFmpeg = NULL;
+    this->pStatus = NULL;
 }
 
 void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
@@ -20,23 +22,20 @@ void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
     SOpenSLES *pSOpenSLES = (SOpenSLES *) context;
 
     // this callback handler is called every time a buffer finishes playing
-    assert(bq == pSOpenSLES->bqPlayerBufferQueue);
-    assert(NULL != context);
+    if (pSOpenSLES != NULL && pSOpenSLES->pFFmpeg != NULL &&
+        pSOpenSLES->bqPlayerBufferQueue != NULL) {
+        int result = pSOpenSLES->resampleAudio();
+        if (result >= 0) {
+            pSOpenSLES->nextSize = static_cast<unsigned int>(result);
+            if (pSOpenSLES->nextSize != 0) {
+                (*pSOpenSLES->bqPlayerBufferQueue)->Enqueue(pSOpenSLES->bqPlayerBufferQueue,
+                                                            pSOpenSLES->nextBuffer,
+                                                            pSOpenSLES->nextSize);
+            }
+        } else {
 
-//    // for streaming playback, replace this test by logic to find and fill the next buffer
-//    if (--pSOpenSLES->nextCount > 0 && NULL != pSOpenSLES->nextBuffer && 0 != pSOpenSLES->nextSize) {
-//        SLresult result;
-//        // enqueue another buffer
-//        result = (*pSOpenSLES->bqPlayerBufferQueue)->Enqueue(pSOpenSLES->bqPlayerBufferQueue, pSOpenSLES->nextBuffer,
-//                                                             pSOpenSLES->nextSize);
-//        // the most likely other result is SL_RESULT_BUFFER_INSUFFICIENT,
-//        // which for this code example would indicate a programming error
-//        if (SL_RESULT_SUCCESS != result) {
-//            pthread_mutex_unlock(&pSOpenSLES->audioEngineLock);
-//        }
-//    } else {
-//        pthread_mutex_unlock(&pSOpenSLES->audioEngineLock);
-//    }
+        }
+    }
 }
 
 void SOpenSLES::createEngine() {
@@ -147,4 +146,22 @@ void SOpenSLES::stop() {
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_STOPPED);
     }
 }
+
+int SOpenSLES::resampleAudio() {
+    int result = 0;
+    while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
+        result = pFFmpeg->resampleAudio();
+        LOGD("playAudioCallback result = %d", result);
+        if (result == S_ERROR_BREAK) {
+            return result;
+        } else if (result == S_ERROR_CONTINUE) {
+            continue;
+        } else if (result >= 0) {
+            return result;
+        }
+    }
+    return result;
+}
+
+
 

@@ -19,7 +19,6 @@ private:
     int streamIndex;
     AVCodec *pCodec = NULL;
     AVCodecParameters *pCodecParameters = NULL;
-    SQueue *sQueue = NULL;
     AVCodecContext *pCodecContext = NULL;
 
 public:
@@ -33,12 +32,6 @@ public:
     AVCodecParameters *getCodecParameters();
 
     int getStreamIndex();
-
-    int putAvPacketToQueue(AVPacket *pPacket);
-
-    int getAvPacketFromQueue(AVPacket *pPacket);
-
-    int getQueueSize();
 
     void setCodecContext(AVCodecContext *pCodecContext);
 
