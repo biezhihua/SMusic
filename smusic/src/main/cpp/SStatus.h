@@ -9,15 +9,16 @@
 #include "SLog.h"
 
 #define STATE_NONE  (1000)
-#define STATE_CREATE (STATE_NONE + 1)
-#define STATE_SOURCE (STATE_CREATE + 1)
-#define STATE_PRE_START (STATE_SOURCE + 1)
-#define STATE_START (STATE_PRE_START + 1)
-#define STATE_PRE_PLAY (STATE_START + 1)
-#define STATE_PLAY (STATE_PRE_PLAY + 1)
-#define STATE_PAUSE (STATE_PLAY + 1)
-#define STATE_STOP (STATE_PAUSE + 1)
-#define STATE_DESTROY (STATE_STOP + 1)
+#define STATE_CREATE (1001)
+#define STATE_SOURCE (1002)
+#define STATE_PRE_START (1003)
+#define STATE_START (1004)
+#define STATE_PRE_PLAY (1005)
+#define STATE_PLAY (1006)
+#define STATE_PAUSE (1007)
+#define STATE_PRE_STOP (1008)
+#define STATE_STOP (1009)
+#define STATE_DESTROY (1010)
 
 class SStatus {
 
@@ -77,6 +78,13 @@ public:
         pthread_mutex_unlock(&mutex);
     }
 
+    void moveStatusToPreStop() {
+        LOGD("Status: MoveStatusToPreStop");
+        pthread_mutex_lock(&mutex);
+        state = STATE_PRE_STOP;
+        pthread_mutex_unlock(&mutex);
+    }
+
     void moveStatusToStop() {
         LOGD("Status: MoveStatusToStop");
         pthread_mutex_lock(&mutex);
@@ -107,8 +115,16 @@ public:
         return state == STATE_START;
     }
 
+    bool isPreStart() {
+        return state == STATE_PRE_START;
+    }
+
     bool isPlay() {
         return state == STATE_PLAY;
+    }
+
+    bool isPrePlay() {
+        return state == STATE_PRE_PLAY;
     }
 
     bool isPause() {
@@ -119,6 +135,10 @@ public:
         return state == STATE_STOP;
     }
 
+    bool isPreStop() {
+        return state == STATE_PRE_STOP;
+    }
+
     bool isDestroy() {
         return state == STATE_DESTROY;
     }
@@ -126,6 +146,7 @@ public:
     bool isLeastActiveState(int state) {
         if (this->state != NR_OPEN &&
             this->state != STATE_CREATE &&
+            this->state != STATE_PRE_STOP &&
             this->state != STATE_STOP &&
             this->state != STATE_DESTROY) {
             return this->state >= state;

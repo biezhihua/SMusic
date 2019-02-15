@@ -13,6 +13,7 @@
 #include "SStatus.h"
 #include "SError.h"
 #include "SOpenSLES.h"
+#include <pthread.h>
 
 class SPlayer {
 
@@ -34,7 +35,14 @@ private:
 
     SOpenSLES *pOpenSLES = NULL;
 
+
 public:
+
+    bool startDecodeMediaInfoThreadComplete = false;
+
+    bool startDecodeAudioThreadComplete = false;
+
+    bool playAudioThreadComplete = false;
 
     pthread_t startDecodeMediaInfoThread;
 
@@ -68,7 +76,7 @@ public:
 
     SStatus *getPlayerStatus();
 
-    SOpenSLES * getSOpenSLES();
+    SOpenSLES *getSOpenSLES();
 
 };
 

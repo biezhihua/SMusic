@@ -61,7 +61,7 @@ public:
 
     uint8_t *getBuffer();
 
-    void reset();
+    int stop();
 };
 
 

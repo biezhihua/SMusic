@@ -365,11 +365,12 @@ uint8_t *SFFmpeg::getBuffer() {
     return pBuffer;
 }
 
-void SFFmpeg::reset() {
+int SFFmpeg::stop() {
     if (pAudioQueue != NULL) {
         pAudioQueue->clear();
     }
     if (pVideoQueue != NULL) {
         pVideoQueue->clear();
     }
+    return S_SUCCESS;
 }

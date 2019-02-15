@@ -11,10 +11,13 @@
 #include "SLog.h"
 #include "SMedia.h"
 #include "SFFmpeg.h"
+#include <pthread.h>
 
 class SOpenSLES {
 
 public:
+
+    int state = SL_PLAYSTATE_STOPPED;
 
     SFFmpeg *pFFmpeg = NULL;
 
@@ -45,15 +48,15 @@ public:
 
     ~SOpenSLES();
 
-    void createEngine();
+    int createEngine();
 
-    void createBufferQueueAudioPlayer(int sampleRate);
+    int createBufferQueueAudioPlayer(int sampleRate);
 
-    void play();
+    int play();
 
     int pause();
 
-    void stop();
+    int stop();
 
     int resampleAudio();
 

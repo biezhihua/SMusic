@@ -2,7 +2,6 @@
 // Created by biezhihua on 2019/2/11.
 //
 
-#include <cassert>
 #include "SOpenSLES.h"
 
 SOpenSLES::SOpenSLES(SFFmpeg *pFFmpeg, SStatus *pStatus) {
@@ -36,31 +35,41 @@ void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
     }
 }
 
-void SOpenSLES::createEngine() {
+int SOpenSLES::createEngine() {
 
     SLresult result;
 
     // create engine
     result = slCreateEngine(&engineObject, 0, NULL, 0, NULL, NULL);
-    assert(SL_RESULT_SUCCESS == result);
+    if (SL_RESULT_SUCCESS != result) {
+        return S_ERROR;
+    }
 
     // realize the engine
     result = (*engineObject)->Realize(engineObject, SL_BOOLEAN_FALSE);
-    assert(SL_RESULT_SUCCESS == result);
+    if (SL_RESULT_SUCCESS != result) {
+        return S_ERROR;
+    }
 
     // get the engine interface, which is needed in order to create other objects
     result = (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE, &engineEngine);
-    assert(SL_RESULT_SUCCESS == result);
+    if (SL_RESULT_SUCCESS != result) {
+        return S_ERROR;
+    }
 
     // create output mix, with environmental reverb specified as a non-required interface
     const SLInterfaceID ids[1] = {SL_IID_ENVIRONMENTALREVERB};
     const SLboolean req[1] = {SL_BOOLEAN_FALSE};
     result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 1, ids, req);
-    assert(SL_RESULT_SUCCESS == result);
+    if (SL_RESULT_SUCCESS != result) {
+        return S_ERROR;
+    }
 
     // realize the output mix
     result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
-    assert(SL_RESULT_SUCCESS == result);
+    if (SL_RESULT_SUCCESS != result) {
+        return S_ERROR;
+    }
 
     // get the environmental reverb interface
     // this could fail if the environmental reverb effect is not available,
@@ -72,13 +81,15 @@ void SOpenSLES::createEngine() {
     if (SL_RESULT_SUCCESS == result) {
         result = (*outputMixEnvironmentalReverb)->SetEnvironmentalReverbProperties(outputMixEnvironmentalReverb,
                                                                                    &reverbSettings);
-        (void) result;
+        return S_SUCCESS;
+    } else {
+        return S_ERROR;
     }
 
     // ignore unsuccessful result codes for environmental reverb, as it is optional for this example
 }
 
-void SOpenSLES::createBufferQueueAudioPlayer(int sampleRate) {
+int SOpenSLES::createBufferQueueAudioPlayer(int sampleRate) {
 
     SLresult result;
 
@@ -105,47 +116,66 @@ void SOpenSLES::createBufferQueueAudioPlayer(int sampleRate) {
     const SLInterfaceID ids[3] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_EFFECTSEND,/*SL_IID_MUTESOLO,*/};
     const SLboolean req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE,/*SL_BOOLEAN_TRUE,*/ };
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &bqPlayerObject, &audioSrc, &audioSnk, 2, ids, req);
-    assert(SL_RESULT_SUCCESS == result);
+    if (SL_RESULT_SUCCESS != result) {
+        return S_ERROR;
+    }
 
     // realize the player
     result = (*bqPlayerObject)->Realize(bqPlayerObject, SL_BOOLEAN_FALSE);
-    assert(SL_RESULT_SUCCESS == result);
+    if (SL_RESULT_SUCCESS != result) {
+        return S_ERROR;
+    }
 
     // get the play interface
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_PLAY, &bqPlayerPlay);
-    assert(SL_RESULT_SUCCESS == result);
+    if (SL_RESULT_SUCCESS != result) {
+        return S_ERROR;
+    }
 
     // get the buffer queue interface
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_BUFFERQUEUE, &bqPlayerBufferQueue);
-    assert(SL_RESULT_SUCCESS == result);
+    if (SL_RESULT_SUCCESS != result) {
+        return S_ERROR;
+    }
 
     // register callback on the buffer queue
     result = (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback, this);
-    assert(SL_RESULT_SUCCESS == result);
+    if (SL_RESULT_SUCCESS != result) {
+        return S_ERROR;
+    }
+
+    return S_SUCCESS;
 }
 
-void SOpenSLES::play() {
+int SOpenSLES::play() {
     LOGD("OpenSLES: play");
-    if (bqPlayerPlay != NULL) {
+    if (state != SL_PLAYSTATE_PLAYING && bqPlayerPlay != NULL) {
+        state = SL_PLAYSTATE_PLAYING;
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
         bqPlayerCallback(bqPlayerBufferQueue, this);
+        return S_SUCCESS;
     }
+    return S_ERROR;
 }
 
 int SOpenSLES::pause() {
     LOGD("OpenSLES: pause");
-    if (bqPlayerPlay != NULL) {
+    if (state != SL_PLAYSTATE_PAUSED && bqPlayerPlay != NULL) {
+        state = SL_PLAYSTATE_PAUSED;
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PAUSED);
         return S_SUCCESS;
     }
     return S_ERROR;
 }
 
-void SOpenSLES::stop() {
+int SOpenSLES::stop() {
     LOGD("OpenSLES: stop");
-    if (bqPlayerPlay != NULL) {
+    if (state != SL_PLAYSTATE_STOPPED && bqPlayerPlay != NULL) {
+        state = SL_PLAYSTATE_STOPPED;
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_STOPPED);
+        return S_SUCCESS;
     }
+    return S_ERROR;
 }
 
 int SOpenSLES::resampleAudio() {
