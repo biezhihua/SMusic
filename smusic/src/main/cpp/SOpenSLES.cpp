@@ -146,6 +146,8 @@ int SOpenSLES::init(int sampleRate) {
         return S_ERROR;
     }
 
+    bqPlayerCallback(bqPlayerBufferQueue, this);
+
     return S_SUCCESS;
 }
 
@@ -154,7 +156,6 @@ int SOpenSLES::play() {
     if (state != SL_PLAYSTATE_PLAYING && bqPlayerPlay != NULL) {
         state = SL_PLAYSTATE_PLAYING;
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
-        bqPlayerCallback(bqPlayerBufferQueue, this);
         return S_SUCCESS;
     }
     return S_ERROR;
