@@ -5,8 +5,12 @@
 #include "SFFmpeg.h"
 
 
-SFFmpeg::SFFmpeg(SStatus *pStatus) {
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+
+SFFmpeg::SFFmpeg(SStatus *pStatus, SJavaMethods *pJavaMethods) {
     this->pStatus = pStatus;
+    this->pJavaMethods = pJavaMethods;
     this->pAudioQueue = new SQueue();
     this->pVideoQueue = new SQueue();
 }
@@ -37,6 +41,8 @@ SFFmpeg::~SFFmpeg() {
     pAudio = NULL;
 
     pStatus = NULL;
+
+    pJavaMethods = NULL;
 }
 
 void SFFmpeg::setSource(string *source) {
@@ -83,7 +89,7 @@ int SFFmpeg::decodeMediaInfo() {
     // now we have access to some information about our file
     // since we read its header we can say what format (container) it's
     // and some other information related to the format itself.
-    LOGD("SFFmpeg: decodeMediaInfo: Format %s, duration %lld us, bit_rate %lld", pFormatContext->iformat->name,
+    LOGD("SFFmpeg: decodeMediaInfo: Format %s, totalTime %lld us, bit_rate %lld", pFormatContext->iformat->name,
          pFormatContext->duration,
          pFormatContext->bit_rate);
 
@@ -118,7 +124,7 @@ int SFFmpeg::decodeMediaInfo() {
              pFormatContext->streams[i]->r_frame_rate.den);
 
         LOGD("SFFmpeg: decodeMediaInfo: AVStream->start_time %d", pFormatContext->streams[i]->start_time);
-        LOGD("SFFmpeg: decodeMediaInfo: AVStream->duration %d", pFormatContext->streams[i]->duration);
+        LOGD("SFFmpeg: decodeMediaInfo: AVStream->totalTime %d", pFormatContext->streams[i]->duration);
 
         LOGD("SFFmpeg: decodeMediaInfo: Finding the proper decoder (CODEC)");
 
@@ -133,6 +139,9 @@ int SFFmpeg::decodeMediaInfo() {
             }
 
             pVideo = new SMedia(i, pLocalCodec, pLocalCodecParameters);
+            pVideo->totalTime = ((long) (pFormatContext->duration / AV_TIME_BASE));
+            pAudio->totalTimeMillis = pAudio->totalTime * 1000;
+            pVideo->timeBase = (pFormatContext->streams[pVideo->streamIndex]->time_base);
 
             LOGD("SFFmpeg: decodeMediaInfo: Video Codec: resolution %d x %d", pLocalCodecParameters->width,
                  pLocalCodecParameters->height);
@@ -150,6 +159,9 @@ int SFFmpeg::decodeMediaInfo() {
             }
 
             pAudio = new SMedia(i, pLocalCodec, pLocalCodecParameters);
+            pAudio->totalTime = ((long) (pFormatContext->duration / AV_TIME_BASE));
+            pAudio->totalTimeMillis = pAudio->totalTime * 1000;
+            pAudio->timeBase = (pFormatContext->streams[pAudio->streamIndex]->time_base);
 
             LOGD("SFFmpeg: decodeMediaInfo: Audio Codec: %d channels, sample rate %d", pLocalCodecParameters->channels,
                  pLocalCodecParameters->sample_rate);
@@ -162,7 +174,7 @@ int SFFmpeg::decodeMediaInfo() {
 
     if (pAudio != NULL) {
         // https://ffmpeg.org/doxygen/trunk/structAVCodecContext.html
-        pAudio->pCodecContext = (avcodec_alloc_context3(pAudio->getCodec()));
+        pAudio->pCodecContext = (avcodec_alloc_context3(pAudio->pCodec));
         if (pAudio->pCodecContext == NULL) {
             LOGE("SFFmpeg: decodeMediaInfo: Failed to allocated memory for AVCodecContext");
             return S_ERROR_INVALID;
@@ -170,14 +182,14 @@ int SFFmpeg::decodeMediaInfo() {
 
         // Fill the codec context based on the values from the supplied codec parameters
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#gac7b282f51540ca7a99416a3ba6ee0d16
-        if (avcodec_parameters_to_context(pAudio->pCodecContext, pAudio->getCodecParameters()) < 0) {
+        if (avcodec_parameters_to_context(pAudio->pCodecContext, pAudio->pCodecParameters) < 0) {
             LOGE("SFFmpeg: decodeMediaInfo: Failed to copy codec params to codec context");
             return S_ERROR_INVALID;
         }
 
         // Initialize the AVCodecContext to use the given AVCodec.
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#ga11f785a188d7d9df71621001465b0f1d
-        if (avcodec_open2(pAudio->pCodecContext, pAudio->getCodec(), NULL) < 0) {
+        if (avcodec_open2(pAudio->pCodecContext, pAudio->pCodec, NULL) < 0) {
             LOGE("SFFmpeg: decodeMediaInfo: Failed to open codec through avcodec_open2");
             return S_ERROR_INVALID;
         }
@@ -194,7 +206,7 @@ int SFFmpeg::decodeAudioFrame() {
         return S_ERROR_BREAK;
     }
     if (av_read_frame(pFormatContext, pDecodePacket) == 0) {
-        if (pDecodePacket->stream_index == pAudio->getStreamIndex()) {
+        if (pDecodePacket->stream_index == pAudio->streamIndex) {
             // LOGD("SFFmpeg: decodeAudioFrame: fill the Packet with data from the Stream %d", count);
             pAudioQueue->putAvPacket(pDecodePacket);
         } else {
@@ -302,6 +314,11 @@ int SFFmpeg::resampleAudio() {
 
         int dataSize = numbers * outChannels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 
+        pAudio->updateTime(pResampleFrame, dataSize);
+        if (pJavaMethods != NULL && pAudio->isMinDiff()) {
+            pJavaMethods->onCallJavaTimeFromThread(pAudio->getTotalTimeMillis(), pAudio->getCurrentTimeMillis());
+        }
+
         releasePacket();
         releaseFrame();
 
@@ -403,3 +420,19 @@ int SFFmpeg::release() {
 
     return S_SUCCESS;
 }
+
+long SFFmpeg::getTotalTimeMillis() {
+    if (pAudio != NULL) {
+        return pAudio->getTotalTimeMillis();
+    }
+    return 0;
+}
+
+long SFFmpeg::getCurrentTimeMillis() {
+    if (pAudio != NULL) {
+        return pAudio->getCurrentTimeMillis();
+    }
+    return 0;
+}
+
+#pragma clang diagnostic pop

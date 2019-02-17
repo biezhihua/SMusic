@@ -196,7 +196,7 @@ void SPlayer::create() {
     LOGD("SPlayer: create: ------------------- ");
 
     pStatus = new SStatus();
-    pFFmpeg = new SFFmpeg(pStatus);
+    pFFmpeg = new SFFmpeg(pStatus, pJavaMethods);
     pOpenSLES = new SOpenSLES(pFFmpeg, pStatus);
 
     if (pStatus != NULL) {
@@ -299,7 +299,6 @@ SJavaMethods *SPlayer::getSJavaMethods() {
     return pJavaMethods;
 }
 
-
 SStatus *SPlayer::getPlayerStatus() {
     return pStatus;
 }
@@ -307,6 +306,5 @@ SStatus *SPlayer::getPlayerStatus() {
 SOpenSLES *SPlayer::getSOpenSLES() {
     return pOpenSLES;
 }
-
 
 #pragma clang diagnostic pop

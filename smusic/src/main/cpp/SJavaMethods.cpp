@@ -10,6 +10,17 @@ SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
     javaVm = pVm;
     mainJniEnv = pEnv;
     javaInstance = mainJniEnv->NewGlobalRef(pInstance);
+
+    jclass jClazz = mainJniEnv->GetObjectClass(javaInstance);
+    if (jClazz != NULL) {
+        idCreate = mainJniEnv->GetMethodID(jClazz, "onPlayerCreateFromNative", "()V");
+        idStart = mainJniEnv->GetMethodID(jClazz, "onPlayerStartFromNative", "()V");
+        idPlay = mainJniEnv->GetMethodID(jClazz, "onPlayerPlayFromNative", "()V");
+        idPause = mainJniEnv->GetMethodID(jClazz, "onPlayerPauseFromNative", "()V");
+        idStop = mainJniEnv->GetMethodID(jClazz, "onPlayerStopFromNative", "()V");
+        idDestroy = mainJniEnv->GetMethodID(jClazz, "onPlayerDestroyFromNative", "()V");
+        idTime = mainJniEnv->GetMethodID(jClazz, "onPlayerTimeFromNative", "(JJ)V");
+    }
 }
 
 SJavaMethods::~SJavaMethods() {
@@ -17,45 +28,6 @@ SJavaMethods::~SJavaMethods() {
     javaInstance = NULL;
     mainJniEnv = NULL;
     javaVm = NULL;
-}
-
-void SJavaMethods::callJava(const char *methodName, const char *methodSign) {
-    JNIEnv *jniEnv = NULL;
-
-    if (isMainThread()) {
-        jniEnv = mainJniEnv;
-    } else {
-        jint res = javaVm->GetEnv((void **) &jniEnv, JNI_VERSION_1_6);
-        if (res != JNI_OK) {
-            res = javaVm->AttachCurrentThread(&jniEnv, NULL);
-            if (JNI_OK != res) {
-                LOGE("Failed to AttachCurrentThread, ErrorCode = %d", res);
-                return;
-            }
-        }
-    }
-
-    if (jniEnv == NULL) {
-        return;
-    }
-
-    jclass clazz = jniEnv->GetObjectClass(javaInstance);
-
-    if (clazz == NULL) {
-        return;
-    }
-
-    jmethodID methodId = jniEnv->GetMethodID(clazz, methodName, methodSign);
-
-    if (methodId == NULL) {
-        return;
-    }
-
-    jniEnv->CallVoidMethod(javaInstance, methodId);
-
-    if (!isMainThread()) {
-        javaVm->DetachCurrentThread();
-    }
 }
 
 bool SJavaMethods::isMainThread() {
@@ -70,26 +42,78 @@ bool SJavaMethods::isMainThread() {
 }
 
 void SJavaMethods::onCallJavaCreate() {
-    callJava("onPlayerCreateFromNative", "()V");
+    JNIEnv *jniEnv = tryLoadEnv();
+    if (jniEnv != NULL) {
+        jniEnv->CallVoidMethod(javaInstance, idCreate);
+        tryUnLoadEnv();
+    }
 }
 
 void SJavaMethods::onCallJavaStart() {
-    callJava("onPlayerStartFromNative", "()V");
+    JNIEnv *jniEnv = tryLoadEnv();
+    if (jniEnv != NULL) {
+        jniEnv->CallVoidMethod(javaInstance, idStart);
+        tryUnLoadEnv();
+    }
 }
 
 void SJavaMethods::onCallJavaPlay() {
-    callJava("onPlayerPlayFromNative", "()V");
+    JNIEnv *jniEnv = tryLoadEnv();
+    if (jniEnv != NULL) {
+        jniEnv->CallVoidMethod(javaInstance, idPlay);
+        tryUnLoadEnv();
+    }
 }
 
 void SJavaMethods::onCallJavaPause() {
-    callJava("onPlayerPauseFromNative", "()V");
+    JNIEnv *jniEnv = tryLoadEnv();
+    if (jniEnv != NULL) {
+        jniEnv->CallVoidMethod(javaInstance, idPause);
+        tryUnLoadEnv();
+    }
 }
 
 void SJavaMethods::onCallJavaStop() {
-    callJava("onPlayerStopFromNative", "()V");
+    JNIEnv *jniEnv = tryLoadEnv();
+    if (jniEnv != NULL) {
+        jniEnv->CallVoidMethod(javaInstance, idStop);
+        tryUnLoadEnv();
+    }
 }
 
 void SJavaMethods::onCallJavaDestroy() {
-    callJava("onPlayerDestroyFromNative", "()V");
+    JNIEnv *jniEnv = tryLoadEnv();
+    if (jniEnv != NULL) {
+        jniEnv->CallVoidMethod(javaInstance, idDestroy);
+        tryUnLoadEnv();
+    }
+}
+
+void SJavaMethods::onCallJavaTimeFromThread(long totalTimeMillis, long currentTimeMillis) {
+    JNIEnv *jniEnv;
+    if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
+        jniEnv->CallVoidMethod(javaInstance, idTime, (jlong) totalTimeMillis, (jlong) currentTimeMillis);
+        javaVm->DetachCurrentThread();
+    }
+}
+
+void SJavaMethods::tryUnLoadEnv() {
+    if (!isMainThread()) {
+        javaVm->DetachCurrentThread();
+    }
+}
+
+JNIEnv *SJavaMethods::tryLoadEnv() {
+    JNIEnv *jniEnv = NULL;
+    if (isMainThread()) {
+        jniEnv = mainJniEnv;
+    } else {
+        int res = javaVm->AttachCurrentThread(&jniEnv, NULL);
+        if (JNI_OK != res) {
+            LOGE("Failed to AttachCurrentThread, ErrorCode = %d", res);
+            jniEnv = NULL;
+        }
+    }
+    return jniEnv;
 }
 

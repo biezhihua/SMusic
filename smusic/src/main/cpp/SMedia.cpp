@@ -8,7 +8,6 @@ SMedia::SMedia(int streamIndex, AVCodec *pCodec, AVCodecParameters *pCodecParame
     this->streamIndex = streamIndex;
     this->pCodec = pCodec;
     this->pCodecParameters = pCodecParameters;
-
 }
 
 SMedia::~SMedia() {
@@ -17,22 +16,36 @@ SMedia::~SMedia() {
     pCodecParameters = NULL;
 }
 
-AVCodec *SMedia::getCodec() {
-    return pCodec;
-}
-
-AVCodecParameters *SMedia::getCodecParameters() {
-    return pCodecParameters;
-}
-
-int SMedia::getStreamIndex() {
-    return streamIndex;
-}
-
 int SMedia::getSampleRate() {
     if (pCodecParameters != NULL) {
-        return pCodecParameters->sample_rate;
+        sampleRate = pCodecParameters->sample_rate;
     }
-    return 0;
+    return sampleRate;
+}
+
+void SMedia::updateTime(AVFrame *pFrame, int dataSize) {
+    currentFrameTime = (pFrame->pts * av_q2d(timeBase));
+    if (currentFrameTime < currentTime) {
+        currentFrameTime = currentTime;
+    }
+    currentTime = currentFrameTime;
+    currentTime += dataSize / ((double) (getSampleRate() * 2 * 2));
+    currentTimeMillis = (long) (currentTime * 1000);
+}
+
+long SMedia::getCurrentTimeMillis() const {
+    return currentTimeMillis;
+}
+
+long SMedia::getTotalTimeMillis() const {
+    return totalTimeMillis;
+}
+
+bool SMedia::isMinDiff() {
+    if (currentTimeMillis - lastTimeMillis >= 1000) {
+        lastTimeMillis = currentTimeMillis;
+        return true;
+    }
+    return false;
 }
 

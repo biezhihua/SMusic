@@ -99,6 +99,14 @@ class SMusic {
         }
     }
 
+    @CalledByNative
+    @Keep
+    fun onPlayerTimeFromNative(totalTime: Long, currentTime: Long) {
+        ArchTaskExecutor.getMainThreadExecutor().execute {
+            Log.d(TAG, "onPlayerTimeFromNative() called $totalTime $currentTime")
+        }
+    }
+
     @Keep
     private external fun nativeSetSource(source: String)
 
@@ -120,6 +128,10 @@ class SMusic {
     @Keep
     private external fun nativeStop()
 
+    @Keep
+    private external fun nativeGetTotalTimeMillis(): Long
+
+    private external fun nativeGetCurrentTimeMillis(): Long
 
     companion object {
 

@@ -14,8 +14,19 @@ private:
     JavaVM *javaVm = NULL;
     JNIEnv *mainJniEnv = NULL;
     jobject javaInstance = NULL;
+    JNIEnv *timeJniEnv = NULL;
 
-    void callJava(const char *methodName, const char *methodSign);
+    jmethodID idCreate;
+    jmethodID idStart;
+    jmethodID idPlay;
+    jmethodID idPause;
+    jmethodID idStop;
+    jmethodID idDestroy;
+    jmethodID idTime;
+
+    JNIEnv *tryLoadEnv();
+
+    void tryUnLoadEnv();
 
 public:
 
@@ -35,7 +46,10 @@ public:
 
     void onCallJavaDestroy();
 
+    void onCallJavaTimeFromThread(long totalTimeMillis, long currentTimeMillis);
+
     bool isMainThread();
+
 };
 
 

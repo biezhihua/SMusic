@@ -323,4 +323,3 @@ JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved) {
     delete subThreadCallJavaContext;
 }
 
-#pragma clang diagnostic pop

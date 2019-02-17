@@ -15,10 +15,17 @@ extern "C" {
 
 class SMedia {
 
-private:
-
-    int streamIndex;
 public:
+    double currentFrameTime;
+    double currentTime;
+    long totalTime;
+    long lastTimeMillis;
+    long totalTimeMillis;
+    long currentTimeMillis;
+    int streamIndex;
+    int sampleRate;
+
+    AVRational timeBase;
     AVCodec *pCodec = NULL;
     AVCodecParameters *pCodecParameters = NULL;
     AVCodecContext *pCodecContext = NULL;
@@ -29,13 +36,15 @@ public:
 
     ~SMedia();
 
-    AVCodec *getCodec();
-
-    AVCodecParameters *getCodecParameters();
-
-    int getStreamIndex();
-
     int getSampleRate();
+
+    void updateTime(AVFrame *pFrame, int dataSize);
+
+    long getCurrentTimeMillis() const;
+
+    long getTotalTimeMillis() const;
+
+    bool isMinDiff();
 };
 
 

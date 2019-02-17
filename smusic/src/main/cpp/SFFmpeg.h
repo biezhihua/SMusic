@@ -31,9 +31,10 @@ private:
     string *pSource = NULL;
     SStatus *pStatus = NULL;
 
+    SJavaMethods *pJavaMethods = NULL;
 public:
 
-    SFFmpeg(SStatus *pStatus);
+    SFFmpeg(SStatus *pStatus, SJavaMethods *pJavaMethods);
 
     ~SFFmpeg();
 
@@ -48,6 +49,10 @@ public:
     SMedia *getAudio();
 
     SMedia *getVideo();
+
+    long getTotalTimeMillis();
+
+    long getCurrentTimeMillis();
 
     void releasePacket();
 
@@ -64,6 +69,7 @@ public:
     int stop();
 
     int release();
+
 };
 
 
