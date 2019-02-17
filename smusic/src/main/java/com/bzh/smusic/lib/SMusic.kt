@@ -10,6 +10,8 @@ import com.bzh.smusic.lib.annotations.CalledByNative
 @SuppressLint("RestrictedApi")
 class SMusic {
 
+    var listener: IMusicListener? = null
+
     fun create() {
         Log.d(TAG, "create() called")
         nativeCreate()
@@ -104,6 +106,7 @@ class SMusic {
     fun onPlayerTimeFromNative(totalTime: Long, currentTime: Long) {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerTimeFromNative() called $totalTime $currentTime")
+            listener?.onTime(totalTime, currentTime)
         }
     }
 

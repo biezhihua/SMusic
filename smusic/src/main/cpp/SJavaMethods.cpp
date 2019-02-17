@@ -90,6 +90,7 @@ void SJavaMethods::onCallJavaDestroy() {
 }
 
 void SJavaMethods::onCallJavaTimeFromThread(long totalTimeMillis, long currentTimeMillis) {
+    LOGD("onCallJavaTime, %ld %ld", totalTimeMillis, currentTimeMillis);
     JNIEnv *jniEnv;
     if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
         jniEnv->CallVoidMethod(javaInstance, idTime, (jlong) totalTimeMillis, (jlong) currentTimeMillis);
