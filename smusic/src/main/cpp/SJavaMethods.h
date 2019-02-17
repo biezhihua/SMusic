@@ -6,6 +6,7 @@
 #define SMUSIC_S_JAVA_METHODS_H
 
 #include <jni.h>
+#include <string>
 #include "SLog.h"
 
 class SJavaMethods {

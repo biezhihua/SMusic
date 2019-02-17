@@ -19,14 +19,6 @@ class SPlayer {
 
 private:
 
-    JavaVM *pJavaVM = NULL;
-
-    JNIEnv *mainJniEnv = NULL;
-
-    jobject javaInstance = NULL;
-
-    string *pSource = NULL;
-
     SJavaMethods *pJavaMethods = NULL;
 
     SFFmpeg *pFFmpeg = NULL;

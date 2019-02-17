@@ -96,9 +96,7 @@ void *startDecodeMediaInfoCallback(void *data) {
                 pFFmpeg != NULL &&
                 pStatus != NULL &&
                 pStatus->isPreStop() &&
-                sPlayer->startDecodeMediaInfoThreadComplete &&
-                sPlayer->startDecodeAudioThreadComplete &&
-                sPlayer->playAudioThreadComplete) {
+                sPlayer->startDecodeMediaInfoThreadComplete) {
 
                 pOpenSLES->release();
                 pFFmpeg->release();
@@ -181,9 +179,6 @@ void *playAudioCallback(void *data) {
 }
 
 SPlayer::SPlayer(JavaVM *pVm, JNIEnv *env, jobject instance, SJavaMethods *pMethods) {
-    pJavaVM = pVm;
-    mainJniEnv = env;
-    javaInstance = mainJniEnv->NewGlobalRef(instance);
     pJavaMethods = pMethods;
 
     create();
@@ -194,10 +189,6 @@ SPlayer::~SPlayer() {
     destroy();
 
     pJavaMethods = NULL;
-    mainJniEnv->DeleteGlobalRef(javaInstance);
-    javaInstance = NULL;
-    mainJniEnv = NULL;
-    pJavaVM = NULL;
 }
 
 
@@ -209,10 +200,7 @@ void SPlayer::create() {
     pOpenSLES = new SOpenSLES(pFFmpeg, pStatus);
 
     if (pStatus != NULL) {
-        pStatus->moveStatusToCreate();
-    }
-    if (pJavaMethods != NULL) {
-        pJavaMethods->onCallJavaCreate();
+        pStatus->moveStatusToPreCreate();
     }
 }
 
@@ -220,7 +208,6 @@ void SPlayer::create() {
 void SPlayer::setSource(string *url) {
     LOGD("SPlayer: setSource: ------------------- ");
     if (pStatus->isCreate() || pStatus->isStop()) {
-        pSource = url;
         if (pFFmpeg != NULL) {
             pFFmpeg->setSource(url);
         }
@@ -302,8 +289,6 @@ void SPlayer::destroy() {
 
     delete pStatus;
     pStatus = NULL;
-
-    pSource = NULL;
 }
 
 SFFmpeg *SPlayer::getSFFmpeg() {

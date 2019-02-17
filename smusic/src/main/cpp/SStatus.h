@@ -9,16 +9,18 @@
 #include "SLog.h"
 
 #define STATE_NONE  (1000)
-#define STATE_CREATE (1001)
-#define STATE_SOURCE (1002)
-#define STATE_PRE_START (1003)
-#define STATE_START (1004)
-#define STATE_PRE_PLAY (1005)
-#define STATE_PLAY (1006)
-#define STATE_PAUSE (1007)
-#define STATE_PRE_STOP (1008)
-#define STATE_STOP (1009)
-#define STATE_DESTROY (1010)
+#define STATE_PRE_CREATE (1001)
+#define STATE_CREATE (1002)
+#define STATE_SOURCE (1003)
+#define STATE_PRE_START (1004)
+#define STATE_START (1005)
+#define STATE_PRE_PLAY (1006)
+#define STATE_PLAY (1007)
+#define STATE_PAUSE (1008)
+#define STATE_PRE_STOP (1009)
+#define STATE_STOP (1010)
+#define STATE_PRE_DESTROY (1011)
+#define STATE_DESTROY (1012)
 
 class SStatus {
 
@@ -35,6 +37,13 @@ public:
 
     ~SStatus() {
         pthread_mutex_destroy(&mutex);
+    }
+
+    void moveStatusToPreCreate() {
+        LOGD("Status: MoveStatusToPreCreate");
+        pthread_mutex_lock(&mutex);
+        state = STATE_PRE_CREATE;
+        pthread_mutex_unlock(&mutex);
     }
 
     void moveStatusToCreate() {
@@ -100,6 +109,13 @@ public:
         pthread_mutex_unlock(&mutex);
     }
 
+    void moveStatusToPreDestroy() {
+        LOGD("Status: MoveStatusToPreDestroy");
+        pthread_mutex_lock(&mutex);
+        state = STATE_PRE_DESTROY;
+        pthread_mutex_unlock(&mutex);
+    }
+
     void moveStatusToDestroy() {
         LOGD("Status: MoveStatusToDestroy");
         pthread_mutex_lock(&mutex);
@@ -111,6 +127,10 @@ public:
         return state == STATE_NONE;
     }
 
+    bool isPreCreate() {
+        return state == STATE_PRE_CREATE;
+    }
+
     bool isCreate() {
         return state == STATE_CREATE;
     }
@@ -119,12 +139,12 @@ public:
         return state == STATE_SOURCE;
     }
 
-    bool isStart() {
-        return state == STATE_START;
-    }
-
     bool isPreStart() {
         return state == STATE_PRE_START;
+    }
+
+    bool isStart() {
+        return state == STATE_START;
     }
 
     bool isPlay() {
@@ -147,6 +167,10 @@ public:
         return state == STATE_PRE_STOP;
     }
 
+    bool isPreDestroy() {
+        return state == STATE_PRE_DESTROY;
+    }
+
     bool isDestroy() {
         return state == STATE_DESTROY;
     }
@@ -156,6 +180,7 @@ public:
             this->state != STATE_CREATE &&
             this->state != STATE_PRE_STOP &&
             this->state != STATE_STOP &&
+            this->state != STATE_PRE_DESTROY&&
             this->state != STATE_DESTROY) {
             return this->state >= state;
         }
