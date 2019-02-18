@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.Keep
+import androidx.annotation.WorkerThread
 import androidx.arch.core.executor.ArchTaskExecutor
 import com.bzh.smusic.lib.annotations.CalledByNative
 
@@ -52,6 +53,7 @@ class SMusic {
         return Looper.getMainLooper().thread === Thread.currentThread()
     }
 
+    @WorkerThread
     @CalledByNative
     @Keep
     fun onPlayerCreateFromNative() {
@@ -60,6 +62,7 @@ class SMusic {
         }
     }
 
+    @WorkerThread
     @CalledByNative
     @Keep
     fun onPlayerStartFromNative() {
@@ -69,6 +72,7 @@ class SMusic {
         }
     }
 
+    @WorkerThread
     @CalledByNative
     @Keep
     fun onPlayerPlayFromNative() {
@@ -77,6 +81,7 @@ class SMusic {
         }
     }
 
+    @WorkerThread
     @CalledByNative
     @Keep
     fun onPlayerPauseFromNative() {
@@ -85,6 +90,7 @@ class SMusic {
         }
     }
 
+    @WorkerThread
     @CalledByNative
     @Keep
     fun onPlayerStopFromNative() {
@@ -93,6 +99,7 @@ class SMusic {
         }
     }
 
+    @WorkerThread
     @CalledByNative
     @Keep
     fun onPlayerDestroyFromNative() {
@@ -101,12 +108,22 @@ class SMusic {
         }
     }
 
+    @WorkerThread
     @CalledByNative
     @Keep
     fun onPlayerTimeFromNative(totalTime: Long, currentTime: Long) {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerTimeFromNative() called $totalTime $currentTime")
             listener?.onTime(totalTime, currentTime)
+        }
+    }
+
+    @WorkerThread
+    @CalledByNative
+    @Keep
+    fun onPlayerErrorFromNative(code: Int, message: String) {
+        ArchTaskExecutor.getMainThreadExecutor().execute {
+            Log.d(TAG, "onPlayerError() called $code $message")
         }
     }
 

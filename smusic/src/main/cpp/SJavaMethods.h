@@ -14,7 +14,6 @@ private:
     JavaVM *javaVm = NULL;
     JNIEnv *mainJniEnv = NULL;
     jobject javaInstance = NULL;
-    JNIEnv *timeJniEnv = NULL;
 
     jmethodID idCreate;
     jmethodID idStart;
@@ -23,6 +22,7 @@ private:
     jmethodID idStop;
     jmethodID idDestroy;
     jmethodID idTime;
+    jmethodID idError;
 
     JNIEnv *tryLoadEnv();
 
@@ -47,6 +47,8 @@ public:
     void onCallJavaDestroy();
 
     void onCallJavaTimeFromThread(long totalTimeMillis, long currentTimeMillis);
+
+    void onCallJavaError(int code, const char *message);
 
     bool isMainThread();
 

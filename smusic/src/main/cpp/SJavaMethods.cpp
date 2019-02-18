@@ -10,7 +10,6 @@ SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
     javaVm = pVm;
     mainJniEnv = pEnv;
     javaInstance = mainJniEnv->NewGlobalRef(pInstance);
-
     jclass jClazz = mainJniEnv->GetObjectClass(javaInstance);
     if (jClazz != NULL) {
         idCreate = mainJniEnv->GetMethodID(jClazz, "onPlayerCreateFromNative", "()V");
@@ -20,6 +19,7 @@ SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
         idStop = mainJniEnv->GetMethodID(jClazz, "onPlayerStopFromNative", "()V");
         idDestroy = mainJniEnv->GetMethodID(jClazz, "onPlayerDestroyFromNative", "()V");
         idTime = mainJniEnv->GetMethodID(jClazz, "onPlayerTimeFromNative", "(JJ)V");
+        idError = mainJniEnv->GetMethodID(jClazz, "onPlayerErrorFromNative", "(ILjava/lang/String;)V");
     }
 }
 
@@ -116,5 +116,16 @@ JNIEnv *SJavaMethods::tryLoadEnv() {
         }
     }
     return jniEnv;
+}
+
+void SJavaMethods::onCallJavaError(int code, const char *message) {
+    JNIEnv *jniEnv = tryLoadEnv();
+    if (jniEnv != NULL) {
+        jstring jMessage = jniEnv->NewStringUTF(message);
+        jniEnv->CallVoidMethod(javaInstance, idError, code, jMessage);
+        jniEnv->DeleteLocalRef(jMessage);
+        tryUnLoadEnv();
+    }
+
 }
 

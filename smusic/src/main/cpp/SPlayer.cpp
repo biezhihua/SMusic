@@ -26,6 +26,10 @@ void *startDecodeAudioFrameCallback(void *data) {
                 while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
                     int result = pFFmpeg->decodeAudioFrame();
                     if (result == S_ERROR_BREAK) {
+                        if (pJavaMethods != NULL) {
+                            pJavaMethods->onCallJavaError(ERROR_CODE_DECODE_AUDIO_FRAME,
+                                                          "Error:SPlayer:DecodeAudioFrameCallback: decodeAudioFrame");
+                        }
                         while (!pStatus->isLeastActiveState(STATE_PLAY)) {
                             if (pAudioQueue->getSize() > 0) {
                                 continue;
@@ -39,6 +43,9 @@ void *startDecodeAudioFrameCallback(void *data) {
 
             sPlayer->startDecodeAudioThreadComplete = true;
 
+            /**
+             * 若处于预终止状态，则释放内存，转移到终止状态。
+             */
             if (pOpenSLES != NULL &&
                 pFFmpeg != NULL &&
                 pStatus != NULL &&
@@ -57,10 +64,10 @@ void *startDecodeAudioFrameCallback(void *data) {
                 }
             }
         }
-
-        LOGD("SPlayer: startDecodeAudioFrameCallback: end");
-        pthread_exit(&sPlayer->startDecodeAudioThread);
     }
+
+    LOGD("SPlayer: startDecodeAudioFrameCallback: end");
+    pthread_exit(&sPlayer->startDecodeAudioThread);
     return NULL;
 }
 
@@ -81,17 +88,26 @@ void *startDecodeMediaInfoCallback(void *data) {
             if (pFFmpeg->decodeMediaInfo() == S_SUCCESS && pStatus->isPreStart()) {
                 pStatus->moveStatusToStart();
                 sPlayer->getSJavaMethods()->onCallJavaStart();
-            } else if (pStatus->isPreStop()) {
-                pOpenSLES->release();
-                pFFmpeg->release();
-                pStatus->moveStatusToStop();
+            } else {
                 if (pJavaMethods != NULL) {
-                    pJavaMethods->onCallJavaStop();
+                    pJavaMethods->onCallJavaError(ERROR_CODE_DECODE_MEDIA_INFO,
+                                                  "Error:SPlayer:DecodeMediaInfoCallback: decodeMediaInfo");
+                }
+                if (pStatus->isPreStop()) {
+                    pOpenSLES->release();
+                    pFFmpeg->release();
+                    pStatus->moveStatusToStop();
+                    if (pJavaMethods != NULL) {
+                        pJavaMethods->onCallJavaStop();
+                    }
                 }
             }
 
             sPlayer->startDecodeMediaInfoThreadComplete = true;
 
+            /**
+             * 在加载完媒体信息后，若处于预终止状态，则释放内存，转移到终止状态。
+             */
             if (pOpenSLES != NULL &&
                 pFFmpeg != NULL &&
                 pStatus != NULL &&
@@ -101,15 +117,16 @@ void *startDecodeMediaInfoCallback(void *data) {
                 pOpenSLES->release();
                 pFFmpeg->release();
                 pStatus->moveStatusToStop();
+
                 if (pJavaMethods != NULL) {
                     pJavaMethods->onCallJavaStop();
                 }
             }
         }
-
-        LOGD("SPlayer: startDecodeMediaInfoCallback: end");
-        pthread_exit(&sPlayer->startDecodeMediaInfoThread);
     }
+
+    LOGD("SPlayer: startDecodeMediaInfoCallback: end");
+    pthread_exit(&sPlayer->startDecodeMediaInfoThread);
     return NULL;
 }
 

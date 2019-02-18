@@ -4,7 +4,7 @@
 #include "SPlayer.h"
 #include "SJavaMethods.h"
 
-JavaVM *_javaVM = NULL;
+JavaVM *sJavaVM = NULL;
 SPlayer *sPlayer = NULL;
 SStatus *sStatus = NULL;
 SJavaMethods *sJavaMethods = NULL;
@@ -17,13 +17,13 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     if (vm->GetEnv(reinterpret_cast<void **>(&jniEnv), JNI_VERSION_1_6) != JNI_OK) {
         return JNI_ERR;
     }
-    _javaVM = vm;
+    sJavaVM = vm;
     return JNI_VERSION_1_6;
 }
 
 JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved) {
     LOGD("JNI_OnUnload");
-    _javaVM = NULL;
+    sJavaVM = NULL;
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -46,9 +46,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeCreate(JN
             sJavaMethods = NULL;
         }
 
-        sJavaMethods = new SJavaMethods(_javaVM, env, instance);
+        sJavaMethods = new SJavaMethods(sJavaVM, env, instance);
 
-        sPlayer = new SPlayer(_javaVM, env, instance, sJavaMethods);
+        sPlayer = new SPlayer(sJavaVM, env, instance, sJavaMethods);
 
         sStatus = sPlayer->getPlayerStatus();
 

@@ -62,12 +62,12 @@ int SFFmpeg::decodeMediaInfo() {
 
     if (pFormatContext == NULL) {
         LOGE("SFFmpeg: decodeMediaInfo: ERROR could not allocate memory for Format Context");
-        return S_ERROR_INVALID;
+        return S_ERROR;
     }
 
     if (pSource == NULL) {
         LOGE("SFFmpeg: decodeMediaInfo: ERROR source is empty");
-        return S_ERROR_INVALID;
+        return S_ERROR;
     }
 
     LOGD("SFFmpeg: decodeMediaInfo: Opening the input file (%s) and loading format (container) header",
@@ -83,7 +83,7 @@ int SFFmpeg::decodeMediaInfo() {
     int result = avformat_open_input(&pFormatContext, pSource->c_str(), NULL, NULL);
     if (result != 0) {
         LOGE("SFFmpeg: decodeMediaInfo: ERROR could not open the file %d", result);
-        return S_ERROR_INVALID;
+        return S_ERROR;
     }
 
     // now we have access to some information about our file
@@ -104,7 +104,7 @@ int SFFmpeg::decodeMediaInfo() {
     // https://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#gad42172e27cddafb81096939783b157bb
     if (avformat_find_stream_info(pFormatContext, NULL) < 0) {
         LOGD("SFFmpeg: decodeMediaInfo: ERROR could not get the stream info");
-        return S_ERROR_INVALID;
+        return S_ERROR;
     }
 
     // loop though all the streams and print its main information
@@ -177,21 +177,21 @@ int SFFmpeg::decodeMediaInfo() {
         pAudio->pCodecContext = (avcodec_alloc_context3(pAudio->pCodec));
         if (pAudio->pCodecContext == NULL) {
             LOGE("SFFmpeg: decodeMediaInfo: Failed to allocated memory for AVCodecContext");
-            return S_ERROR_INVALID;
+            return S_ERROR;
         }
 
         // Fill the codec context based on the values from the supplied codec parameters
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#gac7b282f51540ca7a99416a3ba6ee0d16
         if (avcodec_parameters_to_context(pAudio->pCodecContext, pAudio->pCodecParameters) < 0) {
             LOGE("SFFmpeg: decodeMediaInfo: Failed to copy codec params to codec context");
-            return S_ERROR_INVALID;
+            return S_ERROR;
         }
 
         // Initialize the AVCodecContext to use the given AVCodec.
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#ga11f785a188d7d9df71621001465b0f1d
         if (avcodec_open2(pAudio->pCodecContext, pAudio->pCodec, NULL) < 0) {
             LOGE("SFFmpeg: decodeMediaInfo: Failed to open codec through avcodec_open2");
-            return S_ERROR_INVALID;
+            return S_ERROR;
         }
     }
 
