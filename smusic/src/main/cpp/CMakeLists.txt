@@ -33,9 +33,6 @@ add_library(
         smusic
         SHARED
 
-#        test/SubThreadCallJavaContext.h
-#        test/smusic_jni.cpp
-
         SMainJni.cpp
 
         SMedia.cpp
