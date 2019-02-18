@@ -26,14 +26,11 @@ void *startDecodeAudioFrameCallback(void *data) {
                 while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
                     int result = pFFmpeg->decodeAudioFrame();
                     if (result == S_ERROR_BREAK) {
-                        if (pJavaMethods != NULL) {
-                            pJavaMethods->onCallJavaError(ERROR_CODE_DECODE_AUDIO_FRAME,
-                                                          "Error:SPlayer:DecodeAudioFrameCallback: decodeAudioFrame");
-                        }
                         while (!pStatus->isLeastActiveState(STATE_PLAY)) {
                             if (pAudioQueue->getSize() > 0) {
                                 continue;
                             } else {
+                                pStatus->moveStatusToPreComplete();
                                 break;
                             }
                         }
@@ -43,13 +40,10 @@ void *startDecodeAudioFrameCallback(void *data) {
 
             sPlayer->startDecodeAudioThreadComplete = true;
 
-            /**
-             * 若处于预终止状态，则释放内存，转移到终止状态。
-             */
             if (pOpenSLES != NULL &&
                 pFFmpeg != NULL &&
                 pStatus != NULL &&
-                pStatus->isPreStop() &&
+                (pStatus->isPreStop() || pStatus->isPreComplete()) &&
                 sPlayer->startDecodeMediaInfoThreadComplete &&
                 sPlayer->startDecodeAudioThreadComplete &&
                 sPlayer->playAudioThreadComplete) {
@@ -57,10 +51,22 @@ void *startDecodeAudioFrameCallback(void *data) {
                 pOpenSLES->release();
                 pFFmpeg->release();
 
-                pStatus->moveStatusToStop();
-
-                if (pJavaMethods != NULL) {
-                    pJavaMethods->onCallJavaStop();
+                if (pStatus->isPreStop()) {
+                    /*
+                     * 若处于预终止状态，则释放内存，转移到终止状态。
+                     */
+                    pStatus->moveStatusToStop();
+                    if (pJavaMethods != NULL) {
+                        pJavaMethods->onCallJavaStop();
+                    }
+                } else if (pStatus->isPreComplete()) {
+                    /*
+                    * 若处于预完成状态，则释放内存，转移到状态。
+                    */
+                    pStatus->moveStatusToComplete();
+                    if (pJavaMethods != NULL) {
+                        pJavaMethods->onCallJavaComplete();
+                    }
                 }
             }
         }

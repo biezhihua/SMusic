@@ -19,8 +19,10 @@
 #define STATE_PAUSE (1008)
 #define STATE_PRE_STOP (1009)
 #define STATE_STOP (1010)
-#define STATE_PRE_DESTROY (1011)
-#define STATE_DESTROY (1012)
+#define STATE_PRE_COMPLETE (1011)
+#define STATE_COMPLETE (1012)
+#define STATE_PRE_DESTROY (1013)
+#define STATE_DESTROY (1014)
 
 class SStatus {
 
@@ -109,6 +111,20 @@ public:
         pthread_mutex_unlock(&mutex);
     }
 
+    void moveStatusToPreComplete() {
+        LOGD("Status: MoveStatusToPreComplete");
+        pthread_mutex_lock(&mutex);
+        state = STATE_PRE_COMPLETE;
+        pthread_mutex_unlock(&mutex);
+    }
+
+    void moveStatusToComplete() {
+        LOGD("Status: MoveStatusToComplete");
+        pthread_mutex_lock(&mutex);
+        state = STATE_COMPLETE;
+        pthread_mutex_unlock(&mutex);
+    }
+
     void moveStatusToPreDestroy() {
         LOGD("Status: MoveStatusToPreDestroy");
         pthread_mutex_lock(&mutex);
@@ -159,12 +175,20 @@ public:
         return state == STATE_PAUSE;
     }
 
+    bool isPreStop() {
+        return state == STATE_PRE_STOP;
+    }
+
     bool isStop() {
         return state == STATE_STOP;
     }
 
-    bool isPreStop() {
-        return state == STATE_PRE_STOP;
+    bool isPreComplete() {
+        return state == STATE_PRE_COMPLETE;
+    }
+
+    bool isComplete() {
+        return state == STATE_COMPLETE;
     }
 
     bool isPreDestroy() {
@@ -180,8 +204,11 @@ public:
             this->state != STATE_CREATE &&
             this->state != STATE_PRE_STOP &&
             this->state != STATE_STOP &&
-            this->state != STATE_PRE_DESTROY&&
-            this->state != STATE_DESTROY) {
+            this->state != STATE_PRE_COMPLETE &&
+            this->state != STATE_COMPLETE &&
+            this->state != STATE_PRE_DESTROY &&
+            this->state != STATE_DESTROY
+                ) {
             return this->state >= state;
         }
         return false;

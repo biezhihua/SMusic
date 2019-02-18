@@ -112,7 +112,7 @@ void *destroyCallBack(void *data) {
 extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeDestroy(JNIEnv *env, jobject instance) {
     LOGD("nativeRelease");
     if (sPlayer != NULL && sStatus != NULL && !sIsExiting) {
-        if (sStatus->isCreate() || sStatus->isPreCreate() || sStatus->isSource()) {
+        if (sStatus->isCreate() || sStatus->isPreCreate() || sStatus->isSource() || sStatus->isComplete()) {
             sStatus = NULL;
 
             delete sPlayer;
@@ -128,8 +128,8 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeDestroy(J
     }
 }
 
-extern "C" JNIEXPORT jlong JNICALL
-Java_com_bzh_smusic_lib_SMusic_nativeGetTotalTimeMillis(JNIEnv *env, jobject instance) {
+extern "C" JNIEXPORT jlong JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetTotalTimeMillis(JNIEnv *env,
+                                                                                           jobject instance) {
     if (sPlayer != NULL) {
         SFFmpeg *ffmpeg = sPlayer->getSFFmpeg();
         if (ffmpeg != NULL) {
@@ -138,8 +138,9 @@ Java_com_bzh_smusic_lib_SMusic_nativeGetTotalTimeMillis(JNIEnv *env, jobject ins
     }
     return 0;
 }
-extern "C" JNIEXPORT jlong JNICALL
-Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentTimeMillis(JNIEnv *env, jobject instance) {
+
+extern "C" JNIEXPORT jlong JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentTimeMillis(JNIEnv *env,
+                                                                                             jobject instance) {
     if (sPlayer != NULL) {
         SFFmpeg *ffmpeg = sPlayer->getSFFmpeg();
         if (ffmpeg != NULL) {
@@ -149,3 +150,10 @@ Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentTimeMillis(JNIEnv *env, jobject i
     return 0;
 }
 
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeSeek(JNIEnv *env,
+                                                                            jobject instance,
+                                                                            jlong seek) {
+    if (sPlayer != NULL && sStatus != NULL && (sStatus->isPlay() || sStatus->isPause())) {
+
+    }
+}

@@ -198,27 +198,28 @@ int SFFmpeg::decodeMediaInfo() {
     return S_SUCCESS;
 }
 
+
 int SFFmpeg::decodeAudioFrame() {
     // https://ffmpeg.org/doxygen/trunk/structAVPacket.html
     pDecodePacket = av_packet_alloc();
-    if (!pDecodePacket) {
+    if (pDecodePacket == NULL) {
         LOGE("SFFmpeg: decodeAudioFrame: failed to allocated memory for AVPacket");
         return S_ERROR_BREAK;
     }
     if (av_read_frame(pFormatContext, pDecodePacket) == 0) {
         if (pDecodePacket->stream_index == pAudio->streamIndex) {
-            // LOGD("SFFmpeg: decodeAudioFrame: fill the Packet with data from the Stream %d", count);
+//            LOGD("SFFmpeg: decodeAudioFrame: fill the Packet with data from the Stream %d", count);
             pAudioQueue->putAvPacket(pDecodePacket);
         } else {
-            // LOGD("SFFmpeg: decodeAudioFrame: other stream index");
+//            LOGD("SFFmpeg: decodeAudioFrame: other stream index");
         }
+        return S_SUCCESS;
     } else {
         av_packet_free(&pDecodePacket);
         av_free(pDecodePacket);
         // LOGD("SFFmpeg: decodeAudioFrame: decode finished");
         return S_ERROR_BREAK;
     }
-    return S_SUCCESS;
 }
 
 int SFFmpeg::resampleAudio() {

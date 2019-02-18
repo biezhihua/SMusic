@@ -127,6 +127,16 @@ class SMusic {
         }
     }
 
+    @WorkerThread
+    @CalledByNative
+    @Keep
+    fun onPlayerCompleteFromNative() {
+        ArchTaskExecutor.getMainThreadExecutor().execute {
+            Log.d(TAG, "onPlayerCompleteFromNative() called: isMainThread : " + isMainThread())
+        }
+    }
+
+
     @Keep
     private external fun nativeSetSource(source: String)
 
@@ -149,8 +159,12 @@ class SMusic {
     private external fun nativeStop()
 
     @Keep
+    private external fun nativeSeek(seek: Long)
+
+    @Keep
     private external fun nativeGetTotalTimeMillis(): Long
 
+    @Keep
     private external fun nativeGetCurrentTimeMillis(): Long
 
     companion object {
