@@ -44,6 +44,7 @@ bool SJavaMethods::isMainThread() {
 }
 
 void SJavaMethods::onCallJavaCreate() {
+    LOGD("SJavaMethods:onCallJavaCreate");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idCreate);
@@ -52,6 +53,7 @@ void SJavaMethods::onCallJavaCreate() {
 }
 
 void SJavaMethods::onCallJavaStart() {
+    LOGD("SJavaMethods:onCallJavaStart");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idStart);
@@ -60,6 +62,7 @@ void SJavaMethods::onCallJavaStart() {
 }
 
 void SJavaMethods::onCallJavaPlay() {
+    LOGD("SJavaMethods:onCallJavaPlay");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idPlay);
@@ -68,6 +71,7 @@ void SJavaMethods::onCallJavaPlay() {
 }
 
 void SJavaMethods::onCallJavaPause() {
+    LOGD("SJavaMethods:onCallJavaPause");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idPause);
@@ -76,6 +80,7 @@ void SJavaMethods::onCallJavaPause() {
 }
 
 void SJavaMethods::onCallJavaStop() {
+    LOGD("SJavaMethods:onCallJavaStop");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idStop);
@@ -84,6 +89,7 @@ void SJavaMethods::onCallJavaStop() {
 }
 
 void SJavaMethods::onCallJavaDestroy() {
+    LOGD("SJavaMethods:onCallJavaDestroy");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idDestroy);
@@ -92,7 +98,7 @@ void SJavaMethods::onCallJavaDestroy() {
 }
 
 void SJavaMethods::onCallJavaTimeFromThread(int totalTimeMillis, int currentTimeMillis) {
-    LOGD("onCallJavaTime, %d %d", totalTimeMillis, currentTimeMillis);
+    LOGD("SJavaMethods:onCallJavaTime: %d %d", totalTimeMillis, currentTimeMillis);
     JNIEnv *jniEnv;
     if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
         jniEnv->CallVoidMethod(javaInstance, idTime, (jint) totalTimeMillis, (jint) currentTimeMillis);
@@ -121,6 +127,7 @@ JNIEnv *SJavaMethods::tryLoadEnv() {
 }
 
 void SJavaMethods::onCallJavaError(int code, const char *message) {
+    LOGD("SJavaMethods:onCallJavaError: %s", message);
     JNIEnv *jniEnv;
     if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
         jstring jMessage = jniEnv->NewStringUTF(message);
@@ -131,6 +138,7 @@ void SJavaMethods::onCallJavaError(int code, const char *message) {
 }
 
 void SJavaMethods::onCallJavaComplete() {
+    LOGD("SJavaMethods:onCallJavaComplete");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idComplete);

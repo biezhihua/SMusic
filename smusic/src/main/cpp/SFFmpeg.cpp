@@ -205,6 +205,10 @@ int SFFmpeg::decodeMediaInfo() {
 
 int SFFmpeg::decodeAudioFrame() {
 
+    if (pStatus != NULL && pStatus->isSeek()) {
+        return S_ERROR_CONTINUE;
+    }
+
     if (pAudioQueue != NULL && pAudioQueue->getSize() > 40) {
         return S_ERROR_CONTINUE;
     }
@@ -260,8 +264,8 @@ int SFFmpeg::resampleAudio() {
 
     int result = avcodec_send_packet(pAudio->pCodecContext, pResamplePacket);
     if (result != S_SUCCESS) {
-        LOGE("fSFFmpeg: resampleAudio: send packet failed");
-        return S_ERROR_CONTINUE;
+        LOGE("SFFmpeg: resampleAudio: send packet failed");
+        return S_ERROR_BREAK;
     }
 
     pResampleFrame = av_frame_alloc();
@@ -309,7 +313,7 @@ int SFFmpeg::resampleAudio() {
                 swrContext = NULL;
             }
 
-            LOGE("fSFFmpeg: resampleAudio: swrContext is null or swrContext init failed");
+            LOGE("SFFmpeg: resampleAudio: swrContext is null or swrContext init failed");
 
             return S_ERROR_CONTINUE;
         }
@@ -321,7 +325,7 @@ int SFFmpeg::resampleAudio() {
                                   pResampleFrame->nb_samples);
 
         if (numbers < 0) {
-            LOGE("fSFFmpeg: resampleAudio: swr convert numbers < 0 ");
+            LOGE("SFFmpeg: resampleAudio: swr convert numbers < 0 ");
             return S_ERROR_CONTINUE;
         }
 
@@ -340,6 +344,13 @@ int SFFmpeg::resampleAudio() {
 
         swr_free(&swrContext);
         swrContext = NULL;
+
+        LOGE("SFFmpeg: resampleAudio: frame error %d %d %d", pStatus->isPreSeekState(), (int) millis,
+             (int) pAudio->getCurrentTimeMillis());
+        if (pStatus != NULL && pStatus->isPreSeekState() && millis > pAudio->getCurrentTimeMillis()) {
+            millis = 0;
+            return S_ERROR_CONTINUE;
+        }
 
         return dataSize;
     }
@@ -452,10 +463,12 @@ double SFFmpeg::getCurrentTimeMillis() {
 }
 
 void SFFmpeg::seek(int64_t millis) {
+    this->millis = millis;
     if (pAudioQueue != NULL) {
         pAudioQueue->clear();
     }
     if (pAudio != NULL) {
+        pStatus->moveStatusToSeek();
         pAudio->currentTime = 0;
         pAudio->currentTimeMillis = 0;
         pAudio->lastTimeMillis = 0;
@@ -463,6 +476,7 @@ void SFFmpeg::seek(int64_t millis) {
         int64_t rel = millis / 1000 * AV_TIME_BASE;
         avformat_seek_file(pFormatContext, -1, INT64_MIN, rel, INT64_MAX, 0);
         pthread_mutex_unlock(&seekMutex);
+        pStatus->moveStatusToPreState();
     }
 }
 

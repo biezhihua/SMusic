@@ -43,8 +43,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                music?.play()
                 music?.seek(mProgress)
+                music?.play()
             }
 
         })

@@ -34,6 +34,9 @@ private:
     SJavaMethods *pJavaMethods = NULL;
 
     pthread_mutex_t seekMutex;
+
+    int64_t millis = 0;
+
 public:
 
     SFFmpeg(SStatus *pStatus, SJavaMethods *pJavaMethods);

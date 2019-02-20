@@ -154,7 +154,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeSeek(JNIE
                                                                             jobject instance,
                                                                             jint millis) {
     LOGD("nativeSeek %d", (int) millis);
-    if (sPlayer != NULL && sStatus != NULL && (sStatus->isPlay() || sStatus->isPause())) {
+    if (sPlayer != NULL) {
         sPlayer->seek((int64_t) millis);
     }
 }

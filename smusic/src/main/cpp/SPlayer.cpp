@@ -26,7 +26,7 @@ void *startDecodeAudioFrameCallback(void *data) {
                 while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
                     int result = pFFmpeg->decodeAudioFrame();
                     if (result == S_ERROR_BREAK) {
-                        while (!pStatus->isLeastActiveState(STATE_PLAY)) {
+                        while (pStatus->isLeastActiveState(STATE_PLAY)) {
                             if (pAudioQueue->getSize() > 0) {
                                 continue;
                             } else {
@@ -241,7 +241,7 @@ void SPlayer::setSource(string *url) {
 void SPlayer::start() {
     LOGD("SPlayer: start: ------------------- ");
 
-    if (pStatus->isSource() || pStatus->isStop()) {
+    if (pStatus->isSource() || pStatus->isStop() || pStatus->isComplete()) {
         pStatus->moveStatusToPreStart();
 
         startDecodeMediaInfoThreadComplete = false;
@@ -331,15 +331,16 @@ SOpenSLES *SPlayer::getSOpenSLES() {
 }
 
 void SPlayer::seek(int64_t millis) {
-    if (pFFmpeg != NULL) {
+
+    if (pFFmpeg != NULL && pStatus != NULL && (pStatus->isPlay() || pStatus->isPause())) {
         if (pFFmpeg->getTotalTimeMillis() <= 0) {
             LOGD("SPlayer:seek: total time is 0");
             return;
         }
-
         if (millis >= 0 && millis <= pFFmpeg->getTotalTimeMillis()) {
             pFFmpeg->seek(millis);
         }
+        LOGD("SPlayer:seek: %d %f", (int) millis, pFFmpeg->getTotalTimeMillis());
     }
 }
 

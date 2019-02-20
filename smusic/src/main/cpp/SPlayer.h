@@ -27,7 +27,6 @@ private:
 
     SOpenSLES *pOpenSLES = NULL;
 
-
 public:
 
     bool startDecodeMediaInfoThreadComplete = false;
@@ -71,6 +70,7 @@ public:
     SOpenSLES *getSOpenSLES();
 
     void seek(int64_t millis);
+
 };
 
 
