@@ -29,6 +29,8 @@ class SStatus {
 private:
     int state = STATE_NONE;
 
+    bool loading = false;
+
     pthread_mutex_t mutex;
 
 public:
@@ -212,6 +214,14 @@ public:
             return this->state >= state;
         }
         return false;
+    }
+
+    bool isLoading() const {
+        return loading;
+    }
+
+    void setLoading(bool isLoading) {
+        SStatus::loading = isLoading;
     }
 };
 

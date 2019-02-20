@@ -137,6 +137,15 @@ class SMusic {
     }
 
 
+    @WorkerThread
+    @CalledByNative
+    @Keep
+    fun onPlayerLoadStateFromNative(loadState: Boolean) {
+        ArchTaskExecutor.getMainThreadExecutor().execute {
+            Log.d(TAG, "onPlayerLoadingFromNative() called $loadState")
+        }
+    }
+
     @Keep
     private external fun nativeSetSource(source: String)
 

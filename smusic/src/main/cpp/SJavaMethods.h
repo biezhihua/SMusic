@@ -24,6 +24,7 @@ private:
     jmethodID idTime;
     jmethodID idError;
     jmethodID idComplete;
+    jmethodID idLoad;
 
     JNIEnv *tryLoadEnv();
 
@@ -52,6 +53,8 @@ public:
     void onCallJavaError(int code, const char *message);
 
     void onCallJavaComplete();
+
+    void onCallJavaLoadState(bool loadState);
 
     bool isMainThread();
 

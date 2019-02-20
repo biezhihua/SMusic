@@ -15,6 +15,9 @@
 
 class SOpenSLES {
 
+private:
+    SJavaMethods *pJavaMethods = NULL;
+
 public:
 
     int state = SL_PLAYSTATE_STOPPED;
@@ -44,7 +47,7 @@ public:
 
 public:
 
-    SOpenSLES(SFFmpeg *pFFmpeg, SStatus *pSStatus);
+    SOpenSLES(SFFmpeg *pFFmpeg, SStatus *pSStatus, SJavaMethods *pJavaMethods);
 
     ~SOpenSLES();
 

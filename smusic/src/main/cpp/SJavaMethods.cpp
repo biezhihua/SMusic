@@ -21,6 +21,7 @@ SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
         idTime = mainJniEnv->GetMethodID(jClazz, "onPlayerTimeFromNative", "(JJ)V");
         idError = mainJniEnv->GetMethodID(jClazz, "onPlayerErrorFromNative", "(ILjava/lang/String;)V");
         idComplete = mainJniEnv->GetMethodID(jClazz, "onPlayerCompleteFromNative", "()V");
+        idLoad = mainJniEnv->GetMethodID(jClazz, "onPlayerLoadStateFromNative", "(Z)V");
     }
 }
 
@@ -133,6 +134,14 @@ void SJavaMethods::onCallJavaComplete() {
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idComplete);
+        tryUnLoadEnv();
+    }
+}
+
+void SJavaMethods::onCallJavaLoadState(bool loadState) {
+    JNIEnv *jniEnv = tryLoadEnv();
+    if (jniEnv != NULL) {
+        jniEnv->CallVoidMethod(javaInstance, idLoad, loadState);
         tryUnLoadEnv();
     }
 }

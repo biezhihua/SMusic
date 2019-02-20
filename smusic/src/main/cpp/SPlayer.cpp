@@ -220,7 +220,7 @@ void SPlayer::create() {
 
     pStatus = new SStatus();
     pFFmpeg = new SFFmpeg(pStatus, pJavaMethods);
-    pOpenSLES = new SOpenSLES(pFFmpeg, pStatus);
+    pOpenSLES = new SOpenSLES(pFFmpeg, pStatus, pJavaMethods);
 
     if (pStatus != NULL) {
         pStatus->moveStatusToPreCreate();
