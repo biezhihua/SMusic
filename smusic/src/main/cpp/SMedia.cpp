@@ -30,14 +30,14 @@ void SMedia::updateTime(AVFrame *pFrame, int dataSize) {
     }
     currentTime = currentFrameTime;
     currentTime += dataSize / ((double) (getSampleRate() * 2 * 2));
-    currentTimeMillis = (long) (currentTime * 1000);
+    currentTimeMillis = (currentTime * 1000);
 }
 
-long SMedia::getCurrentTimeMillis() const {
+double SMedia::getCurrentTimeMillis() const {
     return currentTimeMillis;
 }
 
-long SMedia::getTotalTimeMillis() const {
+double SMedia::getTotalTimeMillis() const {
     return totalTimeMillis;
 }
 

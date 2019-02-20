@@ -128,23 +128,23 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeDestroy(J
     }
 }
 
-extern "C" JNIEXPORT jlong JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetTotalTimeMillis(JNIEnv *env,
-                                                                                           jobject instance) {
+extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetTotalTimeMillis(JNIEnv *env,
+                                                                                          jobject instance) {
     if (sPlayer != NULL) {
         SFFmpeg *ffmpeg = sPlayer->getSFFmpeg();
         if (ffmpeg != NULL) {
-            return ffmpeg->getTotalTimeMillis();
+            return (int) ffmpeg->getTotalTimeMillis();
         }
     }
     return 0;
 }
 
-extern "C" JNIEXPORT jlong JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentTimeMillis(JNIEnv *env,
-                                                                                             jobject instance) {
+extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentTimeMillis(JNIEnv *env,
+                                                                                            jobject instance) {
     if (sPlayer != NULL) {
         SFFmpeg *ffmpeg = sPlayer->getSFFmpeg();
         if (ffmpeg != NULL) {
-            return ffmpeg->getCurrentTimeMillis();
+            return (int) ffmpeg->getCurrentTimeMillis();
         }
     }
     return 0;
@@ -152,8 +152,9 @@ extern "C" JNIEXPORT jlong JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurre
 
 extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeSeek(JNIEnv *env,
                                                                             jobject instance,
-                                                                            jlong seek) {
+                                                                            jint millis) {
+    LOGD("nativeSeek %d", (int) millis);
     if (sPlayer != NULL && sStatus != NULL && (sStatus->isPlay() || sStatus->isPause())) {
-
+        sPlayer->seek((int64_t) millis);
     }
 }

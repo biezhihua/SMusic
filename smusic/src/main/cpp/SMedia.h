@@ -18,10 +18,10 @@ class SMedia {
 public:
     double currentFrameTime;
     double currentTime;
-    long totalTime;
-    long lastTimeMillis;
-    long totalTimeMillis;
-    long currentTimeMillis;
+    int64_t totalTime;
+    double lastTimeMillis;
+    double totalTimeMillis;
+    double currentTimeMillis;
     int streamIndex;
     int sampleRate;
 
@@ -40,9 +40,9 @@ public:
 
     void updateTime(AVFrame *pFrame, int dataSize);
 
-    long getCurrentTimeMillis() const;
+    double getCurrentTimeMillis() const;
 
-    long getTotalTimeMillis() const;
+    double getTotalTimeMillis() const;
 
     bool isMinDiff();
 };

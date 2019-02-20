@@ -70,6 +70,7 @@ public:
 
     SOpenSLES *getSOpenSLES();
 
+    void seek(int64_t millis);
 };
 
 

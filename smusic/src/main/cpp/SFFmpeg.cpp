@@ -13,9 +13,13 @@ SFFmpeg::SFFmpeg(SStatus *pStatus, SJavaMethods *pJavaMethods) {
     this->pJavaMethods = pJavaMethods;
     this->pAudioQueue = new SQueue();
     this->pVideoQueue = new SQueue();
+
+    pthread_mutex_init(&seekMutex, NULL);
 }
 
 SFFmpeg::~SFFmpeg() {
+
+    pthread_mutex_destroy(&seekMutex);
 
     delete pSource;
     pSource = NULL;
@@ -139,7 +143,7 @@ int SFFmpeg::decodeMediaInfo() {
             }
 
             pVideo = new SMedia(i, pLocalCodec, pLocalCodecParameters);
-            pVideo->totalTime = ((long) (pFormatContext->duration / AV_TIME_BASE));
+            pVideo->totalTime = (pFormatContext->duration / AV_TIME_BASE);
             pAudio->totalTimeMillis = pAudio->totalTime * 1000;
             pVideo->timeBase = (pFormatContext->streams[pVideo->streamIndex]->time_base);
 
@@ -200,13 +204,23 @@ int SFFmpeg::decodeMediaInfo() {
 
 
 int SFFmpeg::decodeAudioFrame() {
+
+    if (pAudioQueue != NULL && pAudioQueue->getSize() > 40) {
+        return S_ERROR_CONTINUE;
+    }
+
     // https://ffmpeg.org/doxygen/trunk/structAVPacket.html
     pDecodePacket = av_packet_alloc();
     if (pDecodePacket == NULL) {
         LOGE("SFFmpeg: decodeAudioFrame: failed to allocated memory for AVPacket");
         return S_ERROR_BREAK;
     }
-    if (av_read_frame(pFormatContext, pDecodePacket) == 0) {
+
+    pthread_mutex_lock(&seekMutex);
+    int ret = av_read_frame(pFormatContext, pDecodePacket);
+    pthread_mutex_unlock(&seekMutex);
+
+    if (ret == 0) {
         if (pDecodePacket->stream_index == pAudio->streamIndex) {
 //            LOGD("SFFmpeg: decodeAudioFrame: fill the Packet with data from the Stream %d", count);
             pAudioQueue->putAvPacket(pDecodePacket);
@@ -317,7 +331,8 @@ int SFFmpeg::resampleAudio() {
 
         pAudio->updateTime(pResampleFrame, dataSize);
         if (pJavaMethods != NULL && pAudio->isMinDiff()) {
-            pJavaMethods->onCallJavaTimeFromThread(pAudio->getTotalTimeMillis(), pAudio->getCurrentTimeMillis());
+            pJavaMethods->onCallJavaTimeFromThread((int) pAudio->getTotalTimeMillis(),
+                                                   (int) pAudio->getCurrentTimeMillis());
         }
 
         releasePacket();
@@ -422,18 +437,33 @@ int SFFmpeg::release() {
     return S_SUCCESS;
 }
 
-long SFFmpeg::getTotalTimeMillis() {
+double SFFmpeg::getTotalTimeMillis() {
     if (pAudio != NULL) {
         return pAudio->getTotalTimeMillis();
     }
     return 0;
 }
 
-long SFFmpeg::getCurrentTimeMillis() {
+double SFFmpeg::getCurrentTimeMillis() {
     if (pAudio != NULL) {
         return pAudio->getCurrentTimeMillis();
     }
     return 0;
+}
+
+void SFFmpeg::seek(int64_t millis) {
+    if (pAudioQueue != NULL) {
+        pAudioQueue->clear();
+    }
+    if (pAudio != NULL) {
+        pAudio->currentTime = 0;
+        pAudio->currentTimeMillis = 0;
+        pAudio->lastTimeMillis = 0;
+        pthread_mutex_lock(&seekMutex);
+        int64_t rel = millis / 1000 * AV_TIME_BASE;
+        avformat_seek_file(pFormatContext, -1, INT64_MIN, rel, INT64_MAX, 0);
+        pthread_mutex_unlock(&seekMutex);
+    }
 }
 
 #pragma clang diagnostic pop

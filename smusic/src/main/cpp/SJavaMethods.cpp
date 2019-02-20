@@ -18,7 +18,7 @@ SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
         idPause = mainJniEnv->GetMethodID(jClazz, "onPlayerPauseFromNative", "()V");
         idStop = mainJniEnv->GetMethodID(jClazz, "onPlayerStopFromNative", "()V");
         idDestroy = mainJniEnv->GetMethodID(jClazz, "onPlayerDestroyFromNative", "()V");
-        idTime = mainJniEnv->GetMethodID(jClazz, "onPlayerTimeFromNative", "(JJ)V");
+        idTime = mainJniEnv->GetMethodID(jClazz, "onPlayerTimeFromNative", "(II)V");
         idError = mainJniEnv->GetMethodID(jClazz, "onPlayerErrorFromNative", "(ILjava/lang/String;)V");
         idComplete = mainJniEnv->GetMethodID(jClazz, "onPlayerCompleteFromNative", "()V");
         idLoad = mainJniEnv->GetMethodID(jClazz, "onPlayerLoadStateFromNative", "(Z)V");
@@ -91,11 +91,11 @@ void SJavaMethods::onCallJavaDestroy() {
     }
 }
 
-void SJavaMethods::onCallJavaTimeFromThread(long totalTimeMillis, long currentTimeMillis) {
-    LOGD("onCallJavaTime, %ld %ld", totalTimeMillis, currentTimeMillis);
+void SJavaMethods::onCallJavaTimeFromThread(int totalTimeMillis, int currentTimeMillis) {
+    LOGD("onCallJavaTime, %d %d", totalTimeMillis, currentTimeMillis);
     JNIEnv *jniEnv;
     if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
-        jniEnv->CallVoidMethod(javaInstance, idTime, (jlong) totalTimeMillis, (jlong) currentTimeMillis);
+        jniEnv->CallVoidMethod(javaInstance, idTime, (jint) totalTimeMillis, (jint) currentTimeMillis);
         javaVm->DetachCurrentThread();
     }
 }
@@ -139,10 +139,10 @@ void SJavaMethods::onCallJavaComplete() {
 }
 
 void SJavaMethods::onCallJavaLoadState(bool loadState) {
-    JNIEnv *jniEnv = tryLoadEnv();
-    if (jniEnv != NULL) {
+    JNIEnv *jniEnv;
+    if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
         jniEnv->CallVoidMethod(javaInstance, idLoad, loadState);
-        tryUnLoadEnv();
+        javaVm->DetachCurrentThread();
     }
 }
 

@@ -48,7 +48,7 @@ public:
 
     void onCallJavaDestroy();
 
-    void onCallJavaTimeFromThread(long totalTimeMillis, long currentTimeMillis);
+    void onCallJavaTimeFromThread(int totalTimeMillis, int currentTimeMillis);
 
     void onCallJavaError(int code, const char *message);
 

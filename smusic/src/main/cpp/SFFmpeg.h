@@ -32,6 +32,8 @@ private:
     SStatus *pStatus = NULL;
 
     SJavaMethods *pJavaMethods = NULL;
+
+    pthread_mutex_t seekMutex;
 public:
 
     SFFmpeg(SStatus *pStatus, SJavaMethods *pJavaMethods);
@@ -50,9 +52,9 @@ public:
 
     SMedia *getVideo();
 
-    long getTotalTimeMillis();
+    double getTotalTimeMillis();
 
-    long getCurrentTimeMillis();
+    double getCurrentTimeMillis();
 
     void releasePacket();
 
@@ -70,6 +72,7 @@ public:
 
     int release();
 
+    void seek(int64_t millis);
 };
 
 

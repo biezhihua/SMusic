@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.bzh.music.R
@@ -16,12 +17,37 @@ class MainActivity : AppCompatActivity() {
 
     private var music: SMusic? = null
 
-    private lateinit var time: TextView
+    private lateinit var time1: TextView
+    private lateinit var time2: TextView
+    private lateinit var seek: SeekBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        time = findViewById(R.id.time)
+        time1 = findViewById(R.id.time1)
+        time2 = findViewById(R.id.time2)
+        seek = findViewById(R.id.seek)
+
+        seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
+            var mProgress: Int = 0
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    mProgress = progress
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                music?.pause()
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                music?.play()
+                music?.seek(mProgress)
+            }
+
+        })
     }
 
     fun create(v: View) {
@@ -31,16 +57,16 @@ class MainActivity : AppCompatActivity() {
         music = SMusic()
         music?.listener = object : IMusicListener {
             @SuppressLint("SimpleDateFormat")
-            override fun onTime(totalTime: Long, currentTime: Long) {
+            override fun onTime(totalTime: Int, currentTime: Int) {
                 Log.d(TAG, "onTime() called with: totalTime = [$totalTime], currentTime = [$currentTime]")
                 val formatter = SimpleDateFormat("mm:ss")
-                time.text = formatter.format(Date(totalTime)) + "/" + formatter.format(Date(currentTime))
-
+                time1.text = formatter.format(Date(currentTime.toLong()))
+                time2.text = formatter.format(Date(totalTime.toLong()))
+                seek.max = totalTime
+                seek.progress = currentTime
             }
         }
-
         music?.create()
-
     }
 
     fun setSource(v: View) {

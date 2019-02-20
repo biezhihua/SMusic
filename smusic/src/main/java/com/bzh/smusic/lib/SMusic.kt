@@ -49,6 +49,11 @@ class SMusic {
         nativeDestroy()
     }
 
+    fun seek(progress: Int) {
+        Log.d(TAG, "seek() called with: progress = [$progress]")
+        nativeSeek(progress)
+    }
+
     private fun isMainThread(): Boolean {
         return Looper.getMainLooper().thread === Thread.currentThread()
     }
@@ -111,7 +116,7 @@ class SMusic {
     @WorkerThread
     @CalledByNative
     @Keep
-    fun onPlayerTimeFromNative(totalTime: Long, currentTime: Long) {
+    fun onPlayerTimeFromNative(totalTime: Int, currentTime: Int) {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerTimeFromNative() called $totalTime $currentTime")
             listener?.onTime(totalTime, currentTime)
@@ -168,13 +173,13 @@ class SMusic {
     private external fun nativeStop()
 
     @Keep
-    private external fun nativeSeek(seek: Long)
+    private external fun nativeSeek(seek: Int)
 
     @Keep
-    private external fun nativeGetTotalTimeMillis(): Long
+    private external fun nativeGetTotalTimeMillis(): Int
 
     @Keep
-    private external fun nativeGetCurrentTimeMillis(): Long
+    private external fun nativeGetCurrentTimeMillis(): Int
 
     companion object {
 

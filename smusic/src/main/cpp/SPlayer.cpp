@@ -330,4 +330,17 @@ SOpenSLES *SPlayer::getSOpenSLES() {
     return pOpenSLES;
 }
 
+void SPlayer::seek(int64_t millis) {
+    if (pFFmpeg != NULL) {
+        if (pFFmpeg->getTotalTimeMillis() <= 0) {
+            LOGD("SPlayer:seek: total time is 0");
+            return;
+        }
+
+        if (millis >= 0 && millis <= pFFmpeg->getTotalTimeMillis()) {
+            pFFmpeg->seek(millis);
+        }
+    }
+}
+
 #pragma clang diagnostic pop
