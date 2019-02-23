@@ -136,6 +136,21 @@ void *startDecodeMediaInfoCallback(void *data) {
     return NULL;
 }
 
+
+void *seekCallback(void *data) {
+    LOGD("SPlayer: seekCallback: start");
+    SPlayer *sPlayer = (SPlayer *) data;
+    if (sPlayer != NULL && sPlayer->getSFFmpeg() != NULL) {
+        SFFmpeg *pFFmpeg = sPlayer->getSFFmpeg();
+        if (pFFmpeg != NULL) {
+            pFFmpeg->seek(sPlayer->getSeekMillis());
+        }
+    }
+    LOGD("SPlayer: seekCallback: end");
+    pthread_exit(&sPlayer->seekAudioThread);
+    return NULL;
+}
+
 void *playAudioCallback(void *data) {
     LOGD("SPlayer: playAudioCallback: start");
     SPlayer *sPlayer = (SPlayer *) data;
@@ -338,10 +353,15 @@ void SPlayer::seek(int64_t millis) {
             return;
         }
         if (millis >= 0 && millis <= pFFmpeg->getTotalTimeMillis()) {
-            pFFmpeg->seek(millis);
+            seekMillis = millis;
+            pthread_create(&seekAudioThread, NULL, seekCallback, this);
         }
         LOGD("SPlayer:seek: %d %f", (int) millis, pFFmpeg->getTotalTimeMillis());
     }
+}
+
+int64_t SPlayer::getSeekMillis() const {
+    return seekMillis;
 }
 
 #pragma clang diagnostic pop

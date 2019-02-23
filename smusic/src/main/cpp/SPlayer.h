@@ -27,6 +27,8 @@ private:
 
     SOpenSLES *pOpenSLES = NULL;
 
+    int64_t seekMillis = 0;
+
 public:
 
     bool startDecodeMediaInfoThreadComplete = false;
@@ -40,6 +42,8 @@ public:
     pthread_t startDecodeAudioThread;
 
     pthread_t playAudioThread;
+
+    pthread_t seekAudioThread;
 
 private:
     void create();
@@ -70,6 +74,8 @@ public:
     SOpenSLES *getSOpenSLES();
 
     void seek(int64_t millis);
+
+    int64_t getSeekMillis() const;
 
 };
 
