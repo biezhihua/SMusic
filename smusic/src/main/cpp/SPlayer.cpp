@@ -332,7 +332,7 @@ SOpenSLES *SPlayer::getSOpenSLES() {
 
 void SPlayer::seek(int64_t millis) {
 
-    if (pFFmpeg != NULL && pStatus != NULL && (pStatus->isPlay() || pStatus->isPause())) {
+    if (pFFmpeg != NULL && pStatus != NULL && pStatus->isPlay()) {
         if (pFFmpeg->getTotalTimeMillis() <= 0) {
             LOGD("SPlayer:seek: total time is 0");
             return;

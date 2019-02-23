@@ -148,6 +148,7 @@ void SJavaMethods::onCallJavaComplete() {
 
 void SJavaMethods::onCallJavaLoadState(bool loadState) {
     JNIEnv *jniEnv;
+    LOGD("SJavaMethods:onCallJavaLoadState %d", loadState);
     if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
         jniEnv->CallVoidMethod(javaInstance, idLoad, loadState);
         javaVm->DetachCurrentThread();

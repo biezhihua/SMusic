@@ -187,21 +187,20 @@ int SOpenSLES::resampleAudio() {
     int result = 0;
     while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
         if (pFFmpeg->getAudioQueue() != NULL && pFFmpeg->getAudioQueue()->getSize() == 0) {
-            if (!pStatus->isLoading()) {
-                pStatus->setLoading(true);
+            if (!isLoading) {
+                isLoading = true;
                 if (pJavaMethods != NULL) {
                     pJavaMethods->onCallJavaLoadState(true);
                 }
             }
             continue;
         } else {
-            if (pStatus->isLoading()) {
-                pStatus->setLoading(false);
+            if (isLoading) {
+                isLoading = false;
                 if (pJavaMethods != NULL) {
                     pJavaMethods->onCallJavaLoadState(false);
                 }
             }
-
         }
         result = pFFmpeg->resampleAudio();
         // LOGD("SOpenSLES: resampleAudio: result = %d", result);

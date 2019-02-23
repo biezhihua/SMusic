@@ -74,7 +74,7 @@ int SFFmpeg::decodeMediaInfo() {
         return S_ERROR;
     }
 
-    LOGD("SFFmpeg: decodeMediaInfo: Opening the input file (%s) and loading format (container) header",
+    LOGD("SFFmpeg: decodeMediaInfo: Opening the input file (%s) and _isLoading format (container) header",
          pSource->c_str());
 
     // Open the file and read its header. The codecs are not opened.
@@ -341,19 +341,65 @@ int SFFmpeg::resampleAudio() {
         swr_free(&swrContext);
         swrContext = NULL;
 
-        if (pStatus != NULL && pStatus->isPrePreSeekState() && millis > pAudio->getCurrentTimeMillis()) {
-            LOGE("SFFmpeg: resampleAudio: frame error %d %d %d", pStatus->isPrePreSeekState(), (int) millis,
-                 (int) pAudio->getCurrentTimeMillis());
-            return S_ERROR_CONTINUE;
+        // Process Seek Exception
+        if (pStatus != NULL && pStatus->isPrePreSeekState()) {
+            if (seekTargetMillis < seekStartMillis) {
+                // Left
+                if (seekTargetMillis < pAudio->getCurrentTimeMillis()) {
+                    LOGE("SFFmpeg: resampleAudio: left: frame error %d %d %d", pStatus->isPrePreSeekState(),
+                         (int) seekTargetMillis,
+                         (int) pAudio->getCurrentTimeMillis());
+                    seek(seekTargetMillis);
+                    if (seekTargetMillis > pAudio->getCurrentTimeMillis()) {
+
+                        // Call Loading
+                        if (!isLoading) {
+                            isLoading = true;
+                            if (pJavaMethods != NULL) {
+                                pJavaMethods->onCallJavaLoadState(true);
+                            }
+                        }
+                        return S_ERROR_CONTINUE;
+                    }
+                }
+            } else if (seekTargetMillis > seekStartMillis) {
+                // Right
+                if (seekTargetMillis > pAudio->getCurrentTimeMillis()) {
+                    seek(seekTargetMillis);
+                    LOGE("SFFmpeg: resampleAudio: right: frame error %d %d %d", pStatus->isPrePreSeekState(),
+                         (int) seekTargetMillis,
+                         (int) pAudio->getCurrentTimeMillis());
+                    if (seekTargetMillis > pAudio->getCurrentTimeMillis()) {
+
+                        // Call Loading
+                        if (!isLoading) {
+                            isLoading = true;
+                            if (pJavaMethods != NULL) {
+                                pJavaMethods->onCallJavaLoadState(true);
+                            }
+                        }
+                        return S_ERROR_CONTINUE;
+                    }
+                }
+            }
         }
 
-        millis = 0;
+        seekTargetMillis = 0;
+        seekStartMillis = 0;
 
+        // Call Loading
+        if (isLoading) {
+            isLoading = false;
+            if (pJavaMethods != NULL) {
+                pJavaMethods->onCallJavaLoadState(false);
+            }
+        }
+
+        // Call Time
         if (pJavaMethods != NULL && pAudio->isMinDiff()) {
             pJavaMethods->onCallJavaTimeFromThread((int) pAudio->getTotalTimeMillis(),
                                                    (int) pAudio->getCurrentTimeMillis());
         }
-
         return dataSize;
     }
 }
@@ -465,20 +511,30 @@ double SFFmpeg::getCurrentTimeMillis() {
 }
 
 void SFFmpeg::seek(int64_t millis) {
-    this->millis = millis;
+
     if (pAudioQueue != NULL) {
         pAudioQueue->clear();
     }
     if (pAudio != NULL) {
+        pthread_mutex_lock(&seekMutex);
         pStatus->moveStatusToSeek();
+
+        this->seekTargetMillis = millis;
+        this->seekStartMillis = pAudio->currentTimeMillis;
+
         pAudio->currentTime = 0;
         pAudio->currentTimeMillis = 0;
         pAudio->lastTimeMillis = 0;
-        pthread_mutex_lock(&seekMutex);
+
         int64_t rel = millis / 1000 * AV_TIME_BASE;
-        avformat_seek_file(pFormatContext, -1, INT64_MIN, rel, INT64_MAX, 0);
-        pthread_mutex_unlock(&seekMutex);
+        int ret = avformat_seek_file(pFormatContext, -1, INT64_MIN, rel, INT64_MAX, 0);
         pStatus->moveStatusToPreState();
+
+        pthread_mutex_unlock(&seekMutex);
+
+        LOGD("SFFmpeg:seek: seekTargetMillis=%d seekStartMillis=%f rel=%d ret=%d", (int) seekTargetMillis,
+             seekStartMillis,
+             (int) rel, ret);
     }
 }
 

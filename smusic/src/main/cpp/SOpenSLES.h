@@ -17,6 +17,7 @@ class SOpenSLES {
 
 private:
     SJavaMethods *pJavaMethods = NULL;
+    bool isLoading = false;
 
 public:
 

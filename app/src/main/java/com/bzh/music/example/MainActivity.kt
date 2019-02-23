@@ -39,12 +39,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                music?.pause()
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 music?.seek(mProgress)
-                music?.play()
             }
 
         })
@@ -92,6 +90,16 @@ class MainActivity : AppCompatActivity() {
     fun destroy(v: View) {
         music?.destroy()
         music = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        music?.play()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        music?.pause()
     }
 
     companion object {

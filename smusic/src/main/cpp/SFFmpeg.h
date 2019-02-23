@@ -35,7 +35,10 @@ private:
 
     pthread_mutex_t seekMutex;
 
-    int64_t millis = 0;
+    int64_t seekTargetMillis = 0;
+    double seekStartMillis = 0;
+
+    bool isLoading = false;
 
 public:
 
