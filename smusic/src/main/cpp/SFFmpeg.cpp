@@ -482,6 +482,14 @@ int SFFmpeg::release() {
         pVideo = NULL;
     }
 
+    if (pAudioQueue != NULL) {
+        pAudioQueue->clear();
+    }
+    
+    if (pVideoQueue != NULL) {
+        pVideoQueue->clear();
+    }
+
     if (pFormatContext != NULL) {
         avformat_close_input(&pFormatContext);
         avformat_free_context(pFormatContext);

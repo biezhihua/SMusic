@@ -267,6 +267,8 @@ int SOpenSLES::release() {
 
     LOGD("OpenSLES: release");
 
+    stop();
+
     if (bqPlayerObject != NULL) {
         (*bqPlayerObject)->Destroy(bqPlayerObject);
         bqPlayerObject = NULL;
