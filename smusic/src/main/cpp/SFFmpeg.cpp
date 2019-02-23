@@ -334,10 +334,6 @@ int SFFmpeg::resampleAudio() {
         int dataSize = numbers * outChannels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 
         pAudio->updateTime(pResampleFrame, dataSize);
-        if (pJavaMethods != NULL && pAudio->isMinDiff()) {
-            pJavaMethods->onCallJavaTimeFromThread((int) pAudio->getTotalTimeMillis(),
-                                                   (int) pAudio->getCurrentTimeMillis());
-        }
 
         releasePacket();
         releaseFrame();
@@ -345,11 +341,17 @@ int SFFmpeg::resampleAudio() {
         swr_free(&swrContext);
         swrContext = NULL;
 
-        LOGE("SFFmpeg: resampleAudio: frame error %d %d %d", pStatus->isPreSeekState(), (int) millis,
-             (int) pAudio->getCurrentTimeMillis());
-        if (pStatus != NULL && pStatus->isPreSeekState() && millis > pAudio->getCurrentTimeMillis()) {
-            millis = 0;
+        if (pStatus != NULL && pStatus->isPrePreSeekState() && millis > pAudio->getCurrentTimeMillis()) {
+            LOGE("SFFmpeg: resampleAudio: frame error %d %d %d", pStatus->isPrePreSeekState(), (int) millis,
+                 (int) pAudio->getCurrentTimeMillis());
             return S_ERROR_CONTINUE;
+        }
+
+        millis = 0;
+
+        if (pJavaMethods != NULL && pAudio->isMinDiff()) {
+            pJavaMethods->onCallJavaTimeFromThread((int) pAudio->getTotalTimeMillis(),
+                                                   (int) pAudio->getCurrentTimeMillis());
         }
 
         return dataSize;
