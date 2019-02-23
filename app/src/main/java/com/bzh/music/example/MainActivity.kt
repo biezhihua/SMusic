@@ -138,6 +138,18 @@ class MainActivity : AppCompatActivity() {
         music = null
     }
 
+    fun left(v: View) {
+        music?.mute(SMusic.Mute.LEFT)
+    }
+
+    fun right(v: View) {
+        music?.mute(SMusic.Mute.RIGHT)
+    }
+
+    fun center(v: View) {
+        music?.mute(SMusic.Mute.CENTER)
+    }
+
     override fun onResume() {
         super.onResume()
         music?.play()

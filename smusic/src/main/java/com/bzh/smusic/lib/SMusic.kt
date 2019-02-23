@@ -11,6 +11,14 @@ import com.bzh.smusic.lib.annotations.CalledByNative
 @SuppressLint("RestrictedApi")
 class SMusic {
 
+    enum class Mute(val value: Int) {
+        LEFT(0),
+        RIGHT(1),
+        CENTER(2)
+
+
+    }
+
     var listener: IMusicListener? = null
 
     fun create() {
@@ -63,6 +71,10 @@ class SMusic {
         val volume = nativeGetCurrentVolume()
         Log.d(TAG, "getCurrentVolume() called: $volume")
         return volume
+    }
+
+    fun mute(mute: Mute) {
+        nativeMute(mute.value)
     }
 
     private fun isMainThread(): Boolean {
@@ -197,6 +209,9 @@ class SMusic {
 
     @Keep
     private external fun nativeVolume(percent: Int)
+
+    @Keep
+    private external fun nativeMute(mute: Int)
 
     @Keep
     private external fun nativeGetTotalTimeMillis(): Int

@@ -112,8 +112,8 @@ int SOpenSLES::init(int sampleRate) {
      *     fast audio does not support when SL_IID_EFFECTSEND is required, skip it
      *     for fast audio case
      */
-    const SLInterfaceID ids2[3] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_EFFECTSEND,/*SL_IID_MUTESOLO,*/};
-    const SLboolean req2[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE,/*SL_BOOLEAN_TRUE,*/ };
+    const SLInterfaceID ids2[4] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_EFFECTSEND, SL_IID_MUTESOLO};
+    const SLboolean req2[4] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &bqPlayerObject, &audioSrc, &audioSnk, 2, ids2, req2);
     if (SL_RESULT_SUCCESS != result) {
         LOGE("SOpenSLES: init: engineEngine CreateAudioPlayer bqPlayerObject failed");
@@ -148,6 +148,11 @@ int SOpenSLES::init(int sampleRate) {
         return S_ERROR;
     }
 
+    result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_MUTESOLO, &bqPlayerMuteSolo);
+    if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: bqPlayerObject SL_IID_MUTESOLO failed");
+    }
+
     // get the volume interface
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_VOLUME, &bqPlayerVolume);
     if (SL_RESULT_SUCCESS != result) {
@@ -156,6 +161,7 @@ int SOpenSLES::init(int sampleRate) {
     }
 
     volume(50);
+    mute(2);
 
     bqPlayerCallback(bqPlayerBufferQueue, this);
 
@@ -293,6 +299,7 @@ int SOpenSLES::release() {
         bqPlayerPlay = NULL;
         bqPlayerBufferQueue = NULL;
         bqPlayerVolume = NULL;
+        bqPlayerMuteSolo = NULL;
     }
 
     if (outputMixObject != NULL) {
@@ -311,5 +318,29 @@ int SOpenSLES::release() {
 
 jint SOpenSLES::getCurrentVolume() {
     return currentVolume / -50;
+}
+
+void SOpenSLES::mute(int mute) {
+    if (bqPlayerMuteSolo != NULL) {
+        switch (mute) {
+            case 0:
+                // Left
+                (*bqPlayerMuteSolo)->SetChannelMute(bqPlayerMuteSolo, 1, static_cast<SLboolean>(true));
+                (*bqPlayerMuteSolo)->SetChannelMute(bqPlayerMuteSolo, 0, static_cast<SLboolean>(false));
+                break;
+            case 1:
+                // Right
+                (*bqPlayerMuteSolo)->SetChannelMute(bqPlayerMuteSolo, 1, static_cast<SLboolean>(false));
+                (*bqPlayerMuteSolo)->SetChannelMute(bqPlayerMuteSolo, 0, static_cast<SLboolean>(true));
+                break;
+            case 2:
+                // Center
+                (*bqPlayerMuteSolo)->SetChannelMute(bqPlayerMuteSolo, 1, static_cast<SLboolean>(false));
+                (*bqPlayerMuteSolo)->SetChannelMute(bqPlayerMuteSolo, 0, static_cast<SLboolean>(false));
+                break;
+            default:
+                break;
+        }
+    }
 }
 

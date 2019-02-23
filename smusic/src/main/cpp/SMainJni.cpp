@@ -178,3 +178,13 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeVolume(JN
         sPlayer->volume((int) percent);
     }
 }
+
+
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeMute(JNIEnv *env,
+                                                                              jobject instance,
+                                                                              jint mute) {
+    LOGD("nativeMute %d", (int) mute);
+    if (sPlayer != NULL) {
+        sPlayer->mute((int) mute);
+    }
+}

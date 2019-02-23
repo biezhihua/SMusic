@@ -45,6 +45,7 @@ public:
     SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue;
 
     SLVolumeItf bqPlayerVolume = NULL;
+    SLMuteSoloItf bqPlayerMuteSolo = NULL;
 
     uint8_t *nextBuffer = NULL;
     unsigned nextSize;
@@ -72,6 +73,8 @@ public:
     void volume(int percent);
 
     jint getCurrentVolume();
+
+    void mute(int mute);
 };
 
 

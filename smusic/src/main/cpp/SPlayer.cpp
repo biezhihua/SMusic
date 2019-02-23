@@ -370,4 +370,10 @@ void SPlayer::volume(int percent) {
     }
 }
 
+void SPlayer::mute(int mute) {
+    if (mute >= 0 && pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL) {
+        pOpenSLES->mute(mute);
+    }
+}
+
 #pragma clang diagnostic pop
