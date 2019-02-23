@@ -150,11 +150,31 @@ extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurren
     return 0;
 }
 
+extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentVolume(JNIEnv *env,
+                                                                                            jobject instance) {
+    if (sPlayer != NULL) {
+        SOpenSLES *openSLES = sPlayer->getSOpenSLES();
+        if (openSLES != NULL) {
+            return (int) openSLES->getCurrentVolume();
+        }
+    }
+    return 0;
+}
+
 extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeSeek(JNIEnv *env,
                                                                             jobject instance,
                                                                             jint millis) {
     LOGD("nativeSeek %d", (int) millis);
     if (sPlayer != NULL) {
         sPlayer->seek((int64_t) millis);
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeVolume(JNIEnv *env,
+                                                                              jobject instance,
+                                                                              jint percent) {
+    LOGD("nativeVolume %d", (int) percent);
+    if (sPlayer != NULL) {
+        sPlayer->volume((int) percent);
     }
 }

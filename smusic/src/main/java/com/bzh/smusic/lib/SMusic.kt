@@ -54,6 +54,17 @@ class SMusic {
         nativeSeek(progress)
     }
 
+    fun volume(percent: Int) {
+        Log.d(TAG, "volume() called with: percent = [$percent]")
+        nativeVolume(percent)
+    }
+
+    fun getCurrentVolume(): Int {
+        val volume = nativeGetCurrentVolume()
+        Log.d(TAG, "getCurrentVolume() called: $volume")
+        return volume
+    }
+
     private fun isMainThread(): Boolean {
         return Looper.getMainLooper().thread === Thread.currentThread()
     }
@@ -64,6 +75,7 @@ class SMusic {
     fun onPlayerCreateFromNative() {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerCreateFromNative() called: isMainThread : " + isMainThread())
+            listener?.onCreate()
         }
     }
 
@@ -73,6 +85,7 @@ class SMusic {
     fun onPlayerStartFromNative() {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerStartFromNative() called: isMainThread : " + isMainThread())
+            listener?.onStart()
             play()
         }
     }
@@ -83,6 +96,7 @@ class SMusic {
     fun onPlayerPlayFromNative() {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerPlayFromNative() called: isMainThread : " + isMainThread())
+            listener?.onPlay()
         }
     }
 
@@ -92,6 +106,7 @@ class SMusic {
     fun onPlayerPauseFromNative() {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerPauseFromNative() called: isMainThread : " + isMainThread())
+            listener?.onPause()
         }
     }
 
@@ -101,6 +116,7 @@ class SMusic {
     fun onPlayerStopFromNative() {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerStopFromNative() called: isMainThread : " + isMainThread())
+            listener?.onStop()
         }
     }
 
@@ -110,6 +126,7 @@ class SMusic {
     fun onPlayerDestroyFromNative() {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerDestroyFromNative() called: isMainThread : " + isMainThread())
+            listener?.onDestroy()
         }
     }
 
@@ -129,6 +146,7 @@ class SMusic {
     fun onPlayerErrorFromNative(code: Int, message: String) {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerError() called $code $message")
+            listener?.onError(code, message)
         }
     }
 
@@ -138,6 +156,7 @@ class SMusic {
     fun onPlayerCompleteFromNative() {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerCompleteFromNative() called: isMainThread : " + isMainThread())
+            listener?.onComplete()
         }
     }
 
@@ -148,6 +167,7 @@ class SMusic {
     fun onPlayerLoadStateFromNative(loadState: Boolean) {
         ArchTaskExecutor.getMainThreadExecutor().execute {
             Log.d(TAG, "onPlayerLoadingFromNative() called $loadState")
+            listener?.onLoadState(loadState)
         }
     }
 
@@ -176,10 +196,16 @@ class SMusic {
     private external fun nativeSeek(seek: Int)
 
     @Keep
+    private external fun nativeVolume(percent: Int)
+
+    @Keep
     private external fun nativeGetTotalTimeMillis(): Int
 
     @Keep
     private external fun nativeGetCurrentTimeMillis(): Int
+
+    @Keep
+    private external fun nativeGetCurrentVolume(): Int
 
     companion object {
 

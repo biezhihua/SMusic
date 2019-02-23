@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var time1: TextView
     private lateinit var time2: TextView
     private lateinit var seek: SeekBar
+    private lateinit var volume: SeekBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         time1 = findViewById(R.id.time1)
         time2 = findViewById(R.id.time2)
         seek = findViewById(R.id.seek)
+        volume = findViewById(R.id.volume)
 
         seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
 
@@ -46,6 +48,19 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+
+        volume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                music?.volume(progress)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
     }
 
     fun create(v: View) {
@@ -54,6 +69,37 @@ class MainActivity : AppCompatActivity() {
         }
         music = SMusic()
         music?.listener = object : IMusicListener {
+            override fun onStart() {
+                if (music != null) {
+                    volume.progress = music!!.getCurrentVolume()
+                }
+            }
+
+            override fun onPlay() {
+            }
+
+            override fun onPause() {
+            }
+
+            override fun onStop() {
+            }
+
+            override fun onComplete() {
+            }
+
+            override fun onDestroy() {
+            }
+
+            override fun onLoadState(loadState: Boolean) {
+            }
+
+            override fun onError(code: Int, message: String) {
+            }
+
+            override fun onCreate() {
+
+            }
+
             @SuppressLint("SimpleDateFormat")
             override fun onTime(totalTime: Int, currentTime: Int) {
                 Log.d(TAG, "onTime() called with: totalTime = [$totalTime], currentTime = [$currentTime]")

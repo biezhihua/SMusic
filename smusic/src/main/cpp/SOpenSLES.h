@@ -18,6 +18,7 @@ class SOpenSLES {
 private:
     SJavaMethods *pJavaMethods = NULL;
     bool isLoading = false;
+    int currentVolume = -2500;
 
 public:
 
@@ -43,6 +44,8 @@ public:
     SLPlayItf bqPlayerPlay;
     SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue;
 
+    SLVolumeItf bqPlayerVolume = NULL;
+
     uint8_t *nextBuffer = NULL;
     unsigned nextSize;
 
@@ -65,6 +68,10 @@ public:
     int resampleAudio();
 
     int getSampleRate(int sampleRate);
+
+    void volume(int percent);
+
+    jint getCurrentVolume();
 };
 
 

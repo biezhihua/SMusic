@@ -364,4 +364,10 @@ int64_t SPlayer::getSeekMillis() const {
     return seekMillis;
 }
 
+void SPlayer::volume(int percent) {
+    if (percent >= 0 && percent <= 100 && pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL) {
+        pOpenSLES->volume(percent);
+    }
+}
+
 #pragma clang diagnostic pop

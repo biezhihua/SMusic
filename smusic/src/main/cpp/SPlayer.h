@@ -77,6 +77,7 @@ public:
 
     int64_t getSeekMillis() const;
 
+    void volume(int percent);
 };
 
 

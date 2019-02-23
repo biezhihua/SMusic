@@ -148,6 +148,15 @@ int SOpenSLES::init(int sampleRate) {
         return S_ERROR;
     }
 
+    // get the volume interface
+    result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_VOLUME, &bqPlayerVolume);
+    if (SL_RESULT_SUCCESS != result) {
+        LOGE("SOpenSLES: init: bqPlayerObject SL_IID_VOLUME failed");
+        return S_ERROR;
+    }
+
+    volume(50);
+
     bqPlayerCallback(bqPlayerBufferQueue, this);
 
     return S_SUCCESS;
@@ -181,6 +190,15 @@ int SOpenSLES::stop() {
         return S_SUCCESS;
     }
     return S_ERROR;
+}
+
+
+void SOpenSLES::volume(int percent) {
+    if (bqPlayerVolume != NULL) {
+        currentVolume = (100 - percent) * -50;
+        LOGD("SOpenSLES:volume: %d %d", percent, currentVolume);
+        (*bqPlayerVolume)->SetVolumeLevel(bqPlayerVolume, (SLmillibel) currentVolume);
+    }
 }
 
 int SOpenSLES::resampleAudio() {
@@ -274,6 +292,7 @@ int SOpenSLES::release() {
         bqPlayerObject = NULL;
         bqPlayerPlay = NULL;
         bqPlayerBufferQueue = NULL;
+        bqPlayerVolume = NULL;
     }
 
     if (outputMixObject != NULL) {
@@ -290,5 +309,7 @@ int SOpenSLES::release() {
     return 0;
 }
 
-
+jint SOpenSLES::getCurrentVolume() {
+    return currentVolume / -50;
+}
 
