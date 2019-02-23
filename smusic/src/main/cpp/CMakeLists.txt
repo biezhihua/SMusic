@@ -29,6 +29,9 @@ set_target_properties(sffmpeg
 
 include_directories(${SPLAYER_FF_OUTPUT_INCLUDE})
 
+include_directories(soundtouch/include)
+include_directories(soundtouch/SoundTouch)
+
 add_library(
         smusic
         SHARED
@@ -58,6 +61,22 @@ add_library(
 
         SOpenSLES.cpp
         SOpenSLES.h
+
+
+        soundtouch/SoundTouch/AAFilter.cpp
+        soundtouch/SoundTouch/BPMDetect.cpp
+        soundtouch/SoundTouch/cpu_detect_x86.cpp
+        soundtouch/SoundTouch/FIFOSampleBuffer.cpp
+        soundtouch/SoundTouch/FIRFilter.cpp
+        soundtouch/SoundTouch/InterpolateCubic.cpp
+        soundtouch/SoundTouch/InterpolateLinear.cpp
+        soundtouch/SoundTouch/InterpolateShannon.cpp
+        soundtouch/SoundTouch/mmx_optimized.cpp
+        soundtouch/SoundTouch/PeakFinder.cpp
+        soundtouch/SoundTouch/RateTransposer.cpp
+        soundtouch/SoundTouch/SoundTouch.cpp
+        soundtouch/SoundTouch/sse_optimized.cpp
+        soundtouch/SoundTouch/TDStretch.cpp
 )
 
 target_link_libraries(
