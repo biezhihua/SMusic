@@ -40,6 +40,8 @@ private:
 
     bool isLoading = false;
 
+    int channelSampleNumbers = 0;
+
 public:
 
     SFFmpeg(SStatus *pStatus, SJavaMethods *pJavaMethods);
@@ -79,6 +81,8 @@ public:
     int release();
 
     void seek(int64_t millis);
+
+    int getChannelSampleNumbers() const;
 };
 
 

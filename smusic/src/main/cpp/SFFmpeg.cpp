@@ -318,20 +318,21 @@ int SFFmpeg::resampleAudio() {
             return S_ERROR_CONTINUE;
         }
 
-        int numbers = swr_convert(swrContext,
-                                  &pBuffer,
-                                  pResampleFrame->nb_samples,
-                                  (const uint8_t **) (pResampleFrame->data),
-                                  pResampleFrame->nb_samples);
+        // number of samples output per channel, negative value on error
+        channelSampleNumbers = swr_convert(swrContext,
+                                           &pBuffer,
+                                           pResampleFrame->nb_samples,
+                                           (const uint8_t **) (pResampleFrame->data),
+                                           pResampleFrame->nb_samples);
 
-        if (numbers < 0) {
+        if (channelSampleNumbers < 0) {
             LOGE("SFFmpeg: resampleAudio: swr convert numbers < 0 ");
             return S_ERROR_CONTINUE;
         }
 
         int outChannels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
 
-        int dataSize = numbers * outChannels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
+        int dataSize = channelSampleNumbers * outChannels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 
         pAudio->updateTime(pResampleFrame, dataSize);
 
@@ -485,7 +486,7 @@ int SFFmpeg::release() {
     if (pAudioQueue != NULL) {
         pAudioQueue->clear();
     }
-    
+
     if (pVideoQueue != NULL) {
         pVideoQueue->clear();
     }
@@ -544,6 +545,10 @@ void SFFmpeg::seek(int64_t millis) {
              seekStartMillis,
              (int) rel, ret);
     }
+}
+
+int SFFmpeg::getChannelSampleNumbers() const {
+    return channelSampleNumbers;
 }
 
 #pragma clang diagnostic pop

@@ -26,11 +26,10 @@ void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
         int result = pOpenSLES->resampleAudio();
         if (result >= 0) {
             pOpenSLES->nextSize = static_cast<unsigned int>(result);
-            pOpenSLES->nextBuffer = pOpenSLES->pFFmpeg->getBuffer();
+            pOpenSLES->pNextBuffer = (uint8_t *) (pOpenSLES->pSoundNextBuffer);
             if (pOpenSLES->nextSize != 0) {
-                // LOGD("OpenSLES: bqPlayerCallback: Enqueue");
                 (*pOpenSLES->bqPlayerBufferQueue)->Enqueue(pOpenSLES->bqPlayerBufferQueue,
-                                                           pOpenSLES->nextBuffer,
+                                                           pOpenSLES->pNextBuffer,
                                                            pOpenSLES->nextSize);
             }
         }
@@ -38,6 +37,25 @@ void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
 }
 
 int SOpenSLES::init(int sampleRate) {
+
+    this->sampleRate = sampleRate;
+
+    int result;
+
+    result = initSoundTouch();
+    if (result != S_SUCCESS) {
+        return result;
+    }
+
+    result = initOpenSLES();
+    if (result != S_SUCCESS) {
+        return result;
+    }
+
+    return result;
+}
+
+int SOpenSLES::initOpenSLES() {
 
     SLresult result;
 
@@ -168,6 +186,17 @@ int SOpenSLES::init(int sampleRate) {
     return S_SUCCESS;
 }
 
+
+int SOpenSLES::initSoundTouch() {
+    pSoundNextBuffer = static_cast<SAMPLETYPE *>(malloc(static_cast<size_t>(sampleRate * 2 * 2)));
+    pSoundTouch = new SoundTouch();
+    pSoundTouch->setSampleRate(static_cast<uint>(sampleRate));
+    pSoundTouch->setChannels(2);
+    pSoundTouch->setPitch(soundPitch);
+    pSoundTouch->setTempo(soundSpeed);
+    return S_SUCCESS;
+}
+
 int SOpenSLES::play() {
     LOGD("OpenSLES: play");
     if (state != SL_PLAYSTATE_PLAYING && bqPlayerPlay != NULL) {
@@ -226,13 +255,37 @@ int SOpenSLES::resampleAudio() {
                 }
             }
         }
+        if (soundSamples != 0) {
+            soundSamples = pSoundTouch->receiveSamples(pSoundNextBuffer, (uint) (audioDataSize / 4));
+            if (soundSamples != 0) {
+                return soundSamples * 2 * 2;
+            }
+        }
         result = pFFmpeg->resampleAudio();
-        // LOGD("SOpenSLES: resampleAudio: result = %d", result);
         if (result == S_ERROR_BREAK) {
             return result;
         } else if (result == S_ERROR_CONTINUE) {
             continue;
         } else if (result >= 0) {
+            if (result > 0) {
+                audioDataSize = result;
+                for (int i = 0; i < audioDataSize / 2 + 1; i++) {
+                    pSoundNextBuffer[i] = (pFFmpeg->getBuffer()[i * 2] | ((pFFmpeg->getBuffer()[i * 2 + 1]) << 8));
+                }
+                if (pSoundTouch != NULL) {
+                    pSoundTouch->putSamples(pSoundNextBuffer, (uint) pFFmpeg->getChannelSampleNumbers());
+                    soundSamples = pSoundTouch->receiveSamples(pSoundNextBuffer, (uint) (audioDataSize / 4));
+                    if (soundSamples == 0) {
+                        continue;
+                    }
+                    return soundSamples * 2 * 2;
+                }
+            } else {
+                if (pSoundTouch != NULL) {
+                    pSoundTouch->flush();
+                }
+                return 0;
+            }
             return result;
         }
     }
@@ -293,6 +346,13 @@ int SOpenSLES::release() {
 
     stop();
 
+    if (pSoundTouch != NULL) {
+        delete pSoundTouch;
+        pSoundTouch = NULL;
+        delete pSoundNextBuffer;
+        pSoundNextBuffer = NULL;
+    }
+
     if (bqPlayerObject != NULL) {
         (*bqPlayerObject)->Destroy(bqPlayerObject);
         bqPlayerObject = NULL;
@@ -343,4 +403,5 @@ void SOpenSLES::mute(int mute) {
         }
     }
 }
+
 

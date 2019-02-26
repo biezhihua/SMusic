@@ -62,7 +62,6 @@ add_library(
         SOpenSLES.cpp
         SOpenSLES.h
 
-
         soundtouch/SoundTouch/AAFilter.cpp
         soundtouch/SoundTouch/BPMDetect.cpp
         soundtouch/SoundTouch/cpu_detect_x86.cpp
@@ -77,6 +76,7 @@ add_library(
         soundtouch/SoundTouch/SoundTouch.cpp
         soundtouch/SoundTouch/sse_optimized.cpp
         soundtouch/SoundTouch/TDStretch.cpp
+
 )
 
 target_link_libraries(

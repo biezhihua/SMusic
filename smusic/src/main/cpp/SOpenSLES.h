@@ -13,12 +13,27 @@
 #include "SFFmpeg.h"
 #include <pthread.h>
 
+#include "SoundTouch.h"
+
+using namespace soundtouch;
+
 class SOpenSLES {
 
 private:
-    SJavaMethods *pJavaMethods = NULL;
     bool isLoading = false;
+
+    SJavaMethods *pJavaMethods = NULL;
+
+    // SoundTouch
+    SoundTouch *pSoundTouch = NULL;
+
     int currentVolume = -2500;
+    int sampleRate = 0;
+
+    double soundSpeed = 1.0f;
+    double soundPitch = 1.0f;
+    int soundSamples = 0;
+    int audioDataSize = 0;
 
 public:
 
@@ -47,8 +62,9 @@ public:
     SLVolumeItf bqPlayerVolume = NULL;
     SLMuteSoloItf bqPlayerMuteSolo = NULL;
 
-    uint8_t *nextBuffer = NULL;
+    uint8_t *pNextBuffer = NULL;
     unsigned nextSize;
+    SAMPLETYPE *pSoundNextBuffer = NULL;
 
 public:
 
@@ -75,6 +91,11 @@ public:
     jint getCurrentVolume();
 
     void mute(int mute);
+
+    int initSoundTouch();
+
+    int initOpenSLES();
+
 };
 
 
