@@ -346,6 +346,7 @@ SOpenSLES *SPlayer::getSOpenSLES() {
 }
 
 void SPlayer::seek(int64_t millis) {
+    LOGD("SPlayer: seek: ----------------------- ");
 
     if (pFFmpeg != NULL && pStatus != NULL && pStatus->isPlay()) {
         if (pFFmpeg->getTotalTimeMillis() <= 0) {
@@ -365,24 +366,28 @@ int64_t SPlayer::getSeekMillis() const {
 }
 
 void SPlayer::volume(int percent) {
+    LOGD("SPlayer: volume: ----------------------- ");
     if (percent >= 0 && percent <= 100 && pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL) {
         pOpenSLES->volume(percent);
     }
 }
 
 void SPlayer::mute(int mute) {
+    LOGD("SPlayer: mute: ----------------------- ");
     if (mute >= 0 && pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL) {
         pOpenSLES->mute(mute);
     }
 }
 
 void SPlayer::speed(double soundSpeed) {
+    LOGD("SPlayer: speed: ----------------------- ");
     if (pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL) {
         pOpenSLES->setSoundTouchTempo(soundSpeed);
     }
 }
 
 void SPlayer::pitch(double soundPitch) {
+    LOGD("SPlayer: pitch: ----------------------- ");
     if (pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL) {
         pOpenSLES->setSoundTouchPitch(soundPitch);
     }
