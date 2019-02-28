@@ -80,6 +80,10 @@ public:
     void volume(int percent);
 
     void mute(int mute);
+
+    void speed(double soundSpeed);
+
+    void pitch(double soundPitch);
 };
 
 

@@ -21,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var time2: TextView
     private lateinit var seek: SeekBar
     private lateinit var volume: SeekBar
+    private lateinit var speed: SeekBar
+    private lateinit var pitch: SeekBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +31,37 @@ class MainActivity : AppCompatActivity() {
         time2 = findViewById(R.id.time2)
         seek = findViewById(R.id.seek)
         volume = findViewById(R.id.volume)
+        speed = findViewById(R.id.speed)
+        pitch = findViewById(R.id.pitch)
+
+        speed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                music?.speed((progress * 2.0F / 100).toDouble())
+            }
+
+        })
+
+        pitch.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                music?.pitch((progress * 2.0F / 100).toDouble())
+            }
+
+        })
+
 
         seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
 
@@ -71,7 +104,9 @@ class MainActivity : AppCompatActivity() {
         music?.listener = object : IMusicListener {
             override fun onStart() {
                 if (music != null) {
-                    volume.progress = music!!.getCurrentVolume()
+                    volume.progress = music!!.getCurrentVolumePercent()
+                    speed.progress = (music!!.getCurrentSpeed() * 100 / 2).toInt()
+                    pitch.progress = (music!!.getCurrentPitch() * 100 / 2).toInt()
                 }
             }
 

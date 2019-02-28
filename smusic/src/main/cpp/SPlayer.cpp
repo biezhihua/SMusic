@@ -376,4 +376,16 @@ void SPlayer::mute(int mute) {
     }
 }
 
+void SPlayer::speed(double soundSpeed) {
+    if (pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL) {
+        pOpenSLES->setSoundTouchTempo(soundSpeed);
+    }
+}
+
+void SPlayer::pitch(double soundPitch) {
+    if (pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL) {
+        pOpenSLES->setSoundTouchPitch(soundPitch);
+    }
+}
+
 #pragma clang diagnostic pop

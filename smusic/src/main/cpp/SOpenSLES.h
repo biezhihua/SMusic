@@ -62,9 +62,9 @@ public:
     SLVolumeItf bqPlayerVolume = NULL;
     SLMuteSoloItf bqPlayerMuteSolo = NULL;
 
-    uint8_t *pNextBuffer = NULL;
-    unsigned nextSize;
+    uint8_t *pNextAudioBuffer = NULL;
     SAMPLETYPE *pSoundNextBuffer = NULL;
+    unsigned nextAudioSize;
 
 public:
 
@@ -88,13 +88,22 @@ public:
 
     void volume(int percent);
 
-    jint getCurrentVolume();
+    jint getCurrentVolumePercent();
 
     void mute(int mute);
 
     int initSoundTouch();
 
     int initOpenSLES();
+
+    void setSoundTouchPitch(double soundPitch);
+
+    void setSoundTouchTempo(double soundSpeed);
+
+    double getSoundSpeed() const;
+
+    double getSoundPitch() const;
+
 
 };
 

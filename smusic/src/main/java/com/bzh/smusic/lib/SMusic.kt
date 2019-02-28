@@ -62,19 +62,50 @@ class SMusic {
         nativeSeek(progress)
     }
 
+    /**
+     * Range 0...100
+     */
     fun volume(percent: Int) {
         Log.d(TAG, "volume() called with: percent = [$percent]")
         nativeVolume(percent)
     }
 
-    fun getCurrentVolume(): Int {
-        val volume = nativeGetCurrentVolume()
-        Log.d(TAG, "getCurrentVolume() called: $volume")
+    fun getCurrentVolumePercent(): Int {
+        val volume = nativeGetCurrentVolumePercent()
+        Log.d(TAG, "getCurrentVolumePercent() called: $volume")
         return volume
     }
 
     fun mute(mute: Mute) {
         nativeMute(mute.value)
+    }
+
+    /**
+     * Range 0...2
+     */
+    fun speed(speed: Double) {
+        Log.d(TAG, "speed() called with: speed = [$speed]")
+        nativeSpeed(speed)
+    }
+
+    /**
+     * Range 0...2
+     */
+    fun pitch(pitch: Double) {
+        Log.d(TAG, "pitch() called with: pitch = [$pitch]")
+        nativePitch(pitch)
+    }
+
+    fun getCurrentSpeed(): Double {
+        val speed = nativeGetCurrentSpeed()
+        Log.d(TAG, "getCurrentSpeed() called: $speed")
+        return speed
+    }
+
+    fun getCurrentPitch(): Double {
+        val pitch = nativeGetCurrentPitch()
+        Log.d(TAG, "getCurrentPitch() called: $pitch")
+        return pitch
     }
 
     private fun isMainThread(): Boolean {
@@ -214,13 +245,35 @@ class SMusic {
     private external fun nativeMute(mute: Int)
 
     @Keep
+    private external fun nativeSpeed(speed: Double)
+
+    @Keep
+    private external fun nativePitch(pitch: Double)
+
+    @Keep
     private external fun nativeGetTotalTimeMillis(): Int
 
     @Keep
     private external fun nativeGetCurrentTimeMillis(): Int
 
+
+    /**
+     * Range 0...100
+     */
     @Keep
-    private external fun nativeGetCurrentVolume(): Int
+    private external fun nativeGetCurrentVolumePercent(): Int
+
+    /**
+     * Default 1.0
+     */
+    @Keep
+    private external fun nativeGetCurrentSpeed(): Double
+
+    /**
+     * Default 1.0
+     */
+    @Keep
+    private external fun nativeGetCurrentPitch(): Double
 
     companion object {
 

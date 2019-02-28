@@ -124,4 +124,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
+    <SeekBar
+            android:id="@+id/speed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <SeekBar
+            android:id="@+id/pitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
 </LinearLayout>

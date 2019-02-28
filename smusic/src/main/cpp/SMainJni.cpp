@@ -150,12 +150,12 @@ extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurren
     return 0;
 }
 
-extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentVolume(JNIEnv *env,
-                                                                                            jobject instance) {
+extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentVolumePercent(JNIEnv *env,
+                                                                                        jobject instance) {
     if (sPlayer != NULL) {
         SOpenSLES *openSLES = sPlayer->getSOpenSLES();
         if (openSLES != NULL) {
-            return (int) openSLES->getCurrentVolume();
+            return (int) openSLES->getCurrentVolumePercent();
         }
     }
     return 0;
@@ -181,10 +181,50 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeVolume(JN
 
 
 extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeMute(JNIEnv *env,
-                                                                              jobject instance,
-                                                                              jint mute) {
+                                                                            jobject instance,
+                                                                            jint mute) {
     LOGD("nativeMute %d", (int) mute);
     if (sPlayer != NULL) {
         sPlayer->mute((int) mute);
     }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_bzh_smusic_lib_SMusic_nativeSpeed(JNIEnv *env, jobject instance, jdouble speed) {
+    LOGD("nativeSpeed %f", (double) speed);
+    if (sPlayer != NULL) {
+        sPlayer->speed((double) speed);
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_bzh_smusic_lib_SMusic_nativePitch(JNIEnv *env, jobject instance, jdouble pitch) {
+    LOGD("nativePitch %f", (double) pitch);
+    if (sPlayer != NULL) {
+        sPlayer->pitch((double) pitch);
+    }
+}
+
+
+extern "C" JNIEXPORT jdouble JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentSpeed(JNIEnv *env,
+                                                                                          jobject instance) {
+    if (sPlayer != NULL) {
+        SOpenSLES *openSLES = sPlayer->getSOpenSLES();
+        if (openSLES != NULL) {
+            return (int) openSLES->getSoundSpeed();
+        }
+    }
+    return 0;
+}
+
+
+extern "C" JNIEXPORT jdouble JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentPitch(JNIEnv *env,
+                                                                                          jobject instance) {
+    if (sPlayer != NULL) {
+        SOpenSLES *openSLES = sPlayer->getSOpenSLES();
+        if (openSLES != NULL) {
+            return (int) openSLES->getSoundPitch();
+        }
+    }
+    return 0;
 }
