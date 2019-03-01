@@ -206,10 +206,12 @@ int SFFmpeg::decodeMediaInfo() {
 int SFFmpeg::decodeAudioFrame() {
 
     if (pStatus != NULL && pStatus->isSeek()) {
+        sleep();
         return S_ERROR_CONTINUE;
     }
 
     if (pAudioQueue != NULL && pAudioQueue->getSize() > 40) {
+        sleep();
         return S_ERROR_CONTINUE;
     }
 
@@ -549,6 +551,10 @@ void SFFmpeg::seek(int64_t millis) {
 
 int SFFmpeg::getChannelSampleNumbers() const {
     return channelSampleNumbers;
+}
+
+void SFFmpeg::sleep() {
+    av_usleep(1000 * 100);
 }
 
 #pragma clang diagnostic pop

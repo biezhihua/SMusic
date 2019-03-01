@@ -130,8 +130,9 @@ int SOpenSLES::initOpenSLES() {
      *     fast audio does not support when SL_IID_EFFECTSEND is required, skip it
      *     for fast audio case
      */
-    const SLInterfaceID ids2[4] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_EFFECTSEND, SL_IID_MUTESOLO};
-    const SLboolean req2[4] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+    const SLInterfaceID ids2[5] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_EFFECTSEND, SL_IID_MUTESOLO,
+                                   SL_IID_PLAYBACKRATE};
+    const SLboolean req2[5] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &bqPlayerObject, &audioSrc, &audioSnk, 2, ids2, req2);
     if (SL_RESULT_SUCCESS != result) {
         LOGE("SOpenSLES: init: engineEngine CreateAudioPlayer bqPlayerObject failed");
@@ -239,6 +240,12 @@ void SOpenSLES::volume(int percent) {
 int SOpenSLES::resampleAudio() {
     int result = 0;
     while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
+
+        if (pStatus != NULL && pStatus->isSeek()) {
+            pFFmpeg->sleep();
+            continue;
+        }
+
         if (pFFmpeg->getAudioQueue() != NULL && pFFmpeg->getAudioQueue()->getSize() == 0) {
             if (!isLoading) {
                 isLoading = true;
@@ -246,6 +253,7 @@ int SOpenSLES::resampleAudio() {
                     pJavaMethods->onCallJavaLoadState(true);
                 }
             }
+            pFFmpeg->sleep();
             continue;
         } else {
             if (isLoading) {
@@ -255,6 +263,8 @@ int SOpenSLES::resampleAudio() {
                 }
             }
         }
+
+
         if (soundSamples != 0) {
             soundSamples = pSoundTouch->receiveSamples(pSoundNextBuffer, (uint) (audioDataSize / 4));
             if (soundSamples != 0) {
@@ -358,6 +368,11 @@ int SOpenSLES::release() {
     if (pNextAudioBuffer != NULL) {
         delete pNextAudioBuffer;
         pNextAudioBuffer = NULL;
+    }
+
+    if (pSoundNextBuffer != NULL) {
+        delete pSoundNextBuffer;
+        pSoundNextBuffer = NULL;
     }
 
     if (bqPlayerObject != NULL) {

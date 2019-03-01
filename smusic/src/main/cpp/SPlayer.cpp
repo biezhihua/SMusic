@@ -28,6 +28,7 @@ void *startDecodeAudioFrameCallback(void *data) {
                     if (result == S_ERROR_BREAK) {
                         while (pStatus->isLeastActiveState(STATE_PLAY)) {
                             if (pAudioQueue->getSize() > 0) {
+                                pFFmpeg->sleep();
                                 continue;
                             } else {
                                 pStatus->moveStatusToPreComplete();

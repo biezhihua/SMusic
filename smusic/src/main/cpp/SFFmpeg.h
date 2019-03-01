@@ -10,6 +10,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswresample/swresample.h>
+#include <libavutil/time.h>
 };
 
 #include <string>
@@ -83,6 +84,8 @@ public:
     void seek(int64_t millis);
 
     int getChannelSampleNumbers() const;
+
+    void sleep();
 };
 
 

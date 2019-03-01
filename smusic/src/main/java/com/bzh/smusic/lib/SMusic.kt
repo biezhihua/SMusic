@@ -8,6 +8,7 @@ import androidx.annotation.WorkerThread
 import androidx.arch.core.executor.ArchTaskExecutor
 import com.bzh.smusic.lib.annotations.CalledByNative
 
+@Suppress("unused")
 @SuppressLint("RestrictedApi")
 class SMusic {
 
@@ -15,8 +16,6 @@ class SMusic {
         LEFT(0),
         RIGHT(1),
         CENTER(2)
-
-
     }
 
     var listener: IMusicListener? = null
@@ -30,7 +29,6 @@ class SMusic {
         Log.d(TAG, "setDataSource() called with: pSource = [$source]")
         nativeSetSource(source)
     }
-
 
     fun start() {
         Log.d(TAG, "start() called")
