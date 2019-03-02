@@ -31,8 +31,14 @@ public:
 
     ~SQueue();
 
+    /**
+     * Thread Safe
+     */
     int putAvPacket(AVPacket *pPacket);
 
+    /**
+     * Thread Safe
+     */
     int getAvPacket(AVPacket *pPacket);
 
     int getSize();

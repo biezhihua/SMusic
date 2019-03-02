@@ -84,6 +84,8 @@ public:
     void speed(double soundSpeed);
 
     void pitch(double soundPitch);
+
+    bool isValidState() const;
 };
 
 

@@ -4,6 +4,9 @@
 
 #include "SOpenSLES.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+
 SOpenSLES::SOpenSLES(SFFmpeg *pFFmpeg, SStatus *pStatus, SJavaMethods *pJavaMethods) {
     this->pFFmpeg = pFFmpeg;
     this->pStatus = pStatus;
@@ -21,12 +24,15 @@ void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
     SOpenSLES *pOpenSLES = (SOpenSLES *) context;
 
     // this callback handler is called every time a buffer finishes playing
-    if (pOpenSLES != NULL && pOpenSLES->pFFmpeg != NULL &&
-        pOpenSLES->bqPlayerBufferQueue != NULL) {
-        int result = pOpenSLES->resampleAudio();
+    if (pOpenSLES != NULL &&
+        pOpenSLES->pFFmpeg != NULL &&
+        pOpenSLES->bqPlayerBufferQueue != NULL
+            ) {
+
+        int result = pOpenSLES->blockResampleAudio();
         if (result >= 0) {
             pOpenSLES->nextAudioSize = static_cast<unsigned int>(result);
-            pOpenSLES->pNextAudioBuffer = (uint8_t *) (pOpenSLES->pSoundNextBuffer);
+            pOpenSLES->pNextAudioBuffer = reinterpret_cast<uint8_t *>(pOpenSLES->pSoundNextBuffer);
             if (pOpenSLES->nextAudioSize != 0) {
                 (*pOpenSLES->bqPlayerBufferQueue)->Enqueue(pOpenSLES->bqPlayerBufferQueue,
                                                            pOpenSLES->pNextAudioBuffer,
@@ -112,7 +118,7 @@ int SOpenSLES::initOpenSLES() {
 
     // configure audio source
     SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
-    SLDataFormat_PCM format_pcm = {SL_DATAFORMAT_PCM, 2, (SLuint32) getSampleRate(sampleRate),
+    SLDataFormat_PCM format_pcm = {SL_DATAFORMAT_PCM, 2, (SLuint32) getOpenSLESSampleRate(sampleRate),
                                    SL_PCMSAMPLEFORMAT_FIXED_16, SL_PCMSAMPLEFORMAT_FIXED_16,
                                    SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT, SL_BYTEORDER_LITTLEENDIAN};
     /*
@@ -237,15 +243,17 @@ void SOpenSLES::volume(int percent) {
     }
 }
 
-int SOpenSLES::resampleAudio() {
+int SOpenSLES::blockResampleAudio() {
     int result = 0;
     while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
 
+        // Seek
         if (pStatus != NULL && pStatus->isSeek()) {
             pFFmpeg->sleep();
             continue;
         }
 
+        // Load State
         if (pFFmpeg->getAudioQueue() != NULL && pFFmpeg->getAudioQueue()->getSize() == 0) {
             if (!isLoading) {
                 isLoading = true;
@@ -264,14 +272,16 @@ int SOpenSLES::resampleAudio() {
             }
         }
 
-
+        // Sound Touch Receive
         if (soundSamples != 0) {
             soundSamples = pSoundTouch->receiveSamples(pSoundNextBuffer, (uint) (audioDataSize / 4));
             if (soundSamples != 0) {
                 return soundSamples * 2 * 2;
             }
         }
+
         result = pFFmpeg->resampleAudio();
+
         if (result == S_ERROR_BREAK) {
             return result;
         } else if (result == S_ERROR_CONTINUE) {
@@ -292,7 +302,7 @@ int SOpenSLES::resampleAudio() {
                     return soundSamples * 2 * 2;
                 }
             } else {
-                LOGD("SOpenSLES:resampleAudio: resample end");
+                LOGD("SOpenSLES:blockResampleAudio: resample end");
                 if (pSoundTouch != NULL) {
                     pSoundTouch->flush();
                 }
@@ -304,7 +314,7 @@ int SOpenSLES::resampleAudio() {
     return result;
 }
 
-int SOpenSLES::getSampleRate(int sampleRate) {
+int SOpenSLES::getOpenSLESSampleRate(int sampleRate) {
     int rate = 0;
     switch (sampleRate) {
         case 8000:
@@ -451,3 +461,4 @@ double SOpenSLES::getSoundPitch() const {
 }
 
 
+#pragma clang diagnostic pop

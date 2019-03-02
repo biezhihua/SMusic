@@ -5,6 +5,7 @@
 #include "SPlayer.h"
 
 #pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma ide diagnostic ignored "OCDFAInspection"
 
 void *startDecodeAudioFrameCallback(void *data) {
@@ -246,7 +247,7 @@ void SPlayer::create() {
 
 void SPlayer::setSource(string *url) {
     LOGD("SPlayer: setSource: ------------------- ");
-    if (pStatus->isCreate() || pStatus->isStop()) {
+    if (isValidState() && (pStatus->isCreate() || pStatus->isStop())) {
         if (pFFmpeg != NULL) {
             pFFmpeg->setSource(url);
         }
@@ -257,7 +258,7 @@ void SPlayer::setSource(string *url) {
 void SPlayer::start() {
     LOGD("SPlayer: start: ------------------- ");
 
-    if (pStatus->isSource() || pStatus->isStop() || pStatus->isComplete()) {
+    if (isValidState() && (pStatus->isSource() || pStatus->isStop() || pStatus->isComplete())) {
         pStatus->moveStatusToPreStart();
 
         startDecodeMediaInfoThreadComplete = false;
@@ -268,7 +269,7 @@ void SPlayer::start() {
 void SPlayer::play() {
     LOGD("SPlayer: play: ----------------------- ");
 
-    if (pStatus->isStart()) {
+    if (isValidState() && pStatus->isStart()) {
         pStatus->moveStatusToPrePlay();
 
         playAudioThreadComplete = false;
@@ -277,7 +278,7 @@ void SPlayer::play() {
         startDecodeAudioThreadComplete = false;
         pthread_create(&startDecodeAudioThread, NULL, startDecodeAudioFrameCallback, this);
 
-    } else if (pStatus->isPause()) {
+    } else if (isValidState() && pStatus->isPause()) {
         pOpenSLES->play();
         pStatus->moveStatusToPlay();
         if (pJavaMethods != NULL) {
@@ -289,7 +290,7 @@ void SPlayer::play() {
 void SPlayer::pause() {
     LOGD("SPlayer: pause: ----------------------- ");
 
-    if (pStatus->isPlay()) {
+    if (isValidState() && pStatus->isPlay()) {
         pOpenSLES->pause();
         pStatus->moveStatusToPause();
         if (pJavaMethods != NULL) {
@@ -300,9 +301,9 @@ void SPlayer::pause() {
 
 void SPlayer::stop() {
     LOGD("SPlayer: stop: ----------------------- ");
-    if (pStatus->isLeastActiveState(STATE_START)) {
+    if (isValidState() && pStatus->isLeastActiveState(STATE_START)) {
         pStatus->moveStatusToPreStop();
-        if (pOpenSLES != NULL && pFFmpeg != NULL && pStatus->isPreStop()) {
+        if (pStatus->isPreStop()) {
             pOpenSLES->stop();
             pFFmpeg->stop();
         }
@@ -349,7 +350,7 @@ SOpenSLES *SPlayer::getSOpenSLES() {
 void SPlayer::seek(int64_t millis) {
     LOGD("SPlayer: seek: ----------------------- ");
 
-    if (pFFmpeg != NULL && pStatus != NULL && pStatus->isPlay()) {
+    if (isValidState() && pStatus->isPlay()) {
         if (pFFmpeg->getTotalTimeMillis() <= 0) {
             LOGD("SPlayer:seek: total time is 0");
             return;
@@ -368,28 +369,30 @@ int64_t SPlayer::getSeekMillis() const {
 
 void SPlayer::volume(int percent) {
     LOGD("SPlayer: volume: ----------------------- ");
-    if (percent >= 0 && percent <= 100 && pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL) {
+    if (percent >= 0 && percent <= 100 && isValidState()) {
         pOpenSLES->volume(percent);
     }
 }
 
 void SPlayer::mute(int mute) {
     LOGD("SPlayer: mute: ----------------------- ");
-    if (mute >= 0 && pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL) {
+    if (mute >= 0 && isValidState()) {
         pOpenSLES->mute(mute);
     }
 }
 
 void SPlayer::speed(double soundSpeed) {
     LOGD("SPlayer: speed: ----------------------- ");
-    if (pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL) {
+    if (isValidState()) {
         pOpenSLES->setSoundTouchTempo(soundSpeed);
     }
 }
 
+bool SPlayer::isValidState() const { return pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL; }
+
 void SPlayer::pitch(double soundPitch) {
     LOGD("SPlayer: pitch: ----------------------- ");
-    if (pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL) {
+    if (isValidState()) {
         pOpenSLES->setSoundTouchPitch(soundPitch);
     }
 }

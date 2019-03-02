@@ -247,12 +247,12 @@ int SFFmpeg::resampleAudio() {
     pResamplePacket = av_packet_alloc();
 
     if (pResamplePacket == NULL) {
-        LOGE("SFFmpeg: resampleAudio: failed to allocated memory for AVPacket");
+        LOGE("SFFmpeg: blockResampleAudio: failed to allocated memory for AVPacket");
         return S_ERROR_BREAK;
     }
 
     if (pAudio == NULL) {
-        LOGE("SFFmpeg: resampleAudio: audio is null");
+        LOGE("SFFmpeg: blockResampleAudio: audio is null");
         return S_ERROR_BREAK;
     }
 
@@ -266,13 +266,13 @@ int SFFmpeg::resampleAudio() {
 
     int result = avcodec_send_packet(pAudio->pCodecContext, pResamplePacket);
     if (result != S_SUCCESS) {
-        LOGE("SFFmpeg: resampleAudio: send packet failed");
+        LOGE("SFFmpeg: blockResampleAudio: send packet failed");
         return S_ERROR_BREAK;
     }
 
     pResampleFrame = av_frame_alloc();
     if (pResampleFrame == NULL) {
-        LOGE("SFFmpeg: resampleAudio: ailed to allocated memory for AVFrame");
+        LOGE("SFFmpeg: blockResampleAudio: ailed to allocated memory for AVFrame");
         return S_ERROR_BREAK;
     }
 
@@ -283,7 +283,7 @@ int SFFmpeg::resampleAudio() {
         releasePacket();
         releaseFrame();
 
-        LOGE("SFFmpeg: resampleAudio: receive frame failed");
+        LOGE("SFFmpeg: blockResampleAudio: receive frame failed");
 
         return S_ERROR_CONTINUE;
 
@@ -315,7 +315,7 @@ int SFFmpeg::resampleAudio() {
                 swrContext = NULL;
             }
 
-            LOGE("SFFmpeg: resampleAudio: swrContext is null or swrContext init failed");
+            LOGE("SFFmpeg: blockResampleAudio: swrContext is null or swrContext init failed");
 
             return S_ERROR_CONTINUE;
         }
@@ -328,7 +328,7 @@ int SFFmpeg::resampleAudio() {
                                            pResampleFrame->nb_samples);
 
         if (channelSampleNumbers < 0) {
-            LOGE("SFFmpeg: resampleAudio: swr convert numbers < 0 ");
+            LOGE("SFFmpeg: blockResampleAudio: swr convert numbers < 0 ");
             return S_ERROR_CONTINUE;
         }
 
@@ -349,7 +349,7 @@ int SFFmpeg::resampleAudio() {
             if (seekTargetMillis < seekStartMillis) {
                 // Left
                 if (seekTargetMillis < pAudio->getCurrentTimeMillis()) {
-                    LOGE("SFFmpeg: resampleAudio: left: frame error %d %d %d", pStatus->isPrePreSeekState(),
+                    LOGE("SFFmpeg: blockResampleAudio: left: frame error %d %d %d", pStatus->isPrePreSeekState(),
                          (int) seekTargetMillis,
                          (int) pAudio->getCurrentTimeMillis());
                     seek(seekTargetMillis);
@@ -369,7 +369,7 @@ int SFFmpeg::resampleAudio() {
                 // Right
                 if (seekTargetMillis > pAudio->getCurrentTimeMillis()) {
                     seek(seekTargetMillis);
-                    LOGE("SFFmpeg: resampleAudio: right: frame error %d %d %d", pStatus->isPrePreSeekState(),
+                    LOGE("SFFmpeg: blockResampleAudio: right: frame error %d %d %d", pStatus->isPrePreSeekState(),
                          (int) seekTargetMillis,
                          (int) pAudio->getCurrentTimeMillis());
                     if (seekTargetMillis > pAudio->getCurrentTimeMillis()) {

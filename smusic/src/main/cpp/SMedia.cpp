@@ -24,14 +24,15 @@ int SMedia::getSampleRate() {
 }
 
 void SMedia::updateTime(AVFrame *pFrame, int dataSize) {
-    currentFrameTime = (pFrame->pts * av_q2d(timeBase));
-    if (currentFrameTime < currentTime) {
-        currentFrameTime = currentTime;
+    if (pFrame != NULL) {
+        currentFrameTime = (pFrame->pts * av_q2d(timeBase));
+        if (currentFrameTime < currentTime) {
+            currentFrameTime = currentTime;
+        }
+        currentTime = currentFrameTime;
+        currentTime += dataSize / ((double) (getSampleRate() * 2 * 2));
+        currentTimeMillis = (currentTime * 1000);
     }
-    currentTime = currentFrameTime;
-    currentTime += dataSize / ((double) (getSampleRate() * 2 * 2));
-    currentTimeMillis = (currentTime * 1000);
-
     // LOGD("SMedia:updateTime: %f", currentTimeMillis);
 }
 

@@ -32,7 +32,7 @@ private:
 
 public:
 
-    SJavaMethods(JavaVM *vm, JNIEnv *pEnv, jobject pJobject);
+    SJavaMethods(JavaVM *vm, JNIEnv *pEnv, jobject pJObject);
 
     ~SJavaMethods();
 

@@ -2,6 +2,8 @@
 // Created by biezhihua on 2019/2/11.
 //
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 #ifndef SMUSIC_SPLAYERSTATUS_H
 #define SMUSIC_SPLAYERSTATUS_H
 
@@ -345,3 +347,5 @@ public:
 
 
 #endif //SMUSIC_SPLAYERSTATUS_H
+
+#pragma clang diagnostic pop

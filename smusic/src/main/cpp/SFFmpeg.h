@@ -20,23 +20,31 @@ extern "C" {
 
 class SFFmpeg {
 private:
-    AVFormatContext *pFormatContext = NULL;
-    SMedia *pAudio = NULL;
-    SMedia *pVideo = NULL;
-    SQueue *pAudioQueue = NULL;
-    SQueue *pVideoQueue = NULL;
-    AVPacket *pDecodePacket = NULL;
-    AVPacket *pResamplePacket = NULL;
-    AVFrame *pResampleFrame = NULL;
-    uint8_t *pBuffer = NULL;
     string *pSource = NULL;
-    SStatus *pStatus = NULL;
 
     SJavaMethods *pJavaMethods = NULL;
+
+    AVFormatContext *pFormatContext = NULL;
+
+    SMedia *pAudio = NULL;
+    SQueue *pAudioQueue = NULL;
+
+    SMedia *pVideo = NULL;
+    SQueue *pVideoQueue = NULL;
+
+    AVPacket *pDecodePacket = NULL;
+    AVPacket *pResamplePacket = NULL;
+
+    AVFrame *pResampleFrame = NULL;
+
+    uint8_t *pBuffer = NULL;
+
+    SStatus *pStatus = NULL;
 
     pthread_mutex_t seekMutex;
 
     int64_t seekTargetMillis = 0;
+
     double seekStartMillis = 0;
 
     bool isLoading = false;

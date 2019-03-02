@@ -4,10 +4,15 @@
 #include "SPlayer.h"
 #include "SJavaMethods.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+
 JavaVM *sJavaVM = NULL;
 SPlayer *sPlayer = NULL;
 SStatus *sStatus = NULL;
 SJavaMethods *sJavaMethods = NULL;
+
+// Destroy Instance
 pthread_t sDestroyThread;
 bool sIsExiting = false;
 
@@ -98,9 +103,7 @@ void *destroyCallBack(void *data) {
         }
         status->moveStatusToPreDestroy();
         if (status->isPreDestroy()) {
-
             sStatus = NULL;
-
             delete sPlayer;
             sPlayer = NULL;
         }
@@ -151,7 +154,7 @@ extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurren
 }
 
 extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentVolumePercent(JNIEnv *env,
-                                                                                        jobject instance) {
+                                                                                               jobject instance) {
     if (sPlayer != NULL) {
         SOpenSLES *openSLES = sPlayer->getSOpenSLES();
         if (openSLES != NULL) {
@@ -228,3 +231,4 @@ extern "C" JNIEXPORT jdouble JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCur
     }
     return 0;
 }
+#pragma clang diagnostic pop

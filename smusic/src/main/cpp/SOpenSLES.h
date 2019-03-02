@@ -82,9 +82,9 @@ public:
 
     int release();
 
-    int resampleAudio();
+    int blockResampleAudio();
 
-    int getSampleRate(int sampleRate);
+    int getOpenSLESSampleRate(int sampleRate);
 
     void volume(int percent);
 
