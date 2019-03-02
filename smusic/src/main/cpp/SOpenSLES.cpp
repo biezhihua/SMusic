@@ -375,10 +375,7 @@ int SOpenSLES::release() {
         pSoundNextBuffer = NULL;
     }
 
-    if (pNextAudioBuffer != NULL) {
-        delete pNextAudioBuffer;
-        pNextAudioBuffer = NULL;
-    }
+    pNextAudioBuffer = NULL;
 
     if (pSoundNextBuffer != NULL) {
         delete pSoundNextBuffer;
