@@ -1,6 +1,6 @@
 package com.bzh.splayer.lib
 
-interface IMusicListener {
+interface IPlayerListener {
 
     fun onCreate()
 

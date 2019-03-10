@@ -8,7 +8,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.bzh.player.R
-import com.bzh.splayer.lib.IMusicListener
+import com.bzh.splayer.lib.IPlayerListener
 import com.bzh.splayer.lib.SPlayer
 import java.text.SimpleDateFormat
 import java.util.*
@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity() {
             music?.destroy()
         }
         music = SPlayer()
-        music?.listener = object : IMusicListener {
+        music?.listener = object : IPlayerListener {
             override fun onStart() {
                 if (music != null) {
                     volume.progress = music!!.getCurrentVolumePercent()

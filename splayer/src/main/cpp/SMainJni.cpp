@@ -32,7 +32,7 @@ JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved) {
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_bzh_smusic_lib_SMusic_nativeSetSource(JNIEnv *env, jobject instance, jstring source_) {
+Java_com_bzh_splayer_lib_SPlayer_nativeSetSource(JNIEnv *env, jobject instance, jstring source_) {
     const char *source = env->GetStringUTFChars(source_, 0);
     if (sPlayer != NULL) {
         sPlayer->setSource(new std::string(source));
@@ -40,7 +40,7 @@ Java_com_bzh_smusic_lib_SMusic_nativeSetSource(JNIEnv *env, jobject instance, js
     env->ReleaseStringUTFChars(source_, source);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeCreate(JNIEnv *env, jobject instance) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeCreate(JNIEnv *env, jobject instance) {
 
     LOGD("nativeInit");
 
@@ -67,28 +67,28 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeCreate(JN
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_bzh_smusic_lib_SMusic_nativeStart(JNIEnv *env, jobject instance) {
+Java_com_bzh_splayer_lib_SPlayer_nativeStart(JNIEnv *env, jobject instance) {
     LOGD("nativeStart");
     if (sPlayer != NULL) {
         sPlayer->start();
     }
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativePlay(JNIEnv *env, jobject instance) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativePlay(JNIEnv *env, jobject instance) {
     LOGD("nativePlay");
     if (sPlayer != NULL) {
         sPlayer->play();
     }
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativePause(JNIEnv *env, jobject instance) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativePause(JNIEnv *env, jobject instance) {
     LOGD("nativePause");
     if (sPlayer != NULL) {
         sPlayer->pause();
     }
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeStop(JNIEnv *env, jobject instance) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeStop(JNIEnv *env, jobject instance) {
     LOGD("nativeStop");
     if (sPlayer != NULL) {
         sPlayer->stop();
@@ -112,7 +112,7 @@ void *destroyCallBack(void *data) {
     pthread_exit(&sDestroyThread);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeDestroy(JNIEnv *env, jobject instance) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeDestroy(JNIEnv *env, jobject instance) {
     LOGD("nativeRelease");
     if (sPlayer != NULL && sStatus != NULL && !sIsExiting) {
         if (sStatus->isCreate() || sStatus->isPreCreate() || sStatus->isSource() || sStatus->isComplete()) {
@@ -131,8 +131,8 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeDestroy(J
     }
 }
 
-extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetTotalTimeMillis(JNIEnv *env,
-                                                                                          jobject instance) {
+extern "C" JNIEXPORT jint JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeGetTotalTimeMillis(JNIEnv *env,
+                                                                                           jobject instance) {
     if (sPlayer != NULL) {
         SFFmpeg *ffmpeg = sPlayer->getSFFmpeg();
         if (ffmpeg != NULL) {
@@ -142,8 +142,8 @@ extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetTotalT
     return 0;
 }
 
-extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentTimeMillis(JNIEnv *env,
-                                                                                            jobject instance) {
+extern "C" JNIEXPORT jint JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeGetCurrentTimeMillis(JNIEnv *env,
+                                                                                             jobject instance) {
     if (sPlayer != NULL) {
         SFFmpeg *ffmpeg = sPlayer->getSFFmpeg();
         if (ffmpeg != NULL) {
@@ -153,8 +153,8 @@ extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurren
     return 0;
 }
 
-extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentVolumePercent(JNIEnv *env,
-                                                                                               jobject instance) {
+extern "C" JNIEXPORT jint JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeGetCurrentVolumePercent(JNIEnv *env,
+                                                                                                jobject instance) {
     if (sPlayer != NULL) {
         SOpenSLES *openSLES = sPlayer->getSOpenSLES();
         if (openSLES != NULL) {
@@ -164,18 +164,18 @@ extern "C" JNIEXPORT jint JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurren
     return 0;
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeSeek(JNIEnv *env,
-                                                                            jobject instance,
-                                                                            jint millis) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeSeek(JNIEnv *env,
+                                                                             jobject instance,
+                                                                             jint millis) {
     LOGD("nativeSeek %d", (int) millis);
     if (sPlayer != NULL) {
         sPlayer->seek((int64_t) millis);
     }
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeVolume(JNIEnv *env,
-                                                                              jobject instance,
-                                                                              jint percent) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeVolume(JNIEnv *env,
+                                                                               jobject instance,
+                                                                               jint percent) {
     LOGD("nativeVolume %d", (int) percent);
     if (sPlayer != NULL) {
         sPlayer->volume((int) percent);
@@ -183,9 +183,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeVolume(JN
 }
 
 
-extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeMute(JNIEnv *env,
-                                                                            jobject instance,
-                                                                            jint mute) {
+extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeMute(JNIEnv *env,
+                                                                             jobject instance,
+                                                                             jint mute) {
     LOGD("nativeMute %d", (int) mute);
     if (sPlayer != NULL) {
         sPlayer->mute((int) mute);
@@ -193,7 +193,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_smusic_lib_SMusic_nativeMute(JNIE
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_bzh_smusic_lib_SMusic_nativeSpeed(JNIEnv *env, jobject instance, jdouble speed) {
+Java_com_bzh_splayer_lib_SPlayer_nativeSpeed(JNIEnv *env, jobject instance, jdouble speed) {
     LOGD("nativeSpeed %f", (double) speed);
     if (sPlayer != NULL) {
         sPlayer->speed((double) speed);
@@ -201,7 +201,7 @@ Java_com_bzh_smusic_lib_SMusic_nativeSpeed(JNIEnv *env, jobject instance, jdoubl
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_bzh_smusic_lib_SMusic_nativePitch(JNIEnv *env, jobject instance, jdouble pitch) {
+Java_com_bzh_splayer_lib_SPlayer_nativePitch(JNIEnv *env, jobject instance, jdouble pitch) {
     LOGD("nativePitch %f", (double) pitch);
     if (sPlayer != NULL) {
         sPlayer->pitch((double) pitch);
@@ -209,8 +209,8 @@ Java_com_bzh_smusic_lib_SMusic_nativePitch(JNIEnv *env, jobject instance, jdoubl
 }
 
 
-extern "C" JNIEXPORT jdouble JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentSpeed(JNIEnv *env,
-                                                                                          jobject instance) {
+extern "C" JNIEXPORT jdouble JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeGetCurrentSpeed(JNIEnv *env,
+                                                                                           jobject instance) {
     if (sPlayer != NULL) {
         SOpenSLES *openSLES = sPlayer->getSOpenSLES();
         if (openSLES != NULL) {
@@ -221,8 +221,8 @@ extern "C" JNIEXPORT jdouble JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCur
 }
 
 
-extern "C" JNIEXPORT jdouble JNICALL Java_com_bzh_smusic_lib_SMusic_nativeGetCurrentPitch(JNIEnv *env,
-                                                                                          jobject instance) {
+extern "C" JNIEXPORT jdouble JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeGetCurrentPitch(JNIEnv *env,
+                                                                                           jobject instance) {
     if (sPlayer != NULL) {
         SOpenSLES *openSLES = sPlayer->getSOpenSLES();
         if (openSLES != NULL) {

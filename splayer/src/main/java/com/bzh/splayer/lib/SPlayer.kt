@@ -18,7 +18,7 @@ class SPlayer {
         CENTER(2)
     }
 
-    var listener: IMusicListener? = null
+    var listener: IPlayerListener? = null
 
     fun create() {
         Log.d(TAG, "create() called")
