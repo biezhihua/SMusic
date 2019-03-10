@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019/2/4.
-//
-
 #include "SPlayer.h"
 
 #pragma clang diagnostic push
@@ -14,7 +10,7 @@ void *startDecodeAudioFrameCallback(void *data) {
 
     if (sPlayer != NULL) {
 
-        SFFmpeg *pFFmpeg = sPlayer->getSFFmpeg();
+        SFFmpeg *pFFmpeg = sPlayer->getFFmpeg();
         SStatus *pStatus = sPlayer->getPlayerStatus();
         SOpenSLES *pOpenSLES = sPlayer->getSOpenSLES();
         SJavaMethods *pJavaMethods = sPlayer->getSJavaMethods();
@@ -84,9 +80,9 @@ void *startDecodeMediaInfoCallback(void *data) {
 
     SPlayer *sPlayer = (SPlayer *) data;
 
-    if (sPlayer != NULL && sPlayer->getSFFmpeg() != NULL) {
+    if (sPlayer != NULL && sPlayer->getFFmpeg() != NULL) {
 
-        SFFmpeg *pFFmpeg = sPlayer->getSFFmpeg();
+        SFFmpeg *pFFmpeg = sPlayer->getFFmpeg();
         SStatus *pStatus = sPlayer->getPlayerStatus();
         SOpenSLES *pOpenSLES = sPlayer->getSOpenSLES();
         SJavaMethods *pJavaMethods = sPlayer->getSJavaMethods();
@@ -142,8 +138,8 @@ void *startDecodeMediaInfoCallback(void *data) {
 void *seekCallback(void *data) {
     LOGD("SPlayer: seekCallback: start");
     SPlayer *sPlayer = (SPlayer *) data;
-    if (sPlayer != NULL && sPlayer->getSFFmpeg() != NULL) {
-        SFFmpeg *pFFmpeg = sPlayer->getSFFmpeg();
+    if (sPlayer != NULL && sPlayer->getFFmpeg() != NULL) {
+        SFFmpeg *pFFmpeg = sPlayer->getFFmpeg();
         if (pFFmpeg != NULL) {
             pFFmpeg->seek(sPlayer->getSeekMillis());
         }
@@ -157,9 +153,9 @@ void *playAudioCallback(void *data) {
     LOGD("SPlayer: playAudioCallback: start");
     SPlayer *sPlayer = (SPlayer *) data;
 
-    if (sPlayer != NULL && sPlayer->getSFFmpeg() != NULL) {
+    if (sPlayer != NULL && sPlayer->getFFmpeg() != NULL) {
 
-        SFFmpeg *pFFmpeg = sPlayer->getSFFmpeg();
+        SFFmpeg *pFFmpeg = sPlayer->getFFmpeg();
         SStatus *pStatus = sPlayer->getPlayerStatus();
         SOpenSLES *pOpenSLES = sPlayer->getSOpenSLES();
         SJavaMethods *pJavaMethods = sPlayer->getSJavaMethods();
@@ -331,7 +327,7 @@ void SPlayer::destroy() {
     pStatus = NULL;
 }
 
-SFFmpeg *SPlayer::getSFFmpeg() {
+SFFmpeg *SPlayer::getFFmpeg() {
     return pFFmpeg;
 }
 

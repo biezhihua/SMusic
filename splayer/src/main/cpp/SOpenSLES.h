@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019/2/11.
-//
-
 #ifndef SPLAYER_S_OPENSLES_H
 #define SPLAYER_S_OPENSLES_H
 

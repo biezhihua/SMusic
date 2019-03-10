@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019/2/12.
-//
-
 #ifndef SPLAYER_SERROR_H
 #define SPLAYER_SERROR_H
 

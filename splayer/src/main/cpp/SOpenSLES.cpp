@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019/2/11.
-//
-
 #include "SOpenSLES.h"
 
 #pragma clang diagnostic push

@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019/2/4.
-//
-
 #ifndef SPLAYER_S_AUDIO_H
 #define SPLAYER_S_AUDIO_H
 

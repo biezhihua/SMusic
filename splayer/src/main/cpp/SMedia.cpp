@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019/2/4.
-//
-
 #include "SMedia.h"
 
 SMedia::SMedia(int streamIndex, AVCodec *pCodec, AVCodecParameters *pCodecParameters) {

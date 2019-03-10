@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019/2/11.
-//
-
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 #ifndef SPLAYER_STATUS_H
@@ -27,9 +23,13 @@
 #define STATE_PRE_DESTROY (1014)
 #define STATE_DESTROY (1015)
 
+#include <queue>
+
 class SStatus {
 
 private:
+    std::queue<int> sQueue;
+
     int prePreState = STATE_NONE;
     int preState = STATE_NONE;
     int state = STATE_NONE;
@@ -39,6 +39,7 @@ private:
 public:
 
     SStatus() {
+        sQueue.push(STATE_NONE);
         pthread_mutex_init(&mutex, NULL);
     }
 
@@ -345,7 +346,5 @@ public:
     }
 };
 
-
 #endif //SPLAYER_STATUS_H
-
 #pragma clang diagnostic pop

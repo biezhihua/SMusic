@@ -134,7 +134,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeDestroy
 extern "C" JNIEXPORT jint JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeGetTotalTimeMillis(JNIEnv *env,
                                                                                            jobject instance) {
     if (sPlayer != NULL) {
-        SFFmpeg *ffmpeg = sPlayer->getSFFmpeg();
+        SFFmpeg *ffmpeg = sPlayer->getFFmpeg();
         if (ffmpeg != NULL) {
             return (int) ffmpeg->getTotalTimeMillis();
         }
@@ -145,7 +145,7 @@ extern "C" JNIEXPORT jint JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeGetTota
 extern "C" JNIEXPORT jint JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeGetCurrentTimeMillis(JNIEnv *env,
                                                                                              jobject instance) {
     if (sPlayer != NULL) {
-        SFFmpeg *ffmpeg = sPlayer->getSFFmpeg();
+        SFFmpeg *ffmpeg = sPlayer->getFFmpeg();
         if (ffmpeg != NULL) {
             return (int) ffmpeg->getCurrentTimeMillis();
         }

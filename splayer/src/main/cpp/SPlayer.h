@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019/2/4.
-//
-
 #ifndef SPLAYER_PLAYER_H
 #define SPLAYER_PLAYER_H
 
@@ -65,7 +61,7 @@ public:
 
     void stop();
 
-    SFFmpeg *getSFFmpeg();
+    SFFmpeg *getFFmpeg();
 
     SJavaMethods *getSJavaMethods();
 
