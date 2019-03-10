@@ -1,0 +1,41 @@
+@startuml
+autonumber
+hide footbox
+title 身份信息普通流程时序图
+
+Client -> SDK : 初始化
+activate SDK
+SDK [#FFB383]-> SDK: 加载文件缓存
+SDK [#FFB383]-> SDK: 使用文件缓存初始化内存缓存
+SDK -> VipServer: 请求服务端数据
+SDK <--[#0000FF] VipServer: 返回全量数据
+SDK [#FFB383]-> SDK : 使用网络数据初始化内存缓存
+
+Client -> SDK: getUserInfo() //查询用户数据，直接返回内存数据
+Client <--[#0000FF] SDK: 返回内存数据
+
+||45||
+
+Client -> SDK: getUserInfoNewest(callback) //查询最新的用户数据
+SDK -> VipServer: 请求服务端数据
+SDK <--[#0000FF] VipServer: 返回全量数据
+SDK [#FFB383]-> SDK: 回调结果数据
+SDK [#FFB383]-> SDK: 缓存结果数据
+
+newpage
+
+
+Passport -> SDK: 用户退出
+SDK [#FFB383]-> SDK: 清除内存数据
+
+newpage
+
+
+Passport -> SDK: 用户登录
+SDK [#FFB383]-> SDK: 清除缓存数据
+SDK -> VipServer: 请求服务端数据
+SDK <--[#0000FF] VipServer: 返回全量数据
+SDK [#FFB383]-> SDK: 更新数据到内存中
+
+
+@enduml

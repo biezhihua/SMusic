@@ -1,0 +1,82 @@
+@startuml
+autonumber
+
+'Alice -> Bob: Authentication Request
+'Bob --> Alice: Authentication Response
+'
+'Alice -> Bob: Another authentication Request
+'Alice <-- Bob: another authentication Response
+
+IjkMediaPlayer [#000000]-> IjkMediaPlayer:入口函数\ninitPlayer
+
+IjkMediaPlayer [#000000]-> IjkMediaPlayer:加载SO库\nloadLibrariesOnce()
+
+IjkMediaPlayer [#FF0000]-> System:加载SO库\nloadLibrary("ijkplayer")
+
+System [#FF0000]-> ijkplayer_jni:加载SO时触发OnLoad\nJNI_OnLoad()
+
+ijkplayer_jni [#FF0000]-> player_fields_t:初始化全局锁\npthread_mutex_init(&g_clazz.mutex)
+
+ijkplayer_jni [#FF0000]-> JNIEnv:注册Native方法与Java方法的映射关系\nRegisterNatives()
+
+ijkplayer_jni [#FF0000]-> ijkplayer:ijkmp_global_init()
+
+ijkplayer [#FF0000]-> ff_ffplay:初始化FFmpeg的全局配置，\n注册编码器、解码器、网络初始化等\nffp_global_init()
+
+ijkplayer_jni [#FF0000]-> ffmpeg_api_jni:注册Java的av_base64_encode函数\nFFmpegApi_global_init()
+
+newpage
+
+IjkMediaPlayer [#000000]-> IjkMediaPlayer:调用Init\ninitNativeOnce()
+
+IjkMediaPlayer [#000000]-> IjkMediaPlayer:初始化\nnative_init
+
+IjkMediaPlayer [#FF0000]-> ijkplayer_jni:初始化C层\nIjkMediaPlayer_native_init
+
+ijkplayer_jni [#FF0000]-> ijkplayer:初始化LOG函数\nMPTRACE
+
+newpage
+
+IjkMediaPlayer [#000000]-> IjkMediaPlayer:native_setup
+
+IjkMediaPlayer [#FF0000]-> ijkplayer_jni:初始化MediaPlayer\nnative_setup(IjkMediaPlayer)
+
+ijkplayer_jni [#FF0000]-> ijkplayer_android:创建IjkMediaPlayer, 其中包含消息线程、线程锁、FFPlayer、数据源等\nijkmp_android_create()
+
+ijkplayer_android [#FF0000]-> ijkplayer:创建IjkMediaPlayer\nijkmp_create(msg_loop)
+
+ijkplayer [#FF0000]-> ff_ffplay:创建FFPlayer，其中包含了所有FFmpeg所需必须的参数\nffp_create()
+
+ijkplayer_android [#FF0000]-> ijksdl_vout_android_surface:创建视频输出\nSDL_VoutAndroid_CreateForAndroidSurface()
+
+ijkplayer_android [#FF0000]-> ffpipeline_android:创建视频编码、解码管道等\nffpipeline_create_from_android()
+
+ijkplayer_jni [#000000]-> ijkplayer_jni:给Java层设置MediaPlayer实例\njni_set_media_player()
+
+ijkplayer_jni [#FF0000]-> ijkplayer:为C层设置Java的IJKMediaPalyer的实例\nijkmp_set_weak_thiz
+
+ijkplayer_jni [#FF0000]-> ijkplayer:ijkmp_set_inject_opaque()
+
+ijkplayer [#FF0000]-> ff_ffplay:TODO\nffp_set_inject_opaque()
+
+ijkplayer_jni [#FF0000]-> ijkplayer:设置KIO相关\nijkmp_set_ijkio_inject_opaque()
+
+ijkplayer_jni [#000000]-> ijkplayer_jni:设置解码器回调\nijkmp_android_set_mediacodec_select_callback()
+
+newpage
+
+IjkMediaPlayer [#000000]-> IjkMediaPlayer:_setDataSource(String path, String[] keys, String[] values)
+
+IjkMediaPlayer [#FF0000]-> ijkplayer_jni:setDataSourceAndHeaders()
+
+ijkplayer_jni [#FF0000]-> ijkplayer:设置数据源URL\nijkmp_set_data_source(url);
+
+ijkplayer [#000000]-> ijkplayer:ijkmp_set_data_source_l(url)
+
+newpage
+
+IjkMediaPlayer [#000000]-> IjkMediaPlayer:So卸载时\nunLoadLibrary();
+
+System [#FF0000]-> ijkplayer_jni:卸载SO时触发OnUnLoad\nJNI_OnUnload()
+
+@enduml

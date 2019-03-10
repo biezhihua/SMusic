@@ -1,4 +1,4 @@
-package com.bzh.smusic.lib.annotations
+package com.bzh.splayer.lib.annotations
 
 
 @Target(AnnotationTarget.FUNCTION)

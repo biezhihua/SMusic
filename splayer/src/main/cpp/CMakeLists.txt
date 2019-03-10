@@ -33,7 +33,7 @@ include_directories(soundtouch/include)
 include_directories(soundtouch/SoundTouch)
 
 add_library(
-        smusic
+        splayer
         SHARED
 
         SMainJni.cpp
@@ -80,7 +80,7 @@ add_library(
 )
 
 target_link_libraries(
-        smusic
+        splayer
         log
         sffmpeg
         OpenSLES)

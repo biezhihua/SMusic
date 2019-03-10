@@ -1,4 +1,4 @@
-package com.bzh.smusic.lib;
+package com.bzh.splayer.lib;
 
 public class NativeDemo {
 

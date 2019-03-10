@@ -1,4 +1,4 @@
-package com.bzh.music.example
+package com.bzh.player.example
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -7,15 +7,15 @@ import android.view.View
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.bzh.music.R
-import com.bzh.smusic.lib.IMusicListener
-import com.bzh.smusic.lib.SMusic
+import com.bzh.player.R
+import com.bzh.splayer.lib.IMusicListener
+import com.bzh.splayer.lib.SPlayer
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private var music: SMusic? = null
+    private var music: SPlayer? = null
 
     private lateinit var time1: TextView
     private lateinit var time2: TextView
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         if (music != null) {
             music?.destroy()
         }
-        music = SMusic()
+        music = SPlayer()
         music?.listener = object : IMusicListener {
             override fun onStart() {
                 if (music != null) {
@@ -174,15 +174,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun left(v: View) {
-        music?.mute(SMusic.Mute.LEFT)
+        music?.mute(SPlayer.Mute.LEFT)
     }
 
     fun right(v: View) {
-        music?.mute(SMusic.Mute.RIGHT)
+        music?.mute(SPlayer.Mute.RIGHT)
     }
 
     fun center(v: View) {
-        music?.mute(SMusic.Mute.CENTER)
+        music?.mute(SPlayer.Mute.CENTER)
     }
 
     override fun onResume() {

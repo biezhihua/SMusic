@@ -1,4 +1,4 @@
-package com.bzh.music.example
+package com.bzh.player.example
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

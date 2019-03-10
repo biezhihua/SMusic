@@ -1,4 +1,4 @@
-package com.bzh.smusic.lib
+package com.bzh.splayer.lib
 
 import android.annotation.SuppressLint
 import android.os.Looper
@@ -6,11 +6,11 @@ import android.util.Log
 import androidx.annotation.Keep
 import androidx.annotation.WorkerThread
 import androidx.arch.core.executor.ArchTaskExecutor
-import com.bzh.smusic.lib.annotations.CalledByNative
+import com.bzh.splayer.lib.annotations.CalledByNative
 
 @Suppress("unused")
 @SuppressLint("RestrictedApi")
-class SMusic {
+class SPlayer {
 
     enum class Mute(val value: Int) {
         LEFT(0),
@@ -275,10 +275,10 @@ class SMusic {
 
     companion object {
 
-        private const val TAG = "SMusic"
+        private const val TAG = "SPlayer"
 
         init {
-            System.loadLibrary("smusic")
+            System.loadLibrary("splayer")
             System.loadLibrary("sffmpeg")
         }
     }
