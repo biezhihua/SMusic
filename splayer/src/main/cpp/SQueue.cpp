@@ -38,7 +38,7 @@ int SQueue::getAvPacket(AVPacket *pPacket) {
         return S_SUCCESS;
     } else {
         pthread_cond_wait(&condPacketMutex, &mutexPacketMutex);
-        return S_ERROR_CONTINUE;
+        return S_FUNCTION_CONTINUE;
     }
 }
 

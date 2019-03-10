@@ -57,7 +57,7 @@ public:
 
     int decodeMediaInfo();
 
-    int decodeAudioFrame();
+    int decodeFrame();
 
     int resampleAudio();
 

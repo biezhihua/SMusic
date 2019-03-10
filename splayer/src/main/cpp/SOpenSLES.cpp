@@ -278,9 +278,9 @@ int SOpenSLES::blockResampleAudio() {
 
         result = pFFmpeg->resampleAudio();
 
-        if (result == S_ERROR_BREAK) {
+        if (result == S_FUNCTION_BREAK) {
             return result;
-        } else if (result == S_ERROR_CONTINUE) {
+        } else if (result == S_FUNCTION_CONTINUE) {
             continue;
         } else if (result >= 0) {
             if (result > 0) {

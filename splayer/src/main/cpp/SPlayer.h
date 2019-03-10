@@ -29,13 +29,13 @@ public:
 
     bool startDecodeMediaInfoThreadComplete = false;
 
-    bool startDecodeAudioThreadComplete = false;
+    bool startDecodeThreadComplete = false;
 
     bool playAudioThreadComplete = false;
 
     pthread_t startDecodeMediaInfoThread;
 
-    pthread_t startDecodeAudioThread;
+    pthread_t startDecodeThread;
 
     pthread_t playAudioThread;
 

@@ -4,8 +4,8 @@
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma ide diagnostic ignored "OCDFAInspection"
 
-void *startDecodeAudioFrameCallback(void *data) {
-    LOGD("SPlayer: startDecodeAudioFrameCallback: start");
+void *startDecodeFrameCallback(void *data) {
+    LOGD("SPlayer: startDecodeFrameCallback: start");
     SPlayer *sPlayer = (SPlayer *) data;
 
     if (sPlayer != NULL) {
@@ -21,8 +21,8 @@ void *startDecodeAudioFrameCallback(void *data) {
 
             if (pAudioQueue != NULL) {
                 while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
-                    int result = pFFmpeg->decodeAudioFrame();
-                    if (result == S_ERROR_BREAK) {
+                    int result = pFFmpeg->decodeFrame();
+                    if (result == S_FUNCTION_BREAK) {
                         while (pStatus->isLeastActiveState(STATE_PLAY)) {
                             if (pAudioQueue->getSize() > 0) {
                                 pFFmpeg->sleep();
@@ -36,14 +36,14 @@ void *startDecodeAudioFrameCallback(void *data) {
                 }
             }
 
-            sPlayer->startDecodeAudioThreadComplete = true;
+            sPlayer->startDecodeThreadComplete = true;
 
             if (pOpenSLES != NULL &&
                 pFFmpeg != NULL &&
                 pStatus != NULL &&
                 (pStatus->isPreStop() || pStatus->isPreComplete()) &&
                 sPlayer->startDecodeMediaInfoThreadComplete &&
-                sPlayer->startDecodeAudioThreadComplete &&
+                sPlayer->startDecodeThreadComplete &&
                 sPlayer->playAudioThreadComplete) {
 
                 pOpenSLES->release();
@@ -70,8 +70,8 @@ void *startDecodeAudioFrameCallback(void *data) {
         }
     }
 
-    LOGD("SPlayer: startDecodeAudioFrameCallback: end");
-    pthread_exit(&sPlayer->startDecodeAudioThread);
+    LOGD("SPlayer: startDecodeFrameCallback: end");
+    pthread_exit(&sPlayer->startDecodeThread);
     return NULL;
 }
 
@@ -194,7 +194,7 @@ void *playAudioCallback(void *data) {
                 pStatus != NULL &&
                 pStatus->isPreStop() &&
                 sPlayer->startDecodeMediaInfoThreadComplete &&
-                sPlayer->startDecodeAudioThreadComplete &&
+                sPlayer->startDecodeThreadComplete &&
                 sPlayer->playAudioThreadComplete) {
 
                 pOpenSLES->release();
@@ -271,8 +271,8 @@ void SPlayer::play() {
         playAudioThreadComplete = false;
         pthread_create(&playAudioThread, NULL, playAudioCallback, this);
 
-        startDecodeAudioThreadComplete = false;
-        pthread_create(&startDecodeAudioThread, NULL, startDecodeAudioFrameCallback, this);
+        startDecodeThreadComplete = false;
+        pthread_create(&startDecodeThread, NULL, startDecodeFrameCallback, this);
 
     } else if (isValidState() && pStatus->isPause()) {
         pOpenSLES->play();

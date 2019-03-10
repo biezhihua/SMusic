@@ -2,8 +2,10 @@
 #define SPLAYER_SERROR_H
 
 #define S_SUCCESS 0
-#define S_ERROR_BREAK -10000
-#define S_ERROR_CONTINUE -10001
+
+#define S_FUNCTION_BREAK -1000
+#define S_FUNCTION_CONTINUE -1001
+
 #define S_ERROR -10003
 
 

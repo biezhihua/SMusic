@@ -198,23 +198,28 @@ int SFFmpeg::decodeMediaInfo() {
 }
 
 
-int SFFmpeg::decodeAudioFrame() {
+int SFFmpeg::decodeFrame() {
 
     if (pStatus != NULL && pStatus->isSeek()) {
         sleep();
-        return S_ERROR_CONTINUE;
+        return S_FUNCTION_CONTINUE;
     }
 
-    if (pAudioQueue != NULL && pAudioQueue->getSize() > 40) {
+    if (pVideo == NULL && pAudio == NULL) {
+        return S_ERROR;
+    }
+
+    if ((pAudio != NULL && pAudioQueue != NULL && pAudioQueue->getSize() > 40) ||
+        (pVideo != NULL && pVideoQueue != NULL && pVideoQueue->getSize() > 40)) {
         sleep();
-        return S_ERROR_CONTINUE;
+        return S_FUNCTION_CONTINUE;
     }
 
     // https://ffmpeg.org/doxygen/trunk/structAVPacket.html
     pDecodePacket = av_packet_alloc();
     if (pDecodePacket == NULL) {
-        LOGE("SFFmpeg: decodeAudioFrame: failed to allocated memory for AVPacket");
-        return S_ERROR_BREAK;
+        LOGE("SFFmpeg: decodeFrame: failed to allocated memory for AVPacket");
+        return S_FUNCTION_BREAK;
     }
 
     pthread_mutex_lock(&seekMutex);
@@ -222,18 +227,17 @@ int SFFmpeg::decodeAudioFrame() {
     pthread_mutex_unlock(&seekMutex);
 
     if (ret == 0) {
-        if (pDecodePacket->stream_index == pAudio->streamIndex) {
-//            LOGD("SFFmpeg: decodeAudioFrame: fill the Packet with data from the Stream %d", count);
+        if (pAudio != NULL && pDecodePacket->stream_index == pAudio->streamIndex) {
             pAudioQueue->putAvPacket(pDecodePacket);
-        } else {
-//            LOGD("SFFmpeg: decodeAudioFrame: other stream index");
+        } else if (pVideo != NULL && pDecodePacket->stream_index == pVideo->streamIndex) {
+            pVideoQueue->putAvPacket(pDecodePacket);
         }
         return S_SUCCESS;
     } else {
         av_packet_free(&pDecodePacket);
         av_free(pDecodePacket);
-        // LOGD("SFFmpeg: decodeAudioFrame: decode finished");
-        return S_ERROR_BREAK;
+        // LOGD("SFFmpeg: decodeFrame: decode finished");
+        return S_FUNCTION_BREAK;
     }
 }
 
@@ -243,12 +247,12 @@ int SFFmpeg::resampleAudio() {
 
     if (pResamplePacket == NULL) {
         LOGE("SFFmpeg: blockResampleAudio: failed to allocated memory for AVPacket");
-        return S_ERROR_BREAK;
+        return S_FUNCTION_BREAK;
     }
 
     if (pAudio == NULL) {
         LOGE("SFFmpeg: blockResampleAudio: audio is null");
-        return S_ERROR_BREAK;
+        return S_FUNCTION_BREAK;
     }
 
     if (getAvPacketFromQueue(pResamplePacket) == S_ERROR) {
@@ -256,19 +260,19 @@ int SFFmpeg::resampleAudio() {
         releasePacket();
         releaseFrame();
 
-        return S_ERROR_CONTINUE;
+        return S_FUNCTION_CONTINUE;
     }
 
     int result = avcodec_send_packet(pAudio->pCodecContext, pResamplePacket);
     if (result != S_SUCCESS) {
         LOGE("SFFmpeg: blockResampleAudio: send packet failed");
-        return S_ERROR_BREAK;
+        return S_FUNCTION_BREAK;
     }
 
     pResampleFrame = av_frame_alloc();
     if (pResampleFrame == NULL) {
         LOGE("SFFmpeg: blockResampleAudio: ailed to allocated memory for AVFrame");
-        return S_ERROR_BREAK;
+        return S_FUNCTION_BREAK;
     }
 
     result = avcodec_receive_frame(pAudio->pCodecContext, pResampleFrame);
@@ -280,7 +284,7 @@ int SFFmpeg::resampleAudio() {
 
         LOGE("SFFmpeg: blockResampleAudio: receive frame failed");
 
-        return S_ERROR_CONTINUE;
+        return S_FUNCTION_CONTINUE;
 
     } else {
 
@@ -312,7 +316,7 @@ int SFFmpeg::resampleAudio() {
 
             LOGE("SFFmpeg: blockResampleAudio: swrContext is null or swrContext init failed");
 
-            return S_ERROR_CONTINUE;
+            return S_FUNCTION_CONTINUE;
         }
 
         // number of samples output per channel, negative value on error
@@ -324,7 +328,7 @@ int SFFmpeg::resampleAudio() {
 
         if (channelSampleNumbers < 0) {
             LOGE("SFFmpeg: blockResampleAudio: swr convert numbers < 0 ");
-            return S_ERROR_CONTINUE;
+            return S_FUNCTION_CONTINUE;
         }
 
         int outChannels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
@@ -357,7 +361,7 @@ int SFFmpeg::resampleAudio() {
                                 pJavaMethods->onCallJavaLoadState(true);
                             }
                         }
-                        return S_ERROR_CONTINUE;
+                        return S_FUNCTION_CONTINUE;
                     }
                 }
             } else if (seekTargetMillis > seekStartMillis) {
@@ -376,7 +380,7 @@ int SFFmpeg::resampleAudio() {
                                 pJavaMethods->onCallJavaLoadState(true);
                             }
                         }
-                        return S_ERROR_CONTINUE;
+                        return S_FUNCTION_CONTINUE;
                     }
                 }
             }
@@ -435,7 +439,7 @@ int SFFmpeg::getAvPacketFromQueue(AVPacket *pPacket) {
         pAudioQueue->threadLock();
         while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
             int result = pAudioQueue->getAvPacket(pPacket);
-            if (result == S_ERROR_CONTINUE) {
+            if (result == S_FUNCTION_CONTINUE) {
                 continue;
             } else if (result == S_SUCCESS) {
                 break;
