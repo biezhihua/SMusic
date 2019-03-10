@@ -2,8 +2,8 @@
 // Created by biezhihua on 2019/2/4.
 //
 
-#ifndef SMUSIC_SMUSIC_PLAYER_H
-#define SMUSIC_SMUSIC_PLAYER_H
+#ifndef SPLAYER_PLAYER_H
+#define SPLAYER_PLAYER_H
 
 
 #include <jni.h>
@@ -89,4 +89,4 @@ public:
 };
 
 
-#endif //SMUSIC_SMUSIC_PLAYER_H
+#endif //SPLAYER_PLAYER_H

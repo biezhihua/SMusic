@@ -2,8 +2,8 @@
 // Created by biezhihua on 2019/2/11.
 //
 
-#ifndef SMUSIC_SOPENSLES_H
-#define SMUSIC_SOPENSLES_H
+#ifndef SPLAYER_S_OPENSLES_H
+#define SPLAYER_S_OPENSLES_H
 
 #include <string>
 #include <SLES/OpenSLES.h>
@@ -108,4 +108,4 @@ public:
 };
 
 
-#endif //SMUSIC_SOPENSLES_H
+#endif //SPLAYER_S_OPENSLES_H

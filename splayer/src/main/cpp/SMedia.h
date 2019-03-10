@@ -2,8 +2,8 @@
 // Created by biezhihua on 2019/2/4.
 //
 
-#ifndef SMUSIC_S_AUDIO_H
-#define SMUSIC_S_AUDIO_H
+#ifndef SPLAYER_S_AUDIO_H
+#define SPLAYER_S_AUDIO_H
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -48,4 +48,4 @@ public:
 };
 
 
-#endif //SMUSIC_S_AUDIO_H
+#endif //SPLAYER_S_AUDIO_H

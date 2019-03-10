@@ -2,8 +2,8 @@
 // Created by biezhihua on 2019/2/4.
 //
 
-#ifndef SMUSIC_S_FFMPEG_H
-#define SMUSIC_S_FFMPEG_H
+#ifndef SPLAYER_S_FFMPEG_H
+#define SPLAYER_S_FFMPEG_H
 
 
 extern "C" {
@@ -97,4 +97,4 @@ public:
 };
 
 
-#endif //SMUSIC_S_FFMPEG_H
+#endif //SPLAYER_S_FFMPEG_H

@@ -4,8 +4,8 @@
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-#ifndef SMUSIC_SPLAYERSTATUS_H
-#define SMUSIC_SPLAYERSTATUS_H
+#ifndef SPLAYER_STATUS_H
+#define SPLAYER_STATUS_H
 
 #include <pthread.h>
 #include "SLog.h"
@@ -346,6 +346,6 @@ public:
 };
 
 
-#endif //SMUSIC_SPLAYERSTATUS_H
+#endif //SPLAYER_STATUS_H
 
 #pragma clang diagnostic pop

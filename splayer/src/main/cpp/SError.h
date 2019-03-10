@@ -2,8 +2,8 @@
 // Created by biezhihua on 2019/2/12.
 //
 
-#ifndef SMUSIC_SERROR_H
-#define SMUSIC_SERROR_H
+#ifndef SPLAYER_SERROR_H
+#define SPLAYER_SERROR_H
 
 #define S_SUCCESS 0
 #define S_ERROR_BREAK -10000
@@ -15,4 +15,4 @@
 #define ERROR_CODE_DECODE_AUDIO_FRAME -100001
 #define ERROR_CODE_NOT_MEMORY -100002
 
-#endif //SMUSIC_SERROR_H
+#endif //SPLAYER_SERROR_H
