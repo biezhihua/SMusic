@@ -29,9 +29,9 @@ private:
     SQueue *pVideoQueue = NULL;
 
     AVPacket *pDecodePacket = NULL;
-    AVPacket *pResamplePacket = NULL;
+    AVPacket *pAudioResamplePacket = NULL;
 
-    AVFrame *pResampleFrame = NULL;
+    AVFrame *pAudioResampleFrame = NULL;
 
     uint8_t *pBuffer = NULL;
 
@@ -77,7 +77,7 @@ public:
 
     SQueue *getVideoQueue();
 
-    int getAvPacketFromQueue(AVPacket *pPacket);
+    int getAudioAvPacketFromAudioQueue(AVPacket *pPacket);
 
     uint8_t *getBuffer();
 

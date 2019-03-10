@@ -243,9 +243,9 @@ int SFFmpeg::decodeFrame() {
 
 int SFFmpeg::resampleAudio() {
 
-    pResamplePacket = av_packet_alloc();
+    pAudioResamplePacket = av_packet_alloc();
 
-    if (pResamplePacket == NULL) {
+    if (pAudioResamplePacket == NULL) {
         LOGE("SFFmpeg: blockResampleAudio: failed to allocated memory for AVPacket");
         return S_FUNCTION_BREAK;
     }
@@ -255,7 +255,7 @@ int SFFmpeg::resampleAudio() {
         return S_FUNCTION_BREAK;
     }
 
-    if (getAvPacketFromQueue(pResamplePacket) == S_ERROR) {
+    if (getAudioAvPacketFromAudioQueue(pAudioResamplePacket) == S_ERROR) {
 
         releasePacket();
         releaseFrame();
@@ -263,19 +263,19 @@ int SFFmpeg::resampleAudio() {
         return S_FUNCTION_CONTINUE;
     }
 
-    int result = avcodec_send_packet(pAudio->pCodecContext, pResamplePacket);
+    int result = avcodec_send_packet(pAudio->pCodecContext, pAudioResamplePacket);
     if (result != S_SUCCESS) {
         LOGE("SFFmpeg: blockResampleAudio: send packet failed");
         return S_FUNCTION_BREAK;
     }
 
-    pResampleFrame = av_frame_alloc();
-    if (pResampleFrame == NULL) {
+    pAudioResampleFrame = av_frame_alloc();
+    if (pAudioResampleFrame == NULL) {
         LOGE("SFFmpeg: blockResampleAudio: ailed to allocated memory for AVFrame");
         return S_FUNCTION_BREAK;
     }
 
-    result = avcodec_receive_frame(pAudio->pCodecContext, pResampleFrame);
+    result = avcodec_receive_frame(pAudio->pCodecContext, pAudioResampleFrame);
 
     if (result != S_SUCCESS) {
 
@@ -289,19 +289,19 @@ int SFFmpeg::resampleAudio() {
     } else {
 
         // Process exception
-        if (pResampleFrame->channels > 0 && pResampleFrame->channel_layout == 0) {
-            pResampleFrame->channel_layout = (uint64_t) (av_get_default_channel_layout(pResampleFrame->channels));
-        } else if (pResampleFrame->channels == 0 && pResampleFrame->channel_layout > 0) {
-            pResampleFrame->channels = av_get_channel_layout_nb_channels(pResampleFrame->channel_layout);
+        if (pAudioResampleFrame->channels > 0 && pAudioResampleFrame->channel_layout == 0) {
+            pAudioResampleFrame->channel_layout = (uint64_t) (av_get_default_channel_layout(pAudioResampleFrame->channels));
+        } else if (pAudioResampleFrame->channels == 0 && pAudioResampleFrame->channel_layout > 0) {
+            pAudioResampleFrame->channels = av_get_channel_layout_nb_channels(pAudioResampleFrame->channel_layout);
         }
 
         SwrContext *swrContext = swr_alloc_set_opts(NULL,
                                                     AV_CH_LAYOUT_STEREO,
                                                     AV_SAMPLE_FMT_S16,
-                                                    pResampleFrame->sample_rate,
-                                                    pResampleFrame->channel_layout,
-                                                    (AVSampleFormat) (pResampleFrame->format),
-                                                    pResampleFrame->sample_rate,
+                                                    pAudioResampleFrame->sample_rate,
+                                                    pAudioResampleFrame->channel_layout,
+                                                    (AVSampleFormat) (pAudioResampleFrame->format),
+                                                    pAudioResampleFrame->sample_rate,
                                                     NULL, NULL);
 
         if (swrContext == NULL || swr_init(swrContext) < 0) {
@@ -322,9 +322,9 @@ int SFFmpeg::resampleAudio() {
         // number of samples output per channel, negative value on error
         channelSampleNumbers = swr_convert(swrContext,
                                            &pBuffer,
-                                           pResampleFrame->nb_samples,
-                                           (const uint8_t **) (pResampleFrame->data),
-                                           pResampleFrame->nb_samples);
+                                           pAudioResampleFrame->nb_samples,
+                                           (const uint8_t **) (pAudioResampleFrame->data),
+                                           pAudioResampleFrame->nb_samples);
 
         if (channelSampleNumbers < 0) {
             LOGE("SFFmpeg: blockResampleAudio: swr convert numbers < 0 ");
@@ -335,7 +335,7 @@ int SFFmpeg::resampleAudio() {
 
         int dataSize = channelSampleNumbers * outChannels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 
-        pAudio->updateTime(pResampleFrame, dataSize);
+        pAudio->updateTime(pAudioResampleFrame, dataSize);
 
         releasePacket();
         releaseFrame();
@@ -407,15 +407,15 @@ int SFFmpeg::resampleAudio() {
 }
 
 void SFFmpeg::releaseFrame() {
-    av_frame_free(&pResampleFrame);
-    av_free(pResampleFrame);
-    pResampleFrame = NULL;
+    av_frame_free(&pAudioResampleFrame);
+    av_free(pAudioResampleFrame);
+    pAudioResampleFrame = NULL;
 }
 
 void SFFmpeg::releasePacket() {
-    av_packet_free(&pResamplePacket);
-    av_free(pResamplePacket);
-    pResamplePacket = NULL;
+    av_packet_free(&pAudioResamplePacket);
+    av_free(pAudioResamplePacket);
+    pAudioResamplePacket = NULL;
 }
 
 SMedia *SFFmpeg::getAudio() {
@@ -434,7 +434,7 @@ SQueue *SFFmpeg::getVideoQueue() {
     return pVideoQueue;
 }
 
-int SFFmpeg::getAvPacketFromQueue(AVPacket *pPacket) {
+int SFFmpeg::getAudioAvPacketFromAudioQueue(AVPacket *pPacket) {
     if (pAudioQueue != NULL && pStatus != NULL) {
         pAudioQueue->threadLock();
         while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
