@@ -1,4 +1,4 @@
-#include "SMedia.h"
+#include "../include/SMedia.h"
 
 SMedia::SMedia(int streamIndex, AVCodec *pCodec, AVCodecParameters *pCodecParameters) {
     this->streamIndex = streamIndex;

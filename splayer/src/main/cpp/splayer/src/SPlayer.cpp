@@ -1,4 +1,4 @@
-#include "SPlayer.h"
+#include "../include/SPlayer.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"

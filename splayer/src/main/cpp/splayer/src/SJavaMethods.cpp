@@ -1,4 +1,4 @@
-#include "SJavaMethods.h"
+#include "../include/SJavaMethods.h"
 
 #include <pthread.h>
 

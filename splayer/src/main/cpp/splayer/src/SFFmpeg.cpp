@@ -1,4 +1,4 @@
-#include "SFFmpeg.h"
+#include "../include/SFFmpeg.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"

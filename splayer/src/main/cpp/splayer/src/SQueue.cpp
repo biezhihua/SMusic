@@ -1,4 +1,4 @@
-#include "SQueue.h"
+#include "../include/SQueue.h"
 
 SQueue::SQueue() {
     pthread_cond_init(&condPacketMutex, NULL);

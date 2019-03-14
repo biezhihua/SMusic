@@ -1,8 +1,8 @@
 #include <jni.h>
 #include <pthread.h>
-#include "SLog.h"
-#include "SPlayer.h"
-#include "SJavaMethods.h"
+#include "splayer/include/SLog.h"
+#include "splayer/include/SPlayer.h"
+#include "splayer/include/SJavaMethods.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
