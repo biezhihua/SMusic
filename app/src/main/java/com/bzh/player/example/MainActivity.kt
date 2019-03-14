@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bzh.player.R
 import com.bzh.splayer.lib.IPlayerListener
 import com.bzh.splayer.lib.SPlayer
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -149,7 +150,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun setSource(v: View) {
-        music?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
+//        music?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
+//        music?.setDataSource("https://github.com/biezhihua/SPlayer/blob/master/mp4/1552562921640202.mp4")
+        music?.setDataSource("/storage/emulated/0/DCIM/Camera/6bd8c0cc8fd1051402128289720e8d0d.mp4")
+        val file = File("/storage/emulated/0/DCIM/Camera/6bd8c0cc8fd1051402128289720e8d0d.mp4")
+        Log.d(TAG, "setSource() called with: v = [${file.exists()}]")
     }
 
     fun start(v: View) {

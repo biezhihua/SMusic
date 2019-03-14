@@ -97,7 +97,10 @@ void *startDecodeMediaInfoCallback(void *data) {
                     pJavaMethods->onCallJavaError(ERROR_CODE_DECODE_MEDIA_INFO,
                                                   "Error:SPlayer:DecodeMediaInfoCallback: decodeMediaInfo");
                 }
-                if (pStatus->isPreStop()) {
+                if (pStatus->isPreStart() || pStatus->isPreStop()) {
+
+                    LOGD("SPlayer: startDecodeMediaInfoCallback: error, prepare to stop");
+
                     pOpenSLES->release();
                     pFFmpeg->release();
                     pStatus->moveStatusToStop();
@@ -117,6 +120,8 @@ void *startDecodeMediaInfoCallback(void *data) {
                 pStatus != NULL &&
                 pStatus->isPreStop() &&
                 sPlayer->startDecodeMediaInfoThreadComplete) {
+
+                LOGD("SPlayer: startDecodeMediaInfoCallback: prepare to stop");
 
                 pOpenSLES->release();
                 pFFmpeg->release();
