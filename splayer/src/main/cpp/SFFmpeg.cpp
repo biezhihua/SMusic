@@ -290,7 +290,8 @@ int SFFmpeg::resampleAudio() {
 
         // Process exception
         if (pAudioResampleFrame->channels > 0 && pAudioResampleFrame->channel_layout == 0) {
-            pAudioResampleFrame->channel_layout = (uint64_t) (av_get_default_channel_layout(pAudioResampleFrame->channels));
+            pAudioResampleFrame->channel_layout = (uint64_t) (av_get_default_channel_layout(
+                    pAudioResampleFrame->channels));
         } else if (pAudioResampleFrame->channels == 0 && pAudioResampleFrame->channel_layout > 0) {
             pAudioResampleFrame->channels = av_get_channel_layout_nb_channels(pAudioResampleFrame->channel_layout);
         }
