@@ -248,7 +248,7 @@ void SPlayer::create() {
 
 void SPlayer::setSource(string *url) {
     LOGD("SPlayer: setSource: ------------------- ");
-    if (isValidState() && (pStatus->isCreate() || pStatus->isStop())) {
+    if (isValidState() && (pStatus->isCreate() || pStatus->isStop() || pStatus->isSource())) {
         if (pFFmpeg != NULL) {
             pFFmpeg->setSource(url);
         }

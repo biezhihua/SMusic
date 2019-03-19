@@ -1,18 +1,24 @@
 package com.bzh.player.example
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.View
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.bzh.player.R
 import com.bzh.splayer.lib.IPlayerListener
 import com.bzh.splayer.lib.SPlayer
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -95,6 +101,58 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
         })
+
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(
+                    this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    1
+                )
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>, grantResults: IntArray
+    ) {
+        when (requestCode) {
+            1 -> {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return
+            }
+        }// other 'case' lines to check for other
+        // permissions this app might request
     }
 
     fun create(v: View) {
@@ -150,11 +208,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun setSource(v: View) {
-//        music?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
-//        music?.setDataSource("https://github.com/biezhihua/SPlayer/blob/master/mp4/1552562921640202.mp4")
-        music?.setDataSource("/storage/emulated/0/DCIM/Camera/6bd8c0cc8fd1051402128289720e8d0d.mp4")
-        val file = File("/storage/emulated/0/DCIM/Camera/6bd8c0cc8fd1051402128289720e8d0d.mp4")
-        Log.d(TAG, "setSource() called with: v = [${file.exists()}]")
+        val file = File(Environment.getExternalStorageDirectory(), "/DCIM/1552562921640202.mp4")
+        music?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
+        music?.setDataSource("https://github.com/biezhihua/SPlayer/blob/master/mp4/1552562921640202.mp4")
+        music?.setDataSource(file.absolutePath)
+        Log.d(TAG, "setSource() called with: isExist = [${file.exists()}]")
     }
 
     fun start(v: View) {

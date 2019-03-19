@@ -10,6 +10,7 @@ extern "C" {
 };
 
 #include <string>
+#include <stdio.h>
 #include "SMedia.h"
 #include "SJavaMethods.h"
 #include "SError.h"

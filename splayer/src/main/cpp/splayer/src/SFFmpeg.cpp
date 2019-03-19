@@ -45,6 +45,11 @@ SFFmpeg::~SFFmpeg() {
 }
 
 void SFFmpeg::setSource(string *source) {
+    LOGD("SFFmpeg: setSource: %s ", source);
+    if (pSource != NULL) {
+        delete pSource;
+        pSource = NULL;
+    }
     if (source != NULL) {
         pSource = new string(source->c_str());
     }
