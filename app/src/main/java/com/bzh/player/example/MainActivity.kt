@@ -16,6 +16,7 @@ import com.bzh.player.R
 import com.bzh.splayer.lib.IPlayerListener
 import com.bzh.splayer.lib.SPlayer
 import java.io.File
+import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -208,11 +209,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun setSource(v: View) {
-        val file = File(Environment.getExternalStorageDirectory(), "/DCIM/1552562921640202.mp4")
+//        val file = File(Environment.getExternalStorageDirectory(), "/DCIM/cogo.mp4")
+//        val file = File(Environment.getExternalStorageDirectory(), "/DCIM/1552562921640202.mp4")
 //        music?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
+//        music?.setDataSource(file.absolutePath)
 //        music?.setDataSource("https://github.com/biezhihua/SPlayer/blob/master/mp4/1552562921640202.mp4")
-        music?.setDataSource(file.absolutePath)
-        Log.d(TAG, "setSource() called with: isExist = [${file.exists()}]")
+        music?.setDataSource("https://storage.googleapis.com/exoplayer-test-media-1/360/congo.mp4")
+//        music?.setDataSource("https://storage.googleapis.com/exoplayer-test-media-0/play.mp3")
+//        Log.d(TAG, "setSource() called with: isExist = [${file.exists()}]")
+//        try {
+//            val inputStream = FileInputStream(file)
+//            val read = inputStream.read()
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
     }
 
     fun start(v: View) {

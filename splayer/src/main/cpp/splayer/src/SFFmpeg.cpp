@@ -47,7 +47,7 @@ SFFmpeg::~SFFmpeg() {
 }
 
 void SFFmpeg::setSource(string *source) {
-    LOGD(TAG, "SFFmpeg: setSource: %s ", source);
+    LOGD(TAG, "setSource: %s ", source);
     if (pSource != NULL) {
         delete pSource;
         pSource = NULL;
@@ -67,16 +67,16 @@ int SFFmpeg::decodeMediaInfo() {
     pFormatContext = avformat_alloc_context();
 
     if (pFormatContext == NULL) {
-        LOGE(TAG, "SFFmpeg: decodeMediaInfo: ERROR could not allocate memory for Format Context");
+        LOGE(TAG, "decodeMediaInfo: ERROR could not allocate memory for Format Context");
         return S_ERROR;
     }
 
     if (pSource == NULL) {
-        LOGE(TAG, "SFFmpeg: decodeMediaInfo: ERROR source is empty");
+        LOGE(TAG, "decodeMediaInfo: ERROR source is empty");
         return S_ERROR;
     }
 
-    LOGD(TAG, "SFFmpeg: decodeMediaInfo: Opening the input file (%s) and _isLoading format (container) header",
+    LOGD(TAG, "decodeMediaInfo: Opening the input file (%s) and _isLoading format (container) header",
          pSource->c_str());
 
     // Open the file and read its header. The codecs are not opened.
@@ -88,18 +88,18 @@ int SFFmpeg::decodeMediaInfo() {
     // http://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#ga31d601155e9035d5b0e7efedc894ee49
     int result = avformat_open_input(&pFormatContext, pSource->c_str(), NULL, NULL);
     if (result != 0) {
-        LOGE(TAG, "SFFmpeg: decodeMediaInfo: ERROR could not open the file %d", result);
+        LOGE(TAG, "decodeMediaInfo: ERROR could not open the file %d", result);
         return S_ERROR;
     }
 
     // now we have access to some information about our file
     // since we read its header we can say what format (container) it's
     // and some other information related to the format itself.
-    LOGD(TAG, "SFFmpeg: decodeMediaInfo: Format %s, totalTime %lld us, bit_rate %lld", pFormatContext->iformat->name,
+    LOGD(TAG, "decodeMediaInfo: Format %s, totalTime %lld us, bit_rate %lld", pFormatContext->iformat->name,
          pFormatContext->duration,
          pFormatContext->bit_rate);
 
-    LOGD(TAG, "SFFmpeg: decodeMediaInfo: Finding stream info from format");
+    LOGD(TAG, "decodeMediaInfo: Finding stream info from format");
     // read Packets from the Format to get stream information
     // this function populates pFormatContext->streams
     // (of size equals to pFormatContext->nb_streams)
@@ -109,30 +109,30 @@ int SFFmpeg::decodeMediaInfo() {
     // On return each dictionary will be filled with options that were not found.
     // https://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#gad42172e27cddafb81096939783b157bb
     if (avformat_find_stream_info(pFormatContext, NULL) < 0) {
-        LOGD(TAG, "SFFmpeg: decodeMediaInfo: ERROR could not get the stream info");
+        LOGD(TAG, "decodeMediaInfo: ERROR could not get the stream info");
         return S_ERROR;
     }
 
     // loop though all the streams and print its main information
     for (int i = 0; i < pFormatContext->nb_streams; i++) {
 
-        LOGD(TAG, "SFFmpeg: decodeMediaInfo: ----------------------- ");
+        LOGD(TAG, "decodeMediaInfo: ----------------------- ");
 
         AVCodecParameters *pLocalCodecParameters = NULL;
         pLocalCodecParameters = pFormatContext->streams[i]->codecpar;
 
-        LOGD(TAG, "SFFmpeg: decodeMediaInfo: AVStream->time_base before open coded %d/%d",
+        LOGD(TAG, "decodeMediaInfo: AVStream->time_base before open coded %d/%d",
              pFormatContext->streams[i]->time_base.num,
              pFormatContext->streams[i]->time_base.den);
 
-        LOGD(TAG, "SFFmpeg: decodeMediaInfo: AVStream->r_frame_rate before open coded %d/%d",
+        LOGD(TAG, "decodeMediaInfo: AVStream->r_frame_rate before open coded %d/%d",
              pFormatContext->streams[i]->r_frame_rate.num,
              pFormatContext->streams[i]->r_frame_rate.den);
 
-        LOGD(TAG, "SFFmpeg: decodeMediaInfo: AVStream->start_time %d", pFormatContext->streams[i]->start_time);
-        LOGD(TAG, "SFFmpeg: decodeMediaInfo: AVStream->totalTime %d", pFormatContext->streams[i]->duration);
+        LOGD(TAG, "decodeMediaInfo: AVStream->start_time %d", pFormatContext->streams[i]->start_time);
+        LOGD(TAG, "decodeMediaInfo: AVStream->totalTime %d", pFormatContext->streams[i]->duration);
 
-        LOGD(TAG, "SFFmpeg: decodeMediaInfo: Finding the proper decoder (CODEC)");
+        LOGD(TAG, "decodeMediaInfo: Finding the proper decoder (CODEC)");
 
         // when the stream is a video we store its index, codec parameters and codec
         if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_VIDEO) {
@@ -140,7 +140,7 @@ int SFFmpeg::decodeMediaInfo() {
             AVCodec *pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
 
             if (pLocalCodec == NULL) {
-                LOGD(TAG, "SFFmpeg: decodeMediaInfo: ERROR unsupported codec!");
+                LOGD(TAG, "decodeMediaInfo: ERROR unsupported codec!");
                 continue;
             }
 
@@ -149,10 +149,10 @@ int SFFmpeg::decodeMediaInfo() {
             pVideo->totalTimeMillis = pVideo->totalTime * 1000;
             pVideo->timeBase = (pFormatContext->streams[pVideo->streamIndex]->time_base);
 
-            LOGD(TAG, "SFFmpeg: decodeMediaInfo: Video Codec: resolution %d x %d", pLocalCodecParameters->width,
+            LOGD(TAG, "decodeMediaInfo: Video Codec: resolution %d x %d", pLocalCodecParameters->width,
                  pLocalCodecParameters->height);
             // print its name, id and bitrate
-            LOGD(TAG, "SFFmpeg: decodeMediaInfo: Codec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
+            LOGD(TAG, "decodeMediaInfo: Codec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
                  pLocalCodecParameters->bit_rate);
 
         } else if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -160,7 +160,7 @@ int SFFmpeg::decodeMediaInfo() {
             AVCodec *pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
 
             if (pLocalCodec == NULL) {
-                LOGD(TAG, "SFFmpeg: decodeMediaInfo: ERROR unsupported codec!");
+                LOGD(TAG, "decodeMediaInfo: ERROR unsupported codec!");
                 continue;
             }
 
@@ -169,35 +169,35 @@ int SFFmpeg::decodeMediaInfo() {
             pAudio->totalTimeMillis = pAudio->totalTime * 1000;
             pAudio->timeBase = (pFormatContext->streams[pAudio->streamIndex]->time_base);
 
-            LOGD(TAG, "SFFmpeg: decodeMediaInfo: Audio Codec: %d channels, sample rate %d",
+            LOGD(TAG, "decodeMediaInfo: Audio Codec: %d channels, sample rate %d",
                  pLocalCodecParameters->channels,
                  pLocalCodecParameters->sample_rate);
-            LOGD(TAG, "SFFmpeg: decodeMediaInfo: Codec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
+            LOGD(TAG, "decodeMediaInfo: Codec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
                  pLocalCodecParameters->bit_rate);
         }
     }
 
-    LOGD(TAG, "SFFmpeg: decodeMediaInfo: ----------------------- ");
+    LOGD(TAG, "decodeMediaInfo: ----------------------- ");
 
     if (pAudio != NULL) {
         // https://ffmpeg.org/doxygen/trunk/structAVCodecContext.html
         pAudio->pCodecContext = (avcodec_alloc_context3(pAudio->pCodec));
         if (pAudio->pCodecContext == NULL) {
-            LOGE(TAG, "SFFmpeg: decodeMediaInfo: Failed to allocated memory for AVCodecContext");
+            LOGE(TAG, "decodeMediaInfo: Failed to allocated memory for AVCodecContext");
             return S_ERROR;
         }
 
         // Fill the codec context based on the values from the supplied codec parameters
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#gac7b282f51540ca7a99416a3ba6ee0d16
         if (avcodec_parameters_to_context(pAudio->pCodecContext, pAudio->pCodecParameters) < 0) {
-            LOGE(TAG, "SFFmpeg: decodeMediaInfo: Failed to copy codec params to codec context");
+            LOGE(TAG, "decodeMediaInfo: Failed to copy codec params to codec context");
             return S_ERROR;
         }
 
         // Initialize the AVCodecContext to use the given AVCodec.
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#ga11f785a188d7d9df71621001465b0f1d
         if (avcodec_open2(pAudio->pCodecContext, pAudio->pCodec, NULL) < 0) {
-            LOGE(TAG, "SFFmpeg: decodeMediaInfo: Failed to open codec through avcodec_open2");
+            LOGE(TAG, "decodeMediaInfo: Failed to open codec through avcodec_open2");
             return S_ERROR;
         }
     }
@@ -220,14 +220,14 @@ int SFFmpeg::decodeFrame() {
     if ((pAudio != NULL && pAudioQueue != NULL && pAudioQueue->getSize() > 40) &&
         (pVideo != NULL && pVideoQueue != NULL && pVideoQueue->getSize() > 40)) {
         sleep();
-        LOGE(TAG, "SFFmpeg: decodeFrame: Size OverFlow Sleep");
+        LOGE(TAG, "decodeFrame: Size OverFlow Sleep");
         return S_FUNCTION_CONTINUE;
     }
 
     // https://ffmpeg.org/doxygen/trunk/structAVPacket.html
     pDecodePacket = av_packet_alloc();
     if (pDecodePacket == NULL) {
-        LOGE(TAG, "SFFmpeg: decodeFrame: failed to allocated memory for AVPacket");
+        LOGE(TAG, "decodeFrame: failed to allocated memory for AVPacket");
         return S_FUNCTION_BREAK;
     }
 
@@ -238,17 +238,17 @@ int SFFmpeg::decodeFrame() {
     if (ret == 0) {
         if (pAudio != NULL && pDecodePacket->stream_index == pAudio->streamIndex) {
             pAudioQueue->putAvPacket(pDecodePacket);
-            // LOGD(TAG, "SFFmpeg: decodeFrame: pAudioQueue putAvPacket %d", pAudioQueue->getSize());
+            // LOGD(TAG, "decodeFrame: pAudioQueue putAvPacket %d", pAudioQueue->getSize());
         } else if (pVideo != NULL && pDecodePacket->stream_index == pVideo->streamIndex) {
             pVideoQueue->putAvPacket(pDecodePacket);
-            // LOGD(TAG, "SFFmpeg: decodeFrame: pVideoQueue putAvPacket %d", pVideoQueue->getSize());
+            // LOGD(TAG, "decodeFrame: pVideoQueue putAvPacket %d", pVideoQueue->getSize());
         }
 
         return S_SUCCESS;
     } else {
         av_packet_free(&pDecodePacket);
         av_free(pDecodePacket);
-        //LOGD(TAG,"SFFmpeg: decodeFrame: decode finished");
+        //LOGD(TAG,"decodeFrame: decode finished");
         return S_FUNCTION_BREAK;
     }
 }
@@ -258,12 +258,12 @@ int SFFmpeg::resampleAudio() {
     pAudioResamplePacket = av_packet_alloc();
 
     if (pAudioResamplePacket == NULL) {
-        LOGE(TAG, "SFFmpeg: blockResampleAudio: failed to allocated memory for AVPacket");
+        LOGE(TAG, "blockResampleAudio: failed to allocated memory for AVPacket");
         return S_FUNCTION_BREAK;
     }
 
     if (pAudio == NULL) {
-        LOGE(TAG, "SFFmpeg: blockResampleAudio: audio is null");
+        LOGE(TAG, "blockResampleAudio: audio is null");
         return S_FUNCTION_BREAK;
     }
 
@@ -277,13 +277,13 @@ int SFFmpeg::resampleAudio() {
 
     int result = avcodec_send_packet(pAudio->pCodecContext, pAudioResamplePacket);
     if (result != S_SUCCESS) {
-        LOGE(TAG, "SFFmpeg: blockResampleAudio: send packet failed");
+        LOGE(TAG, "blockResampleAudio: send packet failed");
         return S_FUNCTION_CONTINUE;
     }
 
     pAudioResampleFrame = av_frame_alloc();
     if (pAudioResampleFrame == NULL) {
-        LOGE(TAG, "SFFmpeg: blockResampleAudio: ailed to allocated memory for AVFrame");
+        LOGE(TAG, "blockResampleAudio: ailed to allocated memory for AVFrame");
         return S_FUNCTION_BREAK;
     }
 
@@ -294,7 +294,7 @@ int SFFmpeg::resampleAudio() {
         releasePacket();
         releaseFrame();
 
-        LOGE(TAG, "SFFmpeg: blockResampleAudio: receive frame failed %d", result);
+        LOGE(TAG, "blockResampleAudio: receive frame failed %d", result);
 
         return S_FUNCTION_CONTINUE;
 
@@ -327,7 +327,7 @@ int SFFmpeg::resampleAudio() {
                 swrContext = NULL;
             }
 
-            LOGE(TAG, "SFFmpeg: blockResampleAudio: swrContext is null or swrContext init failed");
+            LOGE(TAG, "blockResampleAudio: swrContext is null or swrContext init failed");
 
             return S_FUNCTION_CONTINUE;
         }
@@ -340,7 +340,7 @@ int SFFmpeg::resampleAudio() {
                                            pAudioResampleFrame->nb_samples);
 
         if (channelSampleNumbers < 0) {
-            LOGE(TAG, "SFFmpeg: blockResampleAudio: swr convert numbers < 0 ");
+            LOGE(TAG, "blockResampleAudio: swr convert numbers < 0 ");
             return S_FUNCTION_CONTINUE;
         }
 
@@ -361,7 +361,7 @@ int SFFmpeg::resampleAudio() {
             if (seekTargetMillis < seekStartMillis) {
                 // Left
                 if (seekTargetMillis < pAudio->getCurrentTimeMillis()) {
-                    LOGE(TAG, "SFFmpeg: blockResampleAudio: left: frame error %d %d %d", pStatus->isPrePreSeekState(),
+                    LOGE(TAG, "blockResampleAudio: left: frame error %d %d %d", pStatus->isPrePreSeekState(),
                          (int) seekTargetMillis,
                          (int) pAudio->getCurrentTimeMillis());
                     seek(seekTargetMillis);
@@ -381,7 +381,7 @@ int SFFmpeg::resampleAudio() {
                 // Right
                 if (seekTargetMillis > pAudio->getCurrentTimeMillis()) {
                     seek(seekTargetMillis);
-                    LOGE(TAG, "SFFmpeg: blockResampleAudio: right: frame error %d %d %d", pStatus->isPrePreSeekState(),
+                    LOGE(TAG, "blockResampleAudio: right: frame error %d %d %d", pStatus->isPrePreSeekState(),
                          (int) seekTargetMillis,
                          (int) pAudio->getCurrentTimeMillis());
                     if (seekTargetMillis > pAudio->getCurrentTimeMillis()) {
@@ -479,7 +479,7 @@ int SFFmpeg::stop() {
 }
 
 int SFFmpeg::release() {
-    LOGD(TAG, "SFFmpeg: release");
+    LOGD(TAG, "release");
 
     if (pAudio != NULL) {
         if (pAudio->pCodecContext != NULL) {
