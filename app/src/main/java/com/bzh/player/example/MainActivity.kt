@@ -4,19 +4,18 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.View
+import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.bzh.player.R
 import com.bzh.splayer.lib.IPlayerListener
 import com.bzh.splayer.lib.SPlayer
-import java.io.File
-import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var volume: SeekBar
     private lateinit var speed: SeekBar
     private lateinit var pitch: SeekBar
+    private lateinit var image: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +41,8 @@ class MainActivity : AppCompatActivity() {
         volume = findViewById(R.id.volume)
         speed = findViewById(R.id.speed)
         pitch = findViewById(R.id.pitch)
+        image = findViewById(R.id.image)
+
 
         speed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -131,6 +133,10 @@ class MainActivity : AppCompatActivity() {
                 // result of the request.
             }
         }
+
+        Glide.with(this)
+            .load("http://attimg.dospy.com/img/day_120708/20120708_562d17b32de40740fb9aKkL4ZcIaNhll.jpg")
+            .into(image)
     }
 
     override fun onRequestPermissionsResult(
