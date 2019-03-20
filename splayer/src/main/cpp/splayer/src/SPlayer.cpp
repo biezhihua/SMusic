@@ -139,7 +139,6 @@ void *startDecodeMediaInfoCallback(void *data) {
     return NULL;
 }
 
-
 void *seekCallback(void *data) {
     LOGD("SPlayer: seekCallback: start");
     SPlayer *sPlayer = (SPlayer *) data;

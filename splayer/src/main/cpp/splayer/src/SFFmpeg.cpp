@@ -214,9 +214,10 @@ int SFFmpeg::decodeFrame() {
         return S_ERROR;
     }
 
-    if ((pAudio != NULL && pAudioQueue != NULL && pAudioQueue->getSize() > 40) ||
+    if ((pAudio != NULL && pAudioQueue != NULL && pAudioQueue->getSize() > 40) &&
         (pVideo != NULL && pVideoQueue != NULL && pVideoQueue->getSize() > 40)) {
         sleep();
+        LOGE("SFFmpeg: decodeFrame: Size OverFlow Sleep");
         return S_FUNCTION_CONTINUE;
     }
 
@@ -237,6 +238,7 @@ int SFFmpeg::decodeFrame() {
         } else if (pVideo != NULL && pDecodePacket->stream_index == pVideo->streamIndex) {
             pVideoQueue->putAvPacket(pDecodePacket);
         }
+        LOGD("SFFmpeg: decodeFrame: putAvPacket");
         return S_SUCCESS;
     } else {
         av_packet_free(&pDecodePacket);
@@ -271,7 +273,7 @@ int SFFmpeg::resampleAudio() {
     int result = avcodec_send_packet(pAudio->pCodecContext, pAudioResamplePacket);
     if (result != S_SUCCESS) {
         LOGE("SFFmpeg: blockResampleAudio: send packet failed");
-        return S_FUNCTION_BREAK;
+        return S_FUNCTION_CONTINUE;
     }
 
     pAudioResampleFrame = av_frame_alloc();
@@ -287,7 +289,7 @@ int SFFmpeg::resampleAudio() {
         releasePacket();
         releaseFrame();
 
-        LOGE("SFFmpeg: blockResampleAudio: receive frame failed");
+        LOGE("SFFmpeg: blockResampleAudio: receive frame failed %d", result);
 
         return S_FUNCTION_CONTINUE;
 
