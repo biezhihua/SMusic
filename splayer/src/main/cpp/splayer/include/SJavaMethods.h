@@ -4,6 +4,7 @@
 #include <jni.h>
 #include <string>
 #include "SLog.h"
+#include <pthread.h>
 
 class SJavaMethods {
 private:

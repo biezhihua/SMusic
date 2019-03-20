@@ -1,6 +1,6 @@
 #include "../include/SJavaMethods.h"
 
-#include <pthread.h>
+#define TAG "Native_JavaMethods"
 
 SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
     javaVm = pVm;
@@ -33,14 +33,14 @@ bool SJavaMethods::isMainThread() {
     if (javaVm != NULL) {
         jint res = javaVm->GetEnv(reinterpret_cast<void **>(&jniEnv), JNI_VERSION_1_6);
         bool result = res != JNI_EDETACHED;
-        // LOGD("isMainThread %d %d", res, result);
+        // LOGD(TAG,"isMainThread %d %d", res, result);
         return result;
     }
     return false;
 }
 
 void SJavaMethods::onCallJavaCreate() {
-    LOGD("SJavaMethods:onCallJavaCreate");
+    LOGD(TAG, "SJavaMethods:onCallJavaCreate");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idCreate);
@@ -49,7 +49,7 @@ void SJavaMethods::onCallJavaCreate() {
 }
 
 void SJavaMethods::onCallJavaStart() {
-    LOGD("SJavaMethods:onCallJavaStart");
+    LOGD(TAG, "SJavaMethods:onCallJavaStart");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idStart);
@@ -58,7 +58,7 @@ void SJavaMethods::onCallJavaStart() {
 }
 
 void SJavaMethods::onCallJavaPlay() {
-    LOGD("SJavaMethods:onCallJavaPlay");
+    LOGD(TAG, "SJavaMethods:onCallJavaPlay");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idPlay);
@@ -67,7 +67,7 @@ void SJavaMethods::onCallJavaPlay() {
 }
 
 void SJavaMethods::onCallJavaPause() {
-    LOGD("SJavaMethods:onCallJavaPause");
+    LOGD(TAG, "SJavaMethods:onCallJavaPause");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idPause);
@@ -76,7 +76,7 @@ void SJavaMethods::onCallJavaPause() {
 }
 
 void SJavaMethods::onCallJavaStop() {
-    LOGD("SJavaMethods:onCallJavaStop");
+    LOGD(TAG, "SJavaMethods:onCallJavaStop");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idStop);
@@ -85,7 +85,7 @@ void SJavaMethods::onCallJavaStop() {
 }
 
 void SJavaMethods::onCallJavaDestroy() {
-    LOGD("SJavaMethods:onCallJavaDestroy");
+    LOGD(TAG, "SJavaMethods:onCallJavaDestroy");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idDestroy);
@@ -94,7 +94,7 @@ void SJavaMethods::onCallJavaDestroy() {
 }
 
 void SJavaMethods::onCallJavaTimeFromThread(int totalTimeMillis, int currentTimeMillis) {
-    LOGD("SJavaMethods:onCallJavaTime: %d %d", totalTimeMillis, currentTimeMillis);
+    LOGD(TAG, "SJavaMethods:onCallJavaTime: %d %d", totalTimeMillis, currentTimeMillis);
     JNIEnv *jniEnv;
     if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
         jniEnv->CallVoidMethod(javaInstance, idTime, (jint) totalTimeMillis, (jint) currentTimeMillis);
@@ -115,7 +115,7 @@ JNIEnv *SJavaMethods::tryLoadEnv() {
     } else {
         int res = javaVm->AttachCurrentThread(&jniEnv, NULL);
         if (JNI_OK != res) {
-            LOGE("Failed to AttachCurrentThread, ErrorCode = %d", res);
+            LOGE(TAG, "Failed to AttachCurrentThread, ErrorCode = %d", res);
             jniEnv = NULL;
         }
     }
@@ -123,7 +123,7 @@ JNIEnv *SJavaMethods::tryLoadEnv() {
 }
 
 void SJavaMethods::onCallJavaError(int code, const char *message) {
-    LOGD("SJavaMethods:onCallJavaError: %s", message);
+    LOGD(TAG, "SJavaMethods:onCallJavaError: %s", message);
     JNIEnv *jniEnv;
     if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
         jstring jMessage = jniEnv->NewStringUTF(message);
@@ -134,7 +134,7 @@ void SJavaMethods::onCallJavaError(int code, const char *message) {
 }
 
 void SJavaMethods::onCallJavaComplete() {
-    LOGD("SJavaMethods:onCallJavaComplete");
+    LOGD(TAG, "SJavaMethods:onCallJavaComplete");
     JNIEnv *jniEnv = tryLoadEnv();
     if (jniEnv != NULL) {
         jniEnv->CallVoidMethod(javaInstance, idComplete);
@@ -144,7 +144,7 @@ void SJavaMethods::onCallJavaComplete() {
 
 void SJavaMethods::onCallJavaLoadState(bool loadState) {
     JNIEnv *jniEnv;
-    LOGD("SJavaMethods:onCallJavaLoadState %d", loadState);
+    LOGD(TAG, "SJavaMethods:onCallJavaLoadState %d", loadState);
     if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
         jniEnv->CallVoidMethod(javaInstance, idLoad, loadState);
         javaVm->DetachCurrentThread();

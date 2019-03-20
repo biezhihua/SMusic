@@ -4,8 +4,10 @@
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma ide diagnostic ignored "OCDFAInspection"
 
+#define TAG "Native_Player"
+
 void *startDecodeFrameCallback(void *data) {
-    LOGD("SPlayer: startDecodeFrameCallback: start");
+    LOGD(TAG, "SPlayer: startDecodeFrameCallback: start");
     SPlayer *sPlayer = (SPlayer *) data;
 
     if (sPlayer != NULL) {
@@ -70,13 +72,13 @@ void *startDecodeFrameCallback(void *data) {
         }
     }
 
-    LOGD("SPlayer: startDecodeFrameCallback: end");
+    LOGD(TAG, "SPlayer: startDecodeFrameCallback: end");
     pthread_exit(&sPlayer->startDecodeThread);
     return NULL;
 }
 
 void *startDecodeMediaInfoCallback(void *data) {
-    LOGD("SPlayer: startDecodeMediaInfoCallback: start");
+    LOGD(TAG, "SPlayer: startDecodeMediaInfoCallback: start");
 
     SPlayer *sPlayer = (SPlayer *) data;
 
@@ -99,7 +101,7 @@ void *startDecodeMediaInfoCallback(void *data) {
                 }
                 if (pStatus->isPreStart() || pStatus->isPreStop()) {
 
-                    LOGD("SPlayer: startDecodeMediaInfoCallback: error, prepare to stop");
+                    LOGD(TAG, "SPlayer: startDecodeMediaInfoCallback: error, prepare to stop");
 
                     pOpenSLES->release();
                     pFFmpeg->release();
@@ -121,7 +123,7 @@ void *startDecodeMediaInfoCallback(void *data) {
                 pStatus->isPreStop() &&
                 sPlayer->startDecodeMediaInfoThreadComplete) {
 
-                LOGD("SPlayer: startDecodeMediaInfoCallback: prepare to stop");
+                LOGD(TAG, "SPlayer: startDecodeMediaInfoCallback: prepare to stop");
 
                 pOpenSLES->release();
                 pFFmpeg->release();
@@ -134,13 +136,13 @@ void *startDecodeMediaInfoCallback(void *data) {
         }
     }
 
-    LOGD("SPlayer: startDecodeMediaInfoCallback: end");
+    LOGD(TAG, "SPlayer: startDecodeMediaInfoCallback: end");
     pthread_exit(&sPlayer->startDecodeMediaInfoThread);
     return NULL;
 }
 
 void *seekCallback(void *data) {
-    LOGD("SPlayer: seekCallback: start");
+    LOGD(TAG, "SPlayer: seekCallback: start");
     SPlayer *sPlayer = (SPlayer *) data;
     if (sPlayer != NULL && sPlayer->getFFmpeg() != NULL) {
         SFFmpeg *pFFmpeg = sPlayer->getFFmpeg();
@@ -148,13 +150,13 @@ void *seekCallback(void *data) {
             pFFmpeg->seek(sPlayer->getSeekMillis());
         }
     }
-    LOGD("SPlayer: seekCallback: end");
+    LOGD(TAG, "SPlayer: seekCallback: end");
     pthread_exit(&sPlayer->seekAudioThread);
     return NULL;
 }
 
 void *playAudioCallback(void *data) {
-    LOGD("SPlayer: playAudioCallback: start");
+    LOGD(TAG, "SPlayer: playAudioCallback: start");
     SPlayer *sPlayer = (SPlayer *) data;
 
     if (sPlayer != NULL && sPlayer->getFFmpeg() != NULL) {
@@ -166,7 +168,7 @@ void *playAudioCallback(void *data) {
 
         if (pStatus != NULL && pFFmpeg != NULL && pOpenSLES != NULL && pJavaMethods != NULL) {
 
-            LOGD("SPlayer: playAudioCallback called: Init OpenSLES");
+            LOGD(TAG, "SPlayer: playAudioCallback called: Init OpenSLES");
 
             SMedia *audio = pFFmpeg->getAudio();
             int sampleRate = 0;
@@ -212,7 +214,7 @@ void *playAudioCallback(void *data) {
             }
         }
 
-        LOGD("SPlayer: playAudioCallback: end");
+        LOGD(TAG, "SPlayer: playAudioCallback: end");
         pthread_exit(&sPlayer->playAudioThread);
     }
     return NULL;
@@ -233,7 +235,7 @@ SPlayer::~SPlayer() {
 
 
 void SPlayer::create() {
-    LOGD("SPlayer: create: ------------------- ");
+    LOGD(TAG, "SPlayer: create: ------------------- ");
 
     pStatus = new SStatus();
     pFFmpeg = new SFFmpeg(pStatus, pJavaMethods);
@@ -246,7 +248,7 @@ void SPlayer::create() {
 
 
 void SPlayer::setSource(string *url) {
-    LOGD("SPlayer: setSource: ------------------- ");
+    LOGD(TAG, "SPlayer: setSource: ------------------- ");
     if (isValidState() && (pStatus->isCreate() || pStatus->isStop() || pStatus->isSource())) {
         if (pFFmpeg != NULL) {
             pFFmpeg->setSource(url);
@@ -256,7 +258,7 @@ void SPlayer::setSource(string *url) {
 }
 
 void SPlayer::start() {
-    LOGD("SPlayer: start: ------------------- ");
+    LOGD(TAG, "SPlayer: start: ------------------- ");
 
     if (isValidState() && (pStatus->isSource() || pStatus->isStop() || pStatus->isComplete())) {
         pStatus->moveStatusToPreStart();
@@ -267,7 +269,7 @@ void SPlayer::start() {
 }
 
 void SPlayer::play() {
-    LOGD("SPlayer: play: ----------------------- ");
+    LOGD(TAG, "SPlayer: play: ----------------------- ");
 
     if (isValidState() && pStatus->isStart()) {
         pStatus->moveStatusToPrePlay();
@@ -288,7 +290,7 @@ void SPlayer::play() {
 }
 
 void SPlayer::pause() {
-    LOGD("SPlayer: pause: ----------------------- ");
+    LOGD(TAG, "SPlayer: pause: ----------------------- ");
 
     if (isValidState() && pStatus->isPlay()) {
         pOpenSLES->pause();
@@ -300,7 +302,7 @@ void SPlayer::pause() {
 }
 
 void SPlayer::stop() {
-    LOGD("SPlayer: stop: ----------------------- ");
+    LOGD(TAG, "SPlayer: stop: ----------------------- ");
     if (isValidState() && pStatus->isLeastActiveState(STATE_START)) {
         pStatus->moveStatusToPreStop();
         if (pStatus->isPreStop()) {
@@ -311,7 +313,7 @@ void SPlayer::stop() {
 }
 
 void SPlayer::destroy() {
-    LOGD("SPlayer: destroy: ----------------------- ");
+    LOGD(TAG, "SPlayer: destroy: ----------------------- ");
 
     delete pOpenSLES;
     pOpenSLES = NULL;
@@ -348,18 +350,18 @@ SOpenSLES *SPlayer::getSOpenSLES() {
 }
 
 void SPlayer::seek(int64_t millis) {
-    LOGD("SPlayer: seek: ----------------------- ");
+    LOGD(TAG, "SPlayer: seek: ----------------------- ");
 
     if (isValidState() && pStatus->isPlay()) {
         if (pFFmpeg->getTotalTimeMillis() <= 0) {
-            LOGD("SPlayer:seek: total time is 0");
+            LOGD(TAG, "SPlayer:seek: total time is 0");
             return;
         }
         if (millis >= 0 && millis <= pFFmpeg->getTotalTimeMillis()) {
             seekMillis = millis;
             pthread_create(&seekAudioThread, NULL, seekCallback, this);
         }
-        LOGD("SPlayer:seek: %d %f", (int) millis, pFFmpeg->getTotalTimeMillis());
+        LOGD(TAG, "SPlayer:seek: %d %f", (int) millis, pFFmpeg->getTotalTimeMillis());
     }
 }
 
@@ -368,21 +370,21 @@ int64_t SPlayer::getSeekMillis() const {
 }
 
 void SPlayer::volume(int percent) {
-    LOGD("SPlayer: volume: ----------------------- ");
+    LOGD(TAG, "SPlayer: volume: ----------------------- ");
     if (percent >= 0 && percent <= 100 && isValidState()) {
         pOpenSLES->volume(percent);
     }
 }
 
 void SPlayer::mute(int mute) {
-    LOGD("SPlayer: mute: ----------------------- ");
+    LOGD(TAG, "SPlayer: mute: ----------------------- ");
     if (mute >= 0 && isValidState()) {
         pOpenSLES->mute(mute);
     }
 }
 
 void SPlayer::speed(double soundSpeed) {
-    LOGD("SPlayer: speed: ----------------------- ");
+    LOGD(TAG, "SPlayer: speed: ----------------------- ");
     if (isValidState()) {
         pOpenSLES->setSoundTouchTempo(soundSpeed);
     }
@@ -391,7 +393,7 @@ void SPlayer::speed(double soundSpeed) {
 bool SPlayer::isValidState() const { return pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL; }
 
 void SPlayer::pitch(double soundPitch) {
-    LOGD("SPlayer: pitch: ----------------------- ");
+    LOGD(TAG, "SPlayer: pitch: ----------------------- ");
     if (isValidState()) {
         pOpenSLES->setSoundTouchPitch(soundPitch);
     }

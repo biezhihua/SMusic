@@ -3,6 +3,8 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 
+#define TAG "Native_OpenSLES"
+
 SOpenSLES::SOpenSLES(SFFmpeg *pFFmpeg, SStatus *pStatus, SJavaMethods *pJavaMethods) {
     this->pFFmpeg = pFFmpeg;
     this->pStatus = pStatus;
@@ -64,21 +66,21 @@ int SOpenSLES::initOpenSLES() {
     // create engine
     result = slCreateEngine(&engineObject, 0, NULL, 0, NULL, NULL);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: slCreateEngine failed");
+        LOGE(TAG, "SOpenSLES: init: slCreateEngine failed");
         return S_ERROR;
     }
 
     // realize the engine
     result = (*engineObject)->Realize(engineObject, SL_BOOLEAN_FALSE);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: engineObject Realize failed");
+        LOGE(TAG, "SOpenSLES: init: engineObject Realize failed");
         return S_ERROR;
     }
 
     // get the engine interface, which is needed in order to create other objects
     result = (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE, &engineEngine);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: engineObject GetInterface engineEngine failed");
+        LOGE(TAG, "SOpenSLES: init: engineObject GetInterface engineEngine failed");
         return S_ERROR;
     }
 
@@ -87,14 +89,14 @@ int SOpenSLES::initOpenSLES() {
     const SLboolean req[1] = {SL_BOOLEAN_FALSE};
     result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 1, ids, req);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: engineEngine CreateOutputMix outputMixObject failed");
+        LOGE(TAG, "SOpenSLES: init: engineEngine CreateOutputMix outputMixObject failed");
         return S_ERROR;
     }
 
     // realize the output mix
     result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: outputMixObject Realize failed");
+        LOGE(TAG, "SOpenSLES: init: outputMixObject Realize failed");
         return S_ERROR;
     }
 
@@ -106,7 +108,7 @@ int SOpenSLES::initOpenSLES() {
                                               SL_IID_ENVIRONMENTALREVERB,
                                               &outputMixEnvironmentalReverb);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: outputMixObject GetInterface SL_IID_ENVIRONMENTALREVERB failed");
+        LOGE(TAG, "SOpenSLES: init: outputMixObject GetInterface SL_IID_ENVIRONMENTALREVERB failed");
         return S_ERROR;
     }
 
@@ -137,47 +139,47 @@ int SOpenSLES::initOpenSLES() {
     const SLboolean req2[5] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &bqPlayerObject, &audioSrc, &audioSnk, 2, ids2, req2);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: engineEngine CreateAudioPlayer bqPlayerObject failed");
+        LOGE(TAG, "SOpenSLES: init: engineEngine CreateAudioPlayer bqPlayerObject failed");
         return S_ERROR;
     }
 
     // realize the player
     result = (*bqPlayerObject)->Realize(bqPlayerObject, SL_BOOLEAN_FALSE);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: bqPlayerObject Realize failed");
+        LOGE(TAG, "SOpenSLES: init: bqPlayerObject Realize failed");
         return S_ERROR;
     }
 
     // get the play interface
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_PLAY, &bqPlayerPlay);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: bqPlayerObject GetInterface SL_IID_PLAY failed");
+        LOGE(TAG, "SOpenSLES: init: bqPlayerObject GetInterface SL_IID_PLAY failed");
         return S_ERROR;
     }
 
     // get the buffer queue interface
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_BUFFERQUEUE, &bqPlayerBufferQueue);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: bqPlayerObject GetInterface SL_IID_BUFFERQUEUE failed");
+        LOGE(TAG, "SOpenSLES: init: bqPlayerObject GetInterface SL_IID_BUFFERQUEUE failed");
         return S_ERROR;
     }
 
     // register callback on the buffer queue
     result = (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback, this);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: bqPlayerBufferQueue RegisterCallback failed");
+        LOGE(TAG, "SOpenSLES: init: bqPlayerBufferQueue RegisterCallback failed");
         return S_ERROR;
     }
 
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_MUTESOLO, &bqPlayerMuteSolo);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: bqPlayerObject SL_IID_MUTESOLO failed");
+        LOGE(TAG, "SOpenSLES: init: bqPlayerObject SL_IID_MUTESOLO failed");
     }
 
     // get the volume interface
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_VOLUME, &bqPlayerVolume);
     if (SL_RESULT_SUCCESS != result) {
-        LOGE("SOpenSLES: init: bqPlayerObject SL_IID_VOLUME failed");
+        LOGE(TAG, "SOpenSLES: init: bqPlayerObject SL_IID_VOLUME failed");
         return S_ERROR;
     }
 
@@ -201,7 +203,7 @@ int SOpenSLES::initSoundTouch() {
 }
 
 int SOpenSLES::play() {
-    LOGD("OpenSLES: play");
+    LOGD(TAG, "OpenSLES: play");
     if (state != SL_PLAYSTATE_PLAYING && bqPlayerPlay != NULL) {
         state = SL_PLAYSTATE_PLAYING;
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
@@ -211,7 +213,7 @@ int SOpenSLES::play() {
 }
 
 int SOpenSLES::pause() {
-    LOGD("OpenSLES: pause");
+    LOGD(TAG, "OpenSLES: pause");
     if (state != SL_PLAYSTATE_PAUSED && bqPlayerPlay != NULL) {
         state = SL_PLAYSTATE_PAUSED;
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PAUSED);
@@ -221,7 +223,7 @@ int SOpenSLES::pause() {
 }
 
 int SOpenSLES::stop() {
-    LOGD("OpenSLES: stop");
+    LOGD(TAG, "OpenSLES: stop");
     if (state != SL_PLAYSTATE_STOPPED && bqPlayerPlay != NULL) {
         state = SL_PLAYSTATE_STOPPED;
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_STOPPED);
@@ -234,7 +236,7 @@ int SOpenSLES::stop() {
 void SOpenSLES::volume(int percent) {
     if (bqPlayerVolume != NULL) {
         currentVolume = (100 - percent) * -50;
-        LOGD("SOpenSLES:volume: %d %d", percent, currentVolume);
+        LOGD(TAG, "SOpenSLES:volume: %d %d", percent, currentVolume);
         (*bqPlayerVolume)->SetVolumeLevel(bqPlayerVolume, (SLmillibel) currentVolume);
     }
 }
@@ -298,7 +300,7 @@ int SOpenSLES::blockResampleAudio() {
                     return soundSamples * 2 * 2;
                 }
             } else {
-                LOGD("SOpenSLES:blockResampleAudio: resample end");
+                LOGD(TAG, "SOpenSLES:blockResampleAudio: resample end");
                 if (pSoundTouch != NULL) {
                     pSoundTouch->flush();
                 }
@@ -360,7 +362,7 @@ int SOpenSLES::getOpenSLESSampleRate(int sampleRate) {
 
 int SOpenSLES::release() {
 
-    LOGD("OpenSLES: release");
+    LOGD(TAG, "OpenSLES: release");
 
     stop();
 
@@ -430,7 +432,7 @@ void SOpenSLES::mute(int mute) {
 }
 
 void SOpenSLES::setSoundTouchPitch(double soundPitch) {
-    LOGD("SOpenSLES:setSoundTouchPitch: %f", soundPitch);
+    LOGD(TAG, "SOpenSLES:setSoundTouchPitch: %f", soundPitch);
     this->soundPitch = soundPitch;
     if (pSoundTouch != NULL) {
         pSoundTouch->setPitch(soundPitch);
@@ -438,7 +440,7 @@ void SOpenSLES::setSoundTouchPitch(double soundPitch) {
 }
 
 void SOpenSLES::setSoundTouchTempo(double soundSpeed) {
-    LOGD("SOpenSLES:setSoundTouchTempo: %f", soundSpeed);
+    LOGD(TAG, "SOpenSLES:setSoundTouchTempo: %f", soundSpeed);
     this->soundSpeed = soundSpeed;
     if (pSoundTouch != NULL) {
         pSoundTouch->setTempo(soundSpeed);
