@@ -209,8 +209,8 @@ class MainActivity : AppCompatActivity() {
 
     fun setSource(v: View) {
         val file = File(Environment.getExternalStorageDirectory(), "/DCIM/1552562921640202.mp4")
-        music?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
-        music?.setDataSource("https://github.com/biezhihua/SPlayer/blob/master/mp4/1552562921640202.mp4")
+//        music?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
+//        music?.setDataSource("https://github.com/biezhihua/SPlayer/blob/master/mp4/1552562921640202.mp4")
         music?.setDataSource(file.absolutePath)
         Log.d(TAG, "setSource() called with: isExist = [${file.exists()}]")
     }

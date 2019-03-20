@@ -144,7 +144,7 @@ int SFFmpeg::decodeMediaInfo() {
 
             pVideo = new SMedia(i, pLocalCodec, pLocalCodecParameters);
             pVideo->totalTime = (pFormatContext->duration / AV_TIME_BASE);
-            pAudio->totalTimeMillis = pAudio->totalTime * 1000;
+            pVideo->totalTimeMillis = pVideo->totalTime * 1000;
             pVideo->timeBase = (pFormatContext->streams[pVideo->streamIndex]->time_base);
 
             LOGD("SFFmpeg: decodeMediaInfo: Video Codec: resolution %d x %d", pLocalCodecParameters->width,
