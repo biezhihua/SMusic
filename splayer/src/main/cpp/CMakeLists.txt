@@ -5,29 +5,16 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
-get_filename_component(SPLAYER_ANDROID ${CMAKE_CURRENT_SOURCE_DIR}/../../../.. ABSOLUTE)
+set(SPLAYER_ANDROID ${CMAKE_CURRENT_SOURCE_DIR}/../../../../distribution)
 
-if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
-    get_filename_component(SPLAYER_FF_OUTPUT ${SPLAYER_ANDROID}/ffmpeg-output/ffmpeg-armv7a ABSOLUTE)
-elseif (${ANDROID_ABI} STREQUAL "x86")
-    get_filename_component(SPLAYER_FF_OUTPUT ${SPLAYER_ANDROID}/ffmpeg-output/ffmpeg-x86 ABSOLUTE)
-endif ()
+add_library(sffmpeg SHARED IMPORTED)
+set_target_properties(sffmpeg PROPERTIES IMPORTED_LOCATION ${SPLAYER_ANDROID}/ffmpeg/lib/${ANDROID_ABI}/libsffmpeg.so)
 
-get_filename_component(SPLAYER_FF_OUTPUT_INCLUDE ${SPLAYER_FF_OUTPUT}/include/ ABSOLUTE)
+add_library(openssl_crypto STATIC IMPORTED)
+set_target_properties(openssl_crypto PROPERTIES IMPORTED_LOCATION ${SPLAYER_ANDROID}/openssl/lib/${ANDROID_ABI}/libcrypto.a)
 
-get_filename_component(SPLAYER_FF_OUTPUT_SO ${SPLAYER_FF_OUTPUT}/lib/libsffmpeg.so ABSOLUTE)
-
-add_library(sffmpeg
-        SHARED
-        IMPORTED
-        )
-
-set_target_properties(sffmpeg
-        PROPERTIES IMPORTED_LOCATION
-        ${SPLAYER_FF_OUTPUT_SO}
-        )
-
-include_directories(${SPLAYER_FF_OUTPUT_INCLUDE})
+add_library(openssl_ssl STATIC IMPORTED)
+set_target_properties(openssl_ssl PROPERTIES IMPORTED_LOCATION ${SPLAYER_ANDROID}/openssl/lib/${ANDROID_ABI}/libssl.a)
 
 # SoundTouch
 include_directories(soundtouch/include soundtouch/src)
@@ -37,16 +24,21 @@ aux_source_directory(soundtouch/src SoundTouch)
 include_directories(splayer/include)
 aux_source_directory(splayer/src SPlayer)
 
-add_library(
-        splayer
-        SHARED
+add_library(splayer SHARED
         SMainJni.cpp
         ${SPlayer}
         ${SoundTouch}
 )
 
-target_link_libraries(
-        splayer
+target_include_directories(splayer PRIVATE
+        ${SPLAYER_ANDROID}/ffmpeg/include
+        ${SPLAYER_ANDROID}/openssl/include
+        )
+
+target_link_libraries(splayer
+        android
         log
         sffmpeg
+        openssl_crypto
+        openssl_ssl
         OpenSLES)

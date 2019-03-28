@@ -20,8 +20,6 @@ android {
         }
 
         ndk {
-            // Specifies the ABI configurations of your native
-            // libraries Gradle should build and package with your APK.
             abiFilters 'armeabi-v7a'
         }
     }
@@ -29,8 +27,7 @@ android {
     sourceSets {
         main {
             // let gradle pack the shared library into apk
-            jniLibs.srcDir 'src/main/jniLibs'
-            jni.srcDirs = []
+            jniLibs.srcDirs = ['../distribution/ffmpeg/lib', '../distribution/openssl/lib']
         }
     }
 
@@ -43,6 +40,7 @@ android {
 
     externalNativeBuild {
         cmake {
+            version '3.10.2'
             path "src/main/cpp/CMakeLists.txt"
         }
     }
