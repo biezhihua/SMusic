@@ -33,11 +33,15 @@ public:
 
     bool playAudioThreadComplete = false;
 
+    bool playVideoThreadComplete = false;
+
     pthread_t startDecodeMediaInfoThread;
 
     pthread_t startDecodeThread;
 
     pthread_t playAudioThread;
+
+    pthread_t playVideoThread;
 
     pthread_t seekAudioThread;
 
@@ -82,6 +86,8 @@ public:
     void pitch(double soundPitch);
 
     bool isValidState() const;
+
+    void tryToStopOrCompleteByStatus();
 };
 
 

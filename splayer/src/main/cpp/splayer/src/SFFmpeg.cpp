@@ -274,7 +274,55 @@ int SFFmpeg::decodeFrame() {
     }
 }
 
-int SFFmpeg::resampleAudio() {
+
+int SFFmpeg::decodeVideo() {
+    if (pVideo == NULL || pVideoQueue == NULL) {
+        return S_FUNCTION_BREAK;
+    }
+
+    pVideoPacket = av_packet_alloc();
+
+    if (pVideoPacket == NULL) {
+        LOGE(TAG, "decodeVideo: failed to allocated memory for AVPacket");
+        return S_FUNCTION_BREAK;
+    }
+
+    if (getVideoAvPacketFromAudioQueue(pVideoPacket) == S_ERROR) {
+        releasePacket(&pVideoPacket);
+        releaseFrame(&pVideoFrame);
+        return S_FUNCTION_CONTINUE;
+    }
+
+    int result = avcodec_send_packet(pVideo->pCodecContext, pVideoPacket);
+    if (result != S_SUCCESS) {
+        LOGE(TAG, "decodeVideo: send packet failed");
+        return S_FUNCTION_CONTINUE;
+    }
+
+    pVideoFrame = av_frame_alloc();
+    if (pVideoFrame == NULL) {
+        LOGE(TAG, "decodeVideo: ailed to allocated memory for AVFrame");
+        return S_FUNCTION_BREAK;
+    }
+
+    result = avcodec_receive_frame(pVideo->pCodecContext, pVideoFrame);
+
+    if (result != S_SUCCESS) {
+        releasePacket(&pVideoPacket);
+        releaseFrame(&pVideoFrame);
+        LOGE(TAG, "decodeVideo: receive frame failed %d", result);
+        return S_FUNCTION_CONTINUE;
+    }
+
+    releaseFrame(&pVideoFrame);
+    releasePacket(&pVideoPacket);
+
+    LOGD(TAG, "decodeVideo: Success");
+
+    return S_SUCCESS;
+}
+
+int SFFmpeg::decodeAudio() {
 
     pAudioPacket = av_packet_alloc();
 
@@ -435,11 +483,11 @@ int SFFmpeg::resampleAudio() {
     }
 }
 
-SMedia *SFFmpeg::getAudio() {
+SMedia *SFFmpeg::getAudioMedia() {
     return this->pAudio;
 }
 
-SMedia *SFFmpeg::getVideo() {
+SMedia *SFFmpeg::getVideoMedia() {
     return this->pVideo;
 }
 
@@ -467,6 +515,24 @@ int SFFmpeg::getAudioAvPacketFromAudioQueue(AVPacket *pPacket) {
     }
     return S_ERROR;
 }
+
+int SFFmpeg::getVideoAvPacketFromAudioQueue(AVPacket *pPacket) {
+    if (pVideoQueue != NULL && pStatus != NULL) {
+        pVideoQueue->threadLock();
+        while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
+            int result = pVideoQueue->getAvPacket(pPacket);
+            if (result == S_FUNCTION_CONTINUE) {
+                continue;
+            } else if (result == S_SUCCESS) {
+                break;
+            }
+        }
+        pVideoQueue->threadUnlock();
+        return S_SUCCESS;
+    }
+    return S_ERROR;
+}
+
 
 uint8_t *SFFmpeg::getBuffer() {
     return pBuffer;
@@ -573,40 +639,9 @@ void SFFmpeg::sleep() {
     av_usleep(1000 * 100);
 }
 
-int SFFmpeg::decodeVideo() {
-    if (pVideo != NULL && pVideoQueue != NULL) {
-
-        pVideoPacket = av_packet_alloc();
-        if (pVideoQueue->getAvPacket(pVideoPacket) == S_FUNCTION_CONTINUE) {
-            releasePacket(&pVideoPacket);
-            return S_FUNCTION_CONTINUE;
-        }
-
-        if (avcodec_send_packet(pVideo->pCodecContext, pVideoPacket) != S_SUCCESS) {
-            LOGE(TAG, "blockResampleAudio: send packet failed");
-            releasePacket(&pVideoPacket);
-            return S_FUNCTION_CONTINUE;
-        }
-
-        pVideoFrame = av_frame_alloc();
-        if (avcodec_receive_frame(pAudio->pCodecContext, pAudioFrame) != S_SUCCESS) {
-            releaseFrame(&pVideoFrame);
-            releasePacket(&pVideoPacket);
-            return S_FUNCTION_CONTINUE;
-        }
-
-        releaseFrame(&pVideoFrame);
-        releasePacket(&pVideoPacket);
-
-        LOGD(TAG, "decodeVideo: Success");
-
-        return S_SUCCESS;
-    }
-    return S_ERROR;
-}
 
 void SFFmpeg::releaseFrame(AVFrame **avFrame) {
-    if ((*avFrame) != NULL) {
+    if (avFrame != NULL && (*avFrame) != NULL) {
         av_frame_free(&(*avFrame));
         av_free(*avFrame);
         *avFrame = NULL;
@@ -614,9 +649,10 @@ void SFFmpeg::releaseFrame(AVFrame **avFrame) {
 }
 
 void SFFmpeg::releasePacket(AVPacket **avPacket) {
-    if ((*avPacket) != NULL) {
+    if (avPacket != NULL && (*avPacket) != NULL) {
         av_packet_free(&(*avPacket));
         av_free(*avPacket);
         *avPacket = NULL;
     }
 }
+

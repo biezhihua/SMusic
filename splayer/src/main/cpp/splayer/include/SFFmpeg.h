@@ -65,11 +65,11 @@ public:
 
     int decodeVideo();
 
-    int resampleAudio();
+    int decodeAudio();
 
-    SMedia *getAudio();
+    SMedia *getAudioMedia();
 
-    SMedia *getVideo();
+    SMedia *getVideoMedia();
 
     double getTotalTimeMillis();
 
@@ -84,6 +84,8 @@ public:
     SQueue *getVideoQueue();
 
     int getAudioAvPacketFromAudioQueue(AVPacket *pPacket);
+
+    int getVideoAvPacketFromAudioQueue(AVPacket *pPacket);
 
     uint8_t *getBuffer();
 
