@@ -24,6 +24,7 @@ void *startDecodeFrameCallback(void *data) {
                 if (result == S_FUNCTION_CONTINUE) {
                     // TODO
                 } else if (result == S_FUNCTION_BREAK) {
+                    LOGD(TAG, "SPlayer: startDecodeFrameCallback-S_FUNCTION_BREAK");
                     while (pStatus->isLeastActiveState(STATE_PLAY)) {
                         SQueue *pAudioQueue = pFFmpeg->getAudioQueue();
                         SQueue *pVideoQueue = pFFmpeg->getVideoQueue();
@@ -133,12 +134,11 @@ void *playAudioCallback(void *data) {
         SJavaMethods *pJavaMethods = pPlayer->getSJavaMethods();
 
         if (pStatus != NULL && pFFmpeg != NULL && pOpenSLES != NULL && pJavaMethods != NULL) {
-
-            LOGD(TAG, "SPlayer: playAudioCallback called: Init OpenSLES");
-
             SMedia *pAudioMedia = pFFmpeg->getAudioMedia();
             if (pStatus->isPrePlay() || pStatus->isPlay()) {
+                LOGD(TAG, "SPlayer: playAudioCallback called: Init OpenSLES");
                 if (pOpenSLES->init(pAudioMedia != NULL ? pAudioMedia->getSampleRate() : 0) == S_SUCCESS) {
+                    LOGD(TAG, "SPlayer: playAudioCallback : to play");
                     pOpenSLES->play();
                     if (pStatus->isPrePlay()) {
                         pStatus->moveStatusToPlay();
@@ -147,8 +147,8 @@ void *playAudioCallback(void *data) {
                 }
             }
             pPlayer->playAudioThreadComplete = true;
-            pPlayer->tryToStopOrCompleteByStatus();
             LOGD(TAG, "SPlayer: playAudioCallback-tryToStopOrCompleteByStatus");
+            pPlayer->tryToStopOrCompleteByStatus();
         }
 
         LOGD(TAG, "SPlayer: playAudioCallback: end");
@@ -399,7 +399,7 @@ void SPlayer::pitch(double soundPitch) {
 }
 
 void SPlayer::tryToStopOrCompleteByStatus() {
-    LOGD(TAG, "tryToStopOrCompleteByStatus");
+    LOGD(TAG, "SPlayer: tryToStopOrCompleteByStatus");
     if ((pStatus->isPreStop() || pStatus->isPreComplete()) &&
         startDecodeMediaInfoThreadComplete &&
         startDecodeThreadComplete &&

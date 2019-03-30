@@ -262,17 +262,21 @@ int SFFmpeg::decodeFrame() {
     if (ret == 0) {
         if (pAudioMedia != NULL && pDecodeRawFramePacket->stream_index == pAudioMedia->streamIndex) {
             pAudioQueue->putAvPacket(pDecodeRawFramePacket);
-            // LOGD(TAG, "decodeFrame: pAudioQueue putAvPacket %d", pAudioQueue->getSize());
+            LOGD(TAG, "decodeFrame: pAudioQueue putAvPacket %d", pAudioQueue->getSize());
         } else if (pVideoMedia != NULL && pDecodeRawFramePacket->stream_index == pVideoMedia->streamIndex) {
             pVideoQueue->putAvPacket(pDecodeRawFramePacket);
-            // LOGD(TAG, "decodeFrame: pVideoQueue putAvPacket %d", pVideoQueue->getSize());
+            LOGD(TAG, "decodeFrame: pVideoQueue putAvPacket %d", pVideoQueue->getSize());
         }
 
         return S_SUCCESS;
     } else {
         av_packet_free(&pDecodeRawFramePacket);
         av_free(pDecodeRawFramePacket);
-        //LOGD(TAG,"decodeFrame: decode finished");
+        if (pStatus->isPlay()) {
+            LOGE(TAG, "decodeFrame: decode finished continue");
+            return S_FUNCTION_CONTINUE;
+        }
+        LOGE(TAG, "decodeFrame: decode finished read frame ret=%d", ret);
         return S_FUNCTION_BREAK;
     }
 }
@@ -320,7 +324,7 @@ int SFFmpeg::decodeVideo() {
     releaseFrame(&pVideoFrame);
     releasePacket(&pVideoPacket);
 
-    LOGD(TAG, "decodeVideo: Success");
+//    LOGD(TAG, "decodeVideo: Success");
 
     return S_SUCCESS;
 }
