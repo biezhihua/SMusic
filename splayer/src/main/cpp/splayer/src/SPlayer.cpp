@@ -1,11 +1,10 @@
 #include "../include/SPlayer.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-#pragma ide diagnostic ignored "OCDFAInspection"
-
 #define TAG "Native_Player"
 
+/**
+ * Decode Audio/Video Frame
+ */
 void *startDecodeFrameCallback(void *data) {
     LOGD(TAG, "SPlayer: startDecodeFrameCallback: start");
     SPlayer *sPlayer = (SPlayer *) data;
@@ -40,10 +39,7 @@ void *startDecodeFrameCallback(void *data) {
 
             sPlayer->startDecodeThreadComplete = true;
 
-            if (pOpenSLES != NULL &&
-                pFFmpeg != NULL &&
-                pStatus != NULL &&
-                (pStatus->isPreStop() || pStatus->isPreComplete()) &&
+            if ((pStatus->isPreStop() || pStatus->isPreComplete()) &&
                 sPlayer->startDecodeMediaInfoThreadComplete &&
                 sPlayer->startDecodeThreadComplete &&
                 sPlayer->playAudioThreadComplete) {
@@ -56,24 +52,19 @@ void *startDecodeFrameCallback(void *data) {
                      * 若处于预终止状态，则释放内存，转移到终止状态。
                      */
                     pStatus->moveStatusToStop();
-                    if (pJavaMethods != NULL) {
-                        pJavaMethods->onCallJavaStop();
-                    }
+                    pJavaMethods->onCallJavaStop();
                 } else if (pStatus->isPreComplete()) {
                     /*
                     * 若处于预完成状态，则释放内存，转移到状态。
                     */
                     pStatus->moveStatusToComplete();
-                    if (pJavaMethods != NULL) {
-                        pJavaMethods->onCallJavaComplete();
-                    }
+                    pJavaMethods->onCallJavaComplete();
                 }
             }
         }
+        LOGD(TAG, "SPlayer: startDecodeFrameCallback: end");
+        pthread_exit(&sPlayer->startDecodeThread);
     }
-
-    LOGD(TAG, "SPlayer: startDecodeFrameCallback: end");
-    pthread_exit(&sPlayer->startDecodeThread);
     return NULL;
 }
 
@@ -95,10 +86,8 @@ void *startDecodeMediaInfoCallback(void *data) {
                 pStatus->moveStatusToStart();
                 sPlayer->getSJavaMethods()->onCallJavaStart();
             } else {
-                if (pJavaMethods != NULL) {
-                    pJavaMethods->onCallJavaError(ERROR_CODE_DECODE_MEDIA_INFO,
-                                                  "Error:SPlayer:DecodeMediaInfoCallback: decodeMediaInfo");
-                }
+                pJavaMethods->onCallJavaError(ERROR_CODE_DECODE_MEDIA_INFO,
+                                              "Error:SPlayer:DecodeMediaInfoCallback: decodeMediaInfo");
                 if (pStatus->isPreStart() || pStatus->isPreStop()) {
 
                     LOGD(TAG, "SPlayer: startDecodeMediaInfoCallback: error, prepare to stop");
@@ -106,9 +95,7 @@ void *startDecodeMediaInfoCallback(void *data) {
                     pOpenSLES->release();
                     pFFmpeg->release();
                     pStatus->moveStatusToStop();
-                    if (pJavaMethods != NULL) {
-                        pJavaMethods->onCallJavaStop();
-                    }
+                    pJavaMethods->onCallJavaStop();
                 }
             }
 
@@ -117,10 +104,7 @@ void *startDecodeMediaInfoCallback(void *data) {
             /**
              * 在加载完媒体信息后，若处于预终止状态，则释放内存，转移到终止状态。
              */
-            if (pOpenSLES != NULL &&
-                pFFmpeg != NULL &&
-                pStatus != NULL &&
-                pStatus->isPreStop() &&
+            if (pStatus->isPreStop() &&
                 sPlayer->startDecodeMediaInfoThreadComplete) {
 
                 LOGD(TAG, "SPlayer: startDecodeMediaInfoCallback: prepare to stop");
@@ -129,15 +113,12 @@ void *startDecodeMediaInfoCallback(void *data) {
                 pFFmpeg->release();
                 pStatus->moveStatusToStop();
 
-                if (pJavaMethods != NULL) {
-                    pJavaMethods->onCallJavaStop();
-                }
+                pJavaMethods->onCallJavaStop();
             }
         }
+        LOGD(TAG, "SPlayer: startDecodeMediaInfoCallback: end");
+        pthread_exit(&sPlayer->startDecodeMediaInfoThread);
     }
-
-    LOGD(TAG, "SPlayer: startDecodeMediaInfoCallback: end");
-    pthread_exit(&sPlayer->startDecodeMediaInfoThread);
     return NULL;
 }
 
@@ -149,9 +130,9 @@ void *seekCallback(void *data) {
         if (pFFmpeg != NULL) {
             pFFmpeg->seek(sPlayer->getSeekMillis());
         }
+        LOGD(TAG, "SPlayer: seekCallback: end");
+        pthread_exit(&sPlayer->seekAudioThread);
     }
-    LOGD(TAG, "SPlayer: seekCallback: end");
-    pthread_exit(&sPlayer->seekAudioThread);
     return NULL;
 }
 
@@ -179,26 +160,19 @@ void *playAudioCallback(void *data) {
             if (pOpenSLES->init(sampleRate) == S_SUCCESS && pStatus->isPrePlay()) {
                 pOpenSLES->play();
                 pStatus->moveStatusToPlay();
-                if (pJavaMethods != NULL) {
-                    pJavaMethods->onCallJavaPlay();
-                }
+                pJavaMethods->onCallJavaPlay();
             } else {
-                if (pStatus != NULL && pStatus->isPreStop()) {
+                if (pStatus->isPreStop()) {
                     pOpenSLES->release();
                     pFFmpeg->release();
                     pStatus->moveStatusToStop();
-                    if (pJavaMethods != NULL) {
-                        pJavaMethods->onCallJavaStop();
-                    }
+                    pJavaMethods->onCallJavaStop();
                 }
             }
 
             sPlayer->playAudioThreadComplete = true;
 
-            if (pOpenSLES != NULL &&
-                pFFmpeg != NULL &&
-                pStatus != NULL &&
-                pStatus->isPreStop() &&
+            if (pStatus->isPreStop() &&
                 sPlayer->startDecodeMediaInfoThreadComplete &&
                 sPlayer->startDecodeThreadComplete &&
                 sPlayer->playAudioThreadComplete) {
@@ -208,9 +182,7 @@ void *playAudioCallback(void *data) {
 
                 pStatus->moveStatusToStop();
 
-                if (pJavaMethods != NULL) {
-                    pJavaMethods->onCallJavaStop();
-                }
+                pJavaMethods->onCallJavaStop();
             }
         }
 
@@ -220,11 +192,16 @@ void *playAudioCallback(void *data) {
     return NULL;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+
 SPlayer::SPlayer(JavaVM *pVm, JNIEnv *env, jobject instance, SJavaMethods *pMethods) {
     pJavaMethods = pMethods;
 
     create();
 }
+
+#pragma clang diagnostic pop
 
 SPlayer::~SPlayer() {
 
@@ -399,4 +376,3 @@ void SPlayer::pitch(double soundPitch) {
     }
 }
 
-#pragma clang diagnostic pop

@@ -50,7 +50,7 @@ public:
     }
 
     void moveStatusToPreCreate() {
-        LOGD(TAG, TAG, "Status: MoveStatusToPreCreate");
+        LOGD(TAG, "Status: MoveStatusToPreCreate");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;

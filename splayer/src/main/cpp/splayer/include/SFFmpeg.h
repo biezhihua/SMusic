@@ -30,9 +30,12 @@ private:
     SQueue *pVideoQueue = NULL;
 
     AVPacket *pDecodePacket = NULL;
-    AVPacket *pAudioResamplePacket = NULL;
 
-    AVFrame *pAudioResampleFrame = NULL;
+    AVPacket *pAudioPacket = NULL;
+    AVFrame *pAudioFrame = NULL;
+
+    AVPacket *pVideoPacket = NULL;
+    AVFrame *pVideoFrame = NULL;
 
     uint8_t *pBuffer = NULL;
 
@@ -60,6 +63,8 @@ public:
 
     int decodeFrame();
 
+    int decodeVideo();
+
     int resampleAudio();
 
     SMedia *getAudio();
@@ -70,9 +75,9 @@ public:
 
     double getCurrentTimeMillis();
 
-    void releasePacket();
+    void releasePacket(AVPacket **avPacket);
 
-    void releaseFrame();
+    void releaseFrame(AVFrame **avFrame);
 
     SQueue *getAudioQueue();
 

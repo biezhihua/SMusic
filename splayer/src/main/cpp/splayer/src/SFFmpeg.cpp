@@ -1,7 +1,4 @@
-#include "../include/SFFmpeg.h"
-
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+#include <SFFmpeg.h>
 
 #define TAG "Native_FFmpeg"
 
@@ -202,6 +199,30 @@ int SFFmpeg::decodeMediaInfo() {
         }
     }
 
+    LOGD(TAG, "decodeMediaInfo: Video ----------------------- ");
+    if (pVideo != NULL) {
+        // https://ffmpeg.org/doxygen/trunk/structAVCodecContext.html
+        pVideo->pCodecContext = (avcodec_alloc_context3(pVideo->pCodec));
+        if (pVideo->pCodecContext == NULL) {
+            LOGE(TAG, "decodeMediaInfo: Failed to allocated memory for AVCodecContext");
+            return S_ERROR;
+        }
+
+        // Fill the codec context based on the values from the supplied codec parameters
+        // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#gac7b282f51540ca7a99416a3ba6ee0d16
+        if (avcodec_parameters_to_context(pVideo->pCodecContext, pVideo->pCodecParameters) < 0) {
+            LOGE(TAG, "decodeMediaInfo: Failed to copy codec params to codec context");
+            return S_ERROR;
+        }
+
+        // Initialize the AVCodecContext to use the given AVCodec.
+        // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#ga11f785a188d7d9df71621001465b0f1d
+        if (avcodec_open2(pVideo->pCodecContext, pVideo->pCodec, NULL) < 0) {
+            LOGE(TAG, "decodeMediaInfo: Failed to open codec through avcodec_open2");
+            return S_ERROR;
+        }
+    }
+
     return S_SUCCESS;
 }
 
@@ -255,9 +276,9 @@ int SFFmpeg::decodeFrame() {
 
 int SFFmpeg::resampleAudio() {
 
-    pAudioResamplePacket = av_packet_alloc();
+    pAudioPacket = av_packet_alloc();
 
-    if (pAudioResamplePacket == NULL) {
+    if (pAudioPacket == NULL) {
         LOGE(TAG, "blockResampleAudio: failed to allocated memory for AVPacket");
         return S_FUNCTION_BREAK;
     }
@@ -267,60 +288,55 @@ int SFFmpeg::resampleAudio() {
         return S_FUNCTION_BREAK;
     }
 
-    if (getAudioAvPacketFromAudioQueue(pAudioResamplePacket) == S_ERROR) {
-
-        releasePacket();
-        releaseFrame();
-
+    if (getAudioAvPacketFromAudioQueue(pAudioPacket) == S_ERROR) {
+        releasePacket(&pAudioPacket);
+        releaseFrame(&pAudioFrame);
         return S_FUNCTION_CONTINUE;
     }
 
-    int result = avcodec_send_packet(pAudio->pCodecContext, pAudioResamplePacket);
+    int result = avcodec_send_packet(pAudio->pCodecContext, pAudioPacket);
     if (result != S_SUCCESS) {
         LOGE(TAG, "blockResampleAudio: send packet failed");
         return S_FUNCTION_CONTINUE;
     }
 
-    pAudioResampleFrame = av_frame_alloc();
-    if (pAudioResampleFrame == NULL) {
+    pAudioFrame = av_frame_alloc();
+    if (pAudioFrame == NULL) {
         LOGE(TAG, "blockResampleAudio: ailed to allocated memory for AVFrame");
         return S_FUNCTION_BREAK;
     }
 
-    result = avcodec_receive_frame(pAudio->pCodecContext, pAudioResampleFrame);
+    result = avcodec_receive_frame(pAudio->pCodecContext, pAudioFrame);
 
     if (result != S_SUCCESS) {
-
-        releasePacket();
-        releaseFrame();
-
+        releasePacket(&pAudioPacket);
+        releaseFrame(&pAudioFrame);
         LOGE(TAG, "blockResampleAudio: receive frame failed %d", result);
-
         return S_FUNCTION_CONTINUE;
 
     } else {
 
         // Process exception
-        if (pAudioResampleFrame->channels > 0 && pAudioResampleFrame->channel_layout == 0) {
-            pAudioResampleFrame->channel_layout = (uint64_t) (av_get_default_channel_layout(
-                    pAudioResampleFrame->channels));
-        } else if (pAudioResampleFrame->channels == 0 && pAudioResampleFrame->channel_layout > 0) {
-            pAudioResampleFrame->channels = av_get_channel_layout_nb_channels(pAudioResampleFrame->channel_layout);
+        if (pAudioFrame->channels > 0 && pAudioFrame->channel_layout == 0) {
+            pAudioFrame->channel_layout = (uint64_t) (av_get_default_channel_layout(
+                    pAudioFrame->channels));
+        } else if (pAudioFrame->channels == 0 && pAudioFrame->channel_layout > 0) {
+            pAudioFrame->channels = av_get_channel_layout_nb_channels(pAudioFrame->channel_layout);
         }
 
         SwrContext *swrContext = swr_alloc_set_opts(NULL,
                                                     AV_CH_LAYOUT_STEREO,
                                                     AV_SAMPLE_FMT_S16,
-                                                    pAudioResampleFrame->sample_rate,
-                                                    pAudioResampleFrame->channel_layout,
-                                                    (AVSampleFormat) (pAudioResampleFrame->format),
-                                                    pAudioResampleFrame->sample_rate,
+                                                    pAudioFrame->sample_rate,
+                                                    pAudioFrame->channel_layout,
+                                                    (AVSampleFormat) (pAudioFrame->format),
+                                                    pAudioFrame->sample_rate,
                                                     NULL, NULL);
 
         if (swrContext == NULL || swr_init(swrContext) < 0) {
 
-            releasePacket();
-            releaseFrame();
+            releasePacket(&pAudioPacket);
+            releaseFrame(&pAudioFrame);
 
             if (swrContext != NULL) {
                 swr_free(&swrContext);
@@ -335,9 +351,9 @@ int SFFmpeg::resampleAudio() {
         // number of samples output per channel, negative value on error
         channelSampleNumbers = swr_convert(swrContext,
                                            &pBuffer,
-                                           pAudioResampleFrame->nb_samples,
-                                           (const uint8_t **) (pAudioResampleFrame->data),
-                                           pAudioResampleFrame->nb_samples);
+                                           pAudioFrame->nb_samples,
+                                           (const uint8_t **) (pAudioFrame->data),
+                                           pAudioFrame->nb_samples);
 
         if (channelSampleNumbers < 0) {
             LOGE(TAG, "blockResampleAudio: swr convert numbers < 0 ");
@@ -348,10 +364,10 @@ int SFFmpeg::resampleAudio() {
 
         int dataSize = channelSampleNumbers * outChannels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 
-        pAudio->updateTime(pAudioResampleFrame, dataSize);
+        pAudio->updateTime(pAudioFrame, dataSize);
 
-        releasePacket();
-        releaseFrame();
+        releasePacket(&pAudioPacket);
+        releaseFrame(&pAudioFrame);
 
         swr_free(&swrContext);
         swrContext = NULL;
@@ -417,18 +433,6 @@ int SFFmpeg::resampleAudio() {
         }
         return dataSize;
     }
-}
-
-void SFFmpeg::releaseFrame() {
-    av_frame_free(&pAudioResampleFrame);
-    av_free(pAudioResampleFrame);
-    pAudioResampleFrame = NULL;
-}
-
-void SFFmpeg::releasePacket() {
-    av_packet_free(&pAudioResamplePacket);
-    av_free(pAudioResamplePacket);
-    pAudioResamplePacket = NULL;
 }
 
 SMedia *SFFmpeg::getAudio() {
@@ -569,4 +573,50 @@ void SFFmpeg::sleep() {
     av_usleep(1000 * 100);
 }
 
-#pragma clang diagnostic pop
+int SFFmpeg::decodeVideo() {
+    if (pVideo != NULL && pVideoQueue != NULL) {
+
+        pVideoPacket = av_packet_alloc();
+        if (pVideoQueue->getAvPacket(pVideoPacket) == S_FUNCTION_CONTINUE) {
+            releasePacket(&pVideoPacket);
+            return S_FUNCTION_CONTINUE;
+        }
+
+        if (avcodec_send_packet(pVideo->pCodecContext, pVideoPacket) != S_SUCCESS) {
+            LOGE(TAG, "blockResampleAudio: send packet failed");
+            releasePacket(&pVideoPacket);
+            return S_FUNCTION_CONTINUE;
+        }
+
+        pVideoFrame = av_frame_alloc();
+        if (avcodec_receive_frame(pAudio->pCodecContext, pAudioFrame) != S_SUCCESS) {
+            releaseFrame(&pVideoFrame);
+            releasePacket(&pVideoPacket);
+            return S_FUNCTION_CONTINUE;
+        }
+
+        releaseFrame(&pVideoFrame);
+        releasePacket(&pVideoPacket);
+
+        LOGD(TAG, "decodeVideo: Success");
+
+        return S_SUCCESS;
+    }
+    return S_ERROR;
+}
+
+void SFFmpeg::releaseFrame(AVFrame **avFrame) {
+    if ((*avFrame) != NULL) {
+        av_frame_free(&(*avFrame));
+        av_free(*avFrame);
+        *avFrame = NULL;
+    }
+}
+
+void SFFmpeg::releasePacket(AVPacket **avPacket) {
+    if ((*avPacket) != NULL) {
+        av_packet_free(&(*avPacket));
+        av_free(*avPacket);
+        *avPacket = NULL;
+    }
+}
