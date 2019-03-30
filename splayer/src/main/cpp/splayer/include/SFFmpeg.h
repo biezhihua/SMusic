@@ -23,13 +23,13 @@ private:
 
     AVFormatContext *pFormatContext = NULL;
 
-    SMedia *pAudio = NULL;
+    AVPacket *pDecodeRawFramePacket = NULL;
+
+    SMedia *pAudioMedia = NULL;
     SQueue *pAudioQueue = NULL;
 
-    SMedia *pVideo = NULL;
+    SMedia *pVideoMedia = NULL;
     SQueue *pVideoQueue = NULL;
-
-    AVPacket *pDecodePacket = NULL;
 
     AVPacket *pAudioPacket = NULL;
     AVFrame *pAudioFrame = NULL;
@@ -42,10 +42,6 @@ private:
     SStatus *pStatus = NULL;
 
     pthread_mutex_t seekMutex;
-
-    int64_t seekTargetMillis = 0;
-
-    double seekStartMillis = 0;
 
     bool isLoading = false;
 

@@ -32,6 +32,12 @@ void *startDecodeFrameCallback(void *data) {
                             pFFmpeg->sleep();
                             continue;
                         } else {
+                            if (pAudioQueue != NULL) {
+                                LOGD(TAG, "audio size = %d", pAudioQueue->getSize());
+                            }
+                            if (pVideoQueue != NULL) {
+                                LOGD(TAG, "video size = %d", pVideoQueue->getSize());
+                            }
                             pStatus->moveStatusToPreComplete();
                             break;
                         }
@@ -39,6 +45,7 @@ void *startDecodeFrameCallback(void *data) {
                 }
             }
             sPlayer->startDecodeThreadComplete = true;
+            LOGD(TAG, "SPlayer: startDecodeFrameCallback-tryToStopOrCompleteByStatus");
             sPlayer->tryToStopOrCompleteByStatus();
         }
         LOGD(TAG, "SPlayer: startDecodeFrameCallback: end");
@@ -141,6 +148,7 @@ void *playAudioCallback(void *data) {
             }
             pPlayer->playAudioThreadComplete = true;
             pPlayer->tryToStopOrCompleteByStatus();
+            LOGD(TAG, "SPlayer: playAudioCallback-tryToStopOrCompleteByStatus");
         }
 
         LOGD(TAG, "SPlayer: playAudioCallback: end");
@@ -196,6 +204,7 @@ void *playVideoCallback(void *data) {
 
             pPlayer->playVideoThreadComplete = true;
             pPlayer->tryToStopOrCompleteByStatus();
+            LOGD(TAG, "SPlayer: playVideoCallback-tryToStopOrCompleteByStatus");
         }
 
         LOGD(TAG, "SPlayer: playVideoCallback: end");
@@ -390,6 +399,7 @@ void SPlayer::pitch(double soundPitch) {
 }
 
 void SPlayer::tryToStopOrCompleteByStatus() {
+    LOGD(TAG, "tryToStopOrCompleteByStatus");
     if ((pStatus->isPreStop() || pStatus->isPreComplete()) &&
         startDecodeMediaInfoThreadComplete &&
         startDecodeThreadComplete &&
