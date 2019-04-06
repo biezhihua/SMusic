@@ -321,10 +321,72 @@ int SFFmpeg::decodeVideo() {
         return S_FUNCTION_CONTINUE;
     }
 
+    if (pVideoFrame->format == AV_PIX_FMT_YUV420P) {
+        if (pJavaMethods != NULL && pVideoMedia != NULL && pVideoMedia->pCodecContext != NULL) {
+            pJavaMethods->onCallJavaRenderYUVFromThread(
+                    pVideoMedia->pCodecContext->width,
+                    pVideoMedia->pCodecContext->height,
+                    pVideoFrame->data[0],
+                    pVideoFrame->data[1],
+                    pVideoFrame->data[2]
+            );
+        }
+    } else {
+        AVFrame *pFrameYUV420P = av_frame_alloc();
+        int num = av_image_get_buffer_size(AV_PIX_FMT_YUV420P,
+                                           pVideoMedia->pCodecContext->width,
+                                           pVideoMedia->pCodecContext->height, 1);
+        uint8_t *buffer = static_cast<uint8_t *>(av_malloc(num * sizeof(uint8_t)));
+        av_image_fill_arrays(pFrameYUV420P->data, pFrameYUV420P->linesize,
+                             buffer,
+                             AV_PIX_FMT_YUV420P,
+                             pVideoMedia->pCodecContext->width,
+                             pVideoMedia->pCodecContext->height, 1);
+
+        SwsContext *swsContext = sws_getContext(
+                pVideoMedia->pCodecContext->width,
+                pVideoMedia->pCodecContext->height,
+                pVideoMedia->pCodecContext->pix_fmt,
+                pVideoMedia->pCodecContext->width,
+                pVideoMedia->pCodecContext->height,
+                AV_PIX_FMT_YUV420P,
+                SWS_BICUBIC, NULL, NULL, NULL
+        );
+
+        if (swsContext == NULL) {
+            av_frame_free(&pFrameYUV420P);
+            av_free(&pFrameYUV420P);
+            av_free(&buffer);
+            return S_FUNCTION_CONTINUE;
+        }
+
+        sws_scale(swsContext,
+                  pVideoFrame->data,
+                  pVideoFrame->linesize,
+                  0,
+                  pVideoFrame->height,
+                  pFrameYUV420P->data,
+                  pFrameYUV420P->linesize
+        );
+
+        if (pJavaMethods != NULL && pVideoMedia != NULL && pVideoMedia->pCodecContext != NULL) {
+            pJavaMethods->onCallJavaRenderYUVFromThread(
+                    pVideoMedia->pCodecContext->width,
+                    pVideoMedia->pCodecContext->height,
+                    pFrameYUV420P->data[0],
+                    pFrameYUV420P->data[1],
+                    pFrameYUV420P->data[2]
+            );
+        }
+
+        av_frame_free(&pFrameYUV420P);
+        av_free(pFrameYUV420P);
+        av_free(buffer);
+        sws_freeContext(swsContext);
+    }
+
     releaseFrame(&pVideoFrame);
     releasePacket(&pVideoPacket);
-
-//    LOGD(TAG, "decodeVideo: Success");
 
     return S_SUCCESS;
 }

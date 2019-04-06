@@ -1,4 +1,5 @@
-#include "../include/SJavaMethods.h"
+
+#include <SJavaMethods.h>
 
 #define TAG "Native_JavaMethods"
 
@@ -18,6 +19,7 @@ SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
         idError = mainJniEnv->GetMethodID(jClazz, "onPlayerErrorFromNative", "(ILjava/lang/String;)V");
         idComplete = mainJniEnv->GetMethodID(jClazz, "onPlayerCompleteFromNative", "()V");
         idLoad = mainJniEnv->GetMethodID(jClazz, "onPlayerLoadStateFromNative", "(Z)V");
+        idRender = mainJniEnv->GetMethodID(jClazz, "onPlayerRenderYUVFromNative", "(II[B[B[B)V");
     }
 }
 
@@ -147,6 +149,30 @@ void SJavaMethods::onCallJavaLoadState(bool loadState) {
     LOGD(TAG, "SJavaMethods:onCallJavaLoadState %d", loadState);
     if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
         jniEnv->CallVoidMethod(javaInstance, idLoad, loadState);
+        javaVm->DetachCurrentThread();
+    }
+}
+
+void SJavaMethods::onCallJavaRenderYUVFromThread(int width, int height, uint8_t *y, uint8_t *u, uint8_t *v) {
+    LOGD(TAG, "SJavaMethods:onCallJavaRenderYUVFromThread: %d %d", width, height);
+    JNIEnv *jniEnv;
+    if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
+
+        jbyteArray yByte = jniEnv->NewByteArray(width * height);
+        jniEnv->SetByteArrayRegion(yByte, 0, width * height, (const jbyte *) (y));
+
+        jbyteArray uByte = jniEnv->NewByteArray(width * height / 4);
+        jniEnv->SetByteArrayRegion(uByte, 0, width * height / 4, (const jbyte *) (u));
+
+        jbyteArray vByte = jniEnv->NewByteArray(width * height / 4);
+        jniEnv->SetByteArrayRegion(vByte, 0, width * height / 4, (const jbyte *) (v));
+
+        jniEnv->CallVoidMethod(javaInstance, idRender, (jint) width, (jint) height, yByte, uByte, vByte);
+
+        jniEnv->DeleteLocalRef(yByte);
+        jniEnv->DeleteLocalRef(uByte);
+        jniEnv->DeleteLocalRef(vByte);
+
         javaVm->DetachCurrentThread();
     }
 }

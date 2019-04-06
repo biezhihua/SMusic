@@ -212,6 +212,16 @@ class SPlayer {
         }
     }
 
+
+    @WorkerThread
+    @CalledByNative
+    @Keep
+    fun onPlayerRenderYUVFromNative(width: Int, height: Int, y: ByteArray, u: ByteArray, v: ByteArray) {
+        ArchTaskExecutor.getMainThreadExecutor().execute {
+            Log.d(TAG, "onPlayerRenderYUVFromNative() called $width $height ${y.size} ${u.size} ${v.size}")
+        }
+    }
+
     @Keep
     private external fun nativeSetSource(source: String)
 

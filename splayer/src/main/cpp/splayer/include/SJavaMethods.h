@@ -22,6 +22,7 @@ private:
     jmethodID idError;
     jmethodID idComplete;
     jmethodID idLoad;
+    jmethodID idRender;
 
     JNIEnv *tryLoadEnv();
 
@@ -52,6 +53,8 @@ public:
     void onCallJavaComplete();
 
     void onCallJavaLoadState(bool loadState);
+
+    void onCallJavaRenderYUVFromThread(int width, int height, uint8_t *y, uint8_t *u, uint8_t *v);
 
     bool isMainThread();
 
