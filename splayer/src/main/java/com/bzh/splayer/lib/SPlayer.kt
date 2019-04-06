@@ -7,6 +7,7 @@ import androidx.annotation.Keep
 import androidx.annotation.WorkerThread
 import androidx.arch.core.executor.ArchTaskExecutor
 import com.bzh.splayer.lib.annotations.CalledByNative
+import com.bzh.splayer.lib.opengl.SGLSurfaceView
 
 @Suppress("unused")
 @SuppressLint("RestrictedApi")
@@ -19,6 +20,8 @@ class SPlayer {
     }
 
     var listener: IPlayerListener? = null
+
+    var surfaceView: SGLSurfaceView? = null
 
     fun create() {
         Log.d(TAG, "create() called")
@@ -212,14 +215,11 @@ class SPlayer {
         }
     }
 
-
     @WorkerThread
     @CalledByNative
     @Keep
     fun onPlayerRenderYUVFromNative(width: Int, height: Int, y: ByteArray, u: ByteArray, v: ByteArray) {
-        ArchTaskExecutor.getMainThreadExecutor().execute {
-            Log.d(TAG, "onPlayerRenderYUVFromNative() called $width $height ${y.size} ${u.size} ${v.size}")
-        }
+        surfaceView?.updateYUVData(width, height, y, u, v)
     }
 
     @Keep

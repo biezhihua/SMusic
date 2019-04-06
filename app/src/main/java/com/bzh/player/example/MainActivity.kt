@@ -17,14 +17,16 @@ import com.bumptech.glide.Glide
 import com.bzh.player.R
 import com.bzh.splayer.lib.IPlayerListener
 import com.bzh.splayer.lib.SPlayer
+import com.bzh.splayer.lib.opengl.SGLSurfaceView
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 
+@Suppress("UNUSED_PARAMETER")
 class MainActivity : AppCompatActivity() {
 
-    private var music: SPlayer? = null
+    private var player: SPlayer? = null
 
     private lateinit var time1: TextView
     private lateinit var time2: TextView
@@ -33,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var speed: SeekBar
     private lateinit var pitch: SeekBar
     private lateinit var image: ImageView
+    private lateinit var surfaceView: SGLSurfaceView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         speed = findViewById(R.id.speed)
         pitch = findViewById(R.id.pitch)
         image = findViewById(R.id.image)
+        surfaceView = findViewById(R.id.surface_view)
 
 
         speed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -55,7 +59,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                music?.speed((progress * 2.0F / 100).toDouble())
+                player?.speed((progress * 2.0F / 100).toDouble())
             }
 
         })
@@ -69,7 +73,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                music?.pitch((progress * 2.0F / 100).toDouble())
+                player?.pitch((progress * 2.0F / 100).toDouble())
             }
 
         })
@@ -89,7 +93,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                music?.seek(mProgress)
+                player?.seek(mProgress)
             }
 
         })
@@ -97,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         volume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
 
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                music?.volume(progress)
+                player?.volume(progress)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -148,7 +152,7 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             1 -> {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
@@ -165,16 +169,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun create(v: View) {
-        if (music != null) {
-            music?.destroy()
+        if (player != null) {
+            player?.destroy()
         }
-        music = SPlayer()
-        music?.listener = object : IPlayerListener {
+        player = SPlayer()
+        player?.surfaceView = surfaceView
+        player?.listener = object : IPlayerListener {
             override fun onStart() {
-                if (music != null) {
-                    volume.progress = music!!.getCurrentVolumePercent()
-                    speed.progress = (music!!.getCurrentSpeed() * 100 / 2).toInt()
-                    pitch.progress = (music!!.getCurrentPitch() * 100 / 2).toInt()
+                if (player != null) {
+                    volume.progress = player!!.getCurrentVolumePercent()
+                    speed.progress = (player!!.getCurrentSpeed() * 100 / 2).toInt()
+                    pitch.progress = (player!!.getCurrentPitch() * 100 / 2).toInt()
                 }
             }
 
@@ -213,17 +218,17 @@ class MainActivity : AppCompatActivity() {
                 seek.progress = currentTime
             }
         }
-        music?.create()
+        player?.create()
     }
 
     fun setSource(v: View) {
 //        val file = File(Environment.getExternalStorageDirectory(), "/DCIM/cogo.mp4")
         val file = File(Environment.getExternalStorageDirectory(), "/DCIM/1552562921640202.mp4")
-//        music?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
-        music?.setDataSource(file.absolutePath)
-//        music?.setDataSource("https://github.com/biezhihua/SPlayer/blob/master/mp4/1552562921640202.mp4")
-//        music?.setDataSource("https://storage.googleapis.com/exoplayer-test-media-1/360/congo.mp4")
-//        music?.setDataSource("https://storage.googleapis.com/exoplayer-test-media-0/play.mp3")
+//        player?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
+        player?.setDataSource(file.absolutePath)
+//        player?.setDataSource("https://github.com/biezhihua/SPlayer/blob/master/mp4/1552562921640202.mp4")
+//        player?.setDataSource("https://storage.googleapis.com/exoplayer-test-media-1/360/congo.mp4")
+//        player?.setDataSource("https://storage.googleapis.com/exoplayer-test-media-0/play.mp3")
 //        Log.d(TAG, "setSource() called with: isExist = [${file.exists()}]")
 //        try {
 //            val inputStream = FileInputStream(file)
@@ -234,46 +239,46 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun start(v: View) {
-        music?.start()
+        player?.start()
     }
 
     fun play(v: View) {
-        music?.play()
+        player?.play()
     }
 
     fun pause(v: View) {
-        music?.pause()
+        player?.pause()
     }
 
     fun stop(v: View) {
-        music?.stop()
+        player?.stop()
     }
 
     fun destroy(v: View) {
-        music?.destroy()
-        music = null
+        player?.destroy()
+        player = null
     }
 
     fun left(v: View) {
-        music?.mute(SPlayer.Mute.LEFT)
+        player?.mute(SPlayer.Mute.LEFT)
     }
 
     fun right(v: View) {
-        music?.mute(SPlayer.Mute.RIGHT)
+        player?.mute(SPlayer.Mute.RIGHT)
     }
 
     fun center(v: View) {
-        music?.mute(SPlayer.Mute.CENTER)
+        player?.mute(SPlayer.Mute.CENTER)
     }
 
     override fun onResume() {
         super.onResume()
-        music?.play()
+        player?.play()
     }
 
     override fun onPause() {
         super.onPause()
-        music?.pause()
+        player?.pause()
     }
 
     companion object {
