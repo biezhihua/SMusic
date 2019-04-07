@@ -145,6 +145,13 @@ int SFFmpeg::decodeMediaInfo() {
             pVideoMedia->totalTime = (pFormatContext->duration / AV_TIME_BASE);
             pVideoMedia->totalTimeMillis = pVideoMedia->totalTime * 1000;
             pVideoMedia->timeBase = (pFormatContext->streams[pVideoMedia->streamIndex]->time_base);
+            int num = pFormatContext->streams[pVideoMedia->streamIndex]->avg_frame_rate.num;
+            int den = pFormatContext->streams[pVideoMedia->streamIndex]->avg_frame_rate.den;
+            if (num != 0 && den != 0) {
+                int fps = num / den;
+                pVideoMedia->defaultDelayRenderTime = 1.0f / fps;
+                LOGD(TAG, "decodeMediaInfo: defaultDelayRenderTime %lf", pVideoMedia->defaultDelayRenderTime);
+            }
 
             LOGD(TAG, "decodeMediaInfo: Video Codec: resolution %d x %d", pLocalCodecParameters->width,
                  pLocalCodecParameters->height);
@@ -322,6 +329,15 @@ int SFFmpeg::decodeVideo() {
     }
 
     if (pVideoFrame->format == AV_PIX_FMT_YUV420P) {
+
+        double diffTime = pVideoMedia->getFrameDiffTime(pAudioMedia, pVideoFrame);
+
+        unsigned int delayTime = static_cast<unsigned int>(pVideoMedia->getDelayRenderTime(diffTime) * 1000000);
+
+        av_usleep(delayTime);
+
+        LOGD(TAG, "decodeVideo diffTime %lf delayTime %d", diffTime, delayTime);
+
         if (pJavaMethods != NULL && pVideoMedia != NULL && pVideoMedia->pCodecContext != NULL) {
             pJavaMethods->onCallJavaRenderYUVFromThread(
                     pVideoMedia->pCodecContext->width,
@@ -639,6 +655,7 @@ void SFFmpeg::seek(int64_t millis) {
         pStatus->moveStatusToSeek();
 
         pAudioMedia->currentTime = 0;
+        pAudioMedia->currentRealTime = 0;
         pAudioMedia->currentTimeMillis = 0;
         pAudioMedia->lastTimeMillis = 0;
 

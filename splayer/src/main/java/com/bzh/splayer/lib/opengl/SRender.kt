@@ -84,9 +84,9 @@ class SRender(private val context: Context) : GLSurfaceView.Renderer {
         avPositionAttribute = GLES20.glGetAttribLocation(program, "av_Position")
         afPositionAttribute = GLES20.glGetAttribLocation(program, "af_Position")
 
-        textureUniformY = GLES20.glGetUniformLocation(program, "sampler_y")
-        textureUniformU = GLES20.glGetUniformLocation(program, "sampler_u")
-        textureUniformV = GLES20.glGetUniformLocation(program, "sampler_v")
+        textureUniformY = GLES20.glGetUniformLocation(program, "texture_y")
+        textureUniformU = GLES20.glGetUniformLocation(program, "texture_u")
+        textureUniformV = GLES20.glGetUniformLocation(program, "texture_v")
 
         textureHandle = IntArray(3)
         GLES20.glGenTextures(3, textureHandle, 0)

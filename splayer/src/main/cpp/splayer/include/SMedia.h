@@ -14,12 +14,16 @@ class SMedia {
 public:
     double currentFrameTime;
     double currentTime;
+    double currentRealTime;
     int64_t totalTime;
     double lastTimeMillis;
     double totalTimeMillis;
     double currentTimeMillis;
     int streamIndex;
     int sampleRate;
+    double currentFramePTS;
+    double delayRenderTime;
+    double defaultDelayRenderTime = 0;
 
     AVRational timeBase;
     AVCodec *pCodec = NULL;
@@ -36,11 +40,21 @@ public:
 
     void updateTime(AVFrame *pFrame, int dataSize);
 
+    double getCurrentTime() const;
+
+    double getCurrentRealTime() const;
+
     double getCurrentTimeMillis() const;
 
     double getTotalTimeMillis() const;
 
     bool isMinDiff();
+
+    double getCurrentPTSByAVFrame(AVFrame *avFrame);
+
+    double getFrameDiffTime(SMedia *media, AVFrame *avFrame);
+
+    double getDelayRenderTime(double diff);
 };
 
 
