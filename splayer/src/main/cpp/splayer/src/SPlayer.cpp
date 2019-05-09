@@ -20,6 +20,10 @@ void *startDecodeFrameCallback(void *data) {
 
         if (pFFmpeg != NULL && pStatus != NULL && pOpenSLES != NULL && pJavaMethods != NULL) {
             while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
+                if (pStatus->isPause()) {
+                    pFFmpeg->sleep();
+                    continue;
+                }
                 int result = pFFmpeg->decodeFrame();
                 if (result == S_FUNCTION_CONTINUE) {
                     // TODO
@@ -183,6 +187,10 @@ void *playVideoCallback(void *data) {
             }
 
             while (pVideoMedia != NULL && pStatus->isLeastActiveState(STATE_PLAY)) {
+                if (pStatus->isPause()) {
+                    pFFmpeg->sleep();
+                    continue;
+                }
                 int result = pFFmpeg->decodeVideo();
                 if (result == S_FUNCTION_CONTINUE) {
                     // TODO

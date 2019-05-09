@@ -385,6 +385,14 @@ int SFFmpeg::decodeVideo() {
                   pFrameYUV420P->linesize
         );
 
+        double diffTime = pVideoMedia->getFrameDiffTime(pAudioMedia, pVideoMedia->getCurrentPTSByAVFrame(pVideoFrame));
+
+        double delayTime = pVideoMedia->getDelayRenderTime(diffTime);
+
+        LOGD(TAG, "decodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
+
+        av_usleep(static_cast<unsigned int>(delayTime * 1000000));
+
         if (pJavaMethods != NULL && pVideoMedia != NULL && pVideoMedia->pCodecContext != NULL) {
             pJavaMethods->onCallJavaRenderYUVFromThread(
                     pVideoMedia->pCodecContext->width,
@@ -660,7 +668,9 @@ void SFFmpeg::seek(int64_t millis) {
         pAudioMedia->lastTimeMillis = 0;
 
         int64_t rel = millis / 1000 * AV_TIME_BASE;
+
         int ret = avformat_seek_file(pFormatContext, -1, INT64_MIN, rel, INT64_MAX, 0);
+
         pStatus->moveStatusToPreState();
 
         pthread_mutex_unlock(&seekMutex);
