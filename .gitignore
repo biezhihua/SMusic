@@ -71,4 +71,4 @@ app/.project
 app/.settings/
 distribution/ffmpeg/.DS_Store
 distribution/ffmpeg/lib/.DS_Store
-
+.DS_Store

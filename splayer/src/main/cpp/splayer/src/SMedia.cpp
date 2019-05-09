@@ -65,9 +65,15 @@ double SMedia::getCurrentTime() const {
     return currentTime;
 }
 
-double SMedia::getFrameDiffTime(SMedia *media, AVFrame *avFrame) {
-    if (media != NULL && avFrame != NULL) {
-        double diffTime = media->getCurrentTime() - media->getCurrentPTSByAVFrame(avFrame);
+/**
+ * 获取音频与视频的差值
+ *
+ * 返回值大于0代表视频落后于音频，需要减少睡眠时间
+ * 返回值小于0代表视频超前于音频，需要增加睡眠时间
+ */
+double SMedia::getFrameDiffTime(SMedia *audio, double pts) {
+    if (audio != NULL) {
+        double diffTime = audio->getCurrentTime() - pts;
         return diffTime;
     }
     return 0;
@@ -78,15 +84,11 @@ double SMedia::getDelayRenderTime(double diff) {
     if (diff > 0.003) {
         delayRenderTime = delayRenderTime * 2 / 3;
         if (delayRenderTime < defaultDelayRenderTime / 2) {
-            delayRenderTime = defaultDelayRenderTime * 2 / 3;
-        } else if (delayRenderTime > defaultDelayRenderTime * 2) {
-            delayRenderTime = defaultDelayRenderTime * 2;
+            delayRenderTime = defaultDelayRenderTime / 2;
         }
     } else if (diff < -0.003) {
         delayRenderTime = delayRenderTime * 3 / 2;
-        if (delayRenderTime < defaultDelayRenderTime / 2) {
-            delayRenderTime = defaultDelayRenderTime * 2 / 3;
-        } else if (delayRenderTime > defaultDelayRenderTime * 2) {
+        if (delayRenderTime > defaultDelayRenderTime * 2) {
             delayRenderTime = defaultDelayRenderTime * 2;
         }
     }

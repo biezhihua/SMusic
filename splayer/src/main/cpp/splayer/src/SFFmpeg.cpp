@@ -330,13 +330,13 @@ int SFFmpeg::decodeVideo() {
 
     if (pVideoFrame->format == AV_PIX_FMT_YUV420P) {
 
-        double diffTime = pVideoMedia->getFrameDiffTime(pAudioMedia, pVideoFrame);
+        double diffTime = pVideoMedia->getFrameDiffTime(pAudioMedia, pVideoMedia->getCurrentPTSByAVFrame(pVideoFrame));
 
-        unsigned int delayTime = static_cast<unsigned int>(pVideoMedia->getDelayRenderTime(diffTime) * 1000000);
+        double delayTime = pVideoMedia->getDelayRenderTime(diffTime);
 
-        av_usleep(delayTime);
+        LOGD(TAG, "decodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
 
-        LOGD(TAG, "decodeVideo diffTime %lf delayTime %d", diffTime, delayTime);
+        av_usleep(static_cast<unsigned int>(delayTime * 1000000));
 
         if (pJavaMethods != NULL && pVideoMedia != NULL && pVideoMedia->pCodecContext != NULL) {
             pJavaMethods->onCallJavaRenderYUVFromThread(
