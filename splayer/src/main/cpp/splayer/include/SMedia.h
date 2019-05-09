@@ -12,6 +12,9 @@ extern "C" {
 class SMedia {
 
 public:
+
+    pthread_mutex_t mutex;
+
     double currentFrameTime;
     double currentTime;
     double currentRealTime;
@@ -55,6 +58,8 @@ public:
     double getFrameDiffTime(SMedia *audio, double pts);
 
     double getDelayRenderTime(double diff);
+
+    void clearCodecContextBuffer();
 };
 
 

@@ -5,12 +5,14 @@ SMedia::SMedia(int streamIndex, AVCodec *pCodec, AVCodecParameters *pCodecParame
     this->streamIndex = streamIndex;
     this->pCodec = pCodec;
     this->pCodecParameters = pCodecParameters;
+    pthread_mutex_init(&mutex, NULL);
 }
 
 SMedia::~SMedia() {
     streamIndex = -1;
     pCodec = NULL;
     pCodecParameters = NULL;
+    pthread_mutex_destroy(&mutex);
 }
 
 int SMedia::getSampleRate() {
@@ -107,5 +109,11 @@ double SMedia::getDelayRenderTime(double diff) {
 
 double SMedia::getCurrentRealTime() const {
     return currentRealTime;
+}
+
+void SMedia::clearCodecContextBuffer() {
+    pthread_mutex_lock(&mutex);
+    avcodec_flush_buffers(pCodecContext);
+    pthread_mutex_unlock(&mutex);
 }
 

@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var volume: SeekBar
     private lateinit var speed: SeekBar
     private lateinit var pitch: SeekBar
-    private lateinit var image: ImageView
     private lateinit var surfaceView: SGLSurfaceView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +45,6 @@ class MainActivity : AppCompatActivity() {
         volume = findViewById(R.id.volume)
         speed = findViewById(R.id.speed)
         pitch = findViewById(R.id.pitch)
-        image = findViewById(R.id.image)
         surfaceView = findViewById(R.id.surface_view)
 
 
@@ -139,10 +137,6 @@ class MainActivity : AppCompatActivity() {
                 // result of the request.
             }
         }
-
-        Glide.with(this)
-            .load("http://attimg.dospy.com/img/day_120708/20120708_562d17b32de40740fb9aKkL4ZcIaNhll.jpg")
-            .into(image)
     }
 
     override fun onRequestPermissionsResult(
@@ -224,6 +218,7 @@ class MainActivity : AppCompatActivity() {
     fun setSource(v: View) {
 //        val file = File(Environment.getExternalStorageDirectory(), "/DCIM/cogo.mp4")
         val file = File(Environment.getExternalStorageDirectory(), "/DCIM/1552562921640202.mp4")
+//        val file = File(Environment.getExternalStorageDirectory(), "/DCIM/BF.mp4")
 //        player?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
         player?.setDataSource(file.absolutePath)
 //        player?.setDataSource("https://github.com/biezhihua/SPlayer/blob/master/mp4/1552562921640202.mp4")

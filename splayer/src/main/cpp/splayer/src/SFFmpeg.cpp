@@ -307,14 +307,19 @@ int SFFmpeg::decodeVideo() {
         return S_FUNCTION_CONTINUE;
     }
 
+    pthread_mutex_lock(&pVideoMedia->mutex);
+
     int result = avcodec_send_packet(pVideoMedia->pCodecContext, pVideoPacket);
+
     if (result != S_SUCCESS) {
+        pthread_mutex_unlock(&pVideoMedia->mutex);
         LOGE(TAG, "decodeVideo: send packet failed");
         return S_FUNCTION_CONTINUE;
     }
 
     pVideoFrame = av_frame_alloc();
     if (pVideoFrame == NULL) {
+        pthread_mutex_unlock(&pVideoMedia->mutex);
         LOGE(TAG, "decodeVideo: ailed to allocated memory for AVFrame");
         return S_FUNCTION_BREAK;
     }
@@ -324,6 +329,7 @@ int SFFmpeg::decodeVideo() {
     if (result != S_SUCCESS) {
         releasePacket(&pVideoPacket);
         releaseFrame(&pVideoFrame);
+        pthread_mutex_unlock(&pVideoMedia->mutex);
         LOGE(TAG, "decodeVideo: receive frame failed %d", result);
         return S_FUNCTION_CONTINUE;
     }
@@ -373,6 +379,7 @@ int SFFmpeg::decodeVideo() {
             av_frame_free(&pFrameYUV420P);
             av_free(&pFrameYUV420P);
             av_free(&buffer);
+            pthread_mutex_unlock(&pVideoMedia->mutex);
             return S_FUNCTION_CONTINUE;
         }
 
@@ -411,6 +418,7 @@ int SFFmpeg::decodeVideo() {
 
     releaseFrame(&pVideoFrame);
     releasePacket(&pVideoPacket);
+    pthread_mutex_unlock(&pVideoMedia->mutex);
 
     return S_SUCCESS;
 }
@@ -435,14 +443,19 @@ int SFFmpeg::decodeAudio() {
         return S_FUNCTION_CONTINUE;
     }
 
+    pthread_mutex_lock(&pAudioMedia->mutex);
+
     int result = avcodec_send_packet(pAudioMedia->pCodecContext, pAudioPacket);
+
     if (result != S_SUCCESS) {
+        pthread_mutex_unlock(&pAudioMedia->mutex);
         LOGE(TAG, "blockResampleAudio: send packet failed");
         return S_FUNCTION_CONTINUE;
     }
 
     pAudioFrame = av_frame_alloc();
     if (pAudioFrame == NULL) {
+        pthread_mutex_unlock(&pAudioMedia->mutex);
         LOGE(TAG, "blockResampleAudio: ailed to allocated memory for AVFrame");
         return S_FUNCTION_BREAK;
     }
@@ -452,9 +465,9 @@ int SFFmpeg::decodeAudio() {
     if (result != S_SUCCESS) {
         releasePacket(&pAudioPacket);
         releaseFrame(&pAudioFrame);
+        pthread_mutex_unlock(&pAudioMedia->mutex);
         LOGE(TAG, "blockResampleAudio: receive frame failed %d", result);
         return S_FUNCTION_CONTINUE;
-
     } else {
 
         // Process exception
@@ -507,12 +520,6 @@ int SFFmpeg::decodeAudio() {
 
         pAudioMedia->updateTime(pAudioFrame, dataSize);
 
-        releasePacket(&pAudioPacket);
-        releaseFrame(&pAudioFrame);
-
-        swr_free(&swrContext);
-        swrContext = NULL;
-
         // Call Loading
         if (isLoading) {
             isLoading = false;
@@ -526,6 +533,14 @@ int SFFmpeg::decodeAudio() {
             pJavaMethods->onCallJavaTimeFromThread((int) pAudioMedia->getTotalTimeMillis(),
                                                    (int) pAudioMedia->getCurrentTimeMillis());
         }
+
+        releasePacket(&pAudioPacket);
+        releaseFrame(&pAudioFrame);
+
+        swr_free(&swrContext);
+        swrContext = NULL;
+
+        pthread_mutex_unlock(&pAudioMedia->mutex);
         return dataSize;
     }
 }
@@ -652,33 +667,42 @@ double SFFmpeg::getCurrentTimeMillis() {
 
 void SFFmpeg::seek(int64_t millis) {
 
-    if (pAudioQueue != NULL) {
-        pAudioQueue->clear();
-    }
-    if (pVideoQueue != NULL) {
-        pVideoQueue->clear();
-    }
-    if (pAudioMedia != NULL) {
-        pthread_mutex_lock(&seekMutex);
-        pStatus->moveStatusToSeek();
+    pStatus->moveStatusToSeek();
 
+    pthread_mutex_lock(&seekMutex);
+
+    int64_t rel = millis / 1000 * AV_TIME_BASE;
+
+    int ret = avformat_seek_file(pFormatContext, -1, INT64_MIN, rel, INT64_MAX, 0);
+
+    if (pAudioMedia != NULL) {
+        if (pAudioQueue != NULL) {
+            pAudioQueue->clear();
+        }
         pAudioMedia->currentTime = 0;
         pAudioMedia->currentRealTime = 0;
         pAudioMedia->currentTimeMillis = 0;
         pAudioMedia->lastTimeMillis = 0;
-
-        int64_t rel = millis / 1000 * AV_TIME_BASE;
-
-        int ret = avformat_seek_file(pFormatContext, -1, INT64_MIN, rel, INT64_MAX, 0);
-
-        pStatus->moveStatusToPreState();
-
-        pthread_mutex_unlock(&seekMutex);
-
-        LOGD(TAG, "SFFmpeg:seek: seekTargetMillis=%d seekStartMillis=%f rel=%d ret=%d", (int) millis,
-             pAudioMedia->currentTimeMillis,
-             (int) rel, ret);
+        pAudioMedia->clearCodecContextBuffer();
     }
+
+    if (pVideoMedia != NULL) {
+        if (pVideoQueue != NULL) {
+            pVideoQueue->clear();
+        }
+        pVideoMedia->currentTime = 0;
+        pVideoMedia->currentRealTime = 0;
+        pVideoMedia->currentTimeMillis = 0;
+        pVideoMedia->lastTimeMillis = 0;
+        pVideoMedia->clearCodecContextBuffer();
+    }
+
+    pthread_mutex_unlock(&seekMutex);
+    pStatus->moveStatusToPreState();
+
+    LOGD(TAG, "SFFmpeg:seek: seekTargetMillis=%d seekStartMillis=%f rel=%d ret=%d", (int) millis,
+         pAudioMedia->currentTimeMillis,
+         (int) rel, ret);
 }
 
 int SFFmpeg::getChannelSampleNumbers() const {

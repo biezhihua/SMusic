@@ -7,20 +7,32 @@
         android:layout_height="match_parent"
         tools:context=".example.MainActivity">
 
-    <Button android:layout_width="match_parent"
-            android:text="创建实例"
-            android:layout_height="wrap_content"
-            android:onClick="create"/>
 
-    <Button android:layout_width="match_parent"
-            android:text="销毁实例"
-            android:layout_height="wrap_content"
-            android:onClick="destroy"/>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
 
-    <Button android:layout_width="match_parent"
-            android:text="设置数据源"
-            android:layout_height="wrap_content"
-            android:onClick="setSource"/>
+        <Button android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="创建实例"
+                android:layout_height="wrap_content"
+                android:onClick="create"/>
+
+        <Button android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="销毁实例"
+                android:layout_height="wrap_content"
+                android:onClick="destroy"/>
+
+        <Button android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="设置数据源"
+                android:layout_height="wrap_content"
+                android:onClick="setSource"/>
+
+    </LinearLayout>
+
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -40,13 +52,6 @@
                 android:layout_height="wrap_content"
                 android:onClick="stop"/>
 
-    </LinearLayout>
-
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:orientation="horizontal"
-            android:layout_height="wrap_content">
-
         <Button android:layout_width="0dp"
                 android:layout_weight="1"
                 android:text="继续播放"
@@ -61,6 +66,7 @@
                 android:onClick="pause"/>
 
     </LinearLayout>
+
 
     <LinearLayout
             android:layout_width="match_parent"
