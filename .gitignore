@@ -63,3 +63,12 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
+
+.project
+.settings/
+app/.classpath
+app/.project
+app/.settings/
+distribution/ffmpeg/.DS_Store
+distribution/ffmpeg/lib/.DS_Store
+
