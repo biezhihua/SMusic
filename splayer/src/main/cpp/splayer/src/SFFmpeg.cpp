@@ -742,3 +742,32 @@ void SFFmpeg::releasePacket(AVPacket **avPacket) {
     }
 }
 
+void SFFmpeg::startSoftDecode() {
+    LOGD(TAG, "SFFmpeg:startSoftDecode");
+    while (pStatus->isLeastActiveState(STATE_PLAY)) {
+        if (pStatus->isPause()) {
+            sleep();
+            continue;
+        }
+        int result = decodeVideo();
+        if (result == S_FUNCTION_BREAK) {
+            while (pStatus->isLeastActiveState(STATE_PLAY)) {
+                SQueue *pAudioQueue = getAudioQueue();
+                SQueue *pVideoQueue = getVideoQueue();
+                if ((pAudioQueue != NULL && pAudioQueue->getSize() > 0) ||
+                    (pVideoQueue != NULL && pVideoQueue->getSize() > 0)) {
+                    sleep();
+                    continue;
+                } else {
+                    pStatus->moveStatusToPreComplete();
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void SFFmpeg::startMediaDecode() {
+    LOGD(TAG, "SFFmpeg:startMediaDecode");
+}
+

@@ -98,6 +98,10 @@ public:
     int getChannelSampleNumbers() const;
 
     void sleep();
+
+    void startSoftDecode();
+
+    void startMediaDecode();
 };
 
 

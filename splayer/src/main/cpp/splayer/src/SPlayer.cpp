@@ -181,32 +181,18 @@ void *playVideoCallback(void *data) {
 
             SMedia *pVideoMedia = pFFmpeg->getVideoMedia();
 
-            if (pVideoMedia != NULL && pStatus->isPrePlay()) {
-                pStatus->moveStatusToPlay();
-                pJavaMethods->onCallJavaPlay();
-            }
+            if (pVideoMedia != NULL) {
 
-            while (pVideoMedia != NULL && pStatus->isLeastActiveState(STATE_PLAY)) {
-                if (pStatus->isPause()) {
-                    pFFmpeg->sleep();
-                    continue;
+                if (pStatus->isPrePlay()) {
+                    pStatus->moveStatusToPlay();
+                    pJavaMethods->onCallJavaPlay();
                 }
-                int result = pFFmpeg->decodeVideo();
-                if (result == S_FUNCTION_CONTINUE) {
-                    // TODO
-                } else if (result == S_FUNCTION_BREAK) {
-                    while (pStatus->isLeastActiveState(STATE_PLAY)) {
-                        SQueue *pAudioQueue = pFFmpeg->getAudioQueue();
-                        SQueue *pVideoQueue = pFFmpeg->getVideoQueue();
-                        if ((pAudioQueue != NULL && pAudioQueue->getSize() > 0) ||
-                            (pVideoQueue != NULL && pVideoQueue->getSize() > 0)) {
-                            pFFmpeg->sleep();
-                            continue;
-                        } else {
-                            pStatus->moveStatusToPreComplete();
-                            break;
-                        }
-                    }
+
+                const char *codecName = pVideoMedia->pCodecContext->codec->name;
+                if (pJavaMethods->isSupportMediaCodec(codecName)) {
+                    pFFmpeg->startMediaDecode();
+                } else {
+                    pFFmpeg->startSoftDecode();
                 }
             }
 

@@ -155,7 +155,7 @@ void SJavaMethods::onCallJavaLoadState(bool loadState) {
 }
 
 void SJavaMethods::onCallJavaRenderYUVFromThread(int width, int height, uint8_t *y, uint8_t *u, uint8_t *v) {
-    LOGD(TAG, "SJavaMethods:onCallJavaRenderYUVFromThread: %d %d", width, height);
+    // LOGD(TAG, "SJavaMethods:onCallJavaRenderYUVFromThread: %d %d", width, height);
     JNIEnv *jniEnv;
     if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
 
@@ -179,15 +179,15 @@ void SJavaMethods::onCallJavaRenderYUVFromThread(int width, int height, uint8_t 
 }
 
 bool SJavaMethods::isSupportMediaCodec(const char *codecName) {
-
     JNIEnv *jniEnv;
-    LOGD(TAG, "SJavaMethods:isSupportMediaCodec %s", codecName);
+    bool result = false;
     if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
         jstring name = jniEnv->NewStringUTF(codecName);
-        jniEnv->CallBooleanMethod(javaInstance, idIsSupport, name);
-        javaVm->DetachCurrentThread();
+        result = jniEnv->CallBooleanMethod(javaInstance, idIsSupport, name);
         jniEnv->DeleteLocalRef(name);
+        javaVm->DetachCurrentThread();
     }
-    return false;
+    LOGD(TAG, "SJavaMethods:isSupportMediaCodec codecName = %s result = %d", codecName, result);
+    return result;
 }
 
