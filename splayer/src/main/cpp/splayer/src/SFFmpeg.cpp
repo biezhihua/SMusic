@@ -784,8 +784,6 @@ void SFFmpeg::startMediaDecode() {
     const char *codecName = pVideoMedia->pCodecContext->codec->name;
     if (strcasecmp(codecName, "h264") == 0) {
         pBSFilter = av_bsf_get_by_name("h264_mp4toannexb");
-    } else if (strcasecmp(codecName, "h265") == 0) {
-        pBSFilter = av_bsf_get_by_name("hevc_mp4toannexb");
     }
     if (pBSFilter == NULL) {
         LOGE(TAG, "startMediaDecode: not found filter %s", codecName);
