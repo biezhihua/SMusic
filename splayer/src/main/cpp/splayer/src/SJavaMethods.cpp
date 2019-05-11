@@ -22,6 +22,7 @@ SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
         idRender = mainJniEnv->GetMethodID(jClazz, "onPlayerRenderYUVFromNative", "(II[B[B[B)V");
         idIsSupport = mainJniEnv->GetMethodID(jClazz, "isSupportMediaCodecFromNative", "(Ljava/lang/String;)Z");
         idInitMediaCodec = mainJniEnv->GetMethodID(jClazz, "initMediaCodecFromNative", "(Ljava/lang/String;II[B[B)V");
+        idMediaCodecDecodeAvPacke = mainJniEnv->GetMethodID(jClazz, "mediaCodecDecodeAvPacketFromNative", "(I[B)V");
     }
 }
 
@@ -221,5 +222,18 @@ void SJavaMethods::onCallJavaInitMediaCodec(
 
         javaVm->DetachCurrentThread();
     }
+}
+
+void SJavaMethods::onCallJavaMediaCodecDecodeAvPacket(int dataSize, uint8_t *data) {
+
+    JNIEnv *jniEnv;
+    if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
+        jbyteArray ba = jniEnv->NewByteArray(dataSize);
+        jniEnv->SetByteArrayRegion(ba, 0, dataSize, (const jbyte *) (data));
+        jniEnv->CallVoidMethod(javaInstance, idMediaCodecDecodeAvPacke, dataSize, data);
+        jniEnv->DeleteLocalRef(ba);
+        javaVm->DetachCurrentThread();
+    }
+
 }
 

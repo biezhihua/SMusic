@@ -57,6 +57,8 @@ public:
 
     double getCurrentPTSByAVFrame(AVFrame *avFrame);
 
+    double getCurrentPTSByAVPacket(AVPacket *avPacket);
+
     double getFrameDiffTime(SMedia *audio, double pts);
 
     double getDelayRenderTime(double diff);

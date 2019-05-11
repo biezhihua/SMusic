@@ -63,6 +63,21 @@ double SMedia::getCurrentPTSByAVFrame(AVFrame *avFrame) {
     return currentFramePTS;
 }
 
+double SMedia::getCurrentPTSByAVPacket(AVPacket *avPacket) {
+    if (avPacket != NULL) {
+        double pts = avPacket->pts;
+        if (pts == AV_NOPTS_VALUE) {
+            pts = 0;
+        }
+        pts *= av_q2d(timeBase);
+        if (pts > 0) {
+            currentFramePTS = pts;
+        }
+        return currentFramePTS;
+    }
+    return 0;
+}
+
 double SMedia::getCurrentTime() const {
     return currentTime;
 }

@@ -27,11 +27,13 @@ class SPlayer {
 
     var mediaCodec: MediaCodec? = null
 
+    var bufferInfo: MediaCodec.BufferInfo? = null
+
     var listener: IPlayerListener? = null
 
     var surfaceView: SGLSurfaceView? = null
 
-    var surface: Surface? = null;
+    var surface: Surface? = null
 
     fun create() {
         Log.d(TAG, "create() called")
@@ -243,26 +245,53 @@ class SPlayer {
     @CalledByNative
     @Keep
     fun initMediaCodecFromNative(codecName: String, width: Int, height: Int, csd0: ByteArray, cds1: ByteArray) {
-        val mime = Utils.findVideoCodecName(codecName)
-        mediaFormat = MediaFormat.createVideoFormat(mime, width, height)
-        mediaFormat?.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, width * height)
-        mediaFormat?.setByteBuffer("csd-0", ByteBuffer.wrap(csd0))
-        mediaFormat?.setByteBuffer("csd-1", ByteBuffer.wrap(cds1))
-        Log.d(
-            TAG, "initMediaCodecFromNative() called with: " +
-                    "codecName = [$codecName], " +
-                    "width = [$width], " +
-                    "height = [$height], " +
-                    "csd0 = [$csd0], " +
-                    "cds1 = [$cds1]"
-        )
-        Log.d(TAG, "initMediaCodecFromNative() called with: mediaFormat = [$mediaFormat]")
+        if (surface != null) {
+            val mime = Utils.findVideoCodecName(codecName)
+            mediaFormat = MediaFormat.createVideoFormat(mime, width, height)
+            mediaFormat?.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, width * height)
+            mediaFormat?.setByteBuffer("csd-0", ByteBuffer.wrap(csd0))
+            mediaFormat?.setByteBuffer("csd-1", ByteBuffer.wrap(cds1))
+            Log.d(
+                TAG, "initMediaCodecFromNative() called with: " +
+                        "codecName = [$codecName], " +
+                        "width = [$width], " +
+                        "height = [$height], " +
+                        "csd0 = [$csd0], " +
+                        "cds1 = [$cds1]"
+            )
+            Log.d(TAG, "initMediaCodecFromNative() called with: mediaFormat = [$mediaFormat]")
 
-        if (mime != null) {
-            mediaCodec = MediaCodec.createDecoderByType(mime)
+            if (mime != null) {
+                mediaCodec = MediaCodec.createDecoderByType(mime)
+            }
+            mediaCodec?.configure(mediaFormat, surface, null, 0)
+        } else {
+            Log.e(TAG, "initMediaCodecFromNative: surface is null")
         }
-        mediaCodec?.configure(mediaFormat, surface, null, 0)
+    }
 
+    @WorkerThread
+    @CalledByNative
+    @Keep
+    fun mediaCodecDecodeAvPacketFromNative(dataSize: Int, data: ByteArray?) {
+        if (surface != null && dataSize > 0 && data != null) {
+            val inputBufferIndex = mediaCodec?.dequeueInputBuffer(10)
+            if (inputBufferIndex != null && inputBufferIndex >= 0) {
+                val byte = mediaCodec?.outputBuffers?.get(inputBufferIndex)
+                byte?.clear()
+                byte?.put(data)
+                mediaCodec?.queueInputBuffer(inputBufferIndex, 0, dataSize, 0, 0)
+            }
+
+            bufferInfo = MediaCodec.BufferInfo()
+            if (bufferInfo != null) {
+                var outputBufferIndex = mediaCodec?.dequeueOutputBuffer(bufferInfo, 10)
+                while (outputBufferIndex != null && outputBufferIndex >= 0) {
+                    mediaCodec?.releaseOutputBuffer(outputBufferIndex, true)
+                    outputBufferIndex = mediaCodec?.dequeueOutputBuffer(bufferInfo, 10)
+                }
+            }
+        }
     }
 
     @Keep

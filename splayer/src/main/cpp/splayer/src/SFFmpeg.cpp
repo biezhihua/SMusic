@@ -884,26 +884,16 @@ int SFFmpeg::mediaDecodeVideo() {
         return S_FUNCTION_CONTINUE;
     }
 
-    LOGD(TAG, "mediaDecodeVideo: ing");
+    double diffTime = pVideoMedia->getFrameDiffTime(pAudioMedia, pVideoMedia->getCurrentPTSByAVPacket(pVideoPacket));
 
-//    pVideoFrame = av_frame_alloc();
-//    if (pVideoFrame == NULL) {
-//        pthread_mutex_unlock(&pVideoMedia->mutex);
-//        LOGE(TAG, "mediaDecodeVideo: ailed to allocated memory for AVFrame");
-//        return S_FUNCTION_BREAK;
-//    }
-//
-//    result = avcodec_receive_frame(pVideoMedia->pCodecContext, pVideoFrame);
-//
-//    if (result != S_SUCCESS) {
-//        releasePacket(&pVideoPacket);
-//        releaseFrame(&pVideoFrame);
-//        pthread_mutex_unlock(&pVideoMedia->mutex);
-//        LOGE(TAG, "mediaDecodeVideo: receive frame failed %d", result);
-//        return S_FUNCTION_CONTINUE;
-//    }
-//
-//    releaseFrame(&pVideoFrame);
+    double delayTime = pVideoMedia->getDelayRenderTime(diffTime);
+
+    LOGD(TAG, "softDecodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
+
+    av_usleep(static_cast<unsigned int>(delayTime * 1000000));
+
+    pJavaMethods->onCallJavaMediaCodecDecodeAvPacket(pVideoPacket->size, pVideoPacket->data);
+
     releasePacket(&pVideoPacket);
     pthread_mutex_unlock(&pVideoMedia->mutex);
 

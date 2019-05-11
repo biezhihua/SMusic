@@ -25,6 +25,7 @@ private:
     jmethodID idRender;
     jmethodID idIsSupport;
     jmethodID idInitMediaCodec;
+    jmethodID idMediaCodecDecodeAvPacke;
 
     JNIEnv *tryLoadEnv();
 
@@ -65,6 +66,8 @@ public:
     void
     onCallJavaInitMediaCodec(const char *codecName, int width, int height, int cds0Size, uint8_t *cds0, int cds1Size,
                              uint8_t *cds1);
+
+    void onCallJavaMediaCodecDecodeAvPacket(int dataSize, uint8_t *data);
 
 };
 
