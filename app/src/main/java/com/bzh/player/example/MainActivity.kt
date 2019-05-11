@@ -7,13 +7,11 @@ import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.bumptech.glide.Glide
 import com.bzh.player.R
 import com.bzh.splayer.lib.IPlayerListener
 import com.bzh.splayer.lib.SPlayer
@@ -217,7 +215,8 @@ class MainActivity : AppCompatActivity() {
 
     fun setSource(v: View) {
 //        val file = File(Environment.getExternalStorageDirectory(), "/DCIM/cogo.mp4")
-        val file = File(Environment.getExternalStorageDirectory(), "/DCIM/1552562921640202.mp4")
+//        val file = File(Environment.getExternalStorageDirectory(), "/DCIM/1552562921640202.mp4")
+        val file = File(Environment.getExternalStorageDirectory(), "/DCIM/HM.mp4")
 //        val file = File(Environment.getExternalStorageDirectory(), "/DCIM/BF.mp4")
 //        player?.setDataSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3")
         player?.setDataSource(file.absolutePath)
