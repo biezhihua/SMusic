@@ -21,6 +21,7 @@ SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
         idLoad = mainJniEnv->GetMethodID(jClazz, "onPlayerLoadStateFromNative", "(Z)V");
         idRender = mainJniEnv->GetMethodID(jClazz, "onPlayerRenderYUVFromNative", "(II[B[B[B)V");
         idIsSupport = mainJniEnv->GetMethodID(jClazz, "isSupportMediaCodecFromNative", "(Ljava/lang/String;)Z");
+        idInitMediaCodec = mainJniEnv->GetMethodID(jClazz, "initMediaCodecFromNative", "(Ljava/lang/String;II[B[B)V");
     }
 }
 
@@ -189,5 +190,36 @@ bool SJavaMethods::isSupportMediaCodec(const char *codecName) {
     }
     LOGD(TAG, "SJavaMethods:isSupportMediaCodec codecName = %s result = %d", codecName, result);
     return result;
+}
+
+void SJavaMethods::onCallJavaInitMediaCodec(
+        const char *codecName,
+        int width,
+        int height,
+        int cds0Size,
+        uint8_t *cds0,
+        int cds1Size,
+        uint8_t *cds1
+) {
+
+    JNIEnv *jniEnv;
+    if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
+
+        jstring name = jniEnv->NewStringUTF(codecName);
+
+        jbyteArray cds0BA = jniEnv->NewByteArray(cds0Size);
+        jniEnv->SetByteArrayRegion(cds0BA, 0, cds0Size, (const jbyte *) (cds0));
+
+        jbyteArray cds1BA = jniEnv->NewByteArray(cds1Size);
+        jniEnv->SetByteArrayRegion(cds1BA, 0, cds1Size, (const jbyte *) (cds1));
+
+        jniEnv->CallVoidMethod(javaInstance, idInitMediaCodec, name, (jint) width, (jint) height, cds0BA, cds1BA);
+
+        jniEnv->DeleteLocalRef(cds0BA);
+        jniEnv->DeleteLocalRef(cds1BA);
+        jniEnv->DeleteLocalRef(name);
+
+        javaVm->DetachCurrentThread();
+    }
 }
 

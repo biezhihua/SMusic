@@ -1,13 +1,17 @@
 package com.bzh.splayer.lib
 
 import android.annotation.SuppressLint
+import android.media.MediaCodec
+import android.media.MediaFormat
 import android.os.Looper
 import android.util.Log
+import android.view.Surface
 import androidx.annotation.Keep
 import androidx.annotation.WorkerThread
 import androidx.arch.core.executor.ArchTaskExecutor
 import com.bzh.splayer.lib.annotations.CalledByNative
 import com.bzh.splayer.lib.opengl.SGLSurfaceView
+import java.nio.ByteBuffer
 
 @Suppress("unused")
 @SuppressLint("RestrictedApi")
@@ -19,9 +23,15 @@ class SPlayer {
         CENTER(2)
     }
 
+    var mediaFormat: MediaFormat? = null
+
+    var mediaCodec: MediaCodec? = null
+
     var listener: IPlayerListener? = null
 
     var surfaceView: SGLSurfaceView? = null
+
+    var surface: Surface? = null;
 
     fun create() {
         Log.d(TAG, "create() called")
@@ -227,6 +237,32 @@ class SPlayer {
     @Keep
     fun isSupportMediaCodecFromNative(codecName: String): Boolean {
         return Utils.isSupportCodec(codecName)
+    }
+
+    @WorkerThread
+    @CalledByNative
+    @Keep
+    fun initMediaCodecFromNative(codecName: String, width: Int, height: Int, csd0: ByteArray, cds1: ByteArray) {
+        val mime = Utils.findVideoCodecName(codecName)
+        mediaFormat = MediaFormat.createVideoFormat(mime, width, height)
+        mediaFormat?.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, width * height)
+        mediaFormat?.setByteBuffer("csd-0", ByteBuffer.wrap(csd0))
+        mediaFormat?.setByteBuffer("csd-1", ByteBuffer.wrap(cds1))
+        Log.d(
+            TAG, "initMediaCodecFromNative() called with: " +
+                    "codecName = [$codecName], " +
+                    "width = [$width], " +
+                    "height = [$height], " +
+                    "csd0 = [$csd0], " +
+                    "cds1 = [$cds1]"
+        )
+        Log.d(TAG, "initMediaCodecFromNative() called with: mediaFormat = [$mediaFormat]")
+
+        if (mime != null) {
+            mediaCodec = MediaCodec.createDecoderByType(mime)
+        }
+        mediaCodec?.configure(mediaFormat, surface, null, 0)
+
     }
 
     @Keep

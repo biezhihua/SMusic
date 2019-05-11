@@ -24,6 +24,7 @@ private:
     jmethodID idLoad;
     jmethodID idRender;
     jmethodID idIsSupport;
+    jmethodID idInitMediaCodec;
 
     JNIEnv *tryLoadEnv();
 
@@ -59,7 +60,11 @@ public:
 
     bool isMainThread();
 
-    bool isSupportMediaCodec(const char * codecName);
+    bool isSupportMediaCodec(const char *codecName);
+
+    void
+    onCallJavaInitMediaCodec(const char *codecName, int width, int height, int cds0Size, uint8_t *cds0, int cds1Size,
+                             uint8_t *cds1);
 
 };
 

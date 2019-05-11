@@ -787,29 +787,39 @@ void SFFmpeg::startMediaDecode() {
     }
     if (pBSFilter == NULL) {
         LOGE(TAG, "startMediaDecode: not found filter %s", codecName);
-//        startSoftDecode();
+        startSoftDecode();
         return;
     }
     if (av_bsf_alloc(pBSFilter, &pVideoMedia->pABSContext) != 0) {
         LOGE(TAG, "startMediaDecode: alloc abs fail %s", codecName);
-//        startSoftDecode();
+        startSoftDecode();
         return;
     }
     if (avcodec_parameters_copy(pVideoMedia->pABSContext->par_in, pVideoMedia->pCodecParameters) < 0) {
         LOGE(TAG, "startMediaDecode: copy params fail %s", codecName);
         av_bsf_free(&pVideoMedia->pABSContext);
         pVideoMedia->pABSContext = NULL;
-        // startSoftDecode();
+        startSoftDecode();
         return;
     }
     if (av_bsf_init(pVideoMedia->pABSContext) != 0) {
         LOGE(TAG, "startMediaDecode: bsf init fail %s", codecName);
         av_bsf_free(&pVideoMedia->pABSContext);
         pVideoMedia->pABSContext = NULL;
-        // startSoftDecode();
+        startSoftDecode();
         return;
     }
     pVideoMedia->pABSContext->time_base_in = pVideoMedia->timeBase;
+
+    pJavaMethods->onCallJavaInitMediaCodec(
+            codecName,
+            pVideoMedia->pCodecContext->width,
+            pVideoMedia->pCodecContext->height,
+            pVideoMedia->pCodecContext->extradata_size,
+            pVideoMedia->pCodecContext->extradata,
+            pVideoMedia->pCodecContext->extradata_size,
+            pVideoMedia->pCodecContext->extradata
+    );
 
     LOGD(TAG, "SFFmpeg:startSoftDecode");
     while (pStatus->isLeastActiveState(STATE_PLAY)) {

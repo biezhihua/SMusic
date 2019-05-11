@@ -11,7 +11,7 @@ object Utils {
         codecMap["h264"] = "video/avc"
     }
 
-    private fun findVideoCodecName(codecName: String): String? = codecMap[codecName]
+    fun findVideoCodecName(codecName: String): String? = codecMap[codecName]
 
     fun isSupportCodec(mimeType: String): Boolean {
         // 获取所有支持编解码器数量
