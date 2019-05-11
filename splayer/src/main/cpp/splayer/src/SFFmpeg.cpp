@@ -301,7 +301,7 @@ int SFFmpeg::decodeFrame() {
 }
 
 
-int SFFmpeg::decodeVideo() {
+int SFFmpeg::softDecodeVideo() {
     if (pVideoMedia == NULL || pVideoQueue == NULL) {
         return S_FUNCTION_BREAK;
     }
@@ -309,7 +309,7 @@ int SFFmpeg::decodeVideo() {
     pVideoPacket = av_packet_alloc();
 
     if (pVideoPacket == NULL) {
-        LOGE(TAG, "decodeVideo: failed to allocated memory for AVPacket");
+        LOGE(TAG, "softDecodeVideo: failed to allocated memory for AVPacket");
         return S_FUNCTION_BREAK;
     }
 
@@ -325,14 +325,14 @@ int SFFmpeg::decodeVideo() {
 
     if (result != S_SUCCESS) {
         pthread_mutex_unlock(&pVideoMedia->mutex);
-        LOGE(TAG, "decodeVideo: send packet failed");
+        LOGE(TAG, "softDecodeVideo: send packet failed");
         return S_FUNCTION_CONTINUE;
     }
 
     pVideoFrame = av_frame_alloc();
     if (pVideoFrame == NULL) {
         pthread_mutex_unlock(&pVideoMedia->mutex);
-        LOGE(TAG, "decodeVideo: ailed to allocated memory for AVFrame");
+        LOGE(TAG, "softDecodeVideo: ailed to allocated memory for AVFrame");
         return S_FUNCTION_BREAK;
     }
 
@@ -342,7 +342,7 @@ int SFFmpeg::decodeVideo() {
         releasePacket(&pVideoPacket);
         releaseFrame(&pVideoFrame);
         pthread_mutex_unlock(&pVideoMedia->mutex);
-        LOGE(TAG, "decodeVideo: receive frame failed %d", result);
+        LOGE(TAG, "softDecodeVideo: receive frame failed %d", result);
         return S_FUNCTION_CONTINUE;
     }
 
@@ -352,7 +352,7 @@ int SFFmpeg::decodeVideo() {
 
         double delayTime = pVideoMedia->getDelayRenderTime(diffTime);
 
-        LOGD(TAG, "decodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
+        LOGD(TAG, "softDecodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
 
         av_usleep(static_cast<unsigned int>(delayTime * 1000000));
 
@@ -408,7 +408,7 @@ int SFFmpeg::decodeVideo() {
 
         double delayTime = pVideoMedia->getDelayRenderTime(diffTime);
 
-        LOGD(TAG, "decodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
+        LOGD(TAG, "softDecodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
 
         av_usleep(static_cast<unsigned int>(delayTime * 1000000));
 
@@ -460,6 +460,8 @@ int SFFmpeg::decodeAudio() {
     int result = avcodec_send_packet(pAudioMedia->pCodecContext, pAudioPacket);
 
     if (result != S_SUCCESS) {
+        releasePacket(&pVideoPacket);
+        releaseFrame(&pVideoFrame);
         pthread_mutex_unlock(&pAudioMedia->mutex);
         LOGE(TAG, "blockResampleAudio: send packet failed");
         return S_FUNCTION_CONTINUE;
@@ -467,6 +469,8 @@ int SFFmpeg::decodeAudio() {
 
     pAudioFrame = av_frame_alloc();
     if (pAudioFrame == NULL) {
+        releasePacket(&pVideoPacket);
+        releaseFrame(&pVideoFrame);
         pthread_mutex_unlock(&pAudioMedia->mutex);
         LOGE(TAG, "blockResampleAudio: ailed to allocated memory for AVFrame");
         return S_FUNCTION_BREAK;
@@ -712,7 +716,7 @@ void SFFmpeg::seek(int64_t millis) {
     pthread_mutex_unlock(&seekMutex);
     pStatus->moveStatusToPreState();
 
-    LOGD(TAG, "SFFmpeg:seek: seekTargetMillis=%d seekStartMillis=%f rel=%d ret=%d", (int) millis,
+    LOGD(TAG, "seek: seekTargetMillis=%d seekStartMillis=%f rel=%d ret=%d", (int) millis,
          pAudioMedia->currentTimeMillis,
          (int) rel, ret);
 }
@@ -742,6 +746,7 @@ void SFFmpeg::releasePacket(AVPacket **avPacket) {
     }
 }
 
+
 void SFFmpeg::startSoftDecode() {
     LOGD(TAG, "SFFmpeg:startSoftDecode");
     while (pStatus->isLeastActiveState(STATE_PLAY)) {
@@ -749,7 +754,7 @@ void SFFmpeg::startSoftDecode() {
             sleep();
             continue;
         }
-        int result = decodeVideo();
+        int result = softDecodeVideo();
         if (result == S_FUNCTION_BREAK) {
             while (pStatus->isLeastActiveState(STATE_PLAY)) {
                 SQueue *pAudioQueue = getAudioQueue();
@@ -767,7 +772,132 @@ void SFFmpeg::startSoftDecode() {
     }
 }
 
+// ./configure --list-bsfs
+//aac_adtstoasc		 extract_extradata	  hevc_metadata		   mp3_header_decompress    remove_extradata	     vp9_superframe
+//av1_metadata		 filter_units		  hevc_mp4toannexb	   mpeg2_metadata	    text2movsub		     vp9_superframe_split
+//chomp			 h264_metadata		  imx_dump_header	   mpeg4_unpack_bframes	    trace_headers
+//dca_core		 h264_mp4toannexb	  mjpeg2jpeg		   noise		    truehd_core
+//dump_extradata		 h264_redundant_pps	  mjpega_dump_header	   null			    vp9_metadata
+//eac3_core		 hapqa_extract		  mov2textsub		   prores_metadata	    vp9_raw_reorder
 void SFFmpeg::startMediaDecode() {
-    LOGD(TAG, "SFFmpeg:startMediaDecode");
+    LOGD(TAG, "startMediaDecode: start");
+    const char *codecName = pVideoMedia->pCodecContext->codec->name;
+    if (strcasecmp(codecName, "h264") == 0) {
+        pBSFilter = av_bsf_get_by_name("h264_mp4toannexb");
+    } else if (strcasecmp(codecName, "h265") == 0) {
+        pBSFilter = av_bsf_get_by_name("hevc_mp4toannexb");
+    }
+    if (pBSFilter == NULL) {
+        LOGE(TAG, "startMediaDecode: not found filter %s", codecName);
+//        startSoftDecode();
+        return;
+    }
+    if (av_bsf_alloc(pBSFilter, &pVideoMedia->pABSContext) != 0) {
+        LOGE(TAG, "startMediaDecode: alloc abs fail %s", codecName);
+//        startSoftDecode();
+        return;
+    }
+    if (avcodec_parameters_copy(pVideoMedia->pABSContext->par_in, pVideoMedia->pCodecParameters) < 0) {
+        LOGE(TAG, "startMediaDecode: copy params fail %s", codecName);
+        av_bsf_free(&pVideoMedia->pABSContext);
+        pVideoMedia->pABSContext = NULL;
+        // startSoftDecode();
+        return;
+    }
+    if (av_bsf_init(pVideoMedia->pABSContext) != 0) {
+        LOGE(TAG, "startMediaDecode: bsf init fail %s", codecName);
+        av_bsf_free(&pVideoMedia->pABSContext);
+        pVideoMedia->pABSContext = NULL;
+        // startSoftDecode();
+        return;
+    }
+    pVideoMedia->pABSContext->time_base_in = pVideoMedia->timeBase;
+
+    LOGD(TAG, "SFFmpeg:startSoftDecode");
+    while (pStatus->isLeastActiveState(STATE_PLAY)) {
+        if (pStatus->isPause()) {
+            sleep();
+            continue;
+        }
+        int result = mediaDecodeVideo();
+        if (result == S_FUNCTION_BREAK) {
+            while (pStatus->isLeastActiveState(STATE_PLAY)) {
+                SQueue *pAudioQueue = getAudioQueue();
+                SQueue *pVideoQueue = getVideoQueue();
+                if ((pAudioQueue != NULL && pAudioQueue->getSize() > 0) ||
+                    (pVideoQueue != NULL && pVideoQueue->getSize() > 0)) {
+                    sleep();
+                    continue;
+                } else {
+                    pStatus->moveStatusToPreComplete();
+                    break;
+                }
+            }
+        }
+    }
 }
 
+int SFFmpeg::mediaDecodeVideo() {
+    if (pVideoMedia == NULL || pVideoQueue == NULL) {
+        return S_FUNCTION_BREAK;
+    }
+
+    pVideoPacket = av_packet_alloc();
+
+    if (pVideoPacket == NULL) {
+        LOGE(TAG, "mediaDecodeVideo: failed to allocated memory for AVPacket");
+        return S_FUNCTION_BREAK;
+    }
+
+    if (getVideoAvPacketFromAudioQueue(pVideoPacket) == S_ERROR) {
+        releasePacket(&pVideoPacket);
+        releaseFrame(&pVideoFrame);
+        return S_FUNCTION_CONTINUE;
+    }
+
+    pthread_mutex_lock(&pVideoMedia->mutex);
+
+    int result = av_bsf_send_packet(pVideoMedia->pABSContext, pVideoPacket);
+
+    if (result != S_SUCCESS) {
+        releasePacket(&pVideoPacket);
+        releaseFrame(&pVideoFrame);
+        pthread_mutex_unlock(&pVideoMedia->mutex);
+        LOGE(TAG, "mediaDecodeVideo: send packet failed");
+        return S_FUNCTION_CONTINUE;
+    }
+
+    result = av_bsf_receive_packet(pVideoMedia->pABSContext, pVideoPacket);
+    if (result != 0) {
+        releasePacket(&pVideoPacket);
+        releaseFrame(&pVideoFrame);
+        pthread_mutex_unlock(&pVideoMedia->mutex);
+        LOGE(TAG, "mediaDecodeVideo: receive packet failed");
+        return S_FUNCTION_CONTINUE;
+    }
+
+    LOGD(TAG, "mediaDecodeVideo: ing");
+
+//    pVideoFrame = av_frame_alloc();
+//    if (pVideoFrame == NULL) {
+//        pthread_mutex_unlock(&pVideoMedia->mutex);
+//        LOGE(TAG, "mediaDecodeVideo: ailed to allocated memory for AVFrame");
+//        return S_FUNCTION_BREAK;
+//    }
+//
+//    result = avcodec_receive_frame(pVideoMedia->pCodecContext, pVideoFrame);
+//
+//    if (result != S_SUCCESS) {
+//        releasePacket(&pVideoPacket);
+//        releaseFrame(&pVideoFrame);
+//        pthread_mutex_unlock(&pVideoMedia->mutex);
+//        LOGE(TAG, "mediaDecodeVideo: receive frame failed %d", result);
+//        return S_FUNCTION_CONTINUE;
+//    }
+//
+//    releaseFrame(&pVideoFrame);
+    releasePacket(&pVideoPacket);
+    pthread_mutex_unlock(&pVideoMedia->mutex);
+
+    return S_SUCCESS;
+}

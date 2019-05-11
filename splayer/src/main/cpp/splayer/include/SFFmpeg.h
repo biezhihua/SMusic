@@ -51,6 +51,9 @@ private:
 
     int channelSampleNumbers = 0;
 
+    const AVBitStreamFilter *pBSFilter = NULL;
+
+
 public:
 
     SFFmpeg(SStatus *pStatus, SJavaMethods *pJavaMethods);
@@ -63,7 +66,9 @@ public:
 
     int decodeFrame();
 
-    int decodeVideo();
+    int softDecodeVideo();
+
+    int mediaDecodeVideo();
 
     int decodeAudio();
 

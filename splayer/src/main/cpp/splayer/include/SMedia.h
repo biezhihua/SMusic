@@ -33,6 +33,8 @@ public:
     AVCodecParameters *pCodecParameters = NULL;
     AVCodecContext *pCodecContext = NULL;
 
+    AVBSFContext *pABSContext = NULL;
+
 public:
 
     SMedia(int streamIndex, AVCodec *pCodec, AVCodecParameters *pCodecParameters);
