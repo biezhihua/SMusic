@@ -249,7 +249,6 @@ int SFFmpeg::decodeFrame() {
                        pVideoMedia == NULL &&
                        pAudioQueue != NULL &&
                        pAudioQueue->getSize() > CACHE_SIZE;
-
     bool isOnlyVideo = pAudioMedia == NULL &&
                        pVideoMedia != NULL &&
                        pVideoQueue != NULL &&

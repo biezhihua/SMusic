@@ -23,6 +23,7 @@ private:
     jmethodID idComplete;
     jmethodID idLoad;
     jmethodID idRender;
+    jmethodID idIsSupport;
 
     JNIEnv *tryLoadEnv();
 
@@ -57,6 +58,8 @@ public:
     void onCallJavaRenderYUVFromThread(int width, int height, uint8_t *y, uint8_t *u, uint8_t *v);
 
     bool isMainThread();
+
+    bool isSupportMediaCodec(const char * codecName);
 
 };
 

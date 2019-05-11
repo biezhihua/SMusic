@@ -222,6 +222,13 @@ class SPlayer {
         surfaceView?.updateYUVData(width, height, y, u, v)
     }
 
+    @WorkerThread
+    @CalledByNative
+    @Keep
+    fun isSupportMediaCodecFromNative(codecName: String): Boolean {
+        return Utils.isSupportCodec(codecName)
+    }
+
     @Keep
     private external fun nativeSetSource(source: String)
 
@@ -282,6 +289,7 @@ class SPlayer {
      */
     @Keep
     private external fun nativeGetCurrentPitch(): Double
+
 
     companion object {
 

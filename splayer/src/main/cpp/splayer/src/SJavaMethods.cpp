@@ -20,6 +20,7 @@ SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
         idComplete = mainJniEnv->GetMethodID(jClazz, "onPlayerCompleteFromNative", "()V");
         idLoad = mainJniEnv->GetMethodID(jClazz, "onPlayerLoadStateFromNative", "(Z)V");
         idRender = mainJniEnv->GetMethodID(jClazz, "onPlayerRenderYUVFromNative", "(II[B[B[B)V");
+        idIsSupport = mainJniEnv->GetMethodID(jClazz, "isSupportMediaCodecFromNative", "(Ljava/lang/String;)Z");
     }
 }
 
@@ -175,5 +176,18 @@ void SJavaMethods::onCallJavaRenderYUVFromThread(int width, int height, uint8_t 
 
         javaVm->DetachCurrentThread();
     }
+}
+
+bool SJavaMethods::isSupportMediaCodec(const char *codecName) {
+
+    JNIEnv *jniEnv;
+    LOGD(TAG, "SJavaMethods:isSupportMediaCodec %s", codecName);
+    if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
+        jstring name = jniEnv->NewStringUTF(codecName);
+        jniEnv->CallBooleanMethod(javaInstance, idIsSupport, name);
+        javaVm->DetachCurrentThread();
+        jniEnv->DeleteLocalRef(name);
+    }
+    return false;
 }
 
