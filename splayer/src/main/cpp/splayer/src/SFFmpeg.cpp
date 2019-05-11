@@ -245,10 +245,23 @@ int SFFmpeg::decodeFrame() {
         return S_FUNCTION_BREAK;
     }
 
-    bool isOnlyAudio = pAudioMedia != NULL && pVideoMedia == NULL && pAudioQueue != NULL && pAudioQueue->getSize() > 40;
-    bool isOnlyVideo = pAudioMedia == NULL && pVideoMedia != NULL && pVideoQueue != NULL && pVideoQueue->getSize() > 40;
-    bool isAudioAndVideo = pAudioMedia != NULL && pAudioQueue != NULL && pVideoMedia != NULL && pVideoQueue != NULL &&
-                           pAudioQueue->getSize() > 40 && pVideoQueue->getSize() > 40;
+    bool isOnlyAudio = pAudioMedia != NULL &&
+                       pVideoMedia == NULL &&
+                       pAudioQueue != NULL &&
+                       pAudioQueue->getSize() > CACHE_SIZE;
+
+    bool isOnlyVideo = pAudioMedia == NULL &&
+                       pVideoMedia != NULL &&
+                       pVideoQueue != NULL &&
+                       pVideoQueue->getSize() > CACHE_SIZE;
+
+    bool isAudioAndVideo = pAudioMedia != NULL &&
+                           pAudioQueue != NULL &&
+                           pVideoMedia != NULL &&
+                           pVideoQueue != NULL &&
+                           pAudioQueue->getSize() > CACHE_SIZE &&
+                           pVideoQueue->getSize() > CACHE_SIZE;
+
     if (isOnlyAudio || isOnlyVideo || isAudioAndVideo) {
         sleep();
         LOGE(TAG, "decodeFrame: Size OverFlow Sleep");

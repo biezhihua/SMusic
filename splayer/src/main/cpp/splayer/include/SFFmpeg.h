@@ -2,6 +2,8 @@
 #define SPLAYER_S_FFMPEG_H
 
 
+static const int CACHE_SIZE = 40;
+
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
