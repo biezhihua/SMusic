@@ -11,6 +11,7 @@ import androidx.annotation.WorkerThread
 import androidx.arch.core.executor.ArchTaskExecutor
 import com.bzh.splayer.lib.annotations.CalledByNative
 import com.bzh.splayer.lib.opengl.SGLSurfaceView
+import com.bzh.splayer.lib.opengl.SRender
 import java.nio.ByteBuffer
 
 @Suppress("unused")
@@ -32,6 +33,17 @@ class SPlayer {
     var listener: IPlayerListener? = null
 
     var surfaceView: SGLSurfaceView? = null
+        set(value) {
+            value?.render?.surfaceListener = object : SRender.OnSurfaceListener {
+
+                override fun onSurfaceCreate(s: Surface?) {
+                    if (s != null) {
+                        surface = s
+                    }
+                }
+            }
+            field = value
+        }
 
     var surface: Surface? = null
 
@@ -191,7 +203,7 @@ class SPlayer {
     @Keep
     fun onPlayerTimeFromNative(totalTime: Int, currentTime: Int) {
         ArchTaskExecutor.getMainThreadExecutor().execute {
-            Log.d(TAG, "onPlayerTimeFromNative() called $totalTime $currentTime")
+            //            Log.d(TAG, "onPlayerTimeFromNative() called $totalTime $currentTime")
             listener?.onTime(totalTime, currentTime)
         }
     }
@@ -231,6 +243,7 @@ class SPlayer {
     @CalledByNative
     @Keep
     fun onPlayerRenderYUVFromNative(width: Int, height: Int, y: ByteArray, u: ByteArray, v: ByteArray) {
+        surfaceView?.render?.renderType = SRender.RenderType.SOFT
         surfaceView?.updateYUVData(width, height, y, u, v)
     }
 
@@ -246,6 +259,7 @@ class SPlayer {
     @Keep
     fun initMediaCodecFromNative(codecName: String, width: Int, height: Int, csd0: ByteArray, cds1: ByteArray) {
         if (surface != null) {
+            surfaceView?.render?.renderType = SRender.RenderType.MEDIA
             val mime = Utils.findVideoCodecName(codecName)
             mediaFormat = MediaFormat.createVideoFormat(mime, width, height)
             mediaFormat?.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, width * height)
@@ -274,10 +288,10 @@ class SPlayer {
     @CalledByNative
     @Keep
     fun mediaCodecDecodeAvPacketFromNative(dataSize: Int, data: ByteArray?) {
-        if (surface != null && dataSize > 0 && data != null) {
+        if (mediaCodec != null && surface != null && dataSize > 0 && data != null) {
             val inputBufferIndex = mediaCodec?.dequeueInputBuffer(10)
             if (inputBufferIndex != null && inputBufferIndex >= 0) {
-                val byte = mediaCodec?.outputBuffers?.get(inputBufferIndex)
+                val byte = mediaCodec?.inputBuffers?.get(inputBufferIndex)
                 byte?.clear()
                 byte?.put(data)
                 mediaCodec?.queueInputBuffer(inputBufferIndex, 0, dataSize, 0, 0)
@@ -292,6 +306,16 @@ class SPlayer {
                 }
             }
         }
+    }
+
+    @WorkerThread
+    @CalledByNative
+    @Keep
+    fun mediaCodecReleaseFromNative() {
+        mediaCodec?.flush()
+        mediaCodec?.stop()
+        mediaCodec?.release()
+        mediaCodec = null
     }
 
     @Keep
@@ -354,7 +378,6 @@ class SPlayer {
      */
     @Keep
     private external fun nativeGetCurrentPitch(): Double
-
 
     companion object {
 

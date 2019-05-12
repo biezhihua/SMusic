@@ -230,7 +230,7 @@ void SJavaMethods::onCallJavaMediaCodecDecodeAvPacket(int dataSize, uint8_t *dat
     if (javaVm->AttachCurrentThread(&jniEnv, 0) == JNI_OK) {
         jbyteArray ba = jniEnv->NewByteArray(dataSize);
         jniEnv->SetByteArrayRegion(ba, 0, dataSize, (const jbyte *) (data));
-        jniEnv->CallVoidMethod(javaInstance, idMediaCodecDecodeAvPacke, dataSize, data);
+        jniEnv->CallVoidMethod(javaInstance, idMediaCodecDecodeAvPacke, dataSize, ba);
         jniEnv->DeleteLocalRef(ba);
         javaVm->DetachCurrentThread();
     }

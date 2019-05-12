@@ -1,3 +1,5 @@
+// 顶点着色器
+
 attribute vec4 av_Position;
 attribute vec2 af_Position;
 varying vec2 v_texPosition;

@@ -7,13 +7,18 @@ import android.util.AttributeSet
 class SGLSurfaceView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
     GLSurfaceView(context, attrs) {
 
-    private val render: SRender?
+    val render: SRender?
 
     init {
         setEGLContextClientVersion(2)
         render = SRender(context)
         setRenderer(render)
-        renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
+        renderMode = RENDERMODE_WHEN_DIRTY
+        render.renderListener = object : SRender.OnRenderListener {
+            override fun onRender() {
+                requestRender()
+            }
+        }
     }
 
     fun updateYUVData(width: Int, height: Int, y: ByteArray, u: ByteArray, v: ByteArray) {

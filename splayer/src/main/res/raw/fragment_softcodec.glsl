@@ -1,3 +1,5 @@
+// 片段着色器
+
 precision mediump float;
 varying vec2 v_texPosition;
 uniform sampler2D texture_y;
