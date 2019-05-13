@@ -190,7 +190,7 @@ bool SJavaMethods::isSupportMediaCodec(const char *codecName) {
         javaVm->DetachCurrentThread();
     }
     LOGD(TAG, "SJavaMethods:isSupportMediaCodec codecName = %s result = %d", codecName, result);
-    return result;
+    return false;
 }
 
 void SJavaMethods::onCallJavaInitMediaCodec(
