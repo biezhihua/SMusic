@@ -258,6 +258,14 @@ class SPlayer {
     @CalledByNative
     @Keep
     fun initMediaCodecFromNative(codecName: String, width: Int, height: Int, csd0: ByteArray, cds1: ByteArray) {
+        Log.d(
+            TAG, "initMediaCodecFromNative() called with: " +
+                    "codecName = [$codecName], " +
+                    "width = [$width], " +
+                    "height = [$height], " +
+                    "csd0 = [$csd0], " +
+                    "cds1 = [$cds1]"
+        )
         if (surface != null) {
             surfaceView?.render?.renderType = SRender.RenderType.MEDIA
             val mime = Utils.findVideoCodecName(codecName)
@@ -265,14 +273,7 @@ class SPlayer {
             mediaFormat?.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, width * height)
             mediaFormat?.setByteBuffer("csd-0", ByteBuffer.wrap(csd0))
             mediaFormat?.setByteBuffer("csd-1", ByteBuffer.wrap(cds1))
-            Log.d(
-                TAG, "initMediaCodecFromNative() called with: " +
-                        "codecName = [$codecName], " +
-                        "width = [$width], " +
-                        "height = [$height], " +
-                        "csd0 = [$csd0], " +
-                        "cds1 = [$cds1]"
-            )
+
             Log.d(TAG, "initMediaCodecFromNative() called with: mediaFormat = [$mediaFormat]")
 
             if (mime != null) {
@@ -288,23 +289,24 @@ class SPlayer {
     @CalledByNative
     @Keep
     fun mediaCodecDecodeAvPacketFromNative(dataSize: Int, data: ByteArray?) {
+        Log.d(TAG, "mediaCodecDecodeAvPacketFromNative() called with: dataSize = [$dataSize], data = [$data]")
         if (mediaCodec != null && surface != null && dataSize > 0 && data != null) {
-            val inputBufferIndex = mediaCodec?.dequeueInputBuffer(10)
-            if (inputBufferIndex != null && inputBufferIndex >= 0) {
-                val byte = mediaCodec?.inputBuffers?.get(inputBufferIndex)
-                byte?.clear()
-                byte?.put(data)
-                mediaCodec?.queueInputBuffer(inputBufferIndex, 0, dataSize, 0, 0)
-            }
-
-            bufferInfo = MediaCodec.BufferInfo()
-            if (bufferInfo != null) {
-                var outputBufferIndex = mediaCodec?.dequeueOutputBuffer(bufferInfo, 10)
-                while (outputBufferIndex != null && outputBufferIndex >= 0) {
-                    mediaCodec?.releaseOutputBuffer(outputBufferIndex, true)
-                    outputBufferIndex = mediaCodec?.dequeueOutputBuffer(bufferInfo, 10)
-                }
-            }
+//            val inputBufferIndex = mediaCodec?.dequeueInputBuffer(10000)
+//            if (inputBufferIndex != null && inputBufferIndex >= 0) {
+//                val byte = mediaCodec?.inputBuffers?.get(inputBufferIndex)
+//                byte?.clear()
+//                byte?.put(data)
+//                mediaCodec?.queueInputBuffer(inputBufferIndex, 0, dataSize, 0, 0)
+//            }
+//
+//            bufferInfo = MediaCodec.BufferInfo()
+//            if (bufferInfo != null) {
+//                var outputBufferIndex = mediaCodec?.dequeueOutputBuffer(bufferInfo!!, 10)
+//                while (outputBufferIndex != null && outputBufferIndex >= 0) {
+//                    mediaCodec?.releaseOutputBuffer(outputBufferIndex, true)
+//                    outputBufferIndex = mediaCodec?.dequeueOutputBuffer(bufferInfo!!, 10)
+//                }
+//            }
         }
     }
 
