@@ -1,0 +1,49 @@
+@startuml
+autonumber
+
+IjkMediaPlayer [#000000]-> ijkplayer_jni:native_setup\n设置环境
+
+
+ijkplayer_jni [#FF0000]-> ijkplayer_android:ijkmp_android_create(message_loop)\n创建MediaPlayer，并设置消息循环\nmessage_loop()
+
+ijkplayer_android [#FF0000]-> ijkplayer:ijkmp_create(message_loop)\nmessage_loop()
+
+ijkplayer [#FF0000]-> ffp_create:ffp_create()
+
+ijkplayer [#FF0000]-> ff_ffmsg_queue:msg_queue_init()\n 消息队列初始化
+
+ijkplayer [#FF0000]-> ff_ffplay_def:ffp_reset_internal() \n 设置FFPlayer的默认参数
+
+ijkplayer [#FF0000]-> ijkmeta:ijkmeta_create() \n 创建元数据
+
+
+ijkplayer_android [#FF0000]-> ijksdl_vout_android_surface:SDL_VoutAndroid_CreateForAndroidSurface() \n 创建图像输出表面
+
+ijkplayer_android [#FF0000]-> ffpipeline_android:ffpipeline_create_from_android()\n创建输出管道\nfunc_destroy\nfunc_open_video_decoder\nfunc_open_audio_output\nfunc_open_audio_output\nfunc_config_video_decoder
+
+ffpipeline_android [#FF0000]-> ff_ffpipeline:ffpipeline_alloc()
+
+ijkplayer_android [#FF0000]-> ffpipeline_android:ffpipeline_set_vout()
+
+
+ijkplayer_jni [#000000]-> ijkplayer_jni:jni_set_media_player()
+
+ijkplayer_jni [#000000]-> IjkMediaPlayer:mNativeMediaPlayer
+
+
+ijkplayer_jni [#000000]-> ijkplayer_jni:ijkmp_set_weak_thiz()\n设置IjkMediaPlayer引用
+
+ijkplayer_jni [#FF0000]-> ijkplayer:ijkmp_set_inject_opaque()
+
+ijkplayer_jni [#FF0000]-> ijkplayer:ijkmp_set_ijkio_inject_opaque()
+
+ijkplayer [#FF0000]-> ff_ffplay:ffp_set_ijkio_inject_opaque()
+
+ff_ffplay [#FF0000]-> ijkiomananger:ijkio_manager_create()
+
+ijkplayer_jni [#FF0000]-> ijkplayer_android:ijkmp_android_set_mediacodec_select_callback()\n设置硬解码选择回调方法mediacodec_select_callback()
+
+ijkplayer_android [#FF0000]-> ffpipeline_android:ffpipeline_set_mediacodec_select_callback()\n设置硬解码选择回调方法mediacodec_select_callback()
+
+
+@enduml
