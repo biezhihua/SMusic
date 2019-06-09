@@ -1,0 +1,12 @@
+@startuml
+autonumber
+
+IjkMediaPlayer [#000000]-> IjkMediaPlayer:unLoadLibrary()\nSo卸载时
+
+System [#FF0000]-> ijkplayer_jni:JNI_OnUnload()\n卸载SO时触发OnUnLoad
+
+ijkplayer_jni [#FF0000]-> ijkplayer:ijkmp_global_uninit()\n反初始化
+
+ijkplayer [#FF0000]-> ff_ffplay:ffp_global_uninit()
+
+@enduml
