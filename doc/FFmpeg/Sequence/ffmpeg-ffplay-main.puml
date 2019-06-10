@@ -1,0 +1,91 @@
+@startuml
+autonumber
+
+ffplay-> ffplay: main()
+
+ffplay [#red]-> ffplay: avformt_network_init()
+
+ffplay -> ffplay: show_banner()
+
+ffplay -> cmdutils:parse_options()
+
+    group parse_options
+
+        cmdutils -> cmdutils:parse_option()
+
+        cmdutils -> cmdutils:find_option()
+
+        cmdutils -> cmdutils:write_option()
+    end
+
+ffplay [#blue]-> SDL:SDL_Init()
+
+ffplay [#red]-> avpacket:av_init_packet()
+
+ffplay [#blue]-> SDL:SDL_CreateWindow()
+
+ffplay [#blue]-> SDL:SDL_CreateRenderer()
+
+== Video/Audio Media ==
+
+ffplay -> ffplay: stream_open()
+
+    group stream_open
+
+    ffplay -> ffplay: frame_queue_init()
+
+    ffplay -> ffplay: packet_queue_init()
+
+    ffplay -> ffplay: init_clock()
+
+    ffplay -> ffplay: read_thread()
+
+    end
+
+== Event ==
+
+ffplay -> ffplay: event_loop()
+
+loop event_loop
+
+    ffplay -> ffplay: refresh_loop_wait_event()
+
+    ffplay [#blue]-> SDL: SDL_PumpEvents()
+
+    ffplay [#blue]-> SDL: SDL_PeepEvents()
+
+    ffplay [#red]-> time: av_usleep()
+
+    ffplay -> ffplay: video_refresh()
+
+    group video_refresh
+
+        ffplay -> ffplay: video_display()
+
+        group video_display
+
+            ffplay -> ffplay: video_open()
+
+            ffplay -> ffplay: video_audio_display()
+
+            ffplay -> ffplay: video_image_display()
+
+            group video_image_display
+
+                ffplay -> ffplay: frame_queue_peek_last()
+
+                ffplay -> ffplay: calculate_display_rect()
+
+                ffplay -> ffplay: upload_texture()
+
+            end
+
+        end
+
+    end
+
+    ffplay -> ffplay: key - SDLK_SPACE/SDLK_9/SDLK_LEFT ...
+
+end
+
+@enduml
