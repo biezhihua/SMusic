@@ -1,0 +1,34 @@
+@startuml
+autonumber
+
+IjkMediaPlayer.java [#FF0000]-> ijkplayer_jni:release()
+
+ijkplayer_jni [#FF0000]-> ijkplayer_android:ijkmp_android_set_surface()
+
+ijkplayer_android [#000000]-> ijkplayer_android:ijkmp_android_set_surface_l()
+
+ijkplayer_android [#FF0000]-> ijksdl_vout_android_surface:SDL_VoutAndroid_SetAndroidSurface()
+
+ijkplayer_android [#FF0000]-> native_window_jni:ANativeWindow_fromSurface()
+
+ijkplayer_android [#FF0000]-> ijksdl_vout_android_nativewindow:SDL_VoutAndroid_SetNativeWindow()
+
+ijksdl_vout_android_nativewindow [#000000]-> ijksdl_vout_android_nativewindow:SDL_VoutAndroid_SetNativeWindow_l()
+
+ijkplayer_jni [#FF0000]-> ijkplayer:ijkmp_shutdown()
+
+ijkplayer [#000000]-> ijkplayer:ijkmp_shutdown_l()
+
+ijkplayer [#FF0000]-> ff_ffplay:ffp_stop_l()
+
+ijkplayer [#FF0000]-> ff_ffplay:ffp_wait_stop_l()
+
+ijkplayer [#FF0000]-> ff_ffplay:ffp_stop_l()
+
+ijkplayer [#FF0000]-> ff_ffplay:stream_close()
+
+ijkplayer_jni [#000000]-> ijkplayer_jni:jni_set_media_player()
+
+ijkplayer_jni [#000000]-> ijkplayer_jni:jni_set_media_data_source()
+
+@enduml

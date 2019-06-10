@@ -1,0 +1,10 @@
+@startuml
+autonumber
+
+IjkMediaPlayer.java [#FF0000]-> ijkplayer_jni:reset()
+
+ijkplayer_jni [#000000]-> ijkplayer_jni:IjkMediaPlayer_release()
+
+ijkplayer_jni [#000000]-> ijkplayer_jni:IjkMediaPlayer_native_setup()
+
+@enduml

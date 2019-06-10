@@ -1,0 +1,16 @@
+@startuml
+autonumber
+
+IjkMediaPlayer.java [#FF0000]-> ijkplayer_jni:start()
+
+ijkplayer_jni [#FF0000]-> ijkplayer:ijkmp_start()
+
+ijkplayer [#000000]-> ijkplayer:ijkmp_start_l()
+
+ijkplayer [#000000]-> ijkplayer:ffp_remove_msg(FFP_REQ_START)
+
+ijkplayer [#000000]-> ijkplayer:ffp_remove_msg(FFP_REQ_PAUSE)
+
+ijkplayer [#000000]-> ijkplayer:ffp_notify_msg1(FFP_REQ_START)
+
+@enduml

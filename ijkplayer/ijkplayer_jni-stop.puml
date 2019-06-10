@@ -1,0 +1,28 @@
+@startuml
+autonumber
+
+IjkMediaPlayer.java [#FF0000]-> ijkplayer_jni:stop()
+
+ijkplayer_jni [#FF0000]-> ijkplayer:ijkmp_stop()
+
+ijkplayer [#000000]-> ijkplayer:ijkmp_stop_l()
+
+ijkplayer [#000000]-> ijkplayer:ffp_remove_msg(FFP_REQ_START)
+
+ijkplayer [#000000]-> ijkplayer:ffp_remove_msg(FFP_REQ_PAUSE)
+
+ijkplayer [#FF0000]-> ff_ffplay:ffp_stop_l()
+
+ff_ffplay [#000000]-> ff_ffplay:toggle_pause()
+
+ff_ffplay [#000000]-> ff_ffplay:toggle_pause_l()
+
+ff_ffplay [#000000]-> ff_ffplay:stream_update_pause_l()
+
+ff_ffplay [#000000]-> ff_ffplay:stream_toggle_pause_l()
+
+ijkplayer [#000000]-> ijkplayer:ijkmp_change_state_l(MP_STATE_STOPPED)
+
+ff_ffplay [#000000]-> ff_ffmsg_queue:msg_queue_abort()
+
+@enduml
