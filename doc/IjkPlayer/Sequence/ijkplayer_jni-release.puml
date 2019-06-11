@@ -1,34 +1,60 @@
 @startuml
 autonumber
 
-IjkMediaPlayer.java [#FF0000]-> ijkplayer_jni:release()
+IjkMediaPlayer -> ijkplayer_jni:release()
 
-ijkplayer_jni [#FF0000]-> ijkplayer_android:ijkmp_android_set_surface()
+ijkplayer_jni -> ijkplayer_android:ijkmp_android_set_surface()
 
-ijkplayer_android [#000000]-> ijkplayer_android:ijkmp_android_set_surface_l()
+group ijkmp_android_set_surface
 
-ijkplayer_android [#FF0000]-> ijksdl_vout_android_surface:SDL_VoutAndroid_SetAndroidSurface()
+    ijkplayer_android -> ijkplayer_android:ijkmp_android_set_surface_l()
 
-ijkplayer_android [#FF0000]-> native_window_jni:ANativeWindow_fromSurface()
+    ijkplayer_android -> ijksdl_vout_android_surface:SDL_VoutAndroid_SetAndroidSurface()
 
-ijkplayer_android [#FF0000]-> ijksdl_vout_android_nativewindow:SDL_VoutAndroid_SetNativeWindow()
+    group SDL_VoutAndroid_SetAndroidSurface
 
-ijksdl_vout_android_nativewindow [#000000]-> ijksdl_vout_android_nativewindow:SDL_VoutAndroid_SetNativeWindow_l()
+        ijksdl_vout_android_surface -> native_window_jni:ANativeWindow_fromSurface()
 
-ijkplayer_jni [#FF0000]-> ijkplayer:ijkmp_shutdown()
+        ijksdl_vout_android_surface -> ijksdl_vout_android_nativewindow:SDL_VoutAndroid_SetNativeWindow()
 
-ijkplayer [#000000]-> ijkplayer:ijkmp_shutdown_l()
+        ijksdl_vout_android_nativewindow -> ijksdl_vout_android_nativewindow:SDL_VoutAndroid_SetNativeWindow_l()
 
-ijkplayer [#FF0000]-> ff_ffplay:ffp_stop_l()
+        ijksdl_vout_android_surface -> native_window_jni:ANativeWindow_release()
 
-ijkplayer [#FF0000]-> ff_ffplay:ffp_wait_stop_l()
+    end
+    ijkplayer_android -> ffpipeline_android:ffpipeline_set_surface()
 
-ijkplayer [#FF0000]-> ff_ffplay:ffp_stop_l()
 
-ijkplayer [#FF0000]-> ff_ffplay:stream_close()
+end
 
-ijkplayer_jni [#000000]-> ijkplayer_jni:jni_set_media_player()
+ijkplayer_jni -> ijkplayer:ijkmp_shutdown()
 
-ijkplayer_jni [#000000]-> ijkplayer_jni:jni_set_media_data_source()
+ijkplayer -> ijkplayer:ijkmp_shutdown_l()
+
+ijkplayer -> ff_ffplay:ffp_stop_l()
+
+ijkplayer -> ff_ffplay:ffp_wait_stop_l()
+
+ijkplayer -> ff_ffplay:stream_close()
+
+group stream_close
+
+    ff_ffplay -> ff_ffplay:packet_queue_abort()
+
+    ff_ffplay -> ff_ffplay:stream_component_close()
+
+    ff_ffplay [#red]-> utils:avformat_close_input()
+
+    ff_ffplay -> ff_ffplay:packet_queue_destroy()
+
+    ff_ffplay -> ff_ffplay:frame_queue_destory()
+
+    ff_ffplay -> ijksoundtouch_wrap:ijk_soundtouch_destroy()
+
+end
+
+ijkplayer_jni -> ijkplayer_jni:jni_set_media_player(NULL)
+
+ijkplayer_jni -> ijkplayer_jni:jni_set_media_data_source(NULL)
 
 @enduml

@@ -1,35 +1,33 @@
 @startuml
 autonumber
 
-IjkMediaPlayer [#000000]-> IjkMediaPlayer:initPlayer\n入口函数
+IjkMediaPlayer -> IjkMediaPlayer:initPlayer
 
-IjkMediaPlayer [#000000]-> IjkMediaPlayer:loadLibrariesOnce()\n加载SO库
+IjkMediaPlayer -> IjkMediaPlayer:loadLibrariesOnce(
 
-IjkMediaPlayer [#FF0000]-> System:loadLibrary("ijkplayer")\n加载SO库
+IjkMediaPlayer -> System:loadLibrary("ijkplayer")
 
-System [#FF0000]-> ijkplayer_jni:JNI_OnLoad()
+System -> ijkplayer_jni:JNI_OnLoad()
 
-ijkplayer_jni [#FF0000]-> player_fields_t:pthread_mutex_init(&g_clazz.mutex)\n初始化全局锁
+ijkplayer_jni -> JNIEnv:RegisterNatives()
+note left : Java方法注册到Native方法的映射关系
 
-ijkplayer_jni [#FF0000]-> ijksdl_android_jni:IJK_FIND_JAVA_CLASS\nIjkMediaPlayer
+ijkplayer_jni -> ijkplayer:ijkmp_global_init()
 
-ijkplayer_jni [#FF0000]-> JNIEnv:RegisterNatives()\n注册Native方法与Java方法的映射关系
+ijkplayer -> ff_ffplay:ffp_global_init()
 
-ijkplayer_jni [#FF0000]-> ijkplayer:ijkmp_global_init()\n全局初始化
+ff_ffplay [#red]-> allformats:av_register_all()
 
-ijkplayer [#FF0000]-> ff_ffplay:ffp_global_init()\n初始化FFmpeg的全局配置，\n注册编码器、解码器、网络初始化等
+ff_ffplay -> allformats:ijkav_register_all()
 
-ff_ffplay [#FF0000]-> ffmpeg_allformats:av_register_all()\n注册编解码器
+ff_ffplay [#red]-> utils:avformat_network_init()
 
-ff_ffplay [#FF0000]-> ijk_allformats:ijkav_register_all()\n 注册自定义协议
+ff_ffplay [#red]-> apacket:av_init_packet()
 
-ff_ffplay [#000000]-> ff_ffplay:av_init_packet()\n 初始化静态变量flush_pkt
+ijkplayer_jni -> ijkplayer:ijkmp_global_set_inject_callback()
 
-ijkplayer_jni [#FF0000]-> ijkplayer:ijkmp_global_set_inject_callback() \n 设置全局回调，用于在read_thread中调用
+ijkplayer -> ff_ffplay:ffp_global_set_inject_callback()
 
-ijkplayer [#FF0000]-> ff_ffplay:ffp_global_set_inject_callback()
-
-
-ijkplayer_jni [#FF0000]-> ffmpeg_api_jni:FFmpegApi_global_init()\n注册Java的av_base64_encode函数
+ijkplayer_jni -> ffmpeg_api_jni:FFmpegApi_global_init()
 
 @enduml

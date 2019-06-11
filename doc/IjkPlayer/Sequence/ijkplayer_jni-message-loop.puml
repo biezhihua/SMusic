@@ -1,0 +1,36 @@
+@startuml
+autonumber
+
+ijkplayer -> ijkplayer:ijkmp_prepare_async_l()
+
+ijkplayer -> ijkplayer:SDL_CreateThreadEx(ijkmp_msg_loop)
+
+ijkplayer -> ijkplayer_jni:message_loop()
+
+ijkplayer_jni -> ijksdl_android_jni:SDL_JNI_SetupThreadEnv()
+
+group SDL_JNI_SetupThreadEnv
+    ijksdl_android_jni -> ijksdl_android_jni:make_thread_key()
+
+    ijksdl_android_jni -> ijksdl_android_jni:pthread_key_create()
+
+    ijksdl_android_jni -> ijksdl_android_jni:pthread_once()
+
+    ijksdl_android_jni -> ijksdl_android_jni:pthread_getspecific()
+
+    ijksdl_android_jni -> JavaVM:AttachCurrentThread()
+
+    ijksdl_android_jni -> ijksdl_android_jni:pthread_setspecific()
+
+end
+ijkplayer_jni -> ijkplayer_jni:message_loop_n()
+
+ijkplayer_jni -> ijkplayer:ijkmp_get_msg()
+
+ijkplayer_jni -> ijkplayer_jni:post_event()
+
+ijkplayer_jni -> IjkMediaPlayer.java:postEventFromNative()
+
+
+
+@enduml
