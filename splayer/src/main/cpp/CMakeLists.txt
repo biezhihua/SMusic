@@ -24,11 +24,15 @@ aux_source_directory(soundtouch/src SoundTouch)
 include_directories(splayer/include)
 aux_source_directory(splayer/src SPlayer)
 
+include_directories(splayer/mutex)
+aux_source_directory(splayer/mutex Mutex)
+
 add_library(splayer SHARED
         SMainJni.cpp
         ${SPlayer}
         ${SoundTouch}
-)
+        ${Mutex}
+        )
 
 target_include_directories(splayer PRIVATE
         ${SPLAYER_ANDROID}/ffmpeg/include
