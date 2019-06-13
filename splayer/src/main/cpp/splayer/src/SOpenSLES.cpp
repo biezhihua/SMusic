@@ -157,14 +157,14 @@ int SOpenSLES::initOpenSLES() {
         return S_ERROR;
     }
 
-    // get the buffer queue interface
+    // get the buffer pQueue interface
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_BUFFERQUEUE, &bqPlayerBufferQueue);
     if (SL_RESULT_SUCCESS != result) {
         LOGE(TAG, "SOpenSLES: init: bqPlayerObject GetInterface SL_IID_BUFFERQUEUE failed");
         return S_ERROR;
     }
 
-    // register callback on the buffer queue
+    // register callback on the buffer pQueue
     result = (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback, this);
     if (SL_RESULT_SUCCESS != result) {
         LOGE(TAG, "SOpenSLES: init: bqPlayerBufferQueue RegisterCallback failed");

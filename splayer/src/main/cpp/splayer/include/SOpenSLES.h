@@ -47,10 +47,10 @@ public:
     SLObjectItf outputMixObject = NULL;
     SLEnvironmentalReverbItf outputMixEnvironmentalReverb = NULL;
 
-    // aux effect on the output mix, used by the buffer queue player
+    // aux effect on the output mix, used by the buffer pQueue player
     const SLEnvironmentalReverbSettings reverbSettings = SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR;
 
-    // buffer queue player interfaces
+    // buffer pQueue player interfaces
     SLObjectItf bqPlayerObject = NULL;
     SLPlayItf bqPlayerPlay;
     SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue;

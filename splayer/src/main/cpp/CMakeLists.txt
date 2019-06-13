@@ -24,14 +24,14 @@ aux_source_directory(soundtouch/src SoundTouch)
 include_directories(splayer/include)
 aux_source_directory(splayer/src SPlayer)
 
-include_directories(splayer/mutex)
-aux_source_directory(splayer/mutex Mutex)
+include_directories(splayer/utils)
+aux_source_directory(splayer/utils Utils)
 
 add_library(splayer SHARED
         SMainJni.cpp
         ${SPlayer}
         ${SoundTouch}
-        ${Mutex}
+        ${Utils}
         )
 
 target_include_directories(splayer PRIVATE

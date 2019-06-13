@@ -16,15 +16,9 @@ private:
     pthread_cond_t cond;
 
 public:
-    Mutex() {
-        pthread_mutex_init(&mutex, NULL);
-        pthread_cond_init(&cond, NULL);
-    }
+    Mutex();
 
-    ~Mutex() {
-        pthread_cond_destroy(&cond);
-        pthread_mutex_destroy(&mutex);
-    }
+    ~Mutex();
 
     /**
      * lock a mutex

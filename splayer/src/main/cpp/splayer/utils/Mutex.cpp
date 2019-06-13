@@ -49,3 +49,13 @@ int Mutex::condWaitTimeout(uint32_t ms) {
 int Mutex::condWait() {
     return pthread_cond_wait(&cond, &mutex);
 }
+
+Mutex::~Mutex() {
+    pthread_cond_destroy(&cond);
+    pthread_mutex_destroy(&mutex);
+}
+
+Mutex::Mutex() {
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&cond, NULL);
+}
