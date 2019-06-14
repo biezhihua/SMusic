@@ -21,8 +21,8 @@ include_directories(soundtouch/include soundtouch/src)
 aux_source_directory(soundtouch/src SoundTouch)
 
 # SPlayer
-include_directories(splayer/include)
-aux_source_directory(splayer/src SPlayer)
+include_directories(splayer/main)
+aux_source_directory(splayer/main SPlayer)
 
 include_directories(splayer/utils)
 aux_source_directory(splayer/utils Utils)

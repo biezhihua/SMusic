@@ -1,0 +1,3 @@
+@startuml
+Alice <-- Bob: another authentication Response
+@enduml

@@ -27,27 +27,27 @@ public:
     ~MessageQueue();
 
     /**
-     * Push Message To Queue
+     * push message to queue
      */
     int put(Message *msg);
 
     /**
-     * Get First Message From Queue
+     * get first message from queue, will block thread
      */
     int get(Message *msg, bool block);
 
     /**
-     * Remove Message By What
+     * remove message by what
      */
     void remove(int what);
 
     /**
-     * Abort Message Queue
+     * abort message queue
      */
     void setAbortRequest(bool abortRequest);
 
     /**
-     * Clear Queue
+     * clear queue
      */
     void clear();
 
