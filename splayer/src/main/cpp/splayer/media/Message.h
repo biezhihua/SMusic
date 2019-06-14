@@ -1,8 +1,7 @@
 #ifndef SPLAYER_MESSAGE_H
 #define SPLAYER_MESSAGE_H
 
-class Message
-{
+class Message {
 public:
     Message();
 

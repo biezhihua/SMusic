@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <pthread.h>
+#include <AndroidMediaPlayer.h>
 #include "splayer/main/SLog.h"
 #include "splayer/main/SPlayer.h"
 #include "splayer/main/SJavaMethods.h"
@@ -11,7 +12,7 @@ JavaVM *sJavaVM = NULL;
 SPlayer *sPlayer = NULL;
 SStatus *sStatus = NULL;
 SJavaMethods *sJavaMethods = NULL;
-
+MediaPlayer *mediaPlayer = NULL;
 #define TAG "Native_MainJni"
 
 // Destroy Instance
@@ -66,7 +67,11 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeCreate(
             sJavaMethods->onCallJavaCreate();
         }
     }
+
+    mediaPlayer = new AndroidMediaPlayer();
 }
+
+
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_bzh_splayer_lib_SPlayer_nativeStart(JNIEnv *env, jobject instance) {
@@ -131,6 +136,8 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeDestroy
             sIsExiting = true;
         }
     }
+    delete mediaPlayer;
+    mediaPlayer = NULL;
 }
 
 extern "C" JNIEXPORT jint JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeGetTotalTimeMillis(JNIEnv *env,

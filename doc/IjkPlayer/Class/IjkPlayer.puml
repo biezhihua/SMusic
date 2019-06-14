@@ -1,3 +1,65 @@
 @startuml
-Alice <-- Bob: another authentication Response
+
+class IjkMediaPlayer {
+
+    pthread_mutex_t mutex;
+
+    void weak_thiz;
+
+    fun message_loop;
+
+    char data_source;
+
+    int mp_state;
+
+    int ref_count;
+
+    int restart;
+    int restart_from_beginning;
+
+    int seek_req;
+    long seek_msec;
+
+    #SDL_Thread msg_thread;
+
+    #FFPlayer *ffplayer;
+
+}
+
+class SDL_Thread {
+
+    pthread_t id;
+    fun func;
+    void data;
+    char name;
+    int retval;
+
+    CreateThreadEx();
+    SetThreadPriority();
+    WaitThread();
+    DetachThread();
+}
+
+class FFPlayer {
+    AVClass av_class;
+
+    VideoState is;
+
+    ShowMode show_mode;
+
+    #SDL_Aout aout;
+    #SDL_Vout vout;
+    #IJKFFPipeline pipeline;
+    #IJKFFPipenode node_vdec;
+
+    MessageQueue msg_queue;
+    IjkMediaMeta meta;
+
+}
+
+IjkMediaPlayer *-- FFPlayer
+IjkMediaPlayer *-- SDL_Thread
+
+FFPlayer *-- AVClass
+FFPlayer *-- VideoStat
 @enduml

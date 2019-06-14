@@ -17,21 +17,25 @@ add_library(openssl_ssl STATIC IMPORTED)
 set_target_properties(openssl_ssl PROPERTIES IMPORTED_LOCATION ${SPLAYER_ANDROID}/openssl/lib/${ANDROID_ABI}/libssl.a)
 
 # SoundTouch
-include_directories(soundtouch/include soundtouch/src)
-aux_source_directory(soundtouch/src SoundTouch)
+include_directories(soundtouch)
+aux_source_directory(soundtouch soundtouch)
 
 # SPlayer
 include_directories(splayer/main)
-aux_source_directory(splayer/main SPlayer)
+aux_source_directory(splayer/main splayer)
 
-include_directories(splayer/utils)
-aux_source_directory(splayer/utils Utils)
+include_directories(splayer/media)
+aux_source_directory(splayer/media media)
+
+include_directories(splayer/android)
+aux_source_directory(splayer/android android)
 
 add_library(splayer SHARED
         SMainJni.cpp
-        ${SPlayer}
-        ${SoundTouch}
-        ${Utils}
+        ${splayer}
+        ${soundtouch}
+        ${media}
+        ${android}
         )
 
 target_include_directories(splayer PRIVATE

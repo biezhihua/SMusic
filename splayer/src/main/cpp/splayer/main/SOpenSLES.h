@@ -9,7 +9,7 @@
 #include "SFFmpeg.h"
 #include <pthread.h>
 
-#include "SoundTouch.h"
+#include "../../soundtouch/SoundTouch.h"
 
 using namespace soundtouch;
 
