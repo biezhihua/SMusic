@@ -8,6 +8,7 @@
 #include "RefCount.h"
 #include "Pipeline.h"
 #include "State.h"
+#include "Thread.h"
 
 class MediaPlayer {
 
@@ -16,7 +17,8 @@ private:
     Mutex *pMutex = nullptr;
     FFPlay *pPlay = nullptr;
     static RefCount refCount;
-    string *pDataSource = nullptr;
+    char *pDataSource = nullptr;
+    Thread *pMsgThread = nullptr;
 
 private:
     void notifyMsg1(int what);
@@ -54,7 +56,9 @@ public:
 
     virtual int setDataSource(const char *url);
 
+    virtual int prepareAsync();
 
+    int messageLoop();
 };
 
 

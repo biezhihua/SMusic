@@ -30,6 +30,13 @@ public:
 
     MessageQueue *getMsgQueue() const;
 
+    int stop();
+
+    int shutdown();
+
+    int waitStop();
+
+    int prepareAsync(const char* fileName);
 };
 
 

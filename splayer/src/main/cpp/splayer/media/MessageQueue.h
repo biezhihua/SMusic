@@ -54,7 +54,7 @@ public:
      */
     void clear();
 
-    void start();
+    int start();
 
     void notifyMsg1(int what);
 

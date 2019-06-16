@@ -1,6 +1,10 @@
 
 #include "MediaPlayer.h"
+#include "Thread.h"
 
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 
 MediaPlayer::MediaPlayer() {
     ALOGD(__func__);
@@ -49,26 +53,66 @@ int MediaPlayer::create() {
 
 int MediaPlayer::start() {
     ALOGD(__func__);
+    if (pPlay && pMutex) {
+        pMutex->mutexLock();
+        removeMsg(Message::REQ_START);
+        removeMsg(Message::REQ_PAUSE);
+        notifyMsg1(Message::REQ_START);
+        pMutex->mutexUnLock();
+        return EXIT_SUCCESS;
+    }
     return EXIT_FAILURE;
 }
 
 int MediaPlayer::stop() {
     ALOGD(__func__);
+    if (pPlay && pMutex) {
+        pMutex->mutexLock();
+        removeMsg(Message::REQ_START);
+        removeMsg(Message::REQ_PAUSE);
+        if (pPlay->stop()) {
+            pState->changeState(State::STATE_STOPPED);
+        }
+        pMutex->mutexUnLock();
+        return EXIT_SUCCESS;
+    }
     return EXIT_FAILURE;
 }
 
 int MediaPlayer::pause() {
     ALOGD(__func__);
+    if (pPlay && pMutex) {
+        pMutex->mutexLock();
+        removeMsg(Message::REQ_START);
+        removeMsg(Message::REQ_PAUSE);
+        notifyMsg1(Message::REQ_PAUSE);
+        pMutex->mutexUnLock();
+        return EXIT_SUCCESS;
+    }
     return EXIT_FAILURE;
 }
 
 int MediaPlayer::reset() {
     ALOGD(__func__);
+    if (pPlay && pMutex) {
+        if (destroy()) {
+            ALOGD("reset - destroy success");
+        }
+        if (create()) {
+            ALOGD("reset - create success");
+        }
+        return EXIT_SUCCESS;
+    }
     return EXIT_FAILURE;
 }
 
 int MediaPlayer::destroy() {
     ALOGD(__func__);
+    if (pState && pMutex && pPlay) {
+        pPlay->shutdown();
+        // TODO
+        return EXIT_SUCCESS;
+    }
     return EXIT_FAILURE;
 }
 
@@ -76,7 +120,7 @@ int MediaPlayer::setDataSource(const char *url) {
     ALOGD("%s url=%s", "setDataSource", url);
     if (pState && pMutex && pPlay) {
         pMutex->mutexLock();
-        pDataSource = new string(url);
+        pDataSource = strdup(url);
         if (pDataSource) {
             pState->changeState(State::STATE_INITIALIZED);
             pMutex->mutexUnLock();
@@ -84,6 +128,38 @@ int MediaPlayer::setDataSource(const char *url) {
         }
         pMutex->mutexUnLock();
         return EXIT_FAILURE;
+    }
+    return EXIT_FAILURE;
+}
+
+static int staticMsgLoop(void *arg) {
+    MediaPlayer *mediaPlayer = static_cast<MediaPlayer *>(arg);
+    return mediaPlayer->messageLoop();
+}
+
+int MediaPlayer::prepareAsync() {
+    if (pState && pMutex && pPlay) {
+        pMutex->mutexLock();
+        pState->changeState(State::STATE_ASYNC_PREPARING);
+        if (pPlay->getMsgQueue()) {
+            pPlay->getMsgQueue()->start();
+        }
+        pMsgThread = new Thread(staticMsgLoop, this, "msg_loop");
+        if (pPlay->prepareAsync(pDataSource)) {
+            pMutex->mutexUnLock();
+            return EXIT_SUCCESS;
+        }
+        pState->changeState(State::STATE_ERROR);
+        pMutex->mutexUnLock();
+        return EXIT_FAILURE;
+    }
+    return EXIT_FAILURE;
+}
+
+int MediaPlayer::messageLoop() {
+    ALOGD(__func__);
+    for (;;) {
+
     }
     return EXIT_FAILURE;
 }
@@ -117,3 +193,4 @@ void MediaPlayer::removeMsg(int what) {
 }
 
 
+#pragma clang diagnostic pop

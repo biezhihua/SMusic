@@ -103,7 +103,7 @@ void MessageQueue::remove(int what) {
     }
 }
 
-void MessageQueue::start() {
+int MessageQueue::start() {
     if (pQueue && pMutex) {
         pMutex->mutexLock();
         setAbortRequest(false);
@@ -111,7 +111,9 @@ void MessageQueue::start() {
         message->what = Message::MSG_FLUSH;
         _put(message);
         pMutex->mutexUnLock();
+        return EXIT_SUCCESS;
     }
+    return EXIT_FAILURE;
 }
 
 void MessageQueue::notifyMsg1(int what) {

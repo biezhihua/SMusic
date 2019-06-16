@@ -34,3 +34,24 @@ void FFPlay::setPipeline(Pipeline *pipeline) {
 MessageQueue *FFPlay::getMsgQueue() const {
     return pMsgQueue;
 }
+
+int FFPlay::stop() {
+    // TODO
+    return EXIT_FAILURE;
+}
+
+int FFPlay::shutdown() {
+    // TODO
+    waitStop();
+    return EXIT_FAILURE;
+}
+
+int FFPlay::waitStop() {
+    // TODO
+    return EXIT_FAILURE;
+}
+
+int FFPlay::prepareAsync(const char *fileName) {
+    ALOGD("%s fileName=%s", __func__, fileName);
+    return EXIT_FAILURE;
+}
