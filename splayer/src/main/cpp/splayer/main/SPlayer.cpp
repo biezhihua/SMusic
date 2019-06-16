@@ -303,7 +303,7 @@ void SPlayer::stop() {
 }
 
 void SPlayer::destroy() {
-    LOGD(PLAYER_TAG, "SPlayer: destroy: ----------------------- ");
+    LOGD(PLAYER_TAG, "SPlayer: close: ----------------------- ");
 
     delete pOpenSLES;
     pOpenSLES = nullptr;

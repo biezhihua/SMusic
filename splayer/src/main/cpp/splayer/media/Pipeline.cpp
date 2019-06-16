@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-16.
-//
-
 #include "Pipeline.h"
 
 Pipeline::Pipeline() {
@@ -10,4 +6,8 @@ Pipeline::Pipeline() {
 
 Pipeline::~Pipeline() {
     ALOGD(__func__);
+}
+
+void Pipeline::setOpaque(PipelineOpaque *opaque) {
+    Pipeline::pOpaque = opaque;
 }

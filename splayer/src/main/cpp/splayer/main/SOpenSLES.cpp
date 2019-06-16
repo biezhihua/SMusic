@@ -362,7 +362,7 @@ int SOpenSLES::getOpenSLESSampleRate(int sampleRate) {
 
 int SOpenSLES::release() {
 
-    LOGD(TAG, "OpenSLES: destroy");
+    LOGD(TAG, "OpenSLES: close");
 
     stop();
 

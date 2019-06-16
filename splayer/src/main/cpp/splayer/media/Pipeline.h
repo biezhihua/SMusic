@@ -3,13 +3,32 @@
 #define SPLAYER_PIPELINE_H
 
 #include "Log.h"
+#include "PipelineOpaque.h"
+#include "AOut.h"
+#include "PipelineNode.h"
 
 class Pipeline {
+
+private:
+    PipelineOpaque *pOpaque = nullptr;
 
 public:
     Pipeline();
 
     virtual ~Pipeline();
+
+    void setOpaque(PipelineOpaque *opaque);
+
+    virtual PipelineOpaque *createOpaque() = 0;
+
+    virtual void close() = 0;
+
+    virtual AOut *openAudioOutput() = 0;
+
+    virtual PipelineNode *openVideoDecoder() = 0;
+
+    virtual PipelineNode *openAudioDecoder() = 0;
+
 };
 
 

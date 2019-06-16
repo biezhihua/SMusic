@@ -26,11 +26,7 @@ public:
 
     void setVOut(VOut *vOut);
 
-    VOut *getVOut() const;
-
     void setPipeline(Pipeline *pipeline);
-
-    Pipeline *getPipeline() const;
 
 };
 

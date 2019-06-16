@@ -627,7 +627,7 @@ int SFFmpeg::stop() {
 }
 
 int SFFmpeg::release() {
-    LOGD(FFMPEG_TAG, "destroy");
+    LOGD(FFMPEG_TAG, "close");
 
     if (pAudioMedia != nullptr) {
         if (pAudioMedia->pCodecContext != nullptr) {

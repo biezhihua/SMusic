@@ -18,16 +18,21 @@ int MediaPlayer::create() {
     ALOGD(__func__);
     if (pPlay) {
         // 设置图像输出表面
-        pPlay->setVOut(createSurface());
-        if (!pPlay->getVOut()) {
+        VOut *vOut = createSurface();
+        pPlay->setVOut(vOut);
+        if (!vOut) {
             return EXIT_FAILURE;
         }
 
         // 设置数据输入管道
-        pPlay->setPipeline(createPipeline());
-        if (!pPlay->getPipeline()) {
+        Pipeline *pipeline = createPipeline();
+        if (pipeline) {
+            pipeline->setOpaque(pipeline->createOpaque());
+            pPlay->setPipeline(pipeline);
+        } else {
             return EXIT_FAILURE;
         }
+
         return EXIT_SUCCESS;
     }
     return EXIT_FAILURE;

@@ -78,7 +78,7 @@ class SPlayer {
     }
 
     fun destroy() {
-        Log.d(TAG, "destroy() called")
+        Log.d(TAG, "close() called")
         nativeDestroy()
     }
 

@@ -1,7 +1,7 @@
 @startuml
 autonumber
 
-IjkMediaPlayer -> ijkplayer_jni:destroy()
+IjkMediaPlayer -> ijkplayer_jni:close()
 
 ijkplayer_jni -> ijkplayer_android:ijkmp_android_set_surface()
 

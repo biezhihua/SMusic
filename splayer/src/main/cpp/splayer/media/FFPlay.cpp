@@ -26,15 +26,7 @@ void FFPlay::setVOut(VOut *vOut) {
     FFPlay::pVOut = vOut;
 }
 
-VOut *FFPlay::getVOut() const {
-    return pVOut;
-}
-
 void FFPlay::setPipeline(Pipeline *pipeline) {
     ALOGD(__func__);
     FFPlay::pPipeline = pipeline;
-}
-
-Pipeline *FFPlay::getPipeline() const {
-    return pPipeline;
 }
