@@ -21,7 +21,7 @@ int Mutex::condWaitTimeout(uint32_t ms) {
     struct timeval delta;
     struct timespec abstime;
 
-    gettimeofday(&delta, NULL);
+    gettimeofday(&delta, nullptr);
 
     abstime.tv_sec = static_cast<time_t>(delta.tv_sec + (ms / 1000));
     abstime.tv_nsec = static_cast<long>((delta.tv_usec + (ms % 1000) * 1000) * 1000);
@@ -56,6 +56,6 @@ Mutex::~Mutex() {
 }
 
 Mutex::Mutex() {
-    pthread_mutex_init(&mutex, NULL);
-    pthread_cond_init(&cond, NULL);
+    pthread_mutex_init(&mutex, nullptr);
+    pthread_cond_init(&cond, nullptr);
 }

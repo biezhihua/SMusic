@@ -21,7 +21,7 @@ public:
 
     void *data;
 
-    string *name = NULL;
+    string *name = nullptr;
 
     int retval;
 

@@ -1,20 +1,20 @@
 #include "SQueue.h"
 
 SQueue::SQueue() {
-    pthread_cond_init(&condPacketMutex, NULL);
-    pthread_mutex_init(&mutexPacketMutex, NULL);
+    pthread_cond_init(&condPacketMutex, nullptr);
+    pthread_mutex_init(&mutexPacketMutex, nullptr);
     pQueuePacket = new queue<AVPacket *>();
 }
 
 SQueue::~SQueue() {
     delete pQueuePacket;
-    pQueuePacket = NULL;
+    pQueuePacket = nullptr;
     pthread_cond_destroy(&condPacketMutex);
     pthread_mutex_destroy(&mutexPacketMutex);
 }
 
 int SQueue::putAvPacket(AVPacket *pPacket) {
-    if (pQueuePacket != NULL && pPacket != NULL) {
+    if (pQueuePacket != nullptr && pPacket != nullptr) {
         threadLock();
         pQueuePacket->push(pPacket);
         // LOGD("SQueue: putAvPacket: size = %d", pQueuePacket->size());
@@ -26,14 +26,14 @@ int SQueue::putAvPacket(AVPacket *pPacket) {
 }
 
 int SQueue::getAvPacket(AVPacket *pPacket) {
-    if (pQueuePacket != NULL && pQueuePacket->size() > 0) {
+    if (pQueuePacket != nullptr && pQueuePacket->size() > 0) {
         AVPacket *avPacket = pQueuePacket->front();
         if (av_packet_ref(pPacket, avPacket) == 0) {
             pQueuePacket->pop();
         }
         av_packet_free(&avPacket);
         av_free(avPacket);
-        avPacket = NULL;
+        avPacket = nullptr;
         // LOGD("SQueue: getAvPacket: size = %d", pQueuePacket->size());
         return S_SUCCESS;
     } else {
@@ -47,7 +47,7 @@ void SQueue::threadUnlock() { pthread_mutex_unlock(&mutexPacketMutex); }
 void SQueue::threadLock() { pthread_mutex_lock(&mutexPacketMutex); }
 
 int SQueue::getSize() {
-    if (pQueuePacket != NULL) {
+    if (pQueuePacket != nullptr) {
         return pQueuePacket->size();
     }
     return 0;
@@ -56,14 +56,14 @@ int SQueue::getSize() {
 void SQueue::clear() {
     pthread_cond_signal(&condPacketMutex);
     pthread_mutex_lock(&mutexPacketMutex);
-    if (pQueuePacket != NULL) {
+    if (pQueuePacket != nullptr) {
         while (!pQueuePacket->empty()) {
             AVPacket *avPacket = pQueuePacket->front();
-            if (avPacket != NULL) {
+            if (avPacket != nullptr) {
                 pQueuePacket->pop();
                 av_packet_free(&avPacket);
                 av_free(avPacket);
-                avPacket = NULL;
+                avPacket = nullptr;
             }
         }
     }

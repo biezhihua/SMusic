@@ -18,10 +18,10 @@ class SOpenSLES {
 private:
     bool isLoading = false;
 
-    SJavaMethods *pJavaMethods = NULL;
+    SJavaMethods *pJavaMethods = nullptr;
 
     // SoundTouch
-    SoundTouch *pSoundTouch = NULL;
+    SoundTouch *pSoundTouch = nullptr;
 
     int currentVolume = -2500;
     int sampleRate = 0;
@@ -35,31 +35,31 @@ public:
 
     int state = SL_PLAYSTATE_STOPPED;
 
-    SFFmpeg *pFFmpeg = NULL;
+    SFFmpeg *pFFmpeg = nullptr;
 
-    SStatus *pStatus = NULL;
+    SStatus *pStatus = nullptr;
 
     // engine interfaces
-    SLObjectItf engineObject = NULL;
+    SLObjectItf engineObject = nullptr;
     SLEngineItf engineEngine;
 
     // output mix interfaces
-    SLObjectItf outputMixObject = NULL;
-    SLEnvironmentalReverbItf outputMixEnvironmentalReverb = NULL;
+    SLObjectItf outputMixObject = nullptr;
+    SLEnvironmentalReverbItf outputMixEnvironmentalReverb = nullptr;
 
     // aux effect on the output mix, used by the buffer pQueue player
     const SLEnvironmentalReverbSettings reverbSettings = SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR;
 
     // buffer pQueue player interfaces
-    SLObjectItf bqPlayerObject = NULL;
+    SLObjectItf bqPlayerObject = nullptr;
     SLPlayItf bqPlayerPlay;
     SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue;
 
-    SLVolumeItf bqPlayerVolume = NULL;
-    SLMuteSoloItf bqPlayerMuteSolo = NULL;
+    SLVolumeItf bqPlayerVolume = nullptr;
+    SLMuteSoloItf bqPlayerMuteSolo = nullptr;
 
-    uint8_t *pNextAudioBuffer = NULL;
-    SAMPLETYPE *pSoundNextBuffer = NULL;
+    uint8_t *pNextAudioBuffer = nullptr;
+    SAMPLETYPE *pSoundNextBuffer = nullptr;
     unsigned nextAudioSize;
 
 public:

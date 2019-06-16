@@ -8,9 +8,9 @@
 
 class SJavaMethods {
 private:
-    JavaVM *javaVm = NULL;
-    JNIEnv *mainJniEnv = NULL;
-    jobject javaInstance = NULL;
+    JavaVM *javaVm = nullptr;
+    JNIEnv *mainJniEnv = nullptr;
+    jobject javaInstance = nullptr;
 
     jmethodID idCreate;
     jmethodID idStart;

@@ -12,9 +12,9 @@ SOpenSLES::SOpenSLES(SFFmpeg *pFFmpeg, SStatus *pStatus, SJavaMethods *pJavaMeth
 }
 
 SOpenSLES::~SOpenSLES() {
-    this->pJavaMethods = NULL;
-    this->pFFmpeg = NULL;
-    this->pStatus = NULL;
+    this->pJavaMethods = nullptr;
+    this->pFFmpeg = nullptr;
+    this->pStatus = nullptr;
 }
 
 void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
@@ -22,9 +22,9 @@ void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
     SOpenSLES *pOpenSLES = (SOpenSLES *) context;
 
     // this callback handler is called every time a buffer finishes playing
-    if (pOpenSLES != NULL &&
-        pOpenSLES->pFFmpeg != NULL &&
-        pOpenSLES->bqPlayerBufferQueue != NULL
+    if (pOpenSLES != nullptr &&
+        pOpenSLES->pFFmpeg != nullptr &&
+        pOpenSLES->bqPlayerBufferQueue != nullptr
             ) {
 
         int result = pOpenSLES->blockResampleAudio();
@@ -64,7 +64,7 @@ int SOpenSLES::initOpenSLES() {
     SLresult result;
 
     // create engine
-    result = slCreateEngine(&engineObject, 0, NULL, 0, NULL, NULL);
+    result = slCreateEngine(&engineObject, 0, nullptr, 0, nullptr, nullptr);
     if (SL_RESULT_SUCCESS != result) {
         LOGE(TAG, "SOpenSLES: init: slCreateEngine failed");
         return S_ERROR;
@@ -127,7 +127,7 @@ int SOpenSLES::initOpenSLES() {
 
     // configure audio sink
     SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
-    SLDataSink audioSnk = {&loc_outmix, NULL};
+    SLDataSink audioSnk = {&loc_outmix, nullptr};
 
     /*
      * create audio player:
@@ -204,7 +204,7 @@ int SOpenSLES::initSoundTouch() {
 
 int SOpenSLES::play() {
     LOGD(TAG, "OpenSLES: play");
-    if (state != SL_PLAYSTATE_PLAYING && bqPlayerPlay != NULL) {
+    if (state != SL_PLAYSTATE_PLAYING && bqPlayerPlay != nullptr) {
         state = SL_PLAYSTATE_PLAYING;
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
         return S_SUCCESS;
@@ -214,7 +214,7 @@ int SOpenSLES::play() {
 
 int SOpenSLES::pause() {
     LOGD(TAG, "OpenSLES: pause");
-    if (state != SL_PLAYSTATE_PAUSED && bqPlayerPlay != NULL) {
+    if (state != SL_PLAYSTATE_PAUSED && bqPlayerPlay != nullptr) {
         state = SL_PLAYSTATE_PAUSED;
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PAUSED);
         return S_SUCCESS;
@@ -224,7 +224,7 @@ int SOpenSLES::pause() {
 
 int SOpenSLES::stop() {
     LOGD(TAG, "OpenSLES: stop");
-    if (state != SL_PLAYSTATE_STOPPED && bqPlayerPlay != NULL) {
+    if (state != SL_PLAYSTATE_STOPPED && bqPlayerPlay != nullptr) {
         state = SL_PLAYSTATE_STOPPED;
         (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_STOPPED);
         return S_SUCCESS;
@@ -234,7 +234,7 @@ int SOpenSLES::stop() {
 
 
 void SOpenSLES::volume(int percent) {
-    if (bqPlayerVolume != NULL) {
+    if (bqPlayerVolume != nullptr) {
         currentVolume = (100 - percent) * -50;
         LOGD(TAG, "SOpenSLES:volume: %d %d", percent, currentVolume);
         (*bqPlayerVolume)->SetVolumeLevel(bqPlayerVolume, (SLmillibel) currentVolume);
@@ -246,16 +246,16 @@ int SOpenSLES::blockResampleAudio() {
     while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
 
         // Seek
-        if (pStatus != NULL && pStatus->isSeek()) {
+        if (pStatus != nullptr && pStatus->isSeek()) {
             pFFmpeg->sleep();
             continue;
         }
 
         // Load State
-        if (pFFmpeg->getAudioQueue() != NULL && pFFmpeg->getAudioQueue()->getSize() == 0) {
+        if (pFFmpeg->getAudioQueue() != nullptr && pFFmpeg->getAudioQueue()->getSize() == 0) {
             if (!isLoading) {
                 isLoading = true;
-                if (pJavaMethods != NULL) {
+                if (pJavaMethods != nullptr) {
                     pJavaMethods->onCallJavaLoadState(true);
                 }
             }
@@ -264,7 +264,7 @@ int SOpenSLES::blockResampleAudio() {
         } else {
             if (isLoading) {
                 isLoading = false;
-                if (pJavaMethods != NULL) {
+                if (pJavaMethods != nullptr) {
                     pJavaMethods->onCallJavaLoadState(false);
                 }
             }
@@ -291,7 +291,7 @@ int SOpenSLES::blockResampleAudio() {
                 for (int i = 0; i < audioDataSize / 2 + 1; i++) {
                     pSoundNextBuffer[i] = (pFFmpeg->getBuffer()[i * 2] | ((pFFmpeg->getBuffer()[i * 2 + 1]) << 8));
                 }
-                if (pSoundTouch != NULL) {
+                if (pSoundTouch != nullptr) {
                     pSoundTouch->putSamples(pSoundNextBuffer, (uint) pFFmpeg->getChannelSampleNumbers());
                     soundSamples = pSoundTouch->receiveSamples(pSoundNextBuffer, (uint) (audioDataSize / 4));
                     if (soundSamples == 0) {
@@ -301,7 +301,7 @@ int SOpenSLES::blockResampleAudio() {
                 }
             } else {
                 LOGD(TAG, "SOpenSLES:blockResampleAudio: resample end");
-                if (pSoundTouch != NULL) {
+                if (pSoundTouch != nullptr) {
                     pSoundTouch->flush();
                 }
                 return 0;
@@ -362,42 +362,42 @@ int SOpenSLES::getOpenSLESSampleRate(int sampleRate) {
 
 int SOpenSLES::release() {
 
-    LOGD(TAG, "OpenSLES: release");
+    LOGD(TAG, "OpenSLES: destroy");
 
     stop();
 
-    if (pSoundTouch != NULL) {
+    if (pSoundTouch != nullptr) {
         delete pSoundTouch;
-        pSoundTouch = NULL;
+        pSoundTouch = nullptr;
         delete pSoundNextBuffer;
-        pSoundNextBuffer = NULL;
+        pSoundNextBuffer = nullptr;
     }
 
-    pNextAudioBuffer = NULL;
+    pNextAudioBuffer = nullptr;
 
-    if (pSoundNextBuffer != NULL) {
+    if (pSoundNextBuffer != nullptr) {
         delete pSoundNextBuffer;
-        pSoundNextBuffer = NULL;
+        pSoundNextBuffer = nullptr;
     }
 
-    if (bqPlayerObject != NULL) {
+    if (bqPlayerObject != nullptr) {
         (*bqPlayerObject)->Destroy(bqPlayerObject);
-        bqPlayerObject = NULL;
-        bqPlayerPlay = NULL;
-        bqPlayerBufferQueue = NULL;
-        bqPlayerVolume = NULL;
-        bqPlayerMuteSolo = NULL;
+        bqPlayerObject = nullptr;
+        bqPlayerPlay = nullptr;
+        bqPlayerBufferQueue = nullptr;
+        bqPlayerVolume = nullptr;
+        bqPlayerMuteSolo = nullptr;
     }
 
-    if (outputMixObject != NULL) {
+    if (outputMixObject != nullptr) {
         (*outputMixObject)->Destroy(outputMixObject);
-        outputMixObject = NULL;
-        outputMixEnvironmentalReverb = NULL;
+        outputMixObject = nullptr;
+        outputMixEnvironmentalReverb = nullptr;
     }
 
-    if (engineObject != NULL) {
-        engineObject = NULL;
-        engineEngine = NULL;
+    if (engineObject != nullptr) {
+        engineObject = nullptr;
+        engineEngine = nullptr;
     }
 
     return 0;
@@ -408,7 +408,7 @@ jint SOpenSLES::getCurrentVolumePercent() {
 }
 
 void SOpenSLES::mute(int mute) {
-    if (bqPlayerMuteSolo != NULL) {
+    if (bqPlayerMuteSolo != nullptr) {
         switch (mute) {
             case 0:
                 // Left
@@ -434,7 +434,7 @@ void SOpenSLES::mute(int mute) {
 void SOpenSLES::setSoundTouchPitch(double soundPitch) {
     LOGD(TAG, "SOpenSLES:setSoundTouchPitch: %f", soundPitch);
     this->soundPitch = soundPitch;
-    if (pSoundTouch != NULL) {
+    if (pSoundTouch != nullptr) {
         pSoundTouch->setPitch(soundPitch);
     }
 }
@@ -442,7 +442,7 @@ void SOpenSLES::setSoundTouchPitch(double soundPitch) {
 void SOpenSLES::setSoundTouchTempo(double soundSpeed) {
     LOGD(TAG, "SOpenSLES:setSoundTouchTempo: %f", soundSpeed);
     this->soundSpeed = soundSpeed;
-    if (pSoundTouch != NULL) {
+    if (pSoundTouch != nullptr) {
         pSoundTouch->setTempo(soundSpeed);
     }
 }

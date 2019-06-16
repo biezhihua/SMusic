@@ -31,11 +31,11 @@ Player Status:
 
         * onPlayerStart();
 
-    * Play
+    * FFPlay
 
-        * Play Decode Media
+        * FFPlay Decode Media
 
-        * Play Enqueue Buffer
+        * FFPlay Enqueue Buffer
 
         * onPlayerPlay();
 

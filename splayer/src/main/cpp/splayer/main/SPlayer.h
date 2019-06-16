@@ -1,6 +1,5 @@
-#ifndef SPLAYER_PLAYER_H
-#define SPLAYER_PLAYER_H
-
+#ifndef SPLAYER_INNERPLAY_H
+#define SPLAYER_INNERPLAY_H
 
 #include <jni.h>
 #include <string>
@@ -11,17 +10,19 @@
 #include "SOpenSLES.h"
 #include <pthread.h>
 
+#define PLAYER_TAG "Native_Player"
+
 class SPlayer {
 
 private:
 
-    SJavaMethods *pJavaMethods = NULL;
+    SJavaMethods *pJavaMethods = nullptr;
 
-    SFFmpeg *pFFmpeg = NULL;
+    SFFmpeg *pFFmpeg = nullptr;
 
-    SStatus *pStatus = NULL;
+    SStatus *pStatus = nullptr;
 
-    SOpenSLES *pOpenSLES = NULL;
+    SOpenSLES *pOpenSLES = nullptr;
 
     int64_t seekMillis = 0;
 
@@ -91,4 +92,4 @@ public:
 };
 
 
-#endif //SPLAYER_PLAYER_H
+#endif //SPLAYER_INNERPLAY_H

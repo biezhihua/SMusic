@@ -7,14 +7,14 @@ static void *runThread(void *data) {
         pthread_setname_np(pthread_self(), thread->name->c_str());
         thread->retval = thread->func(thread->data);
     }
-    return NULL;
+    return nullptr;
 }
 
 Thread::Thread(int (*func)(void *), void *data, const char *name) {
     Thread::func = func;
     Thread::data = data;
     Thread::name = new string(name);
-    Thread::retval = pthread_create(&id, NULL, runThread, this);
+    Thread::retval = pthread_create(&id, nullptr, runThread, this);
 }
 
 Thread::~Thread() {
@@ -22,7 +22,7 @@ Thread::~Thread() {
 }
 
 int Thread::waitThread() {
-    pthread_join(id, NULL);
+    pthread_join(id, nullptr);
     return retval;
 }
 

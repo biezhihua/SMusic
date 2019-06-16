@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 #ifndef SPLAYER_MESSAGE_H
 #define SPLAYER_MESSAGE_H
 
@@ -95,3 +97,5 @@ public:
 };
 
 #endif //SPLAYER_MESSAGE_H
+
+#pragma clang diagnostic pop

@@ -1,6 +1,6 @@
 #include <SFFmpeg.h>
 
-#define TAG "Native_FFmpeg"
+#define FFMPEG_TAG "Native_FFmpeg"
 
 SFFmpeg::SFFmpeg(SStatus *pStatus, SJavaMethods *pJavaMethods) {
     this->pStatus = pStatus;
@@ -8,7 +8,7 @@ SFFmpeg::SFFmpeg(SStatus *pStatus, SJavaMethods *pJavaMethods) {
     this->pAudioQueue = new SQueue();
     this->pVideoQueue = new SQueue();
 
-    pthread_mutex_init(&seekMutex, NULL);
+    pthread_mutex_init(&seekMutex, nullptr);
 }
 
 SFFmpeg::~SFFmpeg() {
@@ -16,40 +16,40 @@ SFFmpeg::~SFFmpeg() {
     pthread_mutex_destroy(&seekMutex);
 
     delete pSource;
-    pSource = NULL;
+    pSource = nullptr;
 
-    if (pVideoQueue != NULL) {
+    if (pVideoQueue != nullptr) {
         pVideoQueue->clear();
         delete pVideoQueue;
-        pVideoQueue = NULL;
+        pVideoQueue = nullptr;
     }
 
-    if (pAudioQueue != NULL) {
+    if (pAudioQueue != nullptr) {
         pAudioQueue->clear();
         delete pAudioQueue;
-        pAudioQueue = NULL;
+        pAudioQueue = nullptr;
     }
 
     release();
 
     delete pVideoMedia;
-    pVideoMedia = NULL;
+    pVideoMedia = nullptr;
 
     delete pAudioMedia;
-    pAudioMedia = NULL;
+    pAudioMedia = nullptr;
 
-    pStatus = NULL;
+    pStatus = nullptr;
 
-    pJavaMethods = NULL;
+    pJavaMethods = nullptr;
 }
 
 void SFFmpeg::setSource(string *source) {
-    LOGD(TAG, "setSource: %s ", source);
-    if (pSource != NULL) {
+//    LOGD(FFMPEG_TAG, "setSource: %s ", source);
+    if (pSource != nullptr) {
         delete pSource;
-        pSource = NULL;
+        pSource = nullptr;
     }
-    if (source != NULL) {
+    if (source != nullptr) {
         pSource = new string(source->c_str());
     }
 }
@@ -63,40 +63,40 @@ int SFFmpeg::decodeMediaInfo() {
     // http://ffmpeg.org/doxygen/trunk/structAVFormatContext.html
     pFormatContext = avformat_alloc_context();
 
-    if (pFormatContext == NULL) {
-        LOGE(TAG, "decodeMediaInfo: ERROR could not allocate memory for Format Context");
+    if (pFormatContext == nullptr) {
+        LOGE(FFMPEG_TAG, "decodeMediaInfo: ERROR could not allocate memory for Format Context");
         return S_ERROR;
     }
 
-    if (pSource == NULL) {
-        LOGE(TAG, "decodeMediaInfo: ERROR source is empty");
+    if (pSource == nullptr) {
+        LOGE(FFMPEG_TAG, "decodeMediaInfo: ERROR source is empty");
         return S_ERROR;
     }
 
-    LOGD(TAG, "decodeMediaInfo: Opening the input file (%s) and _isLoading format (container) header",
+    LOGD(FFMPEG_TAG, "decodeMediaInfo: Opening the input file (%s) and _isLoading format (container) header",
          pSource->c_str());
 
     // Open the file and read its header. The codecs are not opened.
     // The function arguments are:
     // AVFormatContext (the component we allocated memory for),
     // url (filename),
-    // AVInputFormat (if you pass NULL it'll do the auto detect)
+    // AVInputFormat (if you pass nullptr it'll do the auto detect)
     // and AVDictionary (which are options to the demuxer)
     // http://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#ga31d601155e9035d5b0e7efedc894ee49
-    int result = avformat_open_input(&pFormatContext, pSource->c_str(), NULL, NULL);
+    int result = avformat_open_input(&pFormatContext, pSource->c_str(), nullptr, nullptr);
     if (result != 0) {
-        LOGE(TAG, "decodeMediaInfo: ERROR could not open the file %d", result);
+        LOGE(FFMPEG_TAG, "decodeMediaInfo: ERROR could not open the file %d", result);
         return S_ERROR;
     }
 
     // now we have access to some information about our file
     // since we read its header we can say what format (container) it's
     // and some other information related to the format itself.
-    LOGD(TAG, "decodeMediaInfo: Format %s, totalTime %lld us, bit_rate %lld", pFormatContext->iformat->name,
+    LOGD(FFMPEG_TAG, "decodeMediaInfo: Format %s, totalTime %lld us, bit_rate %lld", pFormatContext->iformat->name,
          pFormatContext->duration,
          pFormatContext->bit_rate);
 
-    LOGD(TAG, "decodeMediaInfo: Finding stream info from format");
+    LOGD(FFMPEG_TAG, "decodeMediaInfo: Finding stream info from format");
     // read Packets from the Format to get stream information
     // this function populates pFormatContext->streams
     // (of size equals to pFormatContext->nb_streams)
@@ -105,39 +105,39 @@ int SFFmpeg::decodeMediaInfo() {
     // and options contains options for codec corresponding to i-th stream.
     // On return each dictionary will be filled with options that were not found.
     // https://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#gad42172e27cddafb81096939783b157bb
-    if (avformat_find_stream_info(pFormatContext, NULL) < 0) {
-        LOGD(TAG, "decodeMediaInfo: ERROR could not get the stream info");
+    if (avformat_find_stream_info(pFormatContext, nullptr) < 0) {
+        LOGD(FFMPEG_TAG, "decodeMediaInfo: ERROR could not get the stream info");
         return S_ERROR;
     }
 
     // loop though all the streams and print its main information
     for (int i = 0; i < pFormatContext->nb_streams; i++) {
 
-        LOGD(TAG, "decodeMediaInfo: ----------------------- ");
+        LOGD(FFMPEG_TAG, "decodeMediaInfo: ----------------------- ");
 
-        AVCodecParameters *pLocalCodecParameters = NULL;
+        AVCodecParameters *pLocalCodecParameters = nullptr;
         pLocalCodecParameters = pFormatContext->streams[i]->codecpar;
 
-        LOGD(TAG, "decodeMediaInfo: AVStream->time_base before open coded %d/%d",
+        LOGD(FFMPEG_TAG, "decodeMediaInfo: AVStream->time_base before open coded %d/%d",
              pFormatContext->streams[i]->time_base.num,
              pFormatContext->streams[i]->time_base.den);
 
-        LOGD(TAG, "decodeMediaInfo: AVStream->r_frame_rate before open coded %d/%d",
+        LOGD(FFMPEG_TAG, "decodeMediaInfo: AVStream->r_frame_rate before open coded %d/%d",
              pFormatContext->streams[i]->r_frame_rate.num,
              pFormatContext->streams[i]->r_frame_rate.den);
 
-        LOGD(TAG, "decodeMediaInfo: AVStream->start_time %d", pFormatContext->streams[i]->start_time);
-        LOGD(TAG, "decodeMediaInfo: AVStream->totalTime %d", pFormatContext->streams[i]->duration);
+//        LOGD(FFMPEG_TAG, "decodeMediaInfo: AVStream->start_time %d", pFormatContext->streams[i]->start_time);
+//        LOGD(FFMPEG_TAG, "decodeMediaInfo: AVStream->totalTime %d", pFormatContext->streams[i]->duration);
 
-        LOGD(TAG, "decodeMediaInfo: Finding the proper decoder (CODEC)");
+        LOGD(FFMPEG_TAG, "decodeMediaInfo: Finding the proper decoder (CODEC)");
 
         // when the stream is a video we store its index, codec parameters and codec
         if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_VIDEO) {
 
             AVCodec *pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
 
-            if (pLocalCodec == NULL) {
-                LOGD(TAG, "decodeMediaInfo: ERROR unsupported codec!");
+            if (pLocalCodec == nullptr) {
+                LOGD(FFMPEG_TAG, "decodeMediaInfo: ERROR unsupported codec!");
                 continue;
             }
 
@@ -150,21 +150,21 @@ int SFFmpeg::decodeMediaInfo() {
             if (num != 0 && den != 0) {
                 int fps = num / den;
                 pVideoMedia->defaultDelayRenderTime = 1.0f / fps;
-                LOGD(TAG, "decodeMediaInfo: defaultDelayRenderTime %lf", pVideoMedia->defaultDelayRenderTime);
+                LOGD(FFMPEG_TAG, "decodeMediaInfo: defaultDelayRenderTime %lf", pVideoMedia->defaultDelayRenderTime);
             }
 
-            LOGD(TAG, "decodeMediaInfo: Video Codec: resolution %d x %d", pLocalCodecParameters->width,
+            LOGD(FFMPEG_TAG, "decodeMediaInfo: Video Codec: resolution %d x %d", pLocalCodecParameters->width,
                  pLocalCodecParameters->height);
             // print its name, id and bitrate
-            LOGD(TAG, "decodeMediaInfo: Codec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
+            LOGD(FFMPEG_TAG, "decodeMediaInfo: Codec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
                  pLocalCodecParameters->bit_rate);
 
         } else if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_AUDIO) {
 
             AVCodec *pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
 
-            if (pLocalCodec == NULL) {
-                LOGD(TAG, "decodeMediaInfo: ERROR unsupported codec!");
+            if (pLocalCodec == nullptr) {
+                LOGD(FFMPEG_TAG, "decodeMediaInfo: ERROR unsupported codec!");
                 continue;
             }
 
@@ -173,59 +173,59 @@ int SFFmpeg::decodeMediaInfo() {
             pAudioMedia->totalTimeMillis = pAudioMedia->totalTime * 1000;
             pAudioMedia->timeBase = (pFormatContext->streams[pAudioMedia->streamIndex]->time_base);
 
-            LOGD(TAG, "decodeMediaInfo: Audio Codec: %d channels, sample rate %d",
+            LOGD(FFMPEG_TAG, "decodeMediaInfo: Audio Codec: %d channels, sample rate %d",
                  pLocalCodecParameters->channels,
                  pLocalCodecParameters->sample_rate);
-            LOGD(TAG, "decodeMediaInfo: Codec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
+            LOGD(FFMPEG_TAG, "decodeMediaInfo: Codec %s ID %d bit_rate %lld", pLocalCodec->name, pLocalCodec->id,
                  pLocalCodecParameters->bit_rate);
         }
     }
 
-    LOGD(TAG, "decodeMediaInfo: ----------------------- ");
+    LOGD(FFMPEG_TAG, "decodeMediaInfo: ----------------------- ");
 
-    if (pAudioMedia != NULL) {
+    if (pAudioMedia != nullptr) {
         // https://ffmpeg.org/doxygen/trunk/structAVCodecContext.html
         pAudioMedia->pCodecContext = (avcodec_alloc_context3(pAudioMedia->pCodec));
-        if (pAudioMedia->pCodecContext == NULL) {
-            LOGE(TAG, "decodeMediaInfo: Failed to allocated memory for AVCodecContext");
+        if (pAudioMedia->pCodecContext == nullptr) {
+            LOGE(FFMPEG_TAG, "decodeMediaInfo: Failed to allocated memory for AVCodecContext");
             return S_ERROR;
         }
 
         // Fill the codec context based on the values from the supplied codec parameters
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#gac7b282f51540ca7a99416a3ba6ee0d16
         if (avcodec_parameters_to_context(pAudioMedia->pCodecContext, pAudioMedia->pCodecParameters) < 0) {
-            LOGE(TAG, "decodeMediaInfo: Failed to copy codec params to codec context");
+            LOGE(FFMPEG_TAG, "decodeMediaInfo: Failed to copy codec params to codec context");
             return S_ERROR;
         }
 
         // Initialize the AVCodecContext to use the given AVCodec.
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#ga11f785a188d7d9df71621001465b0f1d
-        if (avcodec_open2(pAudioMedia->pCodecContext, pAudioMedia->pCodec, NULL) < 0) {
-            LOGE(TAG, "decodeMediaInfo: Failed to open codec through avcodec_open2");
+        if (avcodec_open2(pAudioMedia->pCodecContext, pAudioMedia->pCodec, nullptr) < 0) {
+            LOGE(FFMPEG_TAG, "decodeMediaInfo: Failed to open codec through avcodec_open2");
             return S_ERROR;
         }
     }
 
-    LOGD(TAG, "decodeMediaInfo: Video ----------------------- ");
-    if (pVideoMedia != NULL) {
+    LOGD(FFMPEG_TAG, "decodeMediaInfo: Video ----------------------- ");
+    if (pVideoMedia != nullptr) {
         // https://ffmpeg.org/doxygen/trunk/structAVCodecContext.html
         pVideoMedia->pCodecContext = (avcodec_alloc_context3(pVideoMedia->pCodec));
-        if (pVideoMedia->pCodecContext == NULL) {
-            LOGE(TAG, "decodeMediaInfo: Failed to allocated memory for AVCodecContext");
+        if (pVideoMedia->pCodecContext == nullptr) {
+            LOGE(FFMPEG_TAG, "decodeMediaInfo: Failed to allocated memory for AVCodecContext");
             return S_ERROR;
         }
 
         // Fill the codec context based on the values from the supplied codec parameters
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#gac7b282f51540ca7a99416a3ba6ee0d16
         if (avcodec_parameters_to_context(pVideoMedia->pCodecContext, pVideoMedia->pCodecParameters) < 0) {
-            LOGE(TAG, "decodeMediaInfo: Failed to copy codec params to codec context");
+            LOGE(FFMPEG_TAG, "decodeMediaInfo: Failed to copy codec params to codec context");
             return S_ERROR;
         }
 
         // Initialize the AVCodecContext to use the given AVCodec.
         // https://ffmpeg.org/doxygen/trunk/group__lavc__core.html#ga11f785a188d7d9df71621001465b0f1d
-        if (avcodec_open2(pVideoMedia->pCodecContext, pVideoMedia->pCodec, NULL) < 0) {
-            LOGE(TAG, "decodeMediaInfo: Failed to open codec through avcodec_open2");
+        if (avcodec_open2(pVideoMedia->pCodecContext, pVideoMedia->pCodec, nullptr) < 0) {
+            LOGE(FFMPEG_TAG, "decodeMediaInfo: Failed to open codec through avcodec_open2");
             return S_ERROR;
         }
     }
@@ -236,41 +236,41 @@ int SFFmpeg::decodeMediaInfo() {
 
 int SFFmpeg::decodeFrame() {
 
-    if (pStatus != NULL && pStatus->isSeek()) {
+    if (pStatus != nullptr && pStatus->isSeek()) {
         sleep();
         return S_FUNCTION_CONTINUE;
     }
 
-    if (pVideoMedia == NULL && pAudioMedia == NULL) {
+    if (pVideoMedia == nullptr && pAudioMedia == nullptr) {
         return S_FUNCTION_BREAK;
     }
 
-    bool isOnlyAudio = pAudioMedia != NULL &&
-                       pVideoMedia == NULL &&
-                       pAudioQueue != NULL &&
+    bool isOnlyAudio = pAudioMedia != nullptr &&
+                       pVideoMedia == nullptr &&
+                       pAudioQueue != nullptr &&
                        pAudioQueue->getSize() > CACHE_SIZE;
-    bool isOnlyVideo = pAudioMedia == NULL &&
-                       pVideoMedia != NULL &&
-                       pVideoQueue != NULL &&
+    bool isOnlyVideo = pAudioMedia == nullptr &&
+                       pVideoMedia != nullptr &&
+                       pVideoQueue != nullptr &&
                        pVideoQueue->getSize() > CACHE_SIZE;
 
-    bool isAudioAndVideo = pAudioMedia != NULL &&
-                           pAudioQueue != NULL &&
-                           pVideoMedia != NULL &&
-                           pVideoQueue != NULL &&
+    bool isAudioAndVideo = pAudioMedia != nullptr &&
+                           pAudioQueue != nullptr &&
+                           pVideoMedia != nullptr &&
+                           pVideoQueue != nullptr &&
                            pAudioQueue->getSize() > CACHE_SIZE &&
                            pVideoQueue->getSize() > CACHE_SIZE;
 
     if (isOnlyAudio || isOnlyVideo || isAudioAndVideo) {
         sleep();
-        LOGE(TAG, "decodeFrame: Size OverFlow Sleep");
+        LOGE(FFMPEG_TAG, "decodeFrame: Size OverFlow Sleep");
         return S_FUNCTION_CONTINUE;
     }
 
     // https://ffmpeg.org/doxygen/trunk/structAVPacket.html
     pDecodeRawFramePacket = av_packet_alloc();
-    if (pDecodeRawFramePacket == NULL) {
-        LOGE(TAG, "decodeFrame: failed to allocated memory for AVPacket");
+    if (pDecodeRawFramePacket == nullptr) {
+        LOGE(FFMPEG_TAG, "decodeFrame: failed to allocated memory for AVPacket");
         return S_FUNCTION_BREAK;
     }
 
@@ -279,12 +279,12 @@ int SFFmpeg::decodeFrame() {
     pthread_mutex_unlock(&seekMutex);
 
     if (ret == 0) {
-        if (pAudioMedia != NULL && pDecodeRawFramePacket->stream_index == pAudioMedia->streamIndex) {
+        if (pAudioMedia != nullptr && pDecodeRawFramePacket->stream_index == pAudioMedia->streamIndex) {
             pAudioQueue->putAvPacket(pDecodeRawFramePacket);
-            LOGD(TAG, "decodeFrame: pAudioQueue putAvPacket %d", pAudioQueue->getSize());
-        } else if (pVideoMedia != NULL && pDecodeRawFramePacket->stream_index == pVideoMedia->streamIndex) {
+            LOGD(FFMPEG_TAG, "decodeFrame: pAudioQueue putAvPacket %d", pAudioQueue->getSize());
+        } else if (pVideoMedia != nullptr && pDecodeRawFramePacket->stream_index == pVideoMedia->streamIndex) {
             pVideoQueue->putAvPacket(pDecodeRawFramePacket);
-            LOGD(TAG, "decodeFrame: pVideoQueue putAvPacket %d", pVideoQueue->getSize());
+            LOGD(FFMPEG_TAG, "decodeFrame: pVideoQueue putAvPacket %d", pVideoQueue->getSize());
         }
 
         return S_SUCCESS;
@@ -292,24 +292,24 @@ int SFFmpeg::decodeFrame() {
         av_packet_free(&pDecodeRawFramePacket);
         av_free(pDecodeRawFramePacket);
         if (pStatus->isPlay()) {
-            LOGE(TAG, "decodeFrame: decode finished continue");
+            LOGE(FFMPEG_TAG, "decodeFrame: decode finished continue");
             return S_FUNCTION_CONTINUE;
         }
-        LOGE(TAG, "decodeFrame: decode finished read frame ret=%d", ret);
+        LOGE(FFMPEG_TAG, "decodeFrame: decode finished read frame ret=%d", ret);
         return S_FUNCTION_BREAK;
     }
 }
 
 
 int SFFmpeg::softDecodeVideo() {
-    if (pVideoMedia == NULL || pVideoQueue == NULL) {
+    if (pVideoMedia == nullptr || pVideoQueue == nullptr) {
         return S_FUNCTION_BREAK;
     }
 
     pVideoPacket = av_packet_alloc();
 
-    if (pVideoPacket == NULL) {
-        LOGE(TAG, "softDecodeVideo: failed to allocated memory for AVPacket");
+    if (pVideoPacket == nullptr) {
+        LOGE(FFMPEG_TAG, "softDecodeVideo: failed to allocated memory for AVPacket");
         return S_FUNCTION_BREAK;
     }
 
@@ -325,14 +325,14 @@ int SFFmpeg::softDecodeVideo() {
 
     if (result != S_SUCCESS) {
         pthread_mutex_unlock(&pVideoMedia->mutex);
-        LOGE(TAG, "softDecodeVideo: send packet failed");
+        LOGE(FFMPEG_TAG, "softDecodeVideo: send packet failed");
         return S_FUNCTION_CONTINUE;
     }
 
     pVideoFrame = av_frame_alloc();
-    if (pVideoFrame == NULL) {
+    if (pVideoFrame == nullptr) {
         pthread_mutex_unlock(&pVideoMedia->mutex);
-        LOGE(TAG, "softDecodeVideo: ailed to allocated memory for AVFrame");
+        LOGE(FFMPEG_TAG, "softDecodeVideo: ailed to allocated memory for AVFrame");
         return S_FUNCTION_BREAK;
     }
 
@@ -342,7 +342,7 @@ int SFFmpeg::softDecodeVideo() {
         releasePacket(&pVideoPacket);
         releaseFrame(&pVideoFrame);
         pthread_mutex_unlock(&pVideoMedia->mutex);
-        LOGE(TAG, "softDecodeVideo: receive frame failed %d", result);
+        LOGE(FFMPEG_TAG, "softDecodeVideo: receive frame failed %d", result);
         return S_FUNCTION_CONTINUE;
     }
 
@@ -352,11 +352,11 @@ int SFFmpeg::softDecodeVideo() {
 
         double delayTime = pVideoMedia->getDelayRenderTime(diffTime);
 
-        LOGD(TAG, "softDecodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
+        LOGD(FFMPEG_TAG, "softDecodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
 
         av_usleep(static_cast<unsigned int>(delayTime * 1000000));
 
-        if (pJavaMethods != NULL && pVideoMedia != NULL && pVideoMedia->pCodecContext != NULL) {
+        if (pJavaMethods != nullptr && pVideoMedia != nullptr && pVideoMedia->pCodecContext != nullptr) {
             pJavaMethods->onCallJavaRenderYUVFromThread(
                     pVideoMedia->pCodecContext->width,
                     pVideoMedia->pCodecContext->height,
@@ -384,10 +384,10 @@ int SFFmpeg::softDecodeVideo() {
                 pVideoMedia->pCodecContext->width,
                 pVideoMedia->pCodecContext->height,
                 AV_PIX_FMT_YUV420P,
-                SWS_BICUBIC, NULL, NULL, NULL
+                SWS_BICUBIC, nullptr, nullptr, nullptr
         );
 
-        if (swsContext == NULL) {
+        if (swsContext == nullptr) {
             av_frame_free(&pFrameYUV420P);
             av_free(&pFrameYUV420P);
             av_free(&buffer);
@@ -408,11 +408,11 @@ int SFFmpeg::softDecodeVideo() {
 
         double delayTime = pVideoMedia->getDelayRenderTime(diffTime);
 
-        LOGD(TAG, "softDecodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
+        LOGD(FFMPEG_TAG, "softDecodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
 
         av_usleep(static_cast<unsigned int>(delayTime * 1000000));
 
-        if (pJavaMethods != NULL && pVideoMedia != NULL && pVideoMedia->pCodecContext != NULL) {
+        if (pJavaMethods != nullptr && pVideoMedia != nullptr && pVideoMedia->pCodecContext != nullptr) {
             pJavaMethods->onCallJavaRenderYUVFromThread(
                     pVideoMedia->pCodecContext->width,
                     pVideoMedia->pCodecContext->height,
@@ -439,13 +439,13 @@ int SFFmpeg::decodeAudio() {
 
     pAudioPacket = av_packet_alloc();
 
-    if (pAudioPacket == NULL) {
-        LOGE(TAG, "blockResampleAudio: failed to allocated memory for AVPacket");
+    if (pAudioPacket == nullptr) {
+        LOGE(FFMPEG_TAG, "blockResampleAudio: failed to allocated memory for AVPacket");
         return S_FUNCTION_BREAK;
     }
 
-    if (pAudioMedia == NULL) {
-        LOGE(TAG, "blockResampleAudio: audio is null");
+    if (pAudioMedia == nullptr) {
+        LOGE(FFMPEG_TAG, "blockResampleAudio: audio is null");
         return S_FUNCTION_BREAK;
     }
 
@@ -463,16 +463,16 @@ int SFFmpeg::decodeAudio() {
         releasePacket(&pVideoPacket);
         releaseFrame(&pVideoFrame);
         pthread_mutex_unlock(&pAudioMedia->mutex);
-        LOGE(TAG, "blockResampleAudio: send packet failed");
+        LOGE(FFMPEG_TAG, "blockResampleAudio: send packet failed");
         return S_FUNCTION_CONTINUE;
     }
 
     pAudioFrame = av_frame_alloc();
-    if (pAudioFrame == NULL) {
+    if (pAudioFrame == nullptr) {
         releasePacket(&pVideoPacket);
         releaseFrame(&pVideoFrame);
         pthread_mutex_unlock(&pAudioMedia->mutex);
-        LOGE(TAG, "blockResampleAudio: ailed to allocated memory for AVFrame");
+        LOGE(FFMPEG_TAG, "blockResampleAudio: ailed to allocated memory for AVFrame");
         return S_FUNCTION_BREAK;
     }
 
@@ -482,7 +482,7 @@ int SFFmpeg::decodeAudio() {
         releasePacket(&pAudioPacket);
         releaseFrame(&pAudioFrame);
         pthread_mutex_unlock(&pAudioMedia->mutex);
-        LOGE(TAG, "blockResampleAudio: receive frame failed %d", result);
+        LOGE(FFMPEG_TAG, "blockResampleAudio: receive frame failed %d", result);
         return S_FUNCTION_CONTINUE;
     } else {
 
@@ -503,17 +503,17 @@ int SFFmpeg::decodeAudio() {
                                                     pAudioFrame->sample_rate,
                                                     NULL, NULL);
 
-        if (swrContext == NULL || swr_init(swrContext) < 0) {
+        if (swrContext == nullptr || swr_init(swrContext) < 0) {
 
             releasePacket(&pAudioPacket);
             releaseFrame(&pAudioFrame);
 
-            if (swrContext != NULL) {
+            if (swrContext != nullptr) {
                 swr_free(&swrContext);
-                swrContext = NULL;
+                swrContext = nullptr;
             }
 
-            LOGE(TAG, "blockResampleAudio: swrContext is null or swrContext init failed");
+            LOGE(FFMPEG_TAG, "blockResampleAudio: swrContext is null or swrContext init failed");
 
             return S_FUNCTION_CONTINUE;
         }
@@ -526,7 +526,7 @@ int SFFmpeg::decodeAudio() {
                                            pAudioFrame->nb_samples);
 
         if (channelSampleNumbers < 0) {
-            LOGE(TAG, "blockResampleAudio: swr convert numbers < 0 ");
+            LOGE(FFMPEG_TAG, "blockResampleAudio: swr convert numbers < 0 ");
             return S_FUNCTION_CONTINUE;
         }
 
@@ -539,13 +539,13 @@ int SFFmpeg::decodeAudio() {
         // Call Loading
         if (isLoading) {
             isLoading = false;
-            if (pJavaMethods != NULL) {
+            if (pJavaMethods != nullptr) {
                 pJavaMethods->onCallJavaLoadState(false);
             }
         }
 
         // Call Time
-        if (pJavaMethods != NULL && pAudioMedia->isMinDiff()) {
+        if (pJavaMethods != nullptr && pAudioMedia->isMinDiff()) {
             pJavaMethods->onCallJavaTimeFromThread((int) pAudioMedia->getTotalTimeMillis(),
                                                    (int) pAudioMedia->getCurrentTimeMillis());
         }
@@ -554,7 +554,7 @@ int SFFmpeg::decodeAudio() {
         releaseFrame(&pAudioFrame);
 
         swr_free(&swrContext);
-        swrContext = NULL;
+        swrContext = nullptr;
 
         pthread_mutex_unlock(&pAudioMedia->mutex);
         return dataSize;
@@ -578,7 +578,7 @@ SQueue *SFFmpeg::getVideoQueue() {
 }
 
 int SFFmpeg::getAudioAvPacketFromAudioQueue(AVPacket *pPacket) {
-    if (pAudioQueue != NULL && pStatus != NULL) {
+    if (pAudioQueue != nullptr && pStatus != nullptr) {
         pAudioQueue->threadLock();
         while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
             int result = pAudioQueue->getAvPacket(pPacket);
@@ -595,7 +595,7 @@ int SFFmpeg::getAudioAvPacketFromAudioQueue(AVPacket *pPacket) {
 }
 
 int SFFmpeg::getVideoAvPacketFromAudioQueue(AVPacket *pPacket) {
-    if (pVideoQueue != NULL && pStatus != NULL) {
+    if (pVideoQueue != nullptr && pStatus != nullptr) {
         pVideoQueue->threadLock();
         while (pStatus->isLeastActiveState(STATE_PRE_PLAY)) {
             int result = pVideoQueue->getAvPacket(pPacket);
@@ -617,65 +617,65 @@ uint8_t *SFFmpeg::getBuffer() {
 }
 
 int SFFmpeg::stop() {
-    if (pAudioQueue != NULL) {
+    if (pAudioQueue != nullptr) {
         pAudioQueue->clear();
     }
-    if (pVideoQueue != NULL) {
+    if (pVideoQueue != nullptr) {
         pVideoQueue->clear();
     }
     return S_SUCCESS;
 }
 
 int SFFmpeg::release() {
-    LOGD(TAG, "release");
+    LOGD(FFMPEG_TAG, "destroy");
 
-    if (pAudioMedia != NULL) {
-        if (pAudioMedia->pCodecContext != NULL) {
+    if (pAudioMedia != nullptr) {
+        if (pAudioMedia->pCodecContext != nullptr) {
             avcodec_close(pAudioMedia->pCodecContext);
             avcodec_free_context(&pAudioMedia->pCodecContext);
         }
-        pAudioMedia = NULL;
+        pAudioMedia = nullptr;
     }
 
-    if (pVideoMedia != NULL) {
-        if (pVideoMedia->pCodecContext != NULL) {
+    if (pVideoMedia != nullptr) {
+        if (pVideoMedia->pCodecContext != nullptr) {
             avcodec_close(pVideoMedia->pCodecContext);
             avcodec_free_context(&pVideoMedia->pCodecContext);
         }
-        pVideoMedia = NULL;
+        pVideoMedia = nullptr;
     }
 
-    if (pAudioQueue != NULL) {
+    if (pAudioQueue != nullptr) {
         pAudioQueue->clear();
     }
 
-    if (pVideoQueue != NULL) {
+    if (pVideoQueue != nullptr) {
         pVideoQueue->clear();
     }
 
-    if (pFormatContext != NULL) {
+    if (pFormatContext != nullptr) {
         avformat_close_input(&pFormatContext);
         avformat_free_context(pFormatContext);
-        pFormatContext = NULL;
+        pFormatContext = nullptr;
     }
 
-    if (pBuffer != NULL) {
+    if (pBuffer != nullptr) {
         av_free(pBuffer);
-        pBuffer = NULL;
+        pBuffer = nullptr;
     }
 
     return S_SUCCESS;
 }
 
 double SFFmpeg::getTotalTimeMillis() {
-    if (pAudioMedia != NULL) {
+    if (pAudioMedia != nullptr) {
         return pAudioMedia->getTotalTimeMillis();
     }
     return 0;
 }
 
 double SFFmpeg::getCurrentTimeMillis() {
-    if (pAudioMedia != NULL) {
+    if (pAudioMedia != nullptr) {
         return pAudioMedia->getCurrentTimeMillis();
     }
     return 0;
@@ -691,8 +691,8 @@ void SFFmpeg::seek(int64_t millis) {
 
     int ret = avformat_seek_file(pFormatContext, -1, INT64_MIN, rel, INT64_MAX, 0);
 
-    if (pAudioMedia != NULL) {
-        if (pAudioQueue != NULL) {
+    if (pAudioMedia != nullptr) {
+        if (pAudioQueue != nullptr) {
             pAudioQueue->clear();
         }
         pAudioMedia->currentTime = 0;
@@ -702,8 +702,8 @@ void SFFmpeg::seek(int64_t millis) {
         pAudioMedia->clearCodecContextBuffer();
     }
 
-    if (pVideoMedia != NULL) {
-        if (pVideoQueue != NULL) {
+    if (pVideoMedia != nullptr) {
+        if (pVideoQueue != nullptr) {
             pVideoQueue->clear();
         }
         pVideoMedia->currentTime = 0;
@@ -716,7 +716,7 @@ void SFFmpeg::seek(int64_t millis) {
     pthread_mutex_unlock(&seekMutex);
     pStatus->moveStatusToPreState();
 
-    LOGD(TAG, "seek: seekTargetMillis=%d seekStartMillis=%f rel=%d ret=%d", (int) millis,
+    LOGD(FFMPEG_TAG, "seek: seekTargetMillis=%d seekStartMillis=%f rel=%d ret=%d", (int) millis,
          pAudioMedia->currentTimeMillis,
          (int) rel, ret);
 }
@@ -731,24 +731,24 @@ void SFFmpeg::sleep() {
 
 
 void SFFmpeg::releaseFrame(AVFrame **avFrame) {
-    if (avFrame != NULL && (*avFrame) != NULL) {
+    if (avFrame != nullptr && (*avFrame) != nullptr) {
         av_frame_free(&(*avFrame));
         av_free(*avFrame);
-        *avFrame = NULL;
+        *avFrame = nullptr;
     }
 }
 
 void SFFmpeg::releasePacket(AVPacket **avPacket) {
-    if (avPacket != NULL && (*avPacket) != NULL) {
+    if (avPacket != nullptr && (*avPacket) != nullptr) {
         av_packet_free(&(*avPacket));
         av_free(*avPacket);
-        *avPacket = NULL;
+        *avPacket = nullptr;
     }
 }
 
 
 void SFFmpeg::startSoftDecode() {
-    LOGD(TAG, "SFFmpeg:startSoftDecode");
+    LOGD(FFMPEG_TAG, "SFFmpeg:startSoftDecode");
     while (pStatus->isLeastActiveState(STATE_PLAY)) {
         if (pStatus->isPause()) {
             sleep();
@@ -759,8 +759,8 @@ void SFFmpeg::startSoftDecode() {
             while (pStatus->isLeastActiveState(STATE_PLAY)) {
                 SQueue *pAudioQueue = getAudioQueue();
                 SQueue *pVideoQueue = getVideoQueue();
-                if ((pAudioQueue != NULL && pAudioQueue->getSize() > 0) ||
-                    (pVideoQueue != NULL && pVideoQueue->getSize() > 0)) {
+                if ((pAudioQueue != nullptr && pAudioQueue->getSize() > 0) ||
+                    (pVideoQueue != nullptr && pVideoQueue->getSize() > 0)) {
                     sleep();
                     continue;
                 } else {
@@ -780,32 +780,32 @@ void SFFmpeg::startSoftDecode() {
 //dump_extradata		 h264_redundant_pps	  mjpega_dump_header	   null			    vp9_metadata
 //eac3_core		 hapqa_extract		  mov2textsub		   prores_metadata	    vp9_raw_reorder
 void SFFmpeg::startMediaDecode() {
-    LOGD(TAG, "startMediaDecode: start");
+    LOGD(FFMPEG_TAG, "startMediaDecode: start");
     const char *codecName = pVideoMedia->pCodecContext->codec->name;
     if (strcasecmp(codecName, "h264") == 0) {
         pBSFilter = av_bsf_get_by_name("h264_mp4toannexb");
     }
-    if (pBSFilter == NULL) {
-        LOGE(TAG, "startMediaDecode: not found filter %s", codecName);
+    if (pBSFilter == nullptr) {
+        LOGE(FFMPEG_TAG, "startMediaDecode: not found filter %s", codecName);
         startSoftDecode();
         return;
     }
     if (av_bsf_alloc(pBSFilter, &pVideoMedia->pABSContext) != 0) {
-        LOGE(TAG, "startMediaDecode: alloc abs fail %s", codecName);
+        LOGE(FFMPEG_TAG, "startMediaDecode: alloc abs fail %s", codecName);
         startSoftDecode();
         return;
     }
     if (avcodec_parameters_copy(pVideoMedia->pABSContext->par_in, pVideoMedia->pCodecParameters) < 0) {
-        LOGE(TAG, "startMediaDecode: copy params fail %s", codecName);
+        LOGE(FFMPEG_TAG, "startMediaDecode: copy params fail %s", codecName);
         av_bsf_free(&pVideoMedia->pABSContext);
-        pVideoMedia->pABSContext = NULL;
+        pVideoMedia->pABSContext = nullptr;
         startSoftDecode();
         return;
     }
     if (av_bsf_init(pVideoMedia->pABSContext) != 0) {
-        LOGE(TAG, "startMediaDecode: bsf init fail %s", codecName);
+        LOGE(FFMPEG_TAG, "startMediaDecode: bsf init fail %s", codecName);
         av_bsf_free(&pVideoMedia->pABSContext);
-        pVideoMedia->pABSContext = NULL;
+        pVideoMedia->pABSContext = nullptr;
         startSoftDecode();
         return;
     }
@@ -821,7 +821,7 @@ void SFFmpeg::startMediaDecode() {
             pVideoMedia->pCodecContext->extradata
     );
 
-    LOGD(TAG, "SFFmpeg:startSoftDecode");
+    LOGD(FFMPEG_TAG, "SFFmpeg:startSoftDecode");
     while (pStatus->isLeastActiveState(STATE_PLAY)) {
         if (pStatus->isPause()) {
             sleep();
@@ -832,8 +832,8 @@ void SFFmpeg::startMediaDecode() {
             while (pStatus->isLeastActiveState(STATE_PLAY)) {
                 SQueue *pAudioQueue = getAudioQueue();
                 SQueue *pVideoQueue = getVideoQueue();
-                if ((pAudioQueue != NULL && pAudioQueue->getSize() > 0) ||
-                    (pVideoQueue != NULL && pVideoQueue->getSize() > 0)) {
+                if ((pAudioQueue != nullptr && pAudioQueue->getSize() > 0) ||
+                    (pVideoQueue != nullptr && pVideoQueue->getSize() > 0)) {
                     sleep();
                     continue;
                 } else {
@@ -846,14 +846,14 @@ void SFFmpeg::startMediaDecode() {
 }
 
 int SFFmpeg::mediaDecodeVideo() {
-    if (pVideoMedia == NULL || pVideoQueue == NULL) {
+    if (pVideoMedia == nullptr || pVideoQueue == nullptr) {
         return S_FUNCTION_BREAK;
     }
 
     pVideoPacket = av_packet_alloc();
 
-    if (pVideoPacket == NULL) {
-        LOGE(TAG, "mediaDecodeVideo: failed to allocated memory for AVPacket");
+    if (pVideoPacket == nullptr) {
+        LOGE(FFMPEG_TAG, "mediaDecodeVideo: failed to allocated memory for AVPacket");
         return S_FUNCTION_BREAK;
     }
 
@@ -871,7 +871,7 @@ int SFFmpeg::mediaDecodeVideo() {
         releasePacket(&pVideoPacket);
         releaseFrame(&pVideoFrame);
         pthread_mutex_unlock(&pVideoMedia->mutex);
-        LOGE(TAG, "mediaDecodeVideo: send packet failed");
+        LOGE(FFMPEG_TAG, "mediaDecodeVideo: send packet failed");
         return S_FUNCTION_CONTINUE;
     }
 
@@ -880,7 +880,7 @@ int SFFmpeg::mediaDecodeVideo() {
         releasePacket(&pVideoPacket);
         releaseFrame(&pVideoFrame);
         pthread_mutex_unlock(&pVideoMedia->mutex);
-        LOGE(TAG, "mediaDecodeVideo: receive packet failed");
+        LOGE(FFMPEG_TAG, "mediaDecodeVideo: receive packet failed");
         return S_FUNCTION_CONTINUE;
     }
 
@@ -888,7 +888,7 @@ int SFFmpeg::mediaDecodeVideo() {
 
     double delayTime = pVideoMedia->getDelayRenderTime(diffTime);
 
-    LOGD(TAG, "softDecodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
+    LOGD(FFMPEG_TAG, "softDecodeVideo diffTime %lf delayTime %lf", diffTime, delayTime);
 
     av_usleep(static_cast<unsigned int>(delayTime * 1000000));
 

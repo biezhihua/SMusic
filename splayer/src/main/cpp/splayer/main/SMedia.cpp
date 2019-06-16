@@ -5,25 +5,25 @@ SMedia::SMedia(int streamIndex, AVCodec *pCodec, AVCodecParameters *pCodecParame
     this->streamIndex = streamIndex;
     this->pCodec = pCodec;
     this->pCodecParameters = pCodecParameters;
-    pthread_mutex_init(&mutex, NULL);
+    pthread_mutex_init(&mutex, nullptr);
 }
 
 SMedia::~SMedia() {
     streamIndex = -1;
-    pCodec = NULL;
-    pCodecParameters = NULL;
+    pCodec = nullptr;
+    pCodecParameters = nullptr;
     pthread_mutex_destroy(&mutex);
 }
 
 int SMedia::getSampleRate() {
-    if (pCodecParameters != NULL) {
+    if (pCodecParameters != nullptr) {
         sampleRate = pCodecParameters->sample_rate;
     }
     return sampleRate;
 }
 
 void SMedia::updateTime(AVFrame *pFrame, int dataSize) {
-    if (pFrame != NULL) {
+    if (pFrame != nullptr) {
         currentFrameTime = (pFrame->pts * av_q2d(timeBase));
         if (currentFrameTime < currentTime) {
             currentFrameTime = currentTime;
@@ -64,7 +64,7 @@ double SMedia::getCurrentPTSByAVFrame(AVFrame *avFrame) {
 }
 
 double SMedia::getCurrentPTSByAVPacket(AVPacket *avPacket) {
-    if (avPacket != NULL) {
+    if (avPacket != nullptr) {
         double pts = avPacket->pts;
         if (pts == AV_NOPTS_VALUE) {
             pts = 0;
@@ -89,7 +89,7 @@ double SMedia::getCurrentTime() const {
  * 返回值小于0代表视频超前于音频，需要增加睡眠时间
  */
 double SMedia::getFrameDiffTime(SMedia *audio, double pts) {
-    if (audio != NULL) {
+    if (audio != nullptr) {
         double diffTime = audio->getCurrentTime() - pts;
         return diffTime;
     }

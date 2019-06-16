@@ -29,11 +29,11 @@ public:
     double defaultDelayRenderTime = 0;
 
     AVRational timeBase;
-    AVCodec *pCodec = NULL;
-    AVCodecParameters *pCodecParameters = NULL;
-    AVCodecContext *pCodecContext = NULL;
+    AVCodec *pCodec = nullptr;
+    AVCodecParameters *pCodecParameters = nullptr;
+    AVCodecContext *pCodecContext = nullptr;
 
-    AVBSFContext *pABSContext = NULL;
+    AVBSFContext *pABSContext = nullptr;
 
 public:
 

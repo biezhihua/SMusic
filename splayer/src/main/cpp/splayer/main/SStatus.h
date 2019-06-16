@@ -25,7 +25,7 @@
 
 #include <queue>
 
-#define TAG "Native_Status"
+#define STATE_TAG "Native_Status"
 
 class SStatus {
 
@@ -42,7 +42,7 @@ public:
 
     SStatus() {
         sQueue.push(STATE_NONE);
-        pthread_mutex_init(&mutex, NULL);
+        pthread_mutex_init(&mutex, nullptr);
     }
 
     ~SStatus() {
@@ -50,7 +50,7 @@ public:
     }
 
     void moveStatusToPreCreate() {
-        LOGD(TAG, "Status: MoveStatusToPreCreate");
+        LOGD(STATE_TAG, "Status: MoveStatusToPreCreate");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -61,7 +61,7 @@ public:
     }
 
     void moveStatusToCreate() {
-        LOGD(TAG, "Status: MoveStatusToCreate");
+        LOGD(STATE_TAG, "Status: MoveStatusToCreate");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -72,7 +72,7 @@ public:
     }
 
     void moveStatusToSource() {
-        LOGD(TAG, "Status: MoveStatusToSource");
+        LOGD(STATE_TAG, "Status: MoveStatusToSource");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -83,7 +83,7 @@ public:
     }
 
     void moveStatusToStart() {
-        LOGD(TAG, "Status: MoveStatusToStart");
+        LOGD(STATE_TAG, "Status: MoveStatusToStart");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -94,7 +94,7 @@ public:
     }
 
     void moveStatusToPreStart() {
-        LOGD(TAG, "Status: MoveStatusToPreStart");
+        LOGD(STATE_TAG, "Status: MoveStatusToPreStart");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -105,7 +105,7 @@ public:
     }
 
     void moveStatusToPrePlay() {
-        LOGD(TAG, "Status: MoveStatusToPrePlay");
+        LOGD(STATE_TAG, "Status: MoveStatusToPrePlay");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -116,7 +116,7 @@ public:
     }
 
     void moveStatusToPlay() {
-        LOGD(TAG, "Status: MoveStatusToPlay");
+        LOGD(STATE_TAG, "Status: MoveStatusToPlay");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -124,11 +124,11 @@ public:
         preState = state;
         state = STATE_PLAY;
         pthread_mutex_unlock(&mutex);
-        LOGD(TAG, "Status: MoveStatusToPlay %s %s %s", getState(prePreState), getState(preState), getState(state));
+        LOGD(STATE_TAG, "Status: MoveStatusToPlay %s %s %s", getState(prePreState), getState(preState), getState(state));
     }
 
     void moveStatusToSeek() {
-        LOGD(TAG, "Status: MoveStatusToSeek");
+        LOGD(STATE_TAG, "Status: MoveStatusToSeek");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -139,7 +139,7 @@ public:
     }
 
     void moveStatusToPause() {
-        LOGD(TAG, "Status: MoveStatusToPause");
+        LOGD(STATE_TAG, "Status: MoveStatusToPause");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -147,11 +147,11 @@ public:
         preState = state;
         state = STATE_PAUSE;
         pthread_mutex_unlock(&mutex);
-        LOGD(TAG, "Status: MoveStatusToPause %s %s %s", getState(prePreState), getState(preState), getState(state));
+        LOGD(STATE_TAG, "Status: MoveStatusToPause %s %s %s", getState(prePreState), getState(preState), getState(state));
     }
 
     void moveStatusToPreStop() {
-        LOGD(TAG, "Status: MoveStatusToPreStop");
+        LOGD(STATE_TAG, "Status: MoveStatusToPreStop");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -162,7 +162,7 @@ public:
     }
 
     void moveStatusToStop() {
-        LOGD(TAG, "Status: MoveStatusToStop");
+        LOGD(STATE_TAG, "Status: MoveStatusToStop");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -173,7 +173,7 @@ public:
     }
 
     void moveStatusToPreComplete() {
-        LOGD(TAG, "Status: MoveStatusToPreComplete");
+        LOGD(STATE_TAG, "Status: MoveStatusToPreComplete");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -184,7 +184,7 @@ public:
     }
 
     void moveStatusToComplete() {
-        LOGD(TAG, "Status: MoveStatusToComplete");
+        LOGD(STATE_TAG, "Status: MoveStatusToComplete");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -195,7 +195,7 @@ public:
     }
 
     void moveStatusToPreDestroy() {
-        LOGD(TAG, "Status: MoveStatusToPreDestroy");
+        LOGD(STATE_TAG, "Status: MoveStatusToPreDestroy");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -206,7 +206,7 @@ public:
     }
 
     void moveStatusToDestroy() {
-        LOGD(TAG, "Status: MoveStatusToDestroy");
+        LOGD(STATE_TAG, "Status: MoveStatusToDestroy");
         pthread_mutex_lock(&mutex);
         if (preState != STATE_NONE) {
             prePreState = preState;
@@ -222,7 +222,7 @@ public:
         state = preState;
         preState = tempPreState;
         pthread_mutex_unlock(&mutex);
-        LOGD(TAG, "Status: MoveStatusToPreState %s %s %s", getState(prePreState), getState(preState), getState(state));
+        LOGD(STATE_TAG, "Status: MoveStatusToPreState %s %s %s", getState(prePreState), getState(preState), getState(state));
     }
 
     const char *getState(int state) {

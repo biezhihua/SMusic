@@ -21,29 +21,29 @@ extern "C" {
 
 class SFFmpeg {
 private:
-    string *pSource = NULL;
+    string *pSource = nullptr;
 
-    SJavaMethods *pJavaMethods = NULL;
+    SJavaMethods *pJavaMethods = nullptr;
 
-    AVFormatContext *pFormatContext = NULL;
+    AVFormatContext *pFormatContext = nullptr;
 
-    AVPacket *pDecodeRawFramePacket = NULL;
+    AVPacket *pDecodeRawFramePacket = nullptr;
 
-    SMedia *pAudioMedia = NULL;
-    SQueue *pAudioQueue = NULL;
+    SMedia *pAudioMedia = nullptr;
+    SQueue *pAudioQueue = nullptr;
 
-    SMedia *pVideoMedia = NULL;
-    SQueue *pVideoQueue = NULL;
+    SMedia *pVideoMedia = nullptr;
+    SQueue *pVideoQueue = nullptr;
 
-    AVPacket *pAudioPacket = NULL;
-    AVFrame *pAudioFrame = NULL;
+    AVPacket *pAudioPacket = nullptr;
+    AVFrame *pAudioFrame = nullptr;
 
-    AVPacket *pVideoPacket = NULL;
-    AVFrame *pVideoFrame = NULL;
+    AVPacket *pVideoPacket = nullptr;
+    AVFrame *pVideoFrame = nullptr;
 
-    uint8_t *pBuffer = NULL;
+    uint8_t *pBuffer = nullptr;
 
-    SStatus *pStatus = NULL;
+    SStatus *pStatus = nullptr;
 
     pthread_mutex_t seekMutex;
 
@@ -51,7 +51,7 @@ private:
 
     int channelSampleNumbers = 0;
 
-    const AVBitStreamFilter *pBSFilter = NULL;
+    const AVBitStreamFilter *pBSFilter = nullptr;
 
 
 public:

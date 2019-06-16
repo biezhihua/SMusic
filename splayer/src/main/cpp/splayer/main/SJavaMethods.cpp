@@ -8,7 +8,7 @@ SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
     mainJniEnv = pEnv;
     javaInstance = mainJniEnv->NewGlobalRef(pInstance);
     jclass jClazz = mainJniEnv->GetObjectClass(javaInstance);
-    if (jClazz != NULL) {
+    if (jClazz != nullptr) {
         idCreate = mainJniEnv->GetMethodID(jClazz, "onPlayerCreateFromNative", "()V");
         idStart = mainJniEnv->GetMethodID(jClazz, "onPlayerStartFromNative", "()V");
         idPlay = mainJniEnv->GetMethodID(jClazz, "onPlayerPlayFromNative", "()V");
@@ -28,14 +28,14 @@ SJavaMethods::SJavaMethods(JavaVM *pVm, JNIEnv *pEnv, jobject pInstance) {
 
 SJavaMethods::~SJavaMethods() {
     mainJniEnv->DeleteGlobalRef(javaInstance);
-    javaInstance = NULL;
-    mainJniEnv = NULL;
-    javaVm = NULL;
+    javaInstance = nullptr;
+    mainJniEnv = nullptr;
+    javaVm = nullptr;
 }
 
 bool SJavaMethods::isMainThread() {
-    JNIEnv *jniEnv = NULL;
-    if (javaVm != NULL) {
+    JNIEnv *jniEnv = nullptr;
+    if (javaVm != nullptr) {
         jint res = javaVm->GetEnv(reinterpret_cast<void **>(&jniEnv), JNI_VERSION_1_6);
         bool result = res != JNI_EDETACHED;
         // LOGD(TAG,"isMainThread %d %d", res, result);
@@ -47,7 +47,7 @@ bool SJavaMethods::isMainThread() {
 void SJavaMethods::onCallJavaCreate() {
     LOGD(TAG, "SJavaMethods:onCallJavaCreate");
     JNIEnv *jniEnv = tryLoadEnv();
-    if (jniEnv != NULL) {
+    if (jniEnv != nullptr) {
         jniEnv->CallVoidMethod(javaInstance, idCreate);
         tryUnLoadEnv();
     }
@@ -56,7 +56,7 @@ void SJavaMethods::onCallJavaCreate() {
 void SJavaMethods::onCallJavaStart() {
     LOGD(TAG, "SJavaMethods:onCallJavaStart");
     JNIEnv *jniEnv = tryLoadEnv();
-    if (jniEnv != NULL) {
+    if (jniEnv != nullptr) {
         jniEnv->CallVoidMethod(javaInstance, idStart);
         tryUnLoadEnv();
     }
@@ -65,7 +65,7 @@ void SJavaMethods::onCallJavaStart() {
 void SJavaMethods::onCallJavaPlay() {
     LOGD(TAG, "SJavaMethods:onCallJavaPlay");
     JNIEnv *jniEnv = tryLoadEnv();
-    if (jniEnv != NULL) {
+    if (jniEnv != nullptr) {
         jniEnv->CallVoidMethod(javaInstance, idPlay);
         tryUnLoadEnv();
     }
@@ -74,7 +74,7 @@ void SJavaMethods::onCallJavaPlay() {
 void SJavaMethods::onCallJavaPause() {
     LOGD(TAG, "SJavaMethods:onCallJavaPause");
     JNIEnv *jniEnv = tryLoadEnv();
-    if (jniEnv != NULL) {
+    if (jniEnv != nullptr) {
         jniEnv->CallVoidMethod(javaInstance, idPause);
         tryUnLoadEnv();
     }
@@ -83,7 +83,7 @@ void SJavaMethods::onCallJavaPause() {
 void SJavaMethods::onCallJavaStop() {
     LOGD(TAG, "SJavaMethods:onCallJavaStop");
     JNIEnv *jniEnv = tryLoadEnv();
-    if (jniEnv != NULL) {
+    if (jniEnv != nullptr) {
         jniEnv->CallVoidMethod(javaInstance, idStop);
         tryUnLoadEnv();
     }
@@ -92,7 +92,7 @@ void SJavaMethods::onCallJavaStop() {
 void SJavaMethods::onCallJavaDestroy() {
     LOGD(TAG, "SJavaMethods:onCallJavaDestroy");
     JNIEnv *jniEnv = tryLoadEnv();
-    if (jniEnv != NULL) {
+    if (jniEnv != nullptr) {
         jniEnv->CallVoidMethod(javaInstance, idDestroy);
         tryUnLoadEnv();
     }
@@ -114,14 +114,14 @@ void SJavaMethods::tryUnLoadEnv() {
 }
 
 JNIEnv *SJavaMethods::tryLoadEnv() {
-    JNIEnv *jniEnv = NULL;
+    JNIEnv *jniEnv = nullptr;
     if (isMainThread()) {
         jniEnv = mainJniEnv;
     } else {
-        int res = javaVm->AttachCurrentThread(&jniEnv, NULL);
+        int res = javaVm->AttachCurrentThread(&jniEnv, nullptr);
         if (JNI_OK != res) {
             LOGE(TAG, "Failed to AttachCurrentThread, ErrorCode = %d", res);
-            jniEnv = NULL;
+            jniEnv = nullptr;
         }
     }
     return jniEnv;
@@ -141,7 +141,7 @@ void SJavaMethods::onCallJavaError(int code, const char *message) {
 void SJavaMethods::onCallJavaComplete() {
     LOGD(TAG, "SJavaMethods:onCallJavaComplete");
     JNIEnv *jniEnv = tryLoadEnv();
-    if (jniEnv != NULL) {
+    if (jniEnv != nullptr) {
         jniEnv->CallVoidMethod(javaInstance, idComplete);
         tryUnLoadEnv();
     }
