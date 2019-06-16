@@ -15,3 +15,8 @@ PipelineOpaque::~PipelineOpaque() {
     ALOGD(__func__);
     delete pSurfaceMutex;
 }
+
+void PipelineOpaque::setVOut(VOut *vOut) {
+    PipelineOpaque::pVOut = vOut;
+}
+

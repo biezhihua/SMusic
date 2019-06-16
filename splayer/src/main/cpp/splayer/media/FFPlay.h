@@ -28,6 +28,8 @@ public:
 
     void setPipeline(Pipeline *pipeline);
 
+    MessageQueue *getMsgQueue() const;
+
 };
 
 

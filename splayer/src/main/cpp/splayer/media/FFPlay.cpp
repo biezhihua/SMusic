@@ -30,3 +30,7 @@ void FFPlay::setPipeline(Pipeline *pipeline) {
     ALOGD(__func__);
     FFPlay::pPipeline = pipeline;
 }
+
+MessageQueue *FFPlay::getMsgQueue() const {
+    return pMsgQueue;
+}

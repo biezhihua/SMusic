@@ -108,10 +108,39 @@ void MessageQueue::start() {
         pMutex->mutexLock();
         setAbortRequest(false);
         Message *message = new Message();
-        message->what = Message::FFP_MSG_FLUSH;
+        message->what = Message::MSG_FLUSH;
         _put(message);
         pMutex->mutexUnLock();
     }
+}
+
+void MessageQueue::notifyMsg1(int what) {
+    ALOGD("%s what=%d", __func__, Message::getMsgSimpleName(what));
+    Message *message = new Message();
+    message->what = what;
+    put(message);
+}
+
+void MessageQueue::notifyMsg2(int what, int arg1) {
+    ALOGD("%s what=%d arg1=%d", __func__, Message::getMsgSimpleName(what), arg1);
+    Message *message = new Message();
+    message->what = what;
+    message->arg1 = arg1;
+    put(message);
+}
+
+void MessageQueue::notifyMsg3(int what, int arg1, int arg2) {
+    ALOGD("%s what=%d arg1=%d arg2=%d", __func__, Message::getMsgSimpleName(what), arg1, arg2);
+    Message *message = new Message();
+    message->what = what;
+    message->arg1 = arg1;
+    message->arg2 = arg2;
+    put(message);
+}
+
+void MessageQueue::removeMsg(int what) {
+    ALOGD("%s what=", __func__, Message::getMsgSimpleName(what));
+    remove(what);
 }
 
 

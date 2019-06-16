@@ -1,6 +1,7 @@
 #ifndef SPLAYER_MESSAGEQUEUE_H
 #define SPLAYER_MESSAGEQUEUE_H
 
+#include "Log.h"
 #include "Common.h"
 #include "Mutex.h"
 #include "Message.h"
@@ -54,6 +55,14 @@ public:
     void clear();
 
     void start();
+
+    void notifyMsg1(int what);
+
+    void notifyMsg2(int what, int arg1);
+
+    void notifyMsg3(int what, int arg1, int arg2);
+
+    void removeMsg(int what);
 };
 
 

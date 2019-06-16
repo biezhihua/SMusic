@@ -7,13 +7,25 @@
 #include "FFPlay.h"
 #include "RefCount.h"
 #include "Pipeline.h"
+#include "State.h"
 
 class MediaPlayer {
 
 private:
+    State *pState = nullptr;
     Mutex *pMutex = nullptr;
     FFPlay *pPlay = nullptr;
     static RefCount refCount;
+    string *pDataSource = nullptr;
+
+private:
+    void notifyMsg1(int what);
+
+    void notifyMsg2(int what, int arg1);
+
+    void notifyMsg3(int what, int arg1, int arg2);
+
+    void removeMsg(int what);
 
 protected:
     virtual AOut *createAOut() = 0;
@@ -39,6 +51,8 @@ public:
     virtual int destroy();
 
     virtual int reset();
+
+    virtual int setDataSource(const char *url);
 
 
 };

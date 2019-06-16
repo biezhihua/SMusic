@@ -10,6 +10,7 @@ class PipelineOpaque {
 
 private:
     Mutex *pSurfaceMutex = nullptr;
+    VOut *pVOut = nullptr;
     float leftVolume = 0.0;
     float rightVolume = 0.0;
 
@@ -17,6 +18,8 @@ public:
     PipelineOpaque();
 
     virtual ~PipelineOpaque();
+
+    void setVOut(VOut *pOut);
 };
 
 
