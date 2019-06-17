@@ -179,7 +179,7 @@ double TDStretchSSE::calcCrossCorr(const float *pV1, const float *pV2, double &a
 double TDStretchSSE::calcCrossCorrAccumulate(const float *pV1, const float *pV2, double &norm)
 {
     // call usual calcCrossCorr function because SSE does not show big benefit of 
-    // accumulating "norm" value, and also the "norm" rolling algorithm would get 
+    // accumulating "norm" value, and also the "norm" rolling algorithm would getMsg
     // complicated due to SSE-specific alignment-vs-nonexact correlation rules.
     return calcCrossCorr(pV1, pV2, norm);
 }

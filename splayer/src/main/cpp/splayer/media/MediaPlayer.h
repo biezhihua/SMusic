@@ -9,6 +9,7 @@
 #include "Pipeline.h"
 #include "State.h"
 #include "Thread.h"
+#include <libavutil/time.h>
 
 class MediaPlayer {
 
@@ -36,6 +37,8 @@ protected:
 
     virtual Pipeline *createPipeline() = 0;
 
+    MessageQueue *getMsgQueue();
+
 public:
 
     MediaPlayer();
@@ -58,7 +61,7 @@ public:
 
     virtual int prepareAsync();
 
-    int messageLoop();
+    virtual int messageLoop() = 0;
 };
 
 

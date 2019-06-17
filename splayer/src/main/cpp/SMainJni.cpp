@@ -1,5 +1,4 @@
 #include <jni.h>
-#include <pthread.h>
 #include <SPlayer.h>
 #include <SStatus.h>
 #include <SFFmpeg.h>
@@ -45,6 +44,9 @@ Java_com_bzh_splayer_lib_SPlayer_nativeSetSource(JNIEnv *env, jobject instance, 
 //    if (sPlayer != nullptr) {
 //        sPlayer->setSource(new std::string(source));
 //    }
+    if (mediaPlayer) {
+        mediaPlayer->setDataSource(source);
+    }
     env->ReleaseStringUTFChars(source_, source);
 }
 
@@ -83,8 +85,11 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_bzh_splayer_lib_SPlayer_nativeStart(JNIEnv *env, jobject instance) {
     LOGD(JNI_TAG, "nativeStart");
 //    if (sPlayer != nullptr) {
-//        sPlayer->start();
+//        sPlayer->startMsgQueue();
 //    }
+    if (mediaPlayer) {
+        mediaPlayer->start();
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativePlay(JNIEnv *env, jobject instance) {
@@ -92,6 +97,10 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativePlay(JN
 //    if (sPlayer != nullptr) {
 //        sPlayer->play();
 //    }
+    if (mediaPlayer) {
+        mediaPlayer->prepareAsync();
+    }
+
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativePause(JNIEnv *env, jobject instance) {
@@ -99,6 +108,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativePause(J
 //    if (sPlayer != nullptr) {
 //        sPlayer->pause();
 //    }
+    if (mediaPlayer) {
+        mediaPlayer->pause();
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeStop(JNIEnv *env, jobject instance) {
@@ -106,6 +118,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeStop(JN
 //    if (sPlayer != nullptr) {
 //        sPlayer->stop();
 //    }
+    if (mediaPlayer) {
+        mediaPlayer->stop();
+    }
 }
 
 //void *destroyCallBack(void *data) {
@@ -142,6 +157,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeDestroy
 //            sIsExiting = true;
 //        }
 //    }
+    if (mediaPlayer) {
+        mediaPlayer->destroy();
+    }
     delete mediaPlayer;
     mediaPlayer = nullptr;
 }

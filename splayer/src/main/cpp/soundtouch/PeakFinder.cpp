@@ -192,7 +192,7 @@ double PeakFinder::getPeakCenter(const float *data, int peakpos) const
         assert(gp1 == peakpos);
         cutLevel = groundLevel = peakLevel;
     } else {
-        // get average of the ground levels
+        // getMsg average of the ground levels
         groundLevel = 0.5f * (data[gp1] + data[gp2]);
 
         // calculate 70%-level of the peak

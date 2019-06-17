@@ -18,10 +18,10 @@ private:
 
     list<Message *> *pQueue = nullptr;
 
-    bool abortRequest = false;
+    bool abortRequest = true;
 
 private:
-    int _put(Message *msg);
+    int _putMsg(Message *msg);
 
 public:
 
@@ -32,29 +32,26 @@ public:
     /**
      * push message to queue
      */
-    int put(Message *msg);
+    int putMsg(Message *msg);
 
     /**
      * get first message from queue, will block thread
      */
-    int get(Message *msg, bool block);
-
-    /**
-     * remove message by what
-     */
-    void remove(int what);
+    int getMsg(Message *msg, bool block);
 
     /**
      * abort message queue
      */
     void setAbortRequest(bool abortRequest);
 
+    void removeMsg(int what);
+
     /**
      * clear queue
      */
-    void clear();
+    void clearMsgQueue();
 
-    int start();
+    int startMsgQueue();
 
     void notifyMsg1(int what);
 
@@ -62,7 +59,7 @@ public:
 
     void notifyMsg3(int what, int arg1, int arg2);
 
-    void removeMsg(int what);
+
 };
 
 

@@ -142,7 +142,7 @@ SAMPLETYPE *FIFOSampleBuffer::ptrEnd(uint slackCapacity)
 // This function is provided for accessing the output samples directly. 
 // Please be careful!
 //
-// When using this function to output samples, also remember to 'remove' the
+// When using this function to output samples, also remember to 'removeMsg' the
 // outputted samples from the buffer by calling the 
 // 'receiveSamples(numSamples)' function
 SAMPLETYPE *FIFOSampleBuffer::ptrBegin()

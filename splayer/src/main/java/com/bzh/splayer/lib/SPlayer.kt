@@ -58,7 +58,7 @@ class SPlayer {
     }
 
     fun start() {
-        Log.d(TAG, "start() called")
+        Log.d(TAG, "startMsgQueue() called")
         nativeStart()
     }
 
@@ -293,9 +293,9 @@ class SPlayer {
         if (mediaCodec != null && surface != null && dataSize > 0 && data != null) {
 //            val inputBufferIndex = mediaCodec?.dequeueInputBuffer(10000)
 //            if (inputBufferIndex != null && inputBufferIndex >= 0) {
-//                val byte = mediaCodec?.inputBuffers?.get(inputBufferIndex)
-//                byte?.clear()
-//                byte?.put(data)
+//                val byte = mediaCodec?.inputBuffers?.getMsg(inputBufferIndex)
+//                byte?.clearMsgQueue()
+//                byte?.putMsg(data)
 //                mediaCodec?.queueInputBuffer(inputBufferIndex, 0, dataSize, 0, 0)
 //            }
 //

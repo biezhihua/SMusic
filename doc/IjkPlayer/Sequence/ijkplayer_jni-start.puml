@@ -1,7 +1,7 @@
 @startuml
 autonumber
 
-IjkMediaPlayer -> ijkplayer_jni:start()
+IjkMediaPlayer -> ijkplayer_jni:startMsgQueue()
 
 ijkplayer_jni -> ijkplayer:ijkmp_start()
 

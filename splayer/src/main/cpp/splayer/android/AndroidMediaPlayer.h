@@ -5,13 +5,20 @@
 #include "AndroidAOut.h"
 #include "AndroidVOut.h"
 #include "AndroidPipeline.h"
+#include <jni.h>
 
 class AndroidMediaPlayer : public MediaPlayer {
+private:
+    void postEvent(int what, int arg1, int arg2);
+
+    void postEvent2(int what, int arg1, int arg2, jobject obj);
 
 public:
     AndroidMediaPlayer();
 
     virtual ~AndroidMediaPlayer();
+
+    int messageLoop() override;
 
 protected:
     AOut *createAOut() override;

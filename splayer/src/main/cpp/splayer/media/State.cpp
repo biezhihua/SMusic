@@ -10,7 +10,7 @@ State::~State() {
 }
 
 int State::changeState(const int state) {
-    ALOGD("%s state=%d", __func__, getState(state));
+    ALOGD("%s state=%s", __func__, getState(state));
     State::state = state;
     if (pMsgQueue) {
         pMsgQueue->notifyMsg1(Message::MSG_PLAYBACK_STATE_CHANGED);

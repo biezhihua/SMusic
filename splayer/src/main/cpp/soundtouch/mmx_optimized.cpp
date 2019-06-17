@@ -383,7 +383,7 @@ uint FIRFilterMMX::evaluateFilterStereo(short *dest, const short *src, uint numS
         pVdest ++;
     }
 
-   _m_empty();  // clear emms state
+   _m_empty();  // clearMsgQueue emms state
 
     return (numSamples & 0xfffffffe) - length;
 }

@@ -6,7 +6,7 @@
  */
 void *startDecodeFrameCallback(void *data) {
 
-    LOGD(PLAYER_TAG, "SPlayer: startDecodeFrameCallback: start");
+    LOGD(PLAYER_TAG, "SPlayer: startDecodeFrameCallback: startMsgQueue");
 
     SPlayer *sPlayer = (SPlayer *) data;
 
@@ -62,7 +62,7 @@ void *startDecodeFrameCallback(void *data) {
  * Decode Media Info, Prepare To Play Video/Audio.
  */
 void *startDecodeMediaInfoCallback(void *data) {
-    LOGD(PLAYER_TAG, "SPlayer: startDecodeMediaInfoCallback: start");
+    LOGD(PLAYER_TAG, "SPlayer: startDecodeMediaInfoCallback: startMsgQueue");
 
     SPlayer *pPlayer = (SPlayer *) data;
 
@@ -108,7 +108,7 @@ void *startDecodeMediaInfoCallback(void *data) {
 }
 
 void *seekCallback(void *data) {
-    LOGD(PLAYER_TAG, "SPlayer: seekCallback: start");
+    LOGD(PLAYER_TAG, "SPlayer: seekCallback: startMsgQueue");
     SPlayer *sPlayer = (SPlayer *) data;
     if (sPlayer != nullptr && sPlayer->getFFmpeg() != nullptr) {
         SFFmpeg *pFFmpeg = sPlayer->getFFmpeg();
@@ -125,7 +125,7 @@ void *seekCallback(void *data) {
  * Play Audio Frame
  */
 void *playAudioCallback(void *data) {
-    LOGD(PLAYER_TAG, "SPlayer: playAudioCallback: start");
+    LOGD(PLAYER_TAG, "SPlayer: playAudioCallback: startMsgQueue");
 
     SPlayer *pPlayer = (SPlayer *) data;
 
@@ -164,7 +164,7 @@ void *playAudioCallback(void *data) {
  * Play Video Frame
  */
 void *playVideoCallback(void *data) {
-    LOGD(PLAYER_TAG, "SPlayer: playVideoCallback: start");
+    LOGD(PLAYER_TAG, "SPlayer: playVideoCallback: startMsgQueue");
     SPlayer *pPlayer = (SPlayer *) data;
 
     if (pPlayer != nullptr && pPlayer->getFFmpeg() != nullptr) {
@@ -245,7 +245,7 @@ void SPlayer::setSource(string *url) {
 }
 
 void SPlayer::start() {
-    LOGD(PLAYER_TAG, "SPlayer: start: ------------------- ");
+    LOGD(PLAYER_TAG, "SPlayer: startMsgQueue: ------------------- ");
 
     if (isValidState() && (pStatus->isSource() || pStatus->isStop() || pStatus->isComplete())) {
         pStatus->moveStatusToPreStart();

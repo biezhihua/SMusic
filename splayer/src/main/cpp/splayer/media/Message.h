@@ -3,16 +3,23 @@
 #ifndef SPLAYER_MESSAGE_H
 #define SPLAYER_MESSAGE_H
 
+class MessageObject {
+public:
+    virtual int destroy() = 0;
+};
+
 class Message {
 public:
     Message();
 
     ~Message();
 
-    int what;
-    int arg1;
-    int arg2;
-    void *obj;
+    int what = -1;
+    int arg1 = -1;
+    int arg2 = -1;
+    MessageObject *obj = nullptr;
+
+    void free();
 
     /* 0~9999 */
 

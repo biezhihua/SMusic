@@ -77,7 +77,7 @@ int SOpenSLES::initOpenSLES() {
         return S_ERROR;
     }
 
-    // get the engine interface, which is needed in order to create other objects
+    // getMsg the engine interface, which is needed in order to create other objects
     result = (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE, &engineEngine);
     if (SL_RESULT_SUCCESS != result) {
         LOGE(TAG, "SOpenSLES: init: engineObject GetInterface engineEngine failed");
@@ -100,7 +100,7 @@ int SOpenSLES::initOpenSLES() {
         return S_ERROR;
     }
 
-    // get the environmental reverb interface
+    // getMsg the environmental reverb interface
     // this could fail if the environmental reverb effect is not available,
     // either because the feature is not present, excessive CPU load, or
     // the required MODIFY_AUDIO_SETTINGS permission was not requested and granted
@@ -150,14 +150,14 @@ int SOpenSLES::initOpenSLES() {
         return S_ERROR;
     }
 
-    // get the play interface
+    // getMsg the play interface
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_PLAY, &bqPlayerPlay);
     if (SL_RESULT_SUCCESS != result) {
         LOGE(TAG, "SOpenSLES: init: bqPlayerObject GetInterface SL_IID_PLAY failed");
         return S_ERROR;
     }
 
-    // get the buffer pQueue interface
+    // getMsg the buffer pQueue interface
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_BUFFERQUEUE, &bqPlayerBufferQueue);
     if (SL_RESULT_SUCCESS != result) {
         LOGE(TAG, "SOpenSLES: init: bqPlayerObject GetInterface SL_IID_BUFFERQUEUE failed");
@@ -176,7 +176,7 @@ int SOpenSLES::initOpenSLES() {
         LOGE(TAG, "SOpenSLES: init: bqPlayerObject SL_IID_MUTESOLO failed");
     }
 
-    // get the volume interface
+    // getMsg the volume interface
     result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_VOLUME, &bqPlayerVolume);
     if (SL_RESULT_SUCCESS != result) {
         LOGE(TAG, "SOpenSLES: init: bqPlayerObject SL_IID_VOLUME failed");

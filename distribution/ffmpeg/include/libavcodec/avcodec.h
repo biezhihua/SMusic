@@ -2510,8 +2510,8 @@ typedef struct AVCodecContext {
     attribute_deprecated
     int rtp_payload_size;   /* The size of the RTP payload: the coder will  */
                             /* do its best to deliver a chunk with size     */
-                            /* below rtp_payload_size, the chunk will start */
-                            /* with a start code on some codecs like H.263. */
+                            /* below rtp_payload_size, the chunk will startMsgQueue */
+                            /* with a startMsgQueue code on some codecs like H.263. */
                             /* This doesn't take account of any particular  */
                             /* headers inside the transmitted RTP payload.  */
 #endif
@@ -5217,7 +5217,7 @@ typedef struct AVCodecParser {
     int priv_data_size;
     int (*parser_init)(AVCodecParserContext *s);
     /* This callback never returns an error, a negative value means that
-     * the frame start was in a previous packet. */
+     * the frame startMsgQueue was in a previous packet. */
     int (*parser_parse)(AVCodecParserContext *s,
                         AVCodecContext *avctx,
                         const uint8_t **poutbuf, int *poutbuf_size,

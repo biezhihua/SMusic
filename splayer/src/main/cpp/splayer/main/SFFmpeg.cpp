@@ -97,7 +97,7 @@ int SFFmpeg::decodeMediaInfo() {
          pFormatContext->bit_rate);
 
     LOGD(FFMPEG_TAG, "decodeMediaInfo: Finding stream info from format");
-    // read Packets from the Format to get stream information
+    // read Packets from the Format to getMsg stream information
     // this function populates pFormatContext->streams
     // (of size equals to pFormatContext->nb_streams)
     // the arguments are:
@@ -106,7 +106,7 @@ int SFFmpeg::decodeMediaInfo() {
     // On return each dictionary will be filled with options that were not found.
     // https://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#gad42172e27cddafb81096939783b157bb
     if (avformat_find_stream_info(pFormatContext, nullptr) < 0) {
-        LOGD(FFMPEG_TAG, "decodeMediaInfo: ERROR could not get the stream info");
+        LOGD(FFMPEG_TAG, "decodeMediaInfo: ERROR could not getMsg the stream info");
         return S_ERROR;
     }
 
@@ -780,7 +780,7 @@ void SFFmpeg::startSoftDecode() {
 //dump_extradata		 h264_redundant_pps	  mjpega_dump_header	   null			    vp9_metadata
 //eac3_core		 hapqa_extract		  mov2textsub		   prores_metadata	    vp9_raw_reorder
 void SFFmpeg::startMediaDecode() {
-    LOGD(FFMPEG_TAG, "startMediaDecode: start");
+    LOGD(FFMPEG_TAG, "startMediaDecode: startMsgQueue");
     const char *codecName = pVideoMedia->pCodecContext->codec->name;
     if (strcasecmp(codecName, "h264") == 0) {
         pBSFilter = av_bsf_get_by_name("h264_mp4toannexb");

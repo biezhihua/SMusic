@@ -1,7 +1,7 @@
 
+
 #include "MediaPlayer.h"
 #include "Thread.h"
-
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
@@ -133,8 +133,11 @@ int MediaPlayer::setDataSource(const char *url) {
 }
 
 static int staticMsgLoop(void *arg) {
-    MediaPlayer *mediaPlayer = static_cast<MediaPlayer *>(arg);
-    return mediaPlayer->messageLoop();
+    if (arg) {
+        MediaPlayer *mediaPlayer = static_cast<MediaPlayer *>(arg);
+        return mediaPlayer->messageLoop();
+    }
+    return EXIT_FAILURE;
 }
 
 int MediaPlayer::prepareAsync() {
@@ -142,7 +145,7 @@ int MediaPlayer::prepareAsync() {
         pMutex->mutexLock();
         pState->changeState(State::STATE_ASYNC_PREPARING);
         if (pPlay->getMsgQueue()) {
-            pPlay->getMsgQueue()->start();
+            pPlay->getMsgQueue()->startMsgQueue();
         }
         pMsgThread = new Thread(staticMsgLoop, this, "msg_loop");
         if (pPlay->prepareAsync(pDataSource)) {
@@ -152,14 +155,6 @@ int MediaPlayer::prepareAsync() {
         pState->changeState(State::STATE_ERROR);
         pMutex->mutexUnLock();
         return EXIT_FAILURE;
-    }
-    return EXIT_FAILURE;
-}
-
-int MediaPlayer::messageLoop() {
-    ALOGD(__func__);
-    for (;;) {
-
     }
     return EXIT_FAILURE;
 }
@@ -190,6 +185,13 @@ void MediaPlayer::removeMsg(int what) {
         MessageQueue *msg = pPlay->getMsgQueue();
         msg->removeMsg(what);
     }
+}
+
+MessageQueue *MediaPlayer::getMsgQueue() {
+    if (pPlay) {
+        return pPlay->getMsgQueue();
+    }
+    return nullptr;
 }
 
 

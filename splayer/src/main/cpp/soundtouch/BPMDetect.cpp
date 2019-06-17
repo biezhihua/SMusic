@@ -439,7 +439,7 @@ void BPMDetect::inputSamples(const SAMPLETYPE *samples, int numSamples)
         updateXCorr(XCORR_UPDATE_SEQUENCE);
         // ...update beat position calculation...
         updateBeatPos(XCORR_UPDATE_SEQUENCE / 2);
-        // ... and remove proceessed samples from the buffer
+        // ... and removeMsg proceessed samples from the buffer
         int n = XCORR_UPDATE_SEQUENCE / OVERLAP_FACTOR;
         buffer->receiveSamples(n);
     }
@@ -518,7 +518,7 @@ float BPMDetect::getBpm()
     double coeff;
     PeakFinder peakFinder;
 
-    // remove bias from xcorr data
+    // removeMsg bias from xcorr data
     removeBias();
 
     coeff = 60.0 * ((double)sampleRate / (double)decimateBy);

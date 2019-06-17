@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 #include <string>
+#include "Log.h"
 
 using namespace std;
 

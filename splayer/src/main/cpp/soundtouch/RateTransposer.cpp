@@ -150,7 +150,7 @@ void RateTransposer::processSamples(const SAMPLETYPE *src, uint nSamples)
     if (pTransposer->rate < 1.0f) 
     {
         // If the parameter 'Rate' value is smaller than 1, first transpose
-        // the samples and then apply the anti-alias filter to remove aliasing.
+        // the samples and then apply the anti-alias filter to removeMsg aliasing.
 
         // Transpose the samples, store the result to end of "midBuffer"
         pTransposer->transpose(midBuffer, inputBuffer);
@@ -161,7 +161,7 @@ void RateTransposer::processSamples(const SAMPLETYPE *src, uint nSamples)
     else  
     {
         // If the parameter 'Rate' value is larger than 1, first apply the
-        // anti-alias filter to remove high frequencies (prevent them from folding
+        // anti-alias filter to removeMsg high frequencies (prevent them from folding
         // over the lover frequencies), then transpose.
 
         // Apply the anti-alias filter for samples in inputBuffer
