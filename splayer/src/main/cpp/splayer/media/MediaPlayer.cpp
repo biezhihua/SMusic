@@ -28,10 +28,11 @@ int MediaPlayer::create() {
     if (pPlay) {
         // 设置图像输出表面
         VOut *vOut = createSurface();
-        pPlay->setVOut(vOut);
         if (!vOut) {
             return EXIT_FAILURE;
         }
+        vOut->setVOutOpaque(vOut->createOpaque());
+        pPlay->setVOut(vOut);
 
         // 设置数据输入管道
         Pipeline *pipeline = createPipeline();

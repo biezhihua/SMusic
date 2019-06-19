@@ -76,7 +76,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeCreate(
 //    }
 
     mediaPlayer = ((MediaPlayer *) new AndroidMediaPlayer());
-    mediaPlayer->create();
+    if (mediaPlayer) {
+        mediaPlayer->create();
+    }
 }
 
 
