@@ -1,11 +1,7 @@
-//
-// Created by biezhihua on 2019-06-16.
-//
-
 #ifndef SPLAYER_ANDROIDAOUT_H
 #define SPLAYER_ANDROIDAOUT_H
 
-
+#include <Common.h>
 #include "AOut.h"
 #include "../media/Log.h"
 

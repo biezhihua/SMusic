@@ -6,14 +6,12 @@
 
 PipelineOpaque::PipelineOpaque() {
     ALOGD(__func__);
-    pSurfaceMutex = new Mutex();
-    leftVolume = 1.0f;
-    rightVolume = 1.0f;
+
 }
 
 PipelineOpaque::~PipelineOpaque() {
     ALOGD(__func__);
-    delete pSurfaceMutex;
+
 }
 
 void PipelineOpaque::setVOut(VOut *vOut) {

@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-19.
-//
-
 #ifndef SPLAYER_ANDROIDVOUTOPAQUE_H
 #define SPLAYER_ANDROIDVOUTOPAQUE_H
 

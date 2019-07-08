@@ -26,29 +26,41 @@ MediaPlayer::~MediaPlayer() {
 int MediaPlayer::create() {
     ALOGD(__func__);
     if (pPlay) {
-        // 设置图像输出表面
+
+        // 创建输出层
         VOut *vOut = createSurface();
         if (!vOut) {
+            // TODO
             return EXIT_FAILURE;
         }
-        vOut->setVOutOpaque(vOut->createOpaque());
-        pPlay->setVOut(vOut);
 
-        // 设置数据输入管道
+        // 创建输出层实现
+        VOutOpaque *pOutOpaque = vOut->createOpaque();
+        vOut->setVOutOpaque(pOutOpaque);
+
+        // 创建数据管道
         Pipeline *pipeline = createPipeline();
-        if (pipeline) {
-            PipelineOpaque *opaque = pipeline->createOpaque();
-            if (opaque) {
-                opaque->setVOut(vOut);
-                pipeline->setOpaque(opaque);
-            }
-            pPlay->setPipeline(pipeline);
-        } else {
+        if (!pipeline) {
+            // TODO
             return EXIT_FAILURE;
         }
+
+        // 创建数据管道实现
+        PipelineOpaque *opaque = pipeline->createOpaque();
+        if (!opaque) {
+            // TODO
+            return EXIT_FAILURE;
+        }
+
+        opaque->setVOut(vOut);
+        pipeline->setOpaque(opaque);
+
+        pPlay->setPipeline(pipeline);
+        pPlay->setVOut(vOut);
 
         return EXIT_SUCCESS;
     }
+    // TODO
     return EXIT_FAILURE;
 }
 
@@ -58,7 +70,7 @@ int MediaPlayer::start() {
         pMutex->mutexLock();
         removeMsg(Message::REQ_START);
         removeMsg(Message::REQ_PAUSE);
-        notifyMsg1(Message::REQ_START);
+        notifyMsg(Message::REQ_START);
         pMutex->mutexUnLock();
         return EXIT_SUCCESS;
     }
@@ -86,7 +98,7 @@ int MediaPlayer::pause() {
         pMutex->mutexLock();
         removeMsg(Message::REQ_START);
         removeMsg(Message::REQ_PAUSE);
-        notifyMsg1(Message::REQ_PAUSE);
+        notifyMsg(Message::REQ_PAUSE);
         pMutex->mutexUnLock();
         return EXIT_SUCCESS;
     }
@@ -160,24 +172,24 @@ int MediaPlayer::prepareAsync() {
     return EXIT_FAILURE;
 }
 
-void MediaPlayer::notifyMsg1(int what) {
+void MediaPlayer::notifyMsg(int what) {
     if (pPlay && pPlay->getMsgQueue()) {
         MessageQueue *msg = pPlay->getMsgQueue();
-        msg->notifyMsg1(what);
+        msg->notifyMsg(what);
     }
 }
 
-void MediaPlayer::notifyMsg2(int what, int arg1) {
+void MediaPlayer::notifyMsg(int what, int arg1) {
     if (pPlay && pPlay->getMsgQueue()) {
         MessageQueue *msg = pPlay->getMsgQueue();
-        msg->notifyMsg2(what, arg1);
+        msg->notifyMsg(what, arg1);
     }
 }
 
-void MediaPlayer::notifyMsg3(int what, int arg1, int arg2) {
+void MediaPlayer::notifyMsg(int what, int arg1, int arg2) {
     if (pPlay && pPlay->getMsgQueue()) {
         MessageQueue *msg = pPlay->getMsgQueue();
-        msg->notifyMsg3(what, arg1, arg2);
+        msg->notifyMsg(what, arg1, arg2);
     }
 }
 

@@ -14,9 +14,13 @@ VOutOverlay *AndroidVOutSurface::createOverlay(int width, int height, int frameF
 }
 
 int AndroidVOutSurface::displayOverlay(VOutOverlay *overlay) {
-    return nullptr;
+    return 0;
 }
 
 VOutOpaque *AndroidVOutSurface::createOpaque() {
     return new AndroidVOutOpaque();
+}
+
+void AndroidVOutSurface::free() {
+
 }

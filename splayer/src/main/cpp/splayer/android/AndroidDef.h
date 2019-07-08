@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-17.
-//
-
 #ifndef SPLAYER_ANDROIDDEF_H
 #define SPLAYER_ANDROIDDEF_H
 

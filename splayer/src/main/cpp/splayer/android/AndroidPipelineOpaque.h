@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-16.
-//
-
 #ifndef SPLAYER_ANDROIDPIPELINEOPAQUE_H
 #define SPLAYER_ANDROIDPIPELINEOPAQUE_H
 
@@ -9,6 +5,11 @@
 #include "../media/PipelineOpaque.h"
 
 class AndroidPipelineOpaque : public PipelineOpaque {
+
+private:
+    Mutex *pSurfaceMutex = nullptr;
+    float leftVolume = 0.0;
+    float rightVolume = 0.0;
 
 public:
     AndroidPipelineOpaque();

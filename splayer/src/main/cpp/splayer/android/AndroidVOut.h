@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-16.
-//
-
 #ifndef SPLAYER_ANDROIDSURFACE_H
 #define SPLAYER_ANDROIDSURFACE_H
 
@@ -22,6 +18,8 @@ public:
     int displayOverlay(VOutOverlay *overlay) override;
 
     VOutOpaque *createOpaque() override;
+
+    void free() override;
 
 };
 

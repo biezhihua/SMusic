@@ -1,4 +1,3 @@
-
 #include "AndroidMediaPlayer.h"
 #include "AndroidDef.h"
 
@@ -20,7 +19,6 @@ VOut *AndroidMediaPlayer::createSurface() {
     return new AndroidVOutSurface();
 }
 
-
 Pipeline *AndroidMediaPlayer::createPipeline() {
     ALOGD(__func__);
     return new AndroidPipeline();
@@ -28,17 +26,11 @@ Pipeline *AndroidMediaPlayer::createPipeline() {
 
 int AndroidMediaPlayer::messageLoop() {
     while (true) {
-        if (!getMsgQueue()) {
-            break;
-        }
-
-        MessageQueue *msgQueue = getMsgQueue();
-
         Message msg;
 
         ALOGD("%s msg=%p", __func__, &msg);
 
-        int ret = msgQueue->getMsg(&msg, true);
+        int ret = pPlay->getMsg(&msg, true);
         if (ret == EXIT_FAILURE) {
             break;
         }

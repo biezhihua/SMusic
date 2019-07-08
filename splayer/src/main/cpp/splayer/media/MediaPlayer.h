@@ -11,9 +11,12 @@
 #include "Thread.h"
 #include <libavutil/time.h>
 
+/**
+ * virtual
+ */
 class MediaPlayer {
 
-private:
+protected:
     State *pState = nullptr;
     Mutex *pMutex = nullptr;
     FFPlay *pPlay = nullptr;
@@ -21,12 +24,12 @@ private:
     char *pDataSource = nullptr;
     Thread *pMsgThread = nullptr;
 
-private:
-    void notifyMsg1(int what);
+protected:
+    void notifyMsg(int what);
 
-    void notifyMsg2(int what, int arg1);
+    void notifyMsg(int what, int arg1);
 
-    void notifyMsg3(int what, int arg1, int arg2);
+    void notifyMsg(int what, int arg1, int arg2);
 
     void removeMsg(int what);
 

@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-16.
-//
-
 #ifndef SPLAYER_ANDROIDPIPELINE_H
 #define SPLAYER_ANDROIDPIPELINE_H
 
@@ -22,8 +18,6 @@ public:
     AOut *openAudioOutput() override;
 
     PipelineNode *openVideoDecoder() override;
-
-
 
     PipelineOpaque *createOpaque() override;
 

@@ -53,11 +53,11 @@ public:
 
     int startMsgQueue();
 
-    void notifyMsg1(int what);
+    void notifyMsg(int what);
 
-    void notifyMsg2(int what, int arg1);
+    void notifyMsg(int what, int arg1);
 
-    void notifyMsg3(int what, int arg1, int arg2);
+    void notifyMsg(int what, int arg1, int arg2);
 
 
 };

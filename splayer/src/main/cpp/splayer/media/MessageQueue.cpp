@@ -128,14 +128,14 @@ int MessageQueue::startMsgQueue() {
     return EXIT_FAILURE;
 }
 
-void MessageQueue::notifyMsg1(int what) {
+void MessageQueue::notifyMsg(int what) {
     ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(what));
     Message *message = new Message();
     message->what = what;
     putMsg(message);
 }
 
-void MessageQueue::notifyMsg2(int what, int arg1) {
+void MessageQueue::notifyMsg(int what, int arg1) {
     ALOGD("%s what=%s arg1=%d", __func__, Message::getMsgSimpleName(what), arg1);
     Message *message = new Message();
     message->what = what;
@@ -143,7 +143,7 @@ void MessageQueue::notifyMsg2(int what, int arg1) {
     putMsg(message);
 }
 
-void MessageQueue::notifyMsg3(int what, int arg1, int arg2) {
+void MessageQueue::notifyMsg(int what, int arg1, int arg2) {
     ALOGD("%s what=%s arg1=%d arg2=%d", __func__, Message::getMsgSimpleName(what), arg1, arg2);
     Message *message = new Message();
     message->what = what;

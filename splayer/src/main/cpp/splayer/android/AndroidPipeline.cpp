@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-16.
-//
-
 #include "AndroidPipeline.h"
 #include "AndroidPipelineNode.h"
 

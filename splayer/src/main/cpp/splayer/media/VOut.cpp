@@ -17,3 +17,4 @@ VOut::~VOut() {
 void VOut::setVOutOpaque(VOutOpaque *vOutOpaque) {
     VOut::pVOutOpaque = vOutOpaque;
 }
+

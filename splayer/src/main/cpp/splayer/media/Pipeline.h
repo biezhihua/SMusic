@@ -21,13 +21,14 @@ public:
 
     virtual PipelineOpaque *createOpaque() = 0;
 
+    // destroy
     virtual void close() = 0;
 
     virtual AOut *openAudioOutput() = 0;
 
-    virtual PipelineNode *openVideoDecoder() = 0;
-
     virtual PipelineNode *openAudioDecoder() = 0;
+
+    virtual PipelineNode *openVideoDecoder() = 0;
 
 };
 

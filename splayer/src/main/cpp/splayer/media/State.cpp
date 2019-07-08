@@ -13,7 +13,7 @@ int State::changeState(const int state) {
     ALOGD("%s state=%s", __func__, getState(state));
     State::state = state;
     if (pMsgQueue) {
-        pMsgQueue->notifyMsg1(Message::MSG_PLAYBACK_STATE_CHANGED);
+        pMsgQueue->notifyMsg(Message::MSG_PLAYBACK_STATE_CHANGED);
     }
     return EXIT_SUCCESS;
 }

@@ -7,6 +7,7 @@
 #include "AOut.h"
 #include "VOut.h"
 #include "Pipeline.h"
+#include "State.h"
 
 class FFPlay {
 
@@ -37,6 +38,8 @@ public:
     int waitStop();
 
     int prepareAsync(const char* fileName);
+
+    int getMsg(Message *pMessage, bool block);
 };
 
 

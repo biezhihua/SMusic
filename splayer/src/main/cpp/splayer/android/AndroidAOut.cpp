@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-16.
-//
-
 #include "AndroidAOut.h"
 
 
@@ -14,7 +10,7 @@ AndroidAOut::~AndroidAOut() {
 }
 
 int AndroidAOut::open() {
-    return 0;
+    return EXIT_FAILURE;
 }
 
 void AndroidAOut::pause() {
