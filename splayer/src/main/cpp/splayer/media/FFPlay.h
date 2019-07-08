@@ -40,6 +40,7 @@ public:
     int prepareAsync(const char* fileName);
 
     int getMsg(Message *pMessage, bool block);
+
 };
 
 
