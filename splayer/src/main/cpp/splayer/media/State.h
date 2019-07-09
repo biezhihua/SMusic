@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-16.
-//
-
 #ifndef SPLAYER_STATE_H
 #define SPLAYER_STATE_H
 

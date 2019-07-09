@@ -8,6 +8,8 @@
 #include "VOut.h"
 #include "Pipeline.h"
 #include "State.h"
+#include "VideoState.h"
+#include <libavutil/mem.h>
 
 class FFPlay {
 
@@ -18,6 +20,12 @@ private:
     AOut *pAOut = nullptr;
     VOut *pVOut = nullptr;
     Pipeline *pPipeline = nullptr;
+    VideoState *pVideoState = nullptr;
+    char *pInputFileName = nullptr;
+
+private:
+    VideoState *streamOpen(const char *name);
+
 public:
     FFPlay();
 
@@ -37,9 +45,11 @@ public:
 
     int waitStop();
 
-    int prepareAsync(const char* fileName);
+    int prepareAsync(const char *fileName);
 
     int getMsg(Message *pMessage, bool block);
+
+
 
 };
 

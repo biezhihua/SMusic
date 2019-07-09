@@ -1,3 +1,4 @@
+
 #include "FFPlay.h"
 
 
@@ -55,12 +56,18 @@ int FFPlay::waitStop() {
 int FFPlay::prepareAsync(const char *fileName) {
     ALOGD("%s fileName=%s", __func__, fileName);
 
-//    if (pAOut && pAOut->open()) {
-//        // Open Audio Failure
-//        return EXIT_FAILURE;
-//    }
-
-    return EXIT_FAILURE;
+    if (!pAOut) {
+        int result = pAOut->open();
+        if (!result) {
+            return EXIT_FAILURE;
+        }
+    }
+    pVideoState = streamOpen(fileName);
+    if (!pVideoState) {
+        return EXIT_FAILURE;
+    }
+    pInputFileName = av_strdup(fileName);
+    return EXIT_SUCCESS;
 }
 
 int FFPlay::getMsg(Message *msg, bool block) {
@@ -171,4 +178,8 @@ int FFPlay::getMsg(Message *msg, bool block) {
         return ret;
     }
     return EXIT_FAILURE;
+}
+
+VideoState *FFPlay::streamOpen(const char *fileName) {
+    return nullptr;
 }
