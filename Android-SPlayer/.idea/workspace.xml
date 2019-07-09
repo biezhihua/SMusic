@@ -1,0 +1,794 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="52826938-3e8a-4716-a854-14ed9187a3c9" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/AAFilter.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/AAFilter.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/BPMDetect.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/BPMDetect.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/FIFOSampleBuffer.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/FIFOSampleBuffer.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/FIFOSamplePipe.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/FIRFilter.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/FIRFilter.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/InterpolateCubic.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/InterpolateCubic.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/InterpolateLinear.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/InterpolateLinear.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/InterpolateShannon.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/InterpolateShannon.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/Makefile.am" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/PeakFinder.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/PeakFinder.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/RateTransposer.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/RateTransposer.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/STTypes.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/SoundTouch.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/SoundTouch.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/SoundTouch.sln" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/SoundTouch.vcxproj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/TDStretch.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/TDStretch.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/cpu_detect.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/cpu_detect_x86.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/mmx_optimized.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/soundtouch_config.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../splayer/soundtouch/sse_optimized.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/proguard-rules.pro" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/bzh/player/example/MainActivity.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/bzh/player/example/MyApplication.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/bzh/player/example/SplashActivity.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/drawable-v24/ic_launcher_foreground.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/drawable/ic_launcher_background.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/layout/activity_main.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/mipmap-hdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/mipmap-mdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/mipmap-xhdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/values/colors.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/values/strings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/values/styles.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/FFmpeg/Sequence/ffmpeg-ffplay-main.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/FFmpeg/Sequence/ffmpeg-ffplay-read-thread-audio-open.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/FFmpeg/Sequence/ffmpeg-ffplay-read-thread.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Class/IjkPlayer.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-datasource.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-mediacodec-select-callback.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-message-loop.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-onload.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-pause.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-prepareasync.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-read-thread.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-release.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-reset.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-setup-create-pipeline.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-setup-create-surface.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-setup.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-start.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-stop.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-unload.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijkplayer_jni-video-refresh-thread.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/Sequence/ijksdl_android_jni.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/IjkPlayer/State/ijkplayer-state.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/MediaCodecOpenGL.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/名词解释.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gradle.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../settings.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/doc/Status.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/proguard-rules.pro" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/SMainJni.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/AAFilter.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/AAFilter.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/BPMDetect.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/BPMDetect.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/FIFOSampleBuffer.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/FIFOSampleBuffer.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/FIFOSamplePipe.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/FIRFilter.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/FIRFilter.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/InterpolateCubic.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/InterpolateCubic.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/InterpolateLinear.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/InterpolateLinear.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/InterpolateShannon.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/InterpolateShannon.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/Makefile.am" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/PeakFinder.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/PeakFinder.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/RateTransposer.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/RateTransposer.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/STTypes.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/SoundTouch.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/SoundTouch.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/SoundTouch.sln" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/SoundTouch.vcxproj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/TDStretch.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/TDStretch.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/cpu_detect.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/cpu_detect_x86.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/mmx_optimized.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/soundtouch_config.h.in" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/soundtouch/sse_optimized.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidAOut.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidAOut.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidDef.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidMediaPlayer.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidMediaPlayer.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidPipeline.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidPipeline.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidPipelineNode.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidPipelineNode.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidPipelineOpaque.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidPipelineOpaque.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidVOut.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidVOut.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidVOutOpaque.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/android/AndroidVOutOpaque.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SError.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SFFmpeg.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SFFmpeg.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SJavaMethods.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SJavaMethods.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SLog.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SMedia.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SMedia.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SOpenSLES.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SOpenSLES.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SPlayer.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SPlayer.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SQueue.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SQueue.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/main/SStatus.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/AOut.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/AOut.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/Common.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/FFPlay.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/FFPlay.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/Log.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/MediaPlayer.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/MediaPlayer.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/Message.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/Message.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/MessageQueue.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/MessageQueue.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/Mutex.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/Mutex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/Pipeline.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/Pipeline.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/PipelineNode.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/PipelineNode.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/PipelineOpaque.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/PipelineOpaque.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/RefCount.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/RefCount.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/State.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/State.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/Thread.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/Thread.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/VOut.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/VOut.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/VOutOpaque.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/VOutOpaque.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/VOutOverlay.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/VOutOverlay.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/VOutOverlayOpaque.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/VOutOverlayOpaque.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/VideoState.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/cpp/splayer/media/VideoState.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/java/com/bzh/splayer/lib/IPlayerListener.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/java/com/bzh/splayer/lib/SPlayer.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/java/com/bzh/splayer/lib/Utils.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/java/com/bzh/splayer/lib/annotations/CallByNative.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/java/com/bzh/splayer/lib/common/RawResourceReader.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/java/com/bzh/splayer/lib/common/ShaderHelper.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/java/com/bzh/splayer/lib/common/TextureHelper.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/java/com/bzh/splayer/lib/opengl/SGLSurfaceView.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/java/com/bzh/splayer/lib/opengl/SRender.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/res/raw/fragment_mediacodec.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/res/raw/fragment_softcodec.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/res/raw/vertex_shader.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer/src/main/res/values/strings.xml" beforeDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view />
+      </state>
+    </system>
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidAOut.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="105">
+              <caret line="5" selection-start-line="5" selection-end-line="5" />
+              <folding>
+                <element signature="e#61#87#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../splayer/player/MediaPlayer.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="194">
+              <caret line="209" column="25" selection-start-line="209" selection-start-column="25" selection-end-line="209" selection-end-column="25" />
+              <folding>
+                <element signature="e#2#26#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/CMakeLists.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="239">
+              <caret line="34" column="29" selection-start-line="34" selection-start-column="29" selection-end-line="34" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../splayer/player/FFPlay.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="153">
+              <caret line="68" column="7" selection-start-line="68" selection-start-column="7" selection-end-line="68" selection-end-column="7" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidPipelineNode.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="63">
+              <caret line="3" column="10" selection-start-line="3" selection-start-column="10" selection-end-line="3" selection-end-column="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidPipeline.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="84">
+              <caret line="4" column="10" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidMediaPlayer.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="84">
+              <caret line="4" column="10" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidMediaPlayer.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="24" selection-start-column="24" selection-end-column="24" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidDef.h">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidPipelineOpaque.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="84">
+              <caret line="4" column="10" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>SPLAYER_ANDROID</find>
+      <find>sffmpeg</find>
+      <find>splayer</find>
+      <find>core</find>
+      <find>error</find>
+      <find>MediaSPLAYER</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>DISTRIBUTION</replace>
+      <replace>MediaPlayer</replace>
+    </replaceStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/splayer/src/main/cpp/SMainJni.cpp" />
+        <option value="$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidAOut.cpp" />
+        <option value="$PROJECT_DIR$/../splayer/player/MediaPlayer.h" />
+        <option value="$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidMediaPlayer.cpp" />
+        <option value="$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidAOut.h" />
+        <option value="$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidPipelineNode.h" />
+        <option value="$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidVOutOpaque.h" />
+        <option value="$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidVOut.h" />
+        <option value="$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidPipelineOpaque.h" />
+        <option value="$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidPipeline.h" />
+        <option value="$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidMediaPlayer.h" />
+        <option value="$PROJECT_DIR$/../splayer/player/MediaPlayer.cpp" />
+        <option value="$PROJECT_DIR$/../splayer/player/FFPlay.cpp" />
+        <option value="$PROJECT_DIR$/splayer/src/main/cpp/CMakeLists.txt" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="1" />
+    <option name="y" value="210" />
+    <option name="width" value="1440" />
+    <option name="height" value="877" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Android-SPlayer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Android-SPlayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="Android-SPlayer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Android-SPlayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="splayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="Android-SPlayer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Android-SPlayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="splayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="build" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Android-SPlayer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Android-SPlayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="splayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Android-SPlayer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Android-SPlayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="splayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Android-SPlayer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Android-SPlayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="splayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="cpp" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Android-SPlayer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Android-SPlayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="splayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="cpp" type="462c0819:PsiDirectoryNode" />
+              <item name="android" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Android-SPlayer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Android-SPlayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="splayer" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="PackagesPane" />
+      <pane id="AndroidView">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Android-SPlayer" type="1abcf292:AndroidViewProjectNode" />
+              <item name="Android-SPlayer" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="not.eligible.for.single.variant.sync" value="true" />
+    <property name="settings.editor.selected.configurable" value="AndroidSdkUpdater" />
+    <property name="show.do.not.ask.upgrade.gradle.plugin" value="3.4.0" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="AndroidJUnit" factoryName="Android JUnit">
+      <option name="TEST_OBJECT" value="class" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <method v="2">
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App">
+      <module name="app" />
+      <option name="DEPLOY" value="true" />
+      <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
+      <option name="DEPLOY_AS_INSTANT" value="false" />
+      <option name="ARTIFACT_NAME" value="" />
+      <option name="PM_INSTALL_OPTIONS" value="" />
+      <option name="DYNAMIC_FEATURES_DISABLED_LIST" value="" />
+      <option name="ACTIVITY_EXTRA_FLAGS" value="" />
+      <option name="MODE" value="default_activity" />
+      <option name="CLEAR_LOGCAT" value="false" />
+      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
+      <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
+      <option name="FORCE_STOP_RUNNING_APP" value="true" />
+      <option name="TARGET_SELECTION_MODE" value="SHOW_DIALOG" />
+      <option name="USE_LAST_SELECTED_DEVICE" value="false" />
+      <option name="PREFERRED_AVD" value="" />
+      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
+      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
+      <option name="DEBUGGER_TYPE" value="Auto" />
+      <Auto>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+      </Auto>
+      <Hybrid>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+      </Hybrid>
+      <Java />
+      <Native>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+      </Native>
+      <Profilers>
+        <option name="ADVANCED_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Sample Java Methods" />
+      </Profilers>
+      <option name="DEEP_LINK" value="" />
+      <option name="ACTIVITY_CLASS" value="" />
+      <method v="2">
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="52826938-3e8a-4716-a854-14ed9187a3c9" name="Default Changelist" comment="" />
+      <created>1562675243923</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1562675243923</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="1" y="23" width="1440" height="847" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info content_ui="combo" id="Project" visible="true" weight="0.3299712" />
+      <window_info id="Structure" side_tool="true" />
+      <window_info id="Build Variants" side_tool="true" />
+      <window_info id="Image Layers" />
+      <window_info id="Designer" />
+      <window_info id="Resources Explorer" />
+      <window_info id="Capture Tool" />
+      <window_info id="Favorites" side_tool="true" />
+      <window_info id="Captures" order="0" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Logcat" />
+      <window_info anchor="bottom" id="Version Control" />
+      <window_info anchor="bottom" id="TODO" />
+      <window_info anchor="bottom" id="Android Profiler" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Terminal" />
+      <window_info anchor="bottom" id="Event Log" side_tool="true" />
+      <window_info active="true" anchor="bottom" id="Build" visible="true" weight="0.32833788" />
+      <window_info anchor="right" id="Device File Explorer" side_tool="true" />
+      <window_info anchor="right" id="Capture Analysis" />
+      <window_info anchor="right" id="Gradle" />
+      <window_info anchor="right" id="Theme Preview" />
+      <window_info anchor="right" id="Palette&#9;" />
+      <window_info anchor="right" id="PlantUML" />
+    </layout>
+    <layout-to-restore>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.3299712" />
+      <window_info id="Structure" order="1" side_tool="true" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info id="Image Layers" order="3" />
+      <window_info id="Designer" order="4" />
+      <window_info id="Capture Tool" order="5" />
+      <window_info id="Build Variants" order="6" side_tool="true" />
+      <window_info id="Resources Explorer" order="7" />
+      <window_info id="Captures" order="8" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Version Control" order="0" />
+      <window_info anchor="bottom" id="TODO" order="1" />
+      <window_info anchor="bottom" id="Logcat" order="2" />
+      <window_info anchor="bottom" id="Terminal" order="3" />
+      <window_info anchor="bottom" id="Event Log" order="4" side_tool="true" />
+      <window_info anchor="bottom" id="Build" order="5" visible="true" weight="0.32970026" />
+      <window_info anchor="bottom" id="Android Profiler" order="6" show_stripe_button="false" />
+      <window_info anchor="right" id="Device File Explorer" order="0" side_tool="true" />
+      <window_info anchor="right" id="Capture Analysis" order="1" />
+      <window_info anchor="right" id="Gradle" order="2" />
+      <window_info anchor="right" id="Theme Preview" order="3" />
+      <window_info anchor="right" id="Palette&#9;" order="4" />
+      <window_info anchor="right" id="PlantUML" order="5" />
+    </layout-to-restore>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/splayer/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="42">
+          <caret line="2" column="20" selection-start-line="2" selection-start-column="20" selection-end-line="2" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/java/com/bzh/splayer/lib/Utils.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="152">
+          <caret line="17" column="39" selection-start-line="17" selection-start-column="39" selection-end-line="17" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/java/com/bzh/splayer/lib/SPlayer.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="152">
+          <caret line="38" column="45" selection-start-line="38" selection-start-column="45" selection-end-line="38" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/SMainJni.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-89">
+          <caret line="11" column="8" selection-start-line="11" selection-start-column="8" selection-end-line="11" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-559" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/.externalNativeBuild/cmake/debug/armeabi-v7a/CMakeFiles/cmake.check_cache">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/.externalNativeBuild/cmake/debug/armeabi-v7a/CMakeCache.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-6295" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/.externalNativeBuild/cmake/debug/armeabi-v7a/cmake_server_log.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1012">
+          <caret line="375" selection-start-line="375" selection-end-line="375" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/.externalNativeBuild/cmake/debug/armeabi-v7a/CMakeFiles/CMakeOutput.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3004">
+          <caret line="481" column="17" selection-start-line="481" selection-start-column="17" selection-end-line="481" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidPipelineOpaque.cpp">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidVOut.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#24#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer/player/MediaPlayer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="242">
+          <caret line="46" column="15" selection-start-line="46" selection-start-column="15" selection-end-line="46" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidPipelineNode.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-172" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidPipeline.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="63">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidAOut.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="4" selection-start-line="4" selection-end-line="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer/player/AOut.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="6" column="6" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer/player/Common.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidVOutOpaque.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="83">
+          <caret line="4" column="10" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidVOutOpaque.cpp">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidVOut.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="4" column="10" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidPipelineOpaque.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="4" column="10" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidPipelineNode.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="63">
+          <caret line="3" column="10" selection-start-line="3" selection-start-column="10" selection-end-line="3" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidPipeline.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="4" column="10" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidMediaPlayer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="4" column="10" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidMediaPlayer.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="24" selection-start-column="24" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidDef.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/splayer/android/AndroidAOut.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
+          <folding>
+            <element signature="e#61#87#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer/player/FFPlay.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="68" column="7" selection-start-line="68" selection-start-column="7" selection-end-line="68" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer/player/MediaPlayer.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="194">
+          <caret line="209" column="25" selection-start-line="209" selection-start-column="25" selection-end-line="209" selection-end-column="25" />
+          <folding>
+            <element signature="e#2#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/splayer/src/main/cpp/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="239">
+          <caret line="34" column="29" selection-start-line="34" selection-start-column="29" selection-end-line="34" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
