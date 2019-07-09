@@ -66,7 +66,7 @@ int FFPlay::prepareAsync(const char *fileName) {
     if (!pVideoState) {
         return EXIT_FAILURE;
     }
-    // pInputFileName = av_strdup(fileName);
+    pInputFileName = strdup(fileName);
     return EXIT_SUCCESS;
 }
 

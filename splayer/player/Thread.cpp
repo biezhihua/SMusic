@@ -5,8 +5,12 @@ static void *runThread(void *data) {
     ALOGD(__func__);
     Thread *thread = static_cast<Thread *>(data);
     if (thread) {
-//        pthread_setname_np(pthread_self(), thread->name->c_str());
-//        thread->retval = thread->func(thread->data);
+#ifdef __ANDROID__
+        pthread_setname_np(pthread_self(), thread->name->c_str());
+#else
+        pthread_setname_np(thread->name->c_str());
+#endif
+        thread->retval = thread->func(thread->data);
     }
     return nullptr;
 }

@@ -31,7 +31,7 @@ target_include_directories(splayer PRIVATE
         ${DISTRIBUTION}/ffmpeg/include
         ${DISTRIBUTION}/openssl/include
         ${SPLAYER}/player
-        ${SPLAYER}/sdl
+        ${SPLAYER}/common
         ${SPLAYER}/soundtouch
         )
 
