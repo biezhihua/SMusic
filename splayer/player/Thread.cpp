@@ -7,8 +7,10 @@ static void *runThread(void *data) {
     if (thread) {
 #ifdef __ANDROID__
         pthread_setname_np(pthread_self(), thread->name->c_str());
-#else
+#elif __MAC_10_14_4
         pthread_setname_np(thread->name->c_str());
+#else
+        //
 #endif
         thread->retval = thread->func(thread->data);
     }
