@@ -11,7 +11,7 @@ private:
 
     volatile int state;
 
-    MessageQueue *pMsgQueue;
+    MessageQueue *msgQueue;
 
     const char *getState(const int state);
 

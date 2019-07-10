@@ -4,7 +4,9 @@ project(splayer_core)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(../distribution/ffmpeg/include)
+set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution)
+
+include_directories(${DISTRIBUTION}/ffmpeg/include)
 
 include_directories(player)
 aux_source_directory(player player)

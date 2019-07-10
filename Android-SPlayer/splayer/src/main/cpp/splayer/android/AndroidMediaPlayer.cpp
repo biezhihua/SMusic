@@ -31,7 +31,7 @@ int AndroidMediaPlayer::messageLoop() {
 
         ALOGD("%s msg=%p", __func__, &msg);
 
-        int ret = pPlay->getMsg(&msg, true);
+        int ret = play->getMsg(&msg, true);
         if (ret == EXIT_FAILURE) {
             break;
         }

@@ -6,10 +6,10 @@
 
 PipelineNode::PipelineNode() {
     ALOGD(__func__);
-    pMutex = new Mutex();
+    mutex = new Mutex();
 }
 
 PipelineNode::~PipelineNode() {
     ALOGD(__func__);
-    delete pMutex;
+    delete mutex;
 }

@@ -14,9 +14,9 @@ using namespace std;
 class MessageQueue {
 private:
 
-    Mutex *pMutex = nullptr;
+    Mutex *mutex = nullptr;
 
-    list<Message *> *pQueue = nullptr;
+    list<Message *> *queue = nullptr;
 
     bool abortRequest = true;
 

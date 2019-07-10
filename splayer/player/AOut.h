@@ -7,7 +7,7 @@
 class AOut {
 
 private:
-    Mutex *pMutex = nullptr;
+    Mutex *mutex = nullptr;
 
 public:
     AOut();

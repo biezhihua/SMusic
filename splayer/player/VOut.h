@@ -17,8 +17,8 @@
 class VOut {
 
 protected:
-    Mutex *pMutex;
-    VOutOpaque *pVOutOpaque;
+    Mutex *mutex;
+    VOutOpaque *vOutOpaque;
     uint32_t overlayFormat;
 
 public:

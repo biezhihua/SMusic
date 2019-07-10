@@ -9,5 +9,5 @@ Pipeline::~Pipeline() {
 }
 
 void Pipeline::setOpaque(PipelineOpaque *opaque) {
-    Pipeline::pOpaque = opaque;
+    Pipeline::opaque = opaque;
 }

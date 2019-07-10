@@ -17,12 +17,12 @@
 class MediaPlayer {
 
 protected:
-    State *pState = nullptr;
-    Mutex *pMutex = nullptr;
-    FFPlay *pPlay = nullptr;
+    State *state = nullptr;
+    Mutex *mutex = nullptr;
+    FFPlay *play = nullptr;
     static RefCount refCount;
-    char *pDataSource = nullptr;
-    Thread *pMsgThread = nullptr;
+    char *dataSource = nullptr;
+    Thread *msgThread = nullptr;
 
 protected:
     void notifyMsg(int what);

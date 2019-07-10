@@ -10,7 +10,7 @@ class PipelineOpaque {
 
 private:
 
-    VOut *pVOut = nullptr;
+    VOut *vOut = nullptr;
 
 
 public:

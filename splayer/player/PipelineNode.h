@@ -11,7 +11,7 @@
 class PipelineNode {
 
 private:
-    Mutex *pMutex = nullptr;
+    Mutex *mutex = nullptr;
 
 public:
     PipelineNode();

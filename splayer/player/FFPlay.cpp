@@ -4,37 +4,37 @@
 
 FFPlay::FFPlay() {
     ALOGD(__func__);
-    pAvMutex = new Mutex();
-    pVfMutex = new Mutex();
-    pMsgQueue = new MessageQueue();
+    avMutex = new Mutex();
+    vfMutex = new Mutex();
+    msgQueue = new MessageQueue();
 }
 
 FFPlay::~FFPlay() {
     ALOGD(__func__);
-    delete pPipeline;
-    delete pAOut;
-    delete pAvMutex;
-    delete pVfMutex;
-    delete pMsgQueue;
+    delete pipeline;
+    delete aOut;
+    delete avMutex;
+    delete vfMutex;
+    delete msgQueue;
 }
 
 void FFPlay::setAOut(AOut *aOut) {
     ALOGD(__func__);
-    FFPlay::pAOut = aOut;
+    FFPlay::aOut = aOut;
 }
 
 void FFPlay::setVOut(VOut *vOut) {
     ALOGD(__func__);
-    FFPlay::pVOut = vOut;
+    FFPlay::vOut = vOut;
 }
 
 void FFPlay::setPipeline(Pipeline *pipeline) {
     ALOGD(__func__);
-    FFPlay::pPipeline = pipeline;
+    FFPlay::pipeline = pipeline;
 }
 
 MessageQueue *FFPlay::getMsgQueue() const {
-    return pMsgQueue;
+    return msgQueue;
 }
 
 int FFPlay::stop() {
@@ -56,24 +56,24 @@ int FFPlay::waitStop() {
 int FFPlay::prepareAsync(const char *fileName) {
     ALOGD("%s fileName=%s", __func__, fileName);
 
-    if (!pAOut) {
-        int result = pAOut->open();
+    if (!aOut) {
+        int result = aOut->open();
         if (!result) {
             return EXIT_FAILURE;
         }
     }
-    pVideoState = streamOpen(fileName);
-    if (!pVideoState) {
+    videoState = streamOpen(fileName, nullptr);
+    if (!videoState) {
         return EXIT_FAILURE;
     }
-    pInputFileName = strdup(fileName);
+    inputFileName = strdup(fileName);
     return EXIT_SUCCESS;
 }
 
 int FFPlay::getMsg(Message *msg, bool block) {
     while (true) {
         bool continueWaitNextMsg = false;
-        int ret = pMsgQueue->getMsg(msg, block);
+        int ret = msgQueue->getMsg(msg, block);
         if (ret == EXIT_FAILURE) {
             return ret;
         }
@@ -180,6 +180,6 @@ int FFPlay::getMsg(Message *msg, bool block) {
     return EXIT_FAILURE;
 }
 
-VideoState *FFPlay::streamOpen(const char *fileName) {
+VideoState *FFPlay::streamOpen(const char *fileName, AVInputFormat *inputFormat) {
     return nullptr;
 }

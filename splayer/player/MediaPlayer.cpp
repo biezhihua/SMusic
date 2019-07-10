@@ -8,24 +8,24 @@
 
 MediaPlayer::MediaPlayer() {
     ALOGD(__func__);
-    pState = new State();
-    pMutex = new Mutex();
-    pPlay = new FFPlay();
-    if (pState && pPlay) {
-        pState->setMsgQueue(pPlay->getMsgQueue());
+    state = new State();
+    mutex = new Mutex();
+    play = new FFPlay();
+    if (state && play) {
+        state->setMsgQueue(play->getMsgQueue());
     }
 }
 
 MediaPlayer::~MediaPlayer() {
     ALOGD(__func__);
-    delete pPlay;
-    delete pMutex;
-    delete pState;
+    delete play;
+    delete mutex;
+    delete state;
 }
 
 int MediaPlayer::create() {
     ALOGD(__func__);
-    if (pPlay) {
+    if (play) {
 
         // 创建输出层
         VOut *vOut = createSurface();
@@ -55,8 +55,8 @@ int MediaPlayer::create() {
         opaque->setVOut(vOut);
         pipeline->setOpaque(opaque);
 
-        pPlay->setPipeline(pipeline);
-        pPlay->setVOut(vOut);
+        play->setPipeline(pipeline);
+        play->setVOut(vOut);
 
         return EXIT_SUCCESS;
     }
@@ -66,12 +66,12 @@ int MediaPlayer::create() {
 
 int MediaPlayer::start() {
     ALOGD(__func__);
-    if (pPlay && pMutex) {
-        pMutex->mutexLock();
+    if (play && mutex) {
+        mutex->mutexLock();
         removeMsg(Message::REQ_START);
         removeMsg(Message::REQ_PAUSE);
         notifyMsg(Message::REQ_START);
-        pMutex->mutexUnLock();
+        mutex->mutexUnLock();
         return EXIT_SUCCESS;
     }
     return EXIT_FAILURE;
@@ -79,16 +79,16 @@ int MediaPlayer::start() {
 
 int MediaPlayer::stop() {
     ALOGD(__func__);
-    if (pPlay && pMutex) {
-        pMutex->mutexLock();
+    if (play && mutex) {
+        mutex->mutexLock();
         removeMsg(Message::REQ_START);
         removeMsg(Message::REQ_PAUSE);
-        if (pPlay->stop()) {
-            pState->changeState(State::STATE_STOPPED);
-            pMutex->mutexUnLock();
+        if (play->stop()) {
+            state->changeState(State::STATE_STOPPED);
+            mutex->mutexUnLock();
             return EXIT_SUCCESS;
         }
-        pMutex->mutexUnLock();
+        mutex->mutexUnLock();
         return EXIT_FAILURE;
     }
     return EXIT_FAILURE;
@@ -96,12 +96,12 @@ int MediaPlayer::stop() {
 
 int MediaPlayer::pause() {
     ALOGD(__func__);
-    if (pPlay && pMutex) {
-        pMutex->mutexLock();
+    if (play && mutex) {
+        mutex->mutexLock();
         removeMsg(Message::REQ_START);
         removeMsg(Message::REQ_PAUSE);
         notifyMsg(Message::REQ_PAUSE);
-        pMutex->mutexUnLock();
+        mutex->mutexUnLock();
         return EXIT_SUCCESS;
     }
     return EXIT_FAILURE;
@@ -109,7 +109,7 @@ int MediaPlayer::pause() {
 
 int MediaPlayer::reset() {
     ALOGD(__func__);
-    if (pPlay && pMutex) {
+    if (play && mutex) {
         if (destroy()) {
             ALOGD("reset - destroy success");
             if (create()) {
@@ -125,11 +125,11 @@ int MediaPlayer::reset() {
 
 int MediaPlayer::destroy() {
     ALOGD(__func__);
-    if (pState && pMutex && pPlay) {
-        pMutex->mutexLock();
+    if (state && mutex && play) {
+        mutex->mutexLock();
         // TODO set new surface
-        pMutex->mutexUnLock();
-        pPlay->shutdown();
+        mutex->mutexUnLock();
+        play->shutdown();
         return EXIT_SUCCESS;
     }
     return EXIT_FAILURE;
@@ -137,15 +137,15 @@ int MediaPlayer::destroy() {
 
 int MediaPlayer::setDataSource(const char *url) {
     ALOGD("%s url=%s", "setDataSource", url);
-    if (pState && pMutex && pPlay) {
-        pMutex->mutexLock();
-        pDataSource = strdup(url);
-        if (pDataSource) {
-            pState->changeState(State::STATE_INITIALIZED);
-            pMutex->mutexUnLock();
+    if (state && mutex && play) {
+        mutex->mutexLock();
+        dataSource = strdup(url);
+        if (dataSource) {
+            state->changeState(State::STATE_INITIALIZED);
+            mutex->mutexUnLock();
             return EXIT_SUCCESS;
         }
-        pMutex->mutexUnLock();
+        mutex->mutexUnLock();
         return EXIT_FAILURE;
     }
     return EXIT_FAILURE;
@@ -160,56 +160,56 @@ static int staticMsgLoop(void *arg) {
 }
 
 int MediaPlayer::prepareAsync() {
-    if (pState && pMutex && pPlay) {
-        pMutex->mutexLock();
-        pState->changeState(State::STATE_ASYNC_PREPARING);
-        MessageQueue *pQueue = pPlay->getMsgQueue();
+    if (state && mutex && play) {
+        mutex->mutexLock();
+        state->changeState(State::STATE_ASYNC_PREPARING);
+        MessageQueue *pQueue = play->getMsgQueue();
         if (pQueue) {
             pQueue->startMsgQueue();
         }
-        pMsgThread = new Thread(staticMsgLoop, this, "msg_loop");
-        if (pPlay->prepareAsync(pDataSource)) {
-            pMutex->mutexUnLock();
+        msgThread = new Thread(staticMsgLoop, this, "msg_loop");
+        if (play->prepareAsync(dataSource)) {
+            mutex->mutexUnLock();
             return EXIT_SUCCESS;
         }
-        pState->changeState(State::STATE_ERROR);
-        pMutex->mutexUnLock();
+        state->changeState(State::STATE_ERROR);
+        mutex->mutexUnLock();
         return EXIT_FAILURE;
     }
     return EXIT_FAILURE;
 }
 
 void MediaPlayer::notifyMsg(int what) {
-    if (pPlay && pPlay->getMsgQueue()) {
-        MessageQueue *msg = pPlay->getMsgQueue();
+    if (play && play->getMsgQueue()) {
+        MessageQueue *msg = play->getMsgQueue();
         msg->notifyMsg(what);
     }
 }
 
 void MediaPlayer::notifyMsg(int what, int arg1) {
-    if (pPlay && pPlay->getMsgQueue()) {
-        MessageQueue *msg = pPlay->getMsgQueue();
+    if (play && play->getMsgQueue()) {
+        MessageQueue *msg = play->getMsgQueue();
         msg->notifyMsg(what, arg1);
     }
 }
 
 void MediaPlayer::notifyMsg(int what, int arg1, int arg2) {
-    if (pPlay && pPlay->getMsgQueue()) {
-        MessageQueue *msg = pPlay->getMsgQueue();
+    if (play && play->getMsgQueue()) {
+        MessageQueue *msg = play->getMsgQueue();
         msg->notifyMsg(what, arg1, arg2);
     }
 }
 
 void MediaPlayer::removeMsg(int what) {
-    if (pPlay && pPlay->getMsgQueue()) {
-        MessageQueue *msg = pPlay->getMsgQueue();
+    if (play && play->getMsgQueue()) {
+        MessageQueue *msg = play->getMsgQueue();
         msg->removeMsg(what);
     }
 }
 
 MessageQueue *MediaPlayer::getMsgQueue() {
-    if (pPlay) {
-        return pPlay->getMsgQueue();
+    if (play) {
+        return play->getMsgQueue();
     }
     return nullptr;
 }

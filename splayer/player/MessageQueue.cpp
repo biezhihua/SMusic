@@ -2,23 +2,23 @@
 
 MessageQueue::MessageQueue() {
     ALOGD(__func__);
-    pMutex = new Mutex();
-    pQueue = new list<Message *>();
+    mutex = new Mutex();
+    queue = new list<Message *>();
 }
 
 MessageQueue::~MessageQueue() {
     ALOGD(__func__);
     clearMsgQueue();
-    delete pQueue;
-    delete pMutex;
+    delete queue;
+    delete mutex;
 }
 
 int MessageQueue::putMsg(Message *msg) {
     int ret = EXIT_FAILURE;
-    if (pMutex && pQueue) {
-        pMutex->mutexLock();
+    if (mutex && queue) {
+        mutex->mutexLock();
         ret = _putMsg(msg);
-        pMutex->mutexUnLock();
+        mutex->mutexUnLock();
     }
     return ret;
 }
@@ -29,54 +29,54 @@ int MessageQueue::_putMsg(Message *msg) {
         return EXIT_FAILURE;
     }
     ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(msg->what));
-    if (pQueue && pMutex) {
-        pQueue->push_back(msg);
-        pMutex->condSignal();
+    if (queue && mutex) {
+        queue->push_back(msg);
+        mutex->condSignal();
     }
-    ALOGD("%s size=%d", __func__, pQueue->size());
+    ALOGD("%s size=%d", __func__, queue->size());
     return EXIT_SUCCESS;
 }
 
 void MessageQueue::setAbortRequest(bool abortRequest) {
     ALOGD("%s abortRequest=%d", __func__, abortRequest);
-    if (pMutex) {
-        pMutex->mutexLock();
+    if (mutex) {
+        mutex->mutexLock();
         MessageQueue::abortRequest = abortRequest;
-        pMutex->condSignal();
-        pMutex->mutexUnLock();
+        mutex->condSignal();
+        mutex->mutexUnLock();
     }
 }
 
 void MessageQueue::clearMsgQueue() {
     ALOGD(__func__);
-    if (pMutex) {
-        pMutex->mutexLock();
-        if (pQueue != nullptr) {
-            while (!pQueue->empty()) {
-                Message *message = pQueue->front();
+    if (mutex) {
+        mutex->mutexLock();
+        if (queue != nullptr) {
+            while (!queue->empty()) {
+                Message *message = queue->front();
                 if (message != nullptr) {
-                    pQueue->pop_front();
+                    queue->pop_front();
                     delete message;
                 }
             }
         }
-        pMutex->mutexUnLock();
+        mutex->mutexUnLock();
     }
 }
 
 int MessageQueue::getMsg(Message *msg, bool block) {
     int ret = EXIT_FAILURE;
-    if (pMutex && pQueue) {
-        pMutex->mutexLock();
+    if (mutex && queue) {
+        mutex->mutexLock();
         while (true) {
             if (abortRequest) {
                 ret = EXIT_FAILURE;
                 ALOGE("%s abort=%d", __func__, abortRequest);
                 break;
             }
-            Message *message = pQueue->front();
+            Message *message = queue->front();
             if (message) {
-                pQueue->pop_front();
+                queue->pop_front();
                 *msg = *message;
                 ret = EXIT_SUCCESS;
                 ALOGD("%s success", __func__);
@@ -87,10 +87,10 @@ int MessageQueue::getMsg(Message *msg, bool block) {
                 break;
             } else {
                 ALOGD("%s waiting", __func__);
-                pMutex->condWait();
+                mutex->condWait();
             }
         }
-        pMutex->mutexUnLock();
+        mutex->mutexUnLock();
     }
     return ret;
 }
@@ -98,31 +98,31 @@ int MessageQueue::getMsg(Message *msg, bool block) {
 
 void MessageQueue::removeMsg(int what) {
     ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(what));
-    if (pQueue && pMutex) {
-        pMutex->mutexLock();
+    if (queue && mutex) {
+        mutex->mutexLock();
         std::list<Message *>::iterator it;
         Message *message = nullptr;
-        for (it = pQueue->begin(); it != pQueue->end(); ++it) {
+        for (it = queue->begin(); it != queue->end(); ++it) {
             if (*it && (*it)->what == what) {
                 message = *it;
                 break;
             }
         }
-        pQueue->remove(message);
+        queue->remove(message);
         delete message;
-        pMutex->mutexUnLock();
+        mutex->mutexUnLock();
     }
 }
 
 int MessageQueue::startMsgQueue() {
     ALOGD(__func__);
-    if (pQueue && pMutex) {
-        pMutex->mutexLock();
+    if (queue && mutex) {
+        mutex->mutexLock();
         abortRequest = false;
         Message *message = new Message();
         message->what = Message::MSG_FLUSH;
         _putMsg(message);
-        pMutex->mutexUnLock();
+        mutex->mutexUnLock();
         return EXIT_SUCCESS;
     }
     return EXIT_FAILURE;

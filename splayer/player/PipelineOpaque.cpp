@@ -15,6 +15,6 @@ PipelineOpaque::~PipelineOpaque() {
 }
 
 void PipelineOpaque::setVOut(VOut *vOut) {
-    PipelineOpaque::pVOut = vOut;
+    PipelineOpaque::vOut = vOut;
 }
 

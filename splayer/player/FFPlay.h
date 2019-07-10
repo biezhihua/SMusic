@@ -9,22 +9,24 @@
 #include "Pipeline.h"
 #include "State.h"
 #include "VideoState.h"
-#include <libavutil/mem.h>
+#include <libavformat/avformat.h>
 
 class FFPlay {
 
 private:
-    Mutex *pAvMutex = nullptr;
-    Mutex *pVfMutex = nullptr;
-    MessageQueue *pMsgQueue = nullptr;
-    AOut *pAOut = nullptr;
-    VOut *pVOut = nullptr;
-    Pipeline *pPipeline = nullptr;
-    VideoState *pVideoState = nullptr;
-    char *pInputFileName = nullptr;
+    Mutex *avMutex = nullptr;
+    Mutex *vfMutex = nullptr;
+    MessageQueue *msgQueue = nullptr;
+    AOut *aOut = nullptr;
+    VOut *vOut = nullptr;
+    Pipeline *pipeline = nullptr;
+    VideoState *videoState = nullptr;
+
+    char *inputFileName = nullptr;
 
 private:
-    VideoState *streamOpen(const char *name);
+
+    VideoState *streamOpen(const char *name, AVInputFormat *inputFormat);
 
 public:
     FFPlay();

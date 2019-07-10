@@ -10,7 +10,7 @@
 class Pipeline {
 
 private:
-    PipelineOpaque *pOpaque = nullptr;
+    PipelineOpaque *opaque = nullptr;
 
 public:
     Pipeline();

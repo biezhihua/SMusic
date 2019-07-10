@@ -12,8 +12,8 @@ State::~State() {
 int State::changeState(const int state) {
     ALOGD("%s state=%s", __func__, getState(state));
     State::state = state;
-    if (pMsgQueue) {
-        pMsgQueue->notifyMsg(Message::MSG_PLAYBACK_STATE_CHANGED);
+    if (msgQueue) {
+        msgQueue->notifyMsg(Message::MSG_PLAYBACK_STATE_CHANGED);
     }
     return EXIT_SUCCESS;
 }
@@ -46,5 +46,5 @@ const char *State::getState(const int state) {
 }
 
 void State::setMsgQueue(MessageQueue *msgQueue) {
-    State::pMsgQueue = msgQueue;
+    State::msgQueue = msgQueue;
 }
