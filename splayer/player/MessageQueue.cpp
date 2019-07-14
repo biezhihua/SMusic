@@ -14,7 +14,7 @@ MessageQueue::~MessageQueue() {
 }
 
 int MessageQueue::putMsg(Message *msg) {
-    int ret = EXIT_FAILURE;
+    int ret = S_FAILURE;
     if (mutex && queue) {
         mutex->mutexLock();
         ret = _putMsg(msg);
@@ -26,7 +26,7 @@ int MessageQueue::putMsg(Message *msg) {
 int MessageQueue::_putMsg(Message *msg) {
     if (abortRequest || !msg) {
         ALOGE("%s %d %p", __func__, abortRequest, msg);
-        return EXIT_FAILURE;
+        return S_FAILURE;
     }
     ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(msg->what));
     if (queue && mutex) {
@@ -34,7 +34,7 @@ int MessageQueue::_putMsg(Message *msg) {
         mutex->condSignal();
     }
     ALOGD("%s size=%d", __func__, queue->size());
-    return EXIT_SUCCESS;
+    return S_SUCCESS;
 }
 
 void MessageQueue::setAbortRequest(bool abortRequest) {
@@ -65,12 +65,12 @@ void MessageQueue::clearMsgQueue() {
 }
 
 int MessageQueue::getMsg(Message *msg, bool block) {
-    int ret = EXIT_FAILURE;
+    int ret = S_FAILURE;
     if (mutex && queue) {
         mutex->mutexLock();
         while (true) {
             if (abortRequest) {
-                ret = EXIT_FAILURE;
+                ret = S_FAILURE;
                 ALOGE("%s abort=%d", __func__, abortRequest);
                 break;
             }
@@ -78,11 +78,11 @@ int MessageQueue::getMsg(Message *msg, bool block) {
             if (message) {
                 queue->pop_front();
                 *msg = *message;
-                ret = EXIT_SUCCESS;
+                ret = S_SUCCESS;
                 ALOGD("%s success", __func__);
                 break;
             } else if (!block) {
-                ret = EXIT_FAILURE;
+                ret = S_FAILURE;
                 ALOGD("%s not block", __func__);
                 break;
             } else {
@@ -123,9 +123,9 @@ int MessageQueue::startMsgQueue() {
         message->what = Message::MSG_FLUSH;
         _putMsg(message);
         mutex->mutexUnLock();
-        return EXIT_SUCCESS;
+        return S_SUCCESS;
     }
-    return EXIT_FAILURE;
+    return S_FAILURE;
 }
 
 void MessageQueue::notifyMsg(int what) {

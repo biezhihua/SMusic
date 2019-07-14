@@ -46,6 +46,8 @@ public:
      */
     int condWaitTimeout(uint32_t ms);
 
+    int condWaitTimeout(Mutex *other, uint32_t ms);
+
     /**
      * Wait on a condition
      */

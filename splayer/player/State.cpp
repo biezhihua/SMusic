@@ -15,7 +15,7 @@ int State::changeState(const int state) {
     if (msgQueue) {
         msgQueue->notifyMsg(Message::MSG_PLAYBACK_STATE_CHANGED);
     }
-    return EXIT_SUCCESS;
+    return S_SUCCESS;
 }
 
 const char *State::getState(const int state) {

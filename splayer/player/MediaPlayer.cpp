@@ -31,7 +31,7 @@ int MediaPlayer::create() {
         VOut *vOut = createSurface();
         if (!vOut) {
             // TODO
-            return EXIT_FAILURE;
+            return AVERROR(ENOMEM);
         }
 
         // 创建输出层实现
@@ -42,14 +42,14 @@ int MediaPlayer::create() {
         Pipeline *pipeline = createPipeline();
         if (!pipeline) {
             // TODO
-            return EXIT_FAILURE;
+            return AVERROR(ENOMEM);
         }
 
         // 创建数据管道实现
         PipelineOpaque *opaque = pipeline->createOpaque();
         if (!opaque) {
             // TODO
-            return EXIT_FAILURE;
+            return AVERROR(ENOMEM);
         }
 
         opaque->setVOut(vOut);
@@ -58,10 +58,10 @@ int MediaPlayer::create() {
         play->setPipeline(pipeline);
         play->setVOut(vOut);
 
-        return EXIT_SUCCESS;
+        return 0;
     }
     // TODO
-    return EXIT_FAILURE;
+    return AVERROR(ENOMEM);
 }
 
 int MediaPlayer::start() {
@@ -72,9 +72,9 @@ int MediaPlayer::start() {
         removeMsg(Message::REQ_PAUSE);
         notifyMsg(Message::REQ_START);
         mutex->mutexUnLock();
-        return EXIT_SUCCESS;
+        return 0;
     }
-    return EXIT_FAILURE;
+    return AVERROR(ENOMEM);
 }
 
 int MediaPlayer::stop() {
@@ -86,12 +86,12 @@ int MediaPlayer::stop() {
         if (play->stop()) {
             state->changeState(State::STATE_STOPPED);
             mutex->mutexUnLock();
-            return EXIT_SUCCESS;
+            return 0;
         }
         mutex->mutexUnLock();
-        return EXIT_FAILURE;
+        return AVERROR(ENOMEM);
     }
-    return EXIT_FAILURE;
+    return AVERROR(ENOMEM);
 }
 
 int MediaPlayer::pause() {
@@ -102,9 +102,9 @@ int MediaPlayer::pause() {
         removeMsg(Message::REQ_PAUSE);
         notifyMsg(Message::REQ_PAUSE);
         mutex->mutexUnLock();
-        return EXIT_SUCCESS;
+        return 0;
     }
-    return EXIT_FAILURE;
+    return AVERROR(ENOMEM);
 }
 
 int MediaPlayer::reset() {
@@ -114,13 +114,13 @@ int MediaPlayer::reset() {
             ALOGD("reset - destroy success");
             if (create()) {
                 ALOGD("reset - create success");
-                return EXIT_SUCCESS;
+                return 0;
             }
-            return EXIT_FAILURE;
+            return AVERROR(ENOMEM);
         }
-        return EXIT_FAILURE;
+        return AVERROR(ENOMEM);
     }
-    return EXIT_FAILURE;
+    return AVERROR(ENOMEM);
 }
 
 int MediaPlayer::destroy() {
@@ -130,9 +130,9 @@ int MediaPlayer::destroy() {
         // TODO set new surface
         mutex->mutexUnLock();
         play->shutdown();
-        return EXIT_SUCCESS;
+        return 0;
     }
-    return EXIT_FAILURE;
+    return AVERROR(ENOMEM);
 }
 
 int MediaPlayer::setDataSource(const char *url) {
@@ -143,20 +143,20 @@ int MediaPlayer::setDataSource(const char *url) {
         if (dataSource) {
             state->changeState(State::STATE_INITIALIZED);
             mutex->mutexUnLock();
-            return EXIT_SUCCESS;
+            return 0;
         }
         mutex->mutexUnLock();
-        return EXIT_FAILURE;
+        return AVERROR(ENOMEM);
     }
-    return EXIT_FAILURE;
+    return AVERROR(ENOMEM);
 }
 
 static int staticMsgLoop(void *arg) {
     if (arg) {
-        MediaPlayer *mediaSPLAYER = static_cast<MediaPlayer *>(arg);
-        return mediaSPLAYER->messageLoop();
+        MediaPlayer *mediaPlayer = static_cast<MediaPlayer *>(arg);
+        return mediaPlayer->messageLoop();
     }
-    return EXIT_FAILURE;
+    return S_FAILURE;
 }
 
 int MediaPlayer::prepareAsync() {
@@ -170,13 +170,13 @@ int MediaPlayer::prepareAsync() {
         msgThread = new Thread(staticMsgLoop, this, "msg_loop");
         if (play->prepareAsync(dataSource)) {
             mutex->mutexUnLock();
-            return EXIT_SUCCESS;
+            return S_SUCCESS;
         }
         state->changeState(State::STATE_ERROR);
         mutex->mutexUnLock();
-        return EXIT_FAILURE;
+        return S_FAILURE;
     }
-    return EXIT_FAILURE;
+    return S_FAILURE;
 }
 
 void MediaPlayer::notifyMsg(int what) {

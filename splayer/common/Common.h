@@ -2,12 +2,12 @@
 #ifndef SPLAYER_COMMON_H
 #define SPLAYER_COMMON_H
 
-#ifndef EXIT_FAILURE
-#define EXIT_FAILURE 0
+#ifndef S_FAILURE
+#define S_FAILURE -1
 #endif
 
-#ifndef EXIT_SUCCESS
-#define EXIT_SUCCESS 1
+#ifndef S_SUCCESS
+#define S_SUCCESS 0
 #endif
 
 #endif //SPLAYER_COMMON_H
