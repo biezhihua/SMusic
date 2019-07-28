@@ -2,3 +2,4 @@
 cmake-build-debug
 .vscode
 CMakeFiles
+libsplayer_core.a
