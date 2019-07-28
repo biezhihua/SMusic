@@ -1,4 +1,4 @@
-#include "AndroidMediaPlayer.h"
+#include "../include/AndroidMediaPlayer.h"
 
 
 

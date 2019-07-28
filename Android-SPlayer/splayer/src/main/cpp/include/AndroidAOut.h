@@ -1,8 +1,8 @@
 #ifndef SPLAYER_ANDROIDAOUT_H
 #define SPLAYER_ANDROIDAOUT_H
 
-#include <Common.h>
 #include <AOut.h>
+#include <Common.h>
 
 class AndroidAOut : public AOut {
 

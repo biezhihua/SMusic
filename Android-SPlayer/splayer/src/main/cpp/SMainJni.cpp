@@ -4,7 +4,7 @@
 //#include "splayer/main/SLog.h"
 //#include "splayer/main/SJavaMethods.h"
 
-#include "splayer/AndroidMediaPlayer.h"
+#include "include/AndroidMediaPlayer.h"
 //#include "splayer/media/MediaPlayer.h"
 
 #pragma clang diagnostic push

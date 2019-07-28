@@ -1,8 +1,8 @@
 #ifndef SPLAYER_ANDROIDMEDIAPLAYER_H
 #define SPLAYER_ANDROIDMEDIAPLAYER_H
 
-#include <jni.h>
 #include <MediaPlayer.h>
+#include <jni.h>
 #include "AndroidDef.h"
 #include "AndroidAOut.h"
 #include "AndroidVOut.h"

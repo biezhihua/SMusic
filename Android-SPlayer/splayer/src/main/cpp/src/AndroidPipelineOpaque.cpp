@@ -1,4 +1,4 @@
-#include "AndroidPipelineOpaque.h"
+#include "../include/AndroidPipelineOpaque.h"
 
 AndroidPipelineOpaque::AndroidPipelineOpaque() : PipelineOpaque() {
     ALOGD(__func__);

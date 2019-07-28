@@ -1,4 +1,4 @@
-#include "AndroidPipelineNode.h"
+#include "../include/AndroidPipelineNode.h"
 
 AndroidPipelineNode::AndroidPipelineNode() : PipelineNode() {
     ALOGD(__func__);

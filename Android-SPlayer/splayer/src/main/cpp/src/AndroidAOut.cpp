@@ -1,5 +1,6 @@
 
-#include "AndroidAOut.h"
+
+#include "../include/AndroidAOut.h"
 
 
 AndroidAOut::AndroidAOut() {

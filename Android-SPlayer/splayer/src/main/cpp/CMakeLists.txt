@@ -18,48 +18,30 @@ set_target_properties(splayer_openssl_crypto PROPERTIES IMPORTED_LOCATION ${DIST
 add_library(splayer_openssl_ssl STATIC IMPORTED)
 set_target_properties(splayer_openssl_ssl PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/openssl/lib/${ANDROID_ABI}/libssl.a)
 
+add_library(splayer_core STATIC IMPORTED)
+set_target_properties(splayer_core PROPERTIES IMPORTED_LOCATION ${SPLAYER_DIR}/libsplayer_core.a)
+
 include_directories(${DISTRIBUTION_DIR}/ffmpeg/include)
-link_directories(${DISTRIBUTION_DIR}/ffmpeg/include)
+include_directories(${SPLAYER_DIR}/include)
 
-#include_directories(
-#        ${SPLAYER_DIR}/player
-#        ${SPLAYER_DIR}/common
-#        ${SPLAYER_DIR}/entity
-#        ${SPLAYER_DIR}/soundtouch
-#)
-#link_directories(
-#        ${SPLAYER_DIR}/player
-#        ${SPLAYER_DIR}/common
-#        ${SPLAYER_DIR}/entity
-#        ${SPLAYER_DIR}/soundtouch
-#)
-
-#aux_source_directory(${SPLAYER_DIR}/player splayer_core_player)
-#aux_source_directory(${SPLAYER_DIR}/common splayer_core_common)
-#aux_source_directory(${SPLAYER_DIR}/entity splayer_core_entity)
-#aux_source_directory(${SPLAYER_DIR}/soundtouch splayer_core_soundtouch)
-#aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/splayer splayer_android)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src splayer_android)
 
 add_library(${PROJECT_NAME} SHARED
         SMainJni.cpp
         ${splayer_android}
-#        ${splayer_core_player}
-#        ${splayer_core_common}
-#        ${splayer_core_entity}
-#        ${splayer_core_soundtouch}
         )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${DISTRIBUTION_DIR}/ffmpeg/include
         ${DISTRIBUTION_DIR}/openssl/include
-#        ${SPLAYER_DIR}/player
-#        ${SPLAYER_DIR}/common
-#        ${SPLAYER_DIR}/entity
-#        ${SPLAYER_DIR}/soundtouch
+        ${SPLAYER_DIR}/include
         )
 
 target_link_libraries(${PROJECT_NAME}
         log
+        splayer_core
         splayer_ffmpeg
         splayer_openssl_ssl
         splayer_openssl_crypto

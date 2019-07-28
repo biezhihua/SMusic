@@ -1,5 +1,5 @@
-#include "AndroidVOut.h"
-#include "AndroidVOutOpaque.h"
+#include "../include/AndroidVOut.h"
+#include "../include/AndroidVOutOpaque.h"
 
 AndroidVOutSurface::AndroidVOutSurface() {
     ALOGD(__func__);

@@ -1,4 +1,4 @@
-#include "AndroidVOutOpaque.h"
+#include "../include/AndroidVOutOpaque.h"
 
 AndroidVOutOpaque::AndroidVOutOpaque() : VOutOpaque() {
     ALOGD(__func__);
