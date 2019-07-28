@@ -21,10 +21,6 @@ set_target_properties(splayer_openssl_ssl PROPERTIES IMPORTED_LOCATION ${DISTRIB
 add_library(splayer_core STATIC IMPORTED)
 set_target_properties(splayer_core PROPERTIES IMPORTED_LOCATION ${SPLAYER_DIR}/libsplayer_core.a)
 
-include_directories(${DISTRIBUTION_DIR}/ffmpeg/include)
-include_directories(${SPLAYER_DIR}/include)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src splayer_android)
 
 add_library(${PROJECT_NAME} SHARED
