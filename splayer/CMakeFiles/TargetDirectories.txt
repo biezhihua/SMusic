@@ -1,3 +1,0 @@
-/Users/biezhihua/StudySpace/splayer/splayer/CMakeFiles/rebuild_cache.dir
-/Users/biezhihua/StudySpace/splayer/splayer/CMakeFiles/edit_cache.dir
-/Users/biezhihua/StudySpace/splayer/splayer/CMakeFiles/splayer_core.dir
