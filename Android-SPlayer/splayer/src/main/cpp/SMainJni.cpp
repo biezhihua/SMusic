@@ -1,9 +1,10 @@
 #ifdef __ANDROID__
+
 #include <jni.h>
 //#include "splayer/main/SLog.h"
 //#include "splayer/main/SJavaMethods.h"
 
-#include "splayer/android/AndroidMediaPlayer.h"
+#include "splayer/AndroidMediaPlayer.h"
 //#include "splayer/media/MediaPlayer.h"
 
 #pragma clang diagnostic push

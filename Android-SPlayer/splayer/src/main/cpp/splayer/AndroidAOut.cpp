@@ -11,7 +11,7 @@ AndroidAOut::~AndroidAOut() {
 }
 
 int AndroidAOut::open() {
-    return EXIT_FAILURE;
+    return S_FAILURE;
 }
 
 void AndroidAOut::pause() {
