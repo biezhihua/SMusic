@@ -6,20 +6,20 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution)
 
-include_directories(${DISTRIBUTION}/ffmpeg/include)
+include_directories(include)
 
-include_directories(player)
-aux_source_directory(player player)
-
-include_directories(common)
-aux_source_directory(common common)
-
-include_directories(soundtouch)
-aux_source_directory(soundtouch soundtouch)
+aux_source_directory(src src)
+aux_source_directory(extra/soundtouch extra_soundtouch)
 
 add_library(splayer_core
-        ${player}
-        ${common}
-        ${soundtouch}
+        ${include}
+        ${src}
+        ${extra_soundtouch}
+        )
+
+target_include_directories(splayer_core PRIVATE
+        ${DISTRIBUTION}/ffmpeg/include
+        src
+        extra_soundtouch
         )
 
