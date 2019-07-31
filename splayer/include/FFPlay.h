@@ -9,11 +9,6 @@
 #include "Pipeline.h"
 #include "State.h"
 #include "Common.h"
-#include "Audio.h"
-#include "Clock.h"
-#include "PacketQueue.h"
-#include "FrameQueue.h"
-#include "VideoState.h"
 
 extern "C" {
 #include <libavutil/time.h>
@@ -94,13 +89,10 @@ private:
     AOut *aOut = nullptr;
     VOut *vOut = nullptr;
     Pipeline *pipeline = nullptr;
-    VideoState *videoState = nullptr;
 
     char *inputFileName = nullptr;
 
 private:
-
-    VideoState *streamOpen(const char *name, AVInputFormat *inputFormat);
 
 public:
     FFPlay();
@@ -124,16 +116,6 @@ public:
     int prepareAsync(const char *fileName);
 
     int getMsg(Message *pMessage, bool block);
-
-    int frame_queue_init(FrameQueue *f, PacketQueue *pktq, int max_size, int keep_last);
-
-    int packet_queue_init(PacketQueue *q);
-
-    void init_clock(Clock *c, int *queue_serial);
-
-    void set_clock(Clock *c, double pts, int serial);
-
-    void set_clock_at(Clock *c, double pts, int serial, double time);
 };
 
 
