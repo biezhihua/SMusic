@@ -7,3 +7,4 @@ cmake_install.cmake
 Makefile
 CMakeCache.txt
 CMakeFiles
+splayer_core.cbp
