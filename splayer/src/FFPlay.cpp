@@ -1,6 +1,4 @@
-
-#include "../include/FFPlay.h"
-
+#include "FFPlay.h"
 
 FFPlay::FFPlay() {
     ALOGD(__func__);

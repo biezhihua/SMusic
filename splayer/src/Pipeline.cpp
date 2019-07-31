@@ -1,4 +1,4 @@
-#include "../include/Pipeline.h"
+#include "Pipeline.h"
 
 Pipeline::Pipeline() {
     ALOGD(__func__);

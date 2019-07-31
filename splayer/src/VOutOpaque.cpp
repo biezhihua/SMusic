@@ -1,8 +1,4 @@
-//
-// Created by biezhihua on 2019-06-18.
-//
-
-#include "../include/VOutOpaque.h"
+#include "VOutOpaque.h"
 
 VOutOpaque::VOutOpaque() {
     ALOGD(__func__);

@@ -1,5 +1,4 @@
-
-#include "../include/Thread.h"
+#include "Thread.h"
 
 static void *runThread(void *data) {
     ALOGD(__func__);

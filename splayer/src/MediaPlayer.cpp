@@ -1,7 +1,5 @@
-
-
-#include "../include/MediaPlayer.h"
-#include "../include/Thread.h"
+#include "MediaPlayer.h"
+#include "Thread.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"

@@ -1,8 +1,4 @@
-//
-// Created by biezhihua on 2019-06-16.
-//
-
-#include "../include/PipelineNode.h"
+#include "PipelineNode.h"
 
 PipelineNode::PipelineNode() {
     ALOGD(__func__);

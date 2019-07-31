@@ -6,8 +6,6 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution)
 
-include_directories(include)
-
 aux_source_directory(src src)
 aux_source_directory(extra/soundtouch extra_soundtouch)
 
@@ -18,6 +16,7 @@ add_library(splayer_core
         )
 
 target_include_directories(splayer_core PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${DISTRIBUTION}/ffmpeg/include
         src
         extra_soundtouch

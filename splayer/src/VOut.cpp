@@ -1,8 +1,4 @@
-//
-// Created by biezhihua on 2019-06-16.
-//
-
-#include "../include/VOut.h"
+#include "VOut.h"
 
 VOut::VOut() {
     ALOGD(__func__);

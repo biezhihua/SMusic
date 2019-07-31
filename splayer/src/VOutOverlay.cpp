@@ -1,8 +1,4 @@
-//
-// Created by biezhihua on 2019-06-18.
-//
-
-#include "../include/VOutOverlay.h"
+#include "VOutOverlay.h"
 
 VOutOverlay::VOutOverlay() {
     ALOGD(__func__);

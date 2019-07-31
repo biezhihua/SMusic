@@ -1,4 +1,4 @@
-#include "../include/RefCount.h"
+#include "RefCount.h"
 
 RefCount::RefCount() {
     ALOGD(__func__);

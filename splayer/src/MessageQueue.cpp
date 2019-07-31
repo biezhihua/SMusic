@@ -1,4 +1,4 @@
-#include "../include/MessageQueue.h"
+#include "MessageQueue.h"
 
 MessageQueue::MessageQueue() {
     ALOGD(__func__);

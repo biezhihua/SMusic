@@ -1,4 +1,4 @@
-#include "../include/Mutex.h"
+#include "Mutex.h"
 
 int Mutex::mutexLock() {
     return pthread_mutex_lock(&mutex);

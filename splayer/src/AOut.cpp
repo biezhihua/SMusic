@@ -1,4 +1,4 @@
-#include "../include/AOut.h"
+#include "AOut.h"
 
 
 AOut::AOut() {
