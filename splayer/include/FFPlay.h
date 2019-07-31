@@ -15,6 +15,19 @@
 #include "FrameQueue.h"
 #include "VideoState.h"
 
+extern "C" {
+#include <libavutil/time.h>
+#include <libavutil/rational.h>
+#include <libavutil/mem.h>
+#include <libavutil/log.h>
+#include <libavutil/error.h>
+#include <libavutil/frame.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
+};
+
 enum {
     AV_SYNC_AUDIO_MASTER, /* default choice */
     AV_SYNC_VIDEO_MASTER,

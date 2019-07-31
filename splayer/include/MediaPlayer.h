@@ -9,7 +9,19 @@
 #include "Pipeline.h"
 #include "State.h"
 #include "Thread.h"
+
+extern "C" {
 #include <libavutil/time.h>
+#include <libavutil/rational.h>
+#include <libavutil/mem.h>
+#include <libavutil/log.h>
+#include <libavutil/error.h>
+#include <libavutil/frame.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
+};
 
 /**
  * virtual

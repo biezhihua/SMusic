@@ -5,11 +5,20 @@
 #ifndef ANDROID_SPLAYER_AUDIOPARAMS_H
 #define ANDROID_SPLAYER_AUDIOPARAMS_H
 
+
+extern "C" {
+#include <libavutil/time.h>
+#include <libavutil/rational.h>
+#include <libavutil/mem.h>
+#include <libavutil/log.h>
+#include <libavutil/error.h>
 #include <libavutil/frame.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
+};
+
 #include "Thread.h"
 #include "Mutex.h"
 #include "FFPlay.h"
