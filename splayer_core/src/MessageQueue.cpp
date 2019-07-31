@@ -26,14 +26,14 @@ int MessageQueue::putMsg(Message *msg) {
 int MessageQueue::_putMsg(Message *msg) {
     if (abortRequest || !msg) {
         ALOGE("%s %d %p", __func__, abortRequest, msg);
-        return S_ERROR(SE_ABORT);
+        return S_ERROR(SE_NULL);
     }
     ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(msg->what));
     if (queue && mutex) {
         queue->push_back(msg);
         mutex->condSignal();
     }
-    ALOGD("%s size=%d", __func__, queue->size());
+    ALOGD("%s size=%ld", __func__, queue->size());
     return S_CORRECT;
 }
 
@@ -72,7 +72,7 @@ int MessageQueue::getMsg(Message *msg, bool block) {
         mutex->mutexLock();
         while (true) {
             if (abortRequest) {
-                ret = S_ERROR(SE_ABORT);
+                ret = S_ERROR(SE_CONDITION);
                 ALOGE("%s abort=%d", __func__, abortRequest);
                 break;
             }
@@ -84,7 +84,7 @@ int MessageQueue::getMsg(Message *msg, bool block) {
                 ALOGD("%s success", __func__);
                 break;
             } else if (!block) {
-                ret = S_ERROR(SE_BLOCK);
+                ret = S_ERROR(SE_CONDITION);
                 ALOGD("%s not block", __func__);
                 break;
             } else {
@@ -113,8 +113,9 @@ int MessageQueue::removeMsg(int what) {
         queue->remove(message);
         delete message;
         mutex->mutexUnLock();
+        return S_CORRECT;
     }
-    return S_CORRECT;
+    return S_ERROR(SE_NULL);
 }
 
 int MessageQueue::startMsgQueue() {
@@ -122,18 +123,18 @@ int MessageQueue::startMsgQueue() {
     if (queue && mutex) {
         mutex->mutexLock();
         abortRequest = false;
-        Message *message = new Message();
+        auto *message = new Message();
         message->what = Message::MSG_FLUSH;
         _putMsg(message);
         mutex->mutexUnLock();
         return S_CORRECT;
     }
-    return S_ERROR(SE_ABORT);
+    return S_ERROR(SE_NULL);
 }
 
 int MessageQueue::notifyMsg(int what) {
     ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(what));
-    Message *message = new Message();
+    auto *message = new Message();
     message->what = what;
     putMsg(message);
     return S_CORRECT;
@@ -141,7 +142,7 @@ int MessageQueue::notifyMsg(int what) {
 
 int MessageQueue::notifyMsg(int what, int arg1) {
     ALOGD("%s what=%s arg1=%d", __func__, Message::getMsgSimpleName(what), arg1);
-    Message *message = new Message();
+    auto *message = new Message();
     message->what = what;
     message->arg1 = arg1;
     putMsg(message);
@@ -150,7 +151,7 @@ int MessageQueue::notifyMsg(int what, int arg1) {
 
 int MessageQueue::notifyMsg(int what, int arg1, int arg2) {
     ALOGD("%s what=%s arg1=%d arg2=%d", __func__, Message::getMsgSimpleName(what), arg1, arg2);
-    Message *message = new Message();
+    auto *message = new Message();
     message->what = what;
     message->arg1 = arg1;
     message->arg2 = arg2;

@@ -61,7 +61,12 @@ public:
     virtual int prepareAsync();
 
     virtual int messageLoop() = 0;
+
+private:
+    int startMsgQueue() const;
+
+    int startMsgQueueThread();
 };
 
 
-#endif //SPLAYER_MEDIASPLAYER_H
+#endif

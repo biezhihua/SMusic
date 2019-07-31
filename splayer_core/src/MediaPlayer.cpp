@@ -2,6 +2,7 @@
 #include "Thread.h"
 
 #pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunknown-pragmas"
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 
 MediaPlayer::MediaPlayer() {
@@ -56,7 +57,7 @@ int MediaPlayer::create() {
         play->setPipeline(pipeline);
         play->setVOut(vOut);
 
-        return 0;
+        return S_CORRECT;
     }
     // TODO
     return S_ERROR(ENOMEM);
@@ -100,7 +101,7 @@ int MediaPlayer::pause() {
         removeMsg(Message::REQ_PAUSE);
         notifyMsg(Message::REQ_PAUSE);
         mutex->mutexUnLock();
-        return 0;
+        return S_CORRECT;
     }
     return S_ERROR(ENOMEM);
 }
@@ -151,7 +152,7 @@ int MediaPlayer::setDataSource(const char *url) {
 
 static int staticMsgLoop(void *arg) {
     if (arg) {
-        MediaPlayer *mediaPlayer = static_cast<MediaPlayer *>(arg);
+        auto *mediaPlayer = static_cast<MediaPlayer *>(arg);
         return mediaPlayer->messageLoop();
     }
     return S_ERROR(S_ERROR_UNKNOWN);
@@ -161,20 +162,33 @@ int MediaPlayer::prepareAsync() {
     if (state && mutex && play) {
         mutex->mutexLock();
         state->changeState(State::STATE_ASYNC_PREPARING);
-        MessageQueue *pQueue = play->getMsgQueue();
-        if (pQueue) {
-            pQueue->startMsgQueue();
-        }
-        msgThread = new Thread(staticMsgLoop, this, "msg_loop");
+        startMsgQueue();
+        startMsgQueueThread();
         if (play->prepareAsync(dataSource)) {
             mutex->mutexUnLock();
             return S_CORRECT;
         }
         state->changeState(State::STATE_ERROR);
         mutex->mutexUnLock();
-        return S_ERROR(S_ERROR_UNKNOWN);
+        return S_ERROR(SE_CONDITION);
     }
-    return S_ERROR(S_ERROR_UNKNOWN);
+    return S_ERROR(SE_NULL);
+}
+
+int MediaPlayer::startMsgQueueThread() {
+    msgThread = new Thread(staticMsgLoop, this, "msg_loop");
+    if (msgThread) {
+        return S_CORRECT;
+    }
+    return S_ERROR(SE_NOMEM);
+}
+
+int MediaPlayer::startMsgQueue() const {
+    MessageQueue *msgQueue = play->getMsgQueue();
+    if (msgQueue) {
+        return msgQueue->startMsgQueue();
+    }
+    return S_ERROR(SE_NULL);
 }
 
 void MediaPlayer::notifyMsg(int what) {
@@ -211,6 +225,5 @@ MessageQueue *MediaPlayer::getMsgQueue() {
     }
     return nullptr;
 }
-
 
 #pragma clang diagnostic pop
