@@ -13,7 +13,7 @@ add_library(splayer_core
         ${include}
         ${src}
         ${extra_soundtouch}
-        )
+        include/ErrorNo.h)
 
 target_include_directories(splayer_core PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include

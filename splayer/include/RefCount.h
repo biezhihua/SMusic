@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-16.
-//
-
 #ifndef SPLAYER_REFCOUNT_H
 #define SPLAYER_REFCOUNT_H
 #include "Log.h"

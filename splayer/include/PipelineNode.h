@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-16.
-//
-
 #ifndef SPLAYER_PIPENODE_H
 #define SPLAYER_PIPENODE_H
 
@@ -24,6 +20,5 @@ public:
 
     virtual int flush() = 0;
 };
-
 
 #endif //SPLAYER_PIPENODE_H

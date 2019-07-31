@@ -37,18 +37,18 @@ MessageQueue *FFPlay::getMsgQueue() const {
 
 int FFPlay::stop() {
     // TODO
-    return S_FAILURE;
+    return S_ERROR(S_ERROR_UNKNOWN);
 }
 
 int FFPlay::shutdown() {
     // TODO
     waitStop();
-    return S_FAILURE;
+    return S_ERROR(S_ERROR_UNKNOWN);
 }
 
 int FFPlay::waitStop() {
     // TODO
-    return S_FAILURE;
+    return S_ERROR(S_ERROR_UNKNOWN);
 }
 
 int FFPlay::prepareAsync(const char *fileName) {
@@ -57,12 +57,12 @@ int FFPlay::prepareAsync(const char *fileName) {
     if (!aOut) {
         int result = aOut->open();
         if (!result) {
-            return S_FAILURE;
+            return S_ERROR(SE_NXIO);
         }
     }
 //    videoState = streamOpen(fileName, nullptr);
 //    if (!videoState) {
-//        return S_FAILURE;
+//        return S_ERROR(S_ERROR_UNKNOWN);
 //    }
     inputFileName = strdup(fileName);
     return 0;
@@ -72,7 +72,7 @@ int FFPlay::getMsg(Message *msg, bool block) {
     while (true) {
         bool continueWaitNextMsg = false;
         int ret = msgQueue->getMsg(msg, block);
-        if (ret == S_FAILURE) {
+        if (ret != S_CORRECT) {
             return ret;
         }
 
@@ -173,9 +173,8 @@ int FFPlay::getMsg(Message *msg, bool block) {
             msg->free();
             continue;
         }
-        av_read_frame(nullptr, nullptr);
         return ret;
     }
-    return S_FAILURE;
+    return S_ERROR(S_ERROR_UNKNOWN);
 }
 

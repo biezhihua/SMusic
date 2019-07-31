@@ -2,7 +2,7 @@
 #define SPLAYER_STATE_H
 
 #include "Log.h"
-#include "Common.h"
+#include "Error.h"
 #include "MessageQueue.h"
 
 class State {

@@ -2,7 +2,7 @@
 #define SPLAYER_MESSAGEQUEUE_H
 
 #include "Log.h"
-#include "Common.h"
+#include "Error.h"
 #include "Mutex.h"
 #include "Message.h"
 #include <list>
@@ -42,22 +42,22 @@ public:
     /**
      * abort message queue
      */
-    void setAbortRequest(bool abortRequest);
+    int setAbortRequest(bool abortRequest);
 
-    void removeMsg(int what);
+    int removeMsg(int what);
 
     /**
      * clear queue
      */
-    void clearMsgQueue();
+    int clearMsgQueue();
 
     int startMsgQueue();
 
-    void notifyMsg(int what);
+    int notifyMsg(int what);
 
-    void notifyMsg(int what, int arg1);
+    int notifyMsg(int what, int arg1);
 
-    void notifyMsg(int what, int arg1, int arg2);
+    int notifyMsg(int what, int arg1, int arg2);
 
 
 };

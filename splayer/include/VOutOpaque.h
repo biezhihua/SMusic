@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-18.
-//
-
 #ifndef SPLAYER_VOUTOPAQUE_H
 #define SPLAYER_VOUTOPAQUE_H
 

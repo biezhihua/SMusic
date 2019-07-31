@@ -29,7 +29,7 @@ int MediaPlayer::create() {
         VOut *vOut = createSurface();
         if (!vOut) {
             // TODO
-            return AVERROR(ENOMEM);
+            return S_ERROR(ENOMEM);
         }
 
         // 创建输出层实现
@@ -40,14 +40,14 @@ int MediaPlayer::create() {
         Pipeline *pipeline = createPipeline();
         if (!pipeline) {
             // TODO
-            return AVERROR(ENOMEM);
+            return S_ERROR(ENOMEM);
         }
 
         // 创建数据管道实现
         PipelineOpaque *opaque = pipeline->createOpaque();
         if (!opaque) {
             // TODO
-            return AVERROR(ENOMEM);
+            return S_ERROR(ENOMEM);
         }
 
         opaque->setVOut(vOut);
@@ -59,7 +59,7 @@ int MediaPlayer::create() {
         return 0;
     }
     // TODO
-    return AVERROR(ENOMEM);
+    return S_ERROR(ENOMEM);
 }
 
 int MediaPlayer::start() {
@@ -72,7 +72,7 @@ int MediaPlayer::start() {
         mutex->mutexUnLock();
         return 0;
     }
-    return AVERROR(ENOMEM);
+    return S_ERROR(ENOMEM);
 }
 
 int MediaPlayer::stop() {
@@ -87,9 +87,9 @@ int MediaPlayer::stop() {
             return 0;
         }
         mutex->mutexUnLock();
-        return AVERROR(ENOMEM);
+        return S_ERROR(ENOMEM);
     }
-    return AVERROR(ENOMEM);
+    return S_ERROR(ENOMEM);
 }
 
 int MediaPlayer::pause() {
@@ -102,7 +102,7 @@ int MediaPlayer::pause() {
         mutex->mutexUnLock();
         return 0;
     }
-    return AVERROR(ENOMEM);
+    return S_ERROR(ENOMEM);
 }
 
 int MediaPlayer::reset() {
@@ -114,11 +114,11 @@ int MediaPlayer::reset() {
                 ALOGD("reset - create success");
                 return 0;
             }
-            return AVERROR(ENOMEM);
+            return S_ERROR(ENOMEM);
         }
-        return AVERROR(ENOMEM);
+        return S_ERROR(ENOMEM);
     }
-    return AVERROR(ENOMEM);
+    return S_ERROR(ENOMEM);
 }
 
 int MediaPlayer::destroy() {
@@ -130,7 +130,7 @@ int MediaPlayer::destroy() {
         play->shutdown();
         return 0;
     }
-    return AVERROR(ENOMEM);
+    return S_ERROR(ENOMEM);
 }
 
 int MediaPlayer::setDataSource(const char *url) {
@@ -144,9 +144,9 @@ int MediaPlayer::setDataSource(const char *url) {
             return 0;
         }
         mutex->mutexUnLock();
-        return AVERROR(ENOMEM);
+        return S_ERROR(ENOMEM);
     }
-    return AVERROR(ENOMEM);
+    return S_ERROR(ENOMEM);
 }
 
 static int staticMsgLoop(void *arg) {
@@ -154,7 +154,7 @@ static int staticMsgLoop(void *arg) {
         MediaPlayer *mediaPlayer = static_cast<MediaPlayer *>(arg);
         return mediaPlayer->messageLoop();
     }
-    return S_FAILURE;
+    return S_ERROR(S_ERROR_UNKNOWN);
 }
 
 int MediaPlayer::prepareAsync() {
@@ -168,13 +168,13 @@ int MediaPlayer::prepareAsync() {
         msgThread = new Thread(staticMsgLoop, this, "msg_loop");
         if (play->prepareAsync(dataSource)) {
             mutex->mutexUnLock();
-            return S_SUCCESS;
+            return S_CORRECT;
         }
         state->changeState(State::STATE_ERROR);
         mutex->mutexUnLock();
-        return S_FAILURE;
+        return S_ERROR(S_ERROR_UNKNOWN);
     }
-    return S_FAILURE;
+    return S_ERROR(S_ERROR_UNKNOWN);
 }
 
 void MediaPlayer::notifyMsg(int what) {

@@ -2,7 +2,7 @@
 #define SPLAYER_MEDIASPLAYER_H
 
 #include "Log.h"
-#include "Common.h"
+#include "Error.h"
 #include "Mutex.h"
 #include "FFPlay.h"
 #include "RefCount.h"
@@ -10,9 +10,6 @@
 #include "State.h"
 #include "Thread.h"
 
-/**
- * virtual
- */
 class MediaPlayer {
 
 protected:

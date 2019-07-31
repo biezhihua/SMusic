@@ -1,7 +1,3 @@
-//
-// Created by biezhihua on 2019-06-18.
-//
-
 #ifndef SPLAYER_VOUTOVERLAY_H
 #define SPLAYER_VOUTOVERLAY_H
 

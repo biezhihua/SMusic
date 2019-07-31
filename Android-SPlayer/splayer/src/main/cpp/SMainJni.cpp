@@ -14,7 +14,7 @@ JavaVM *sJavaVM = nullptr;
 //SPlayer *sPlayer = nullptr;
 //SStatus *sStatus = nullptr;
 //SJavaMethods *sJavaMethods = nullptr;
-//MediaPlayer *mediaPlayer = nullptr;
+MediaPlayer *mediaPlayer = nullptr;
 #define JNI_TAG "Native_MainJni"
 
 // Destroy Instance
@@ -42,10 +42,10 @@ Java_com_bzh_splayer_lib_SPlayer_nativeSetSource(JNIEnv *env, jobject instance, 
 //    if (sPlayer != nullptr) {
 //        sPlayer->setSource(new std::string(source));
 //    }
-//    if (mediaPlayer) {
-//        mediaPlayer->setDataSource(source);
-//    }
-//    env->ReleaseStringUTFChars(source_, source);
+    if (mediaPlayer) {
+        mediaPlayer->setDataSource(source);
+    }
+    env->ReleaseStringUTFChars(source_, source);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeCreate(JNIEnv *env, jobject instance) {
@@ -73,10 +73,10 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeCreate(
 //        }
 //    }
 
-//    mediaPlayer = ((MediaPlayer *) new AndroidMediaPlayer());
-//    if (mediaPlayer) {
-//        mediaPlayer->create();
-//    }
+    mediaPlayer = ((MediaPlayer *) new AndroidMediaPlayer());
+    if (mediaPlayer) {
+        mediaPlayer->create();
+    }
 }
 
 
@@ -87,9 +87,9 @@ Java_com_bzh_splayer_lib_SPlayer_nativeStart(JNIEnv *env, jobject instance) {
 //    if (sPlayer != nullptr) {
 //        sPlayer->startMsgQueue();
 //    }
-//    if (mediaPlayer) {
-//        mediaPlayer->start();
-//    }
+    if (mediaPlayer) {
+        mediaPlayer->start();
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativePlay(JNIEnv *env, jobject instance) {
@@ -97,10 +97,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativePlay(JN
 //    if (sPlayer != nullptr) {
 //        sPlayer->play();
 //    }
-//    if (mediaPlayer) {
-//        mediaPlayer->prepareAsync();
-//    }
-
+    if (mediaPlayer) {
+        mediaPlayer->prepareAsync();
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativePause(JNIEnv *env, jobject instance) {
@@ -108,9 +107,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativePause(J
 //    if (sPlayer != nullptr) {
 //        sPlayer->pause();
 //    }
-//    if (mediaPlayer) {
-//        mediaPlayer->pause();
-//    }
+    if (mediaPlayer) {
+        mediaPlayer->pause();
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeStop(JNIEnv *env, jobject instance) {
@@ -118,9 +117,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeStop(JN
 //    if (sPlayer != nullptr) {
 //        sPlayer->stop();
 //    }
-//    if (mediaPlayer) {
-//        mediaPlayer->stop();
-//    }
+    if (mediaPlayer) {
+        mediaPlayer->stop();
+    }
 }
 
 //void *destroyCallBack(void *data) {
@@ -157,11 +156,11 @@ extern "C" JNIEXPORT void JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeDestroy
 //            sIsExiting = true;
 //        }
 //    }
-//    if (mediaPlayer) {
-//        mediaPlayer->destroy();
-//    }
-//    delete mediaPlayer;
-//    mediaPlayer = nullptr;
+    if (mediaPlayer) {
+        mediaPlayer->destroy();
+    }
+    delete mediaPlayer;
+    mediaPlayer = nullptr;
 }
 
 extern "C" JNIEXPORT jint JNICALL Java_com_bzh_splayer_lib_SPlayer_nativeGetTotalTimeMillis(JNIEnv *env,

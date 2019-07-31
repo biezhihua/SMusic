@@ -14,7 +14,7 @@ MessageQueue::~MessageQueue() {
 }
 
 int MessageQueue::putMsg(Message *msg) {
-    int ret = S_FAILURE;
+    int ret = S_ERROR(S_ERROR_UNKNOWN);
     if (mutex && queue) {
         mutex->mutexLock();
         ret = _putMsg(msg);
@@ -26,7 +26,7 @@ int MessageQueue::putMsg(Message *msg) {
 int MessageQueue::_putMsg(Message *msg) {
     if (abortRequest || !msg) {
         ALOGE("%s %d %p", __func__, abortRequest, msg);
-        return S_FAILURE;
+        return S_ERROR(SE_ABORT);
     }
     ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(msg->what));
     if (queue && mutex) {
@@ -34,10 +34,10 @@ int MessageQueue::_putMsg(Message *msg) {
         mutex->condSignal();
     }
     ALOGD("%s size=%d", __func__, queue->size());
-    return S_SUCCESS;
+    return S_CORRECT;
 }
 
-void MessageQueue::setAbortRequest(bool abortRequest) {
+int MessageQueue::setAbortRequest(bool abortRequest) {
     ALOGD("%s abortRequest=%d", __func__, abortRequest);
     if (mutex) {
         mutex->mutexLock();
@@ -45,9 +45,10 @@ void MessageQueue::setAbortRequest(bool abortRequest) {
         mutex->condSignal();
         mutex->mutexUnLock();
     }
+    return S_CORRECT;
 }
 
-void MessageQueue::clearMsgQueue() {
+int MessageQueue::clearMsgQueue() {
     ALOGD(__func__);
     if (mutex) {
         mutex->mutexLock();
@@ -62,15 +63,16 @@ void MessageQueue::clearMsgQueue() {
         }
         mutex->mutexUnLock();
     }
+    return S_CORRECT;
 }
 
 int MessageQueue::getMsg(Message *msg, bool block) {
-    int ret = S_FAILURE;
+    int ret = S_ERROR(S_ERROR_UNKNOWN);
     if (mutex && queue) {
         mutex->mutexLock();
         while (true) {
             if (abortRequest) {
-                ret = S_FAILURE;
+                ret = S_ERROR(SE_ABORT);
                 ALOGE("%s abort=%d", __func__, abortRequest);
                 break;
             }
@@ -78,11 +80,11 @@ int MessageQueue::getMsg(Message *msg, bool block) {
             if (message) {
                 queue->pop_front();
                 *msg = *message;
-                ret = S_SUCCESS;
+                ret = S_CORRECT;
                 ALOGD("%s success", __func__);
                 break;
             } else if (!block) {
-                ret = S_FAILURE;
+                ret = S_ERROR(SE_BLOCK);
                 ALOGD("%s not block", __func__);
                 break;
             } else {
@@ -96,7 +98,7 @@ int MessageQueue::getMsg(Message *msg, bool block) {
 }
 
 
-void MessageQueue::removeMsg(int what) {
+int MessageQueue::removeMsg(int what) {
     ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(what));
     if (queue && mutex) {
         mutex->mutexLock();
@@ -112,6 +114,7 @@ void MessageQueue::removeMsg(int what) {
         delete message;
         mutex->mutexUnLock();
     }
+    return S_CORRECT;
 }
 
 int MessageQueue::startMsgQueue() {
@@ -123,33 +126,36 @@ int MessageQueue::startMsgQueue() {
         message->what = Message::MSG_FLUSH;
         _putMsg(message);
         mutex->mutexUnLock();
-        return S_SUCCESS;
+        return S_CORRECT;
     }
-    return S_FAILURE;
+    return S_ERROR(SE_ABORT);
 }
 
-void MessageQueue::notifyMsg(int what) {
+int MessageQueue::notifyMsg(int what) {
     ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(what));
     Message *message = new Message();
     message->what = what;
     putMsg(message);
+    return S_CORRECT;
 }
 
-void MessageQueue::notifyMsg(int what, int arg1) {
+int MessageQueue::notifyMsg(int what, int arg1) {
     ALOGD("%s what=%s arg1=%d", __func__, Message::getMsgSimpleName(what), arg1);
     Message *message = new Message();
     message->what = what;
     message->arg1 = arg1;
     putMsg(message);
+    return S_CORRECT;
 }
 
-void MessageQueue::notifyMsg(int what, int arg1, int arg2) {
+int MessageQueue::notifyMsg(int what, int arg1, int arg2) {
     ALOGD("%s what=%s arg1=%d arg2=%d", __func__, Message::getMsgSimpleName(what), arg1, arg2);
     Message *message = new Message();
     message->what = what;
     message->arg1 = arg1;
     message->arg2 = arg2;
     putMsg(message);
+    return S_CORRECT;
 }
 
 
