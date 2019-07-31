@@ -7,10 +7,7 @@ project(splayer)
 cmake_minimum_required(VERSION 3.4.1)
 
 set(DISTRIBUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../distribution)
-set(SPLAYER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../splayer)
-
-message(${DISTRIBUTION_DIR})
-message(${SPLAYER_DIR})
+set(SPLAYER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../splayer_core)
 
 add_library(splayer_ffmpeg SHARED IMPORTED)
 set_target_properties(splayer_ffmpeg PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/ffmpeg/lib/${ANDROID_ABI}/libsffmpeg.so)
