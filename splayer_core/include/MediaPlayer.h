@@ -30,11 +30,6 @@ protected:
     void removeMsg(int what);
 
 protected:
-    virtual AOut *createAOut() = 0;
-
-    virtual VOut *createSurface() = 0;
-
-    virtual Pipeline *createPipeline() = 0;
 
     MessageQueue *getMsgQueue();
 
@@ -60,7 +55,16 @@ public:
 
     virtual int prepareAsync();
 
+public:
+
+    virtual AOut *createAOut() = 0;
+
+    virtual VOut *createSurface() = 0;
+
+    virtual Pipeline *createPipeline() = 0;
+
     virtual int messageLoop() = 0;
+
 
 private:
     int startMsgQueue() const;

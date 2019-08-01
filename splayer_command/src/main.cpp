@@ -1,6 +1,7 @@
 #include <iostream>
+#include "MyMediaPlayer.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    auto *player = new MyMediaPlayer();
     return 0;
 }

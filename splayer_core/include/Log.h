@@ -35,8 +35,8 @@
 #define LOG_FATAL       7
 #define LOG_SILENT      8
 
-#define VLOG(level, TAG, ...)    ((void)vprintf(__VA_ARGS__))
-#define ALOG(level, TAG, ...)    ((void)printf(__VA_ARGS__))
+#define VLOG(level, TAG, ...)    do { (((void)vprintf(__VA_ARGS__))); (((void)vprintf("\n"))); } while (0)
+#define ALOG(level, TAG, ...)    do { (((void)printf(__VA_ARGS__))); (((void)printf("\n"))); } while (0)
 
 #endif
 
