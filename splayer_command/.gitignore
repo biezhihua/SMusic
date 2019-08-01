@@ -8,3 +8,4 @@ Makefile
 CMakeCache.txt
 CMakeFiles
 splayer_core.cbp
+splayer_command
