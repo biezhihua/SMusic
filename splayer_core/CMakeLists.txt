@@ -4,7 +4,17 @@ project(splayer_core)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/mac)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/windows)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/linux)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Android")
+    set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/android)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "iOS")
+    set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/ios)
+endif ()
 
 aux_source_directory(src src)
 aux_source_directory(extra/soundtouch extra_soundtouch)
