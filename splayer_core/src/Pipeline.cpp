@@ -1,3 +1,4 @@
+#include <VOut.h>
 #include "Pipeline.h"
 
 Pipeline::Pipeline() {
@@ -8,6 +9,6 @@ Pipeline::~Pipeline() {
     ALOGD(__func__);
 }
 
-void Pipeline::setOpaque(PipelineOpaque *opaque) {
-    Pipeline::opaque = opaque;
+void Pipeline::setVOut(VOut *vOut) {
+    Pipeline::vOut = vOut;
 }

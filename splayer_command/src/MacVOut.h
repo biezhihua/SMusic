@@ -8,7 +8,6 @@
 
 class MacVOut : public VOut {
 public:
-    VOutOpaque *createOpaque() override;
 
     VOutOverlay *createOverlay(int width, int height, int frameFormat) override;
 

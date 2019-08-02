@@ -22,15 +22,11 @@ public:
 
     virtual ~VOut();
 
-    virtual VOutOpaque *createOpaque() = 0;
-
     virtual VOutOverlay *createOverlay(int width, int height, int frameFormat) = 0;
 
     virtual int displayOverlay(VOutOverlay *overlay) = 0;
 
     virtual void free() = 0;
-
-    void setVOutOpaque(VOutOpaque *vOutOpaque);
 };
 
 

@@ -1,9 +1,4 @@
 #include "MacVOut.h"
-#include "MacVOutOpaque.h"
-
-VOutOpaque *MacVOut::createOpaque() {
-    return new MacVOutOpaque();
-}
 
 VOutOverlay *MacVOut::createOverlay(int width, int height, int frameFormat) {
     return nullptr;

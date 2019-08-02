@@ -10,7 +10,4 @@ VOut::~VOut() {
     delete mutex;
 }
 
-void VOut::setVOutOpaque(VOutOpaque *vOutOpaque) {
-    VOut::vOutOpaque = vOutOpaque;
-}
 

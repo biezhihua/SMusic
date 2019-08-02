@@ -11,7 +11,6 @@
 class MacPipeline : public Pipeline {
 
 public:
-    PipelineOpaque *createOpaque() override;
 
     void close() override;
 

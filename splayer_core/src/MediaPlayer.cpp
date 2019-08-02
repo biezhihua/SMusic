@@ -7,63 +7,60 @@
 
 MediaPlayer::MediaPlayer() {
     ALOGD(__func__);
-    state = new State();
-    mutex = new Mutex();
-    play = new FFPlay();
-    if (state && play) {
-        state->setMsgQueue(play->getMsgQueue());
-    }
 }
 
 MediaPlayer::~MediaPlayer() {
     ALOGD(__func__);
-    delete play;
-    delete mutex;
-    delete state;
 }
 
 int MediaPlayer::create() {
     ALOGD(__func__);
-    if (play) {
 
-        // 创建输出层
-        VOut *vOut = createSurface();
-        if (!vOut) {
-            // TODO
-            ALOGE("create surface error");
-            return S_ERROR(ENOMEM);
-        }
-
-        // 创建输出层实现
-        VOutOpaque *outOpaque = vOut->createOpaque();
-        vOut->setVOutOpaque(outOpaque);
-
-        // 创建数据管道
-        Pipeline *pipeline = createPipeline();
-        if (!pipeline) {
-            // TODO
-            ALOGE("create pipeline error");
-            return S_ERROR(ENOMEM);
-        }
-
-        // 创建数据管道实现
-        PipelineOpaque *opaque = pipeline->createOpaque();
-        if (!opaque) {
-            // TODO
-            ALOGE("create opaque error");
-            return S_ERROR(ENOMEM);
-        }
-
-        opaque->setVOut(vOut);
-        pipeline->setOpaque(opaque);
-
-        play->setPipeline(pipeline);
-        play->setVOut(vOut);
-
-        return S_CORRECT;
+    state = new State();
+    if (!state) {
+        return S_ERROR(SE_NOMEM);
     }
-    // TODO
-    return S_ERROR(ENOMEM);
+
+    mutex = new Mutex();
+    if (!mutex) {
+        delete state;
+        return S_ERROR(SE_NOMEM);
+    }
+
+    play = new FFPlay();
+    if (!play) {
+        delete mutex;
+        return S_ERROR(SE_NOMEM);
+    }
+
+    // 设置消息
+    state->setMsgQueue(play->getMsgQueue());
+
+    // 创建输出层
+    VOut *vOut = createSurface();
+    if (!vOut) {
+        delete state;
+        delete mutex;
+        delete play;
+        ALOGE("create surface error");
+        return S_ERROR(ENOMEM);
+    }
+    play->setVOut(vOut);
+
+    // 创建数据管道
+    Pipeline *pipeline = createPipeline();
+    if (!pipeline) {
+        delete state;
+        delete mutex;
+        delete play;
+        delete vOut;
+        ALOGE("create pipeline error");
+        return S_ERROR(ENOMEM);
+    }
+    play->setPipeline(pipeline);
+    pipeline->setVOut(vOut);
+
+    return S_CORRECT;
 }
 
 int MediaPlayer::start() {
@@ -132,6 +129,10 @@ int MediaPlayer::destroy() {
         // TODO set new surface
         mutex->mutexUnLock();
         play->shutdown();
+
+        delete play;
+        delete mutex;
+        delete state;
         return 0;
     }
     return S_ERROR(ENOMEM);
