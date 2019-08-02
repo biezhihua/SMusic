@@ -22,11 +22,17 @@ add_subdirectory(${SPLAYER_DIR} splayer_core)
 
 aux_source_directory(src src_source)
 
-add_executable(splayer_command ${src_source} src/MacMediaPlayer.cpp src/MacMediaPlayer.h src/MacAOut.cpp src/MacAOut.h src/MacVOut.cpp src/MacVOut.h src/MacPipeline.cpp src/MacPipeline.h)
+set(SDL2_FOUND TRUE)
+find_package(SDL2 REQUIRED)
+
+add_executable(splayer_command ${src_source})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${DISTRIBUTION}/ffmpeg/include
-        ${SPLAYER_DIR}/include)
+        ${SPLAYER_DIR}/include
+        ${SDL2_INCLUDE_DIRS}
+        )
 
 target_link_libraries(${PROJECT_NAME}
-        splayer_core)
+        splayer_core
+        ${SDL2_LIBRARIES})

@@ -5,7 +5,7 @@
 		<Option title="splayer_command"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\splayer_core\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\usr\local\;CMake Files\..\..\..\..\..\usr\local\lib\;CMake Files\..\..\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\..\..\usr\local\lib\cmake\SDL2\;CMake Files\..\splayer_core\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/Users/biezhihua/StudySpace/SPlayer/splayer_mac"/>
@@ -46,6 +46,7 @@
 				<Compiler>
 					<Add directory="/Users/biezhihua/StudySpace/SPlayer/splayer_mac/../distribution/mac/ffmpeg/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/SPlayer/splayer_mac/../splayer_core/include"/>
+					<Add directory="/usr/local/include/SDL2"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
 					<Add directory="/usr/local/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
@@ -69,6 +70,7 @@
 				<Compiler>
 					<Add directory="/Users/biezhihua/StudySpace/SPlayer/splayer_mac/../distribution/mac/ffmpeg/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/SPlayer/splayer_mac/../splayer_core/include"/>
+					<Add directory="/usr/local/include/SDL2"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
 					<Add directory="/usr/local/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
@@ -286,6 +288,9 @@
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_mac/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_mac/../../../../../usr/local/lib/cmake/SDL2/sdl2-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\local\lib\cmake\SDL2\"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_mac/../splayer_core/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\..\splayer_core\"/>
