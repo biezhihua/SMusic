@@ -1,14 +1,16 @@
 #include "Thread.h"
 
 static void *runThread(void *data) {
-    ALOGD(__func__);
     Thread *thread = static_cast<Thread *>(data);
     if (thread) {
 #ifdef __ANDROID__
+        ALOGD("%s android", __func__);
         pthread_setname_np(pthread_self(), thread->name->c_str());
 #elif __MAC_10_14_4
+        ALOGD("%s mac", __func__);
         pthread_setname_np(thread->name->c_str());
 #else
+        ALOGD("%s else", __func__);
         //
 #endif
         thread->retval = thread->func(thread->data);

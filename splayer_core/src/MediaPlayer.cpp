@@ -43,7 +43,7 @@ int MediaPlayer::create() {
         delete mutex;
         delete play;
         ALOGE("create surface error");
-        return S_ERROR(ENOMEM);
+        return S_ERROR(SE_NOMEM);
     }
     play->setVOut(vOut);
 
@@ -55,7 +55,7 @@ int MediaPlayer::create() {
         delete play;
         delete vOut;
         ALOGE("create pipeline error");
-        return S_ERROR(ENOMEM);
+        return S_ERROR(SE_NOMEM);
     }
     play->setPipeline(pipeline);
     pipeline->setVOut(vOut);
@@ -146,12 +146,12 @@ int MediaPlayer::setDataSource(const char *url) {
         if (dataSource) {
             state->changeState(State::STATE_INITIALIZED);
             mutex->mutexUnLock();
-            return 0;
+            return S_CORRECT;
         }
         mutex->mutexUnLock();
-        return S_ERROR(ENOMEM);
+        return S_ERROR(SE_NOMEM);
     }
-    return S_ERROR(ENOMEM);
+    return S_ERROR(SE_NULL);
 }
 
 static int staticMsgLoop(void *arg) {
@@ -159,7 +159,7 @@ static int staticMsgLoop(void *arg) {
         auto *mediaPlayer = static_cast<MediaPlayer *>(arg);
         return mediaPlayer->messageLoop();
     }
-    return S_ERROR(S_ERROR_UNKNOWN);
+    return S_ERROR(SE_NULL);
 }
 
 int MediaPlayer::prepareAsync() {

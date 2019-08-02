@@ -4,7 +4,7 @@
 #include "MacPipeline.h"
 
 ///WorkThread
-int MyMediaPlayer::messageLoop() {
+int MacMediaPlayer::messageLoop() {
     ALOGD(__func__);
     while (true) {
         Message msg;
@@ -17,14 +17,14 @@ int MyMediaPlayer::messageLoop() {
     return S_CORRECT;
 }
 
-AOut *MyMediaPlayer::createAOut() {
+AOut *MacMediaPlayer::createAOut() {
     return new MacAOut();
 }
 
-VOut *MyMediaPlayer::createSurface() {
+VOut *MacMediaPlayer::createSurface() {
     return new MacVOut();
 }
 
-Pipeline *MyMediaPlayer::createPipeline() {
+Pipeline *MacMediaPlayer::createPipeline() {
     return new MacPipeline();
 }

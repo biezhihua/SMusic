@@ -4,7 +4,7 @@
 
 #include <MediaPlayer.h>
 
-class MyMediaPlayer : public MediaPlayer {
+class MacMediaPlayer : public MediaPlayer {
 
 public:
     int messageLoop() override;

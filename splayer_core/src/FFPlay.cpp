@@ -53,19 +53,18 @@ int FFPlay::waitStop() {
 
 int FFPlay::prepareAsync(const char *fileName) {
     ALOGD("%s fileName=%s", __func__, fileName);
-
-    if (!aOut) {
-        int result = aOut->open();
-        if (!result) {
-            return S_ERROR(SE_NXIO);
-        }
-    }
+//    if (!aOut) {
+//        int result = aOut->open();
+//        if (!result) {
+//            return S_ERROR(SE_NXIO);
+//        }
+//    }
 //    videoState = streamOpen(fileName, nullptr);
 //    if (!videoState) {
 //        return S_ERROR(S_ERROR_UNKNOWN);
 //    }
     inputFileName = strdup(fileName);
-    return 0;
+    return S_CORRECT;
 }
 
 int FFPlay::getMsg(Message *msg, bool block) {
