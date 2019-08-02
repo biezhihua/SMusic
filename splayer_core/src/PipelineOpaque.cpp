@@ -7,7 +7,6 @@ PipelineOpaque::PipelineOpaque() {
 
 PipelineOpaque::~PipelineOpaque() {
     ALOGD(__func__);
-
 }
 
 void PipelineOpaque::setVOut(VOut *vOut) {

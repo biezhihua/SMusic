@@ -30,17 +30,19 @@ int MediaPlayer::create() {
         VOut *vOut = createSurface();
         if (!vOut) {
             // TODO
+            ALOGE("create surface error");
             return S_ERROR(ENOMEM);
         }
 
         // 创建输出层实现
-        VOutOpaque *pOutOpaque = vOut->createOpaque();
-        vOut->setVOutOpaque(pOutOpaque);
+        VOutOpaque *outOpaque = vOut->createOpaque();
+        vOut->setVOutOpaque(outOpaque);
 
         // 创建数据管道
         Pipeline *pipeline = createPipeline();
         if (!pipeline) {
             // TODO
+            ALOGE("create pipeline error");
             return S_ERROR(ENOMEM);
         }
 
@@ -48,6 +50,7 @@ int MediaPlayer::create() {
         PipelineOpaque *opaque = pipeline->createOpaque();
         if (!opaque) {
             // TODO
+            ALOGE("create opaque error");
             return S_ERROR(ENOMEM);
         }
 

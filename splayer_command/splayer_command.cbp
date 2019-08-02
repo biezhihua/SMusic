@@ -110,10 +110,40 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MyMediaPlayer.cpp">
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MacAOut.cpp">
 			<Option target="splayer_command"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MyMediaPlayer.h">
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MacAOut.h">
+			<Option target="splayer_command"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MacMediaPlayer.cpp">
+			<Option target="splayer_command"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MacMediaPlayer.h">
+			<Option target="splayer_command"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MacPipeline.cpp">
+			<Option target="splayer_command"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MacPipeline.h">
+			<Option target="splayer_command"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MacPipelineOpaque.cpp">
+			<Option target="splayer_command"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MacPipelineOpaque.h">
+			<Option target="splayer_command"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MacVOut.cpp">
+			<Option target="splayer_command"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MacVOut.h">
+			<Option target="splayer_command"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MacVOutOpaque.cpp">
+			<Option target="splayer_command"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/MacVOutOpaque.h">
 			<Option target="splayer_command"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/SPlayer/splayer_command/src/main.cpp">

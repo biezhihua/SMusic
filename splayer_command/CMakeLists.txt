@@ -22,7 +22,7 @@ add_subdirectory(${SPLAYER_DIR} splayer_core)
 
 aux_source_directory(src src_source)
 
-add_executable(splayer_command ${src_source} src/MyMediaPlayer.cpp src/MyMediaPlayer.h)
+add_executable(splayer_command ${src_source} src/MacMediaPlayer.cpp src/MacMediaPlayer.h src/MacAOut.cpp src/MacAOut.h src/MacVOut.cpp src/MacVOut.h src/MacPipeline.cpp src/MacPipeline.h src/MacPipelineOpaque.cpp src/MacPipelineOpaque.h src/MacVOutOpaque.cpp src/MacVOutOpaque.h)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${DISTRIBUTION}/ffmpeg/include

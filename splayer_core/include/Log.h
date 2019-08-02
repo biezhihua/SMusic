@@ -40,7 +40,7 @@
 
 #endif
 
-#define LOG_TAG "MEDIA"
+#define LOG_TAG "Media"
 
 #define VLOGV(...)  VLOG(LOG_VERBOSE,   LOG_TAG, __VA_ARGS__)
 #define VLOGD(...)  VLOG(LOG_DEBUG,     LOG_TAG, __VA_ARGS__)

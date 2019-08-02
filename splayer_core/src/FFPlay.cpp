@@ -175,6 +175,6 @@ int FFPlay::getMsg(Message *msg, bool block) {
         }
         return ret;
     }
-    return S_ERROR(S_ERROR_UNKNOWN);
+    return S_ERROR(S_ERROR_EXIT);
 }
 
