@@ -3,7 +3,6 @@ project(splayer_mac)
 
 set(CMAKE_CXX_STANDARD 14)
 
-
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/mac)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -35,4 +34,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME}
         splayer_core
-        ${SDL2_LIBRARIES})
+        ${SDL2_LIBRARIES}
+        )
