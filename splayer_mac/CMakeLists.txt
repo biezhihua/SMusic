@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4.1)
-project(splayer_command)
+project(splayer_mac)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -25,7 +25,7 @@ aux_source_directory(src src_source)
 set(SDL2_FOUND TRUE)
 find_package(SDL2 REQUIRED)
 
-add_executable(splayer_command ${src_source})
+add_executable(splayer_mac ${src_source})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${DISTRIBUTION}/ffmpeg/include
