@@ -12,18 +12,11 @@ class VOut {
 
 protected:
     Mutex *mutex;
-    uint32_t overlayFormat;
 
 public:
     VOut();
 
     virtual ~VOut();
-
-    virtual VOutOverlay *createOverlay(int width, int height, int frameFormat) = 0;
-
-    virtual int displayOverlay(VOutOverlay *overlay) = 0;
-
-    virtual void free() = 0;
 };
 
 

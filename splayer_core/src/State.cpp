@@ -6,6 +6,7 @@ State::State() {
 
 State::~State() {
     ALOGD(__func__);
+    msgQueue = nullptr;
 }
 
 int State::changeState(const int state) {
@@ -13,8 +14,9 @@ int State::changeState(const int state) {
     State::state = state;
     if (msgQueue) {
         msgQueue->notifyMsg(Message::MSG_PLAYBACK_STATE_CHANGED);
+        return S_CORRECT;
     }
-    return S_CORRECT;
+    return S_ERROR(SE_NULL);
 }
 
 const char *State::getState(const int state) {

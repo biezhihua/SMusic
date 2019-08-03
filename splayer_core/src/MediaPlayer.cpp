@@ -37,7 +37,7 @@ int MediaPlayer::create() {
     state->setMsgQueue(play->getMsgQueue());
 
     // 创建输出层
-    VOut *vOut = createSurface();
+    VOut *vOut = createVOut();
     if (!vOut) {
         delete state;
         delete mutex;

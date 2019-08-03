@@ -59,7 +59,7 @@ public:
 
     virtual AOut *createAOut() = 0;
 
-    virtual VOut *createSurface() = 0;
+    virtual VOut *createVOut() = 0;
 
     virtual Pipeline *createPipeline() = 0;
 

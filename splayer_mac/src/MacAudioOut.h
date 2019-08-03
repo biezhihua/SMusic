@@ -3,7 +3,7 @@
 
 #include <AOut.h>
 
-class MacAOut : public AOut {
+class MacAudioOut : public AOut {
 
 public:
     int open() override;

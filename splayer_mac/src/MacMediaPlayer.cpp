@@ -1,7 +1,4 @@
 #include "MacMediaPlayer.h"
-#include "MacAOut.h"
-#include "MacVOut.h"
-#include "MacPipeline.h"
 
 ///WorkThread
 int MacMediaPlayer::messageLoop() {
@@ -18,11 +15,11 @@ int MacMediaPlayer::messageLoop() {
 }
 
 AOut *MacMediaPlayer::createAOut() {
-    return new MacAOut();
+    return new MacAudioOut();
 }
 
-VOut *MacMediaPlayer::createSurface() {
-    return new MacVOut();
+VOut *MacMediaPlayer::createVOut() {
+    return new MacSDL2VideoOut();
 }
 
 Pipeline *MacMediaPlayer::createPipeline() {
