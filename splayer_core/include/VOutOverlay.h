@@ -6,7 +6,6 @@
 #include <stdbool.h>
 
 #include "Log.h"
-#include "VOutOverlayOpaque.h"
 
 class VOutOverlay {
 private:
@@ -21,8 +20,6 @@ private:
 
     int sarNum;
     int sarDen;
-
-    VOutOverlayOpaque *pOpaque;
 
 public:
     VOutOverlay();

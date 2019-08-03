@@ -6,15 +6,12 @@
 #include <stdbool.h>
 #include "Log.h"
 #include "Mutex.h"
-#include "VOutOpaque.h"
-#include "VOutOverlayOpaque.h"
 #include "VOutOverlay.h"
 
 class VOut {
 
 protected:
     Mutex *mutex;
-    VOutOpaque *vOutOpaque;
     uint32_t overlayFormat;
 
 public:
