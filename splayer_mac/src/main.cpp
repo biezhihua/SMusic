@@ -2,10 +2,8 @@
 #include <iostream>
 #include "MacMediaPlayer.h"
 
-/**
- * https://github.com/Twinklebear/TwinklebearDev-Lessons
- * https://blog.csdn.net/leixiaohua1020/article/details/40680907
- */
+
+
 int main() {
     auto *player = new MacMediaPlayer();
 

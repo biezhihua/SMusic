@@ -19,6 +19,7 @@ extern "C" {
 #include <libavutil/log.h>
 #include <libavutil/error.h>
 #include <libavutil/frame.h>
+#include <libavutil/avutil.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
