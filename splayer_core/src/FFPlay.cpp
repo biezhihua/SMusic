@@ -231,19 +231,19 @@ VideoState *FFPlay::streamOpen() {
         return nullptr;
     }
 
-    if (frameQueueInit(&is->videoFrameQueue, &is->videoPacketQueue, VIDEO_QUEUE_SIZE, 1) < 0) {
+    if (is->videoFrameQueue.frameQueueInit(&is->videoPacketQueue, VIDEO_QUEUE_SIZE, 1) < 0) {
         ALOGE("%s video frame queue init fail", __func__);
         streamClose();
         return nullptr;
     }
 
-    if (frameQueueInit(&is->audioFrameQueue, &is->audioPacketQueue, AUDIO_QUEUE_SIZE, 0) < 0) {
+    if (is->audioFrameQueue.frameQueueInit(&is->audioPacketQueue, AUDIO_QUEUE_SIZE, 0) < 0) {
         ALOGE("%s audio frame queue init fail", __func__);
         streamClose();
         return nullptr;
     }
 
-    if (frameQueueInit(&is->subtitleFrameQueue, &is->subtitlePacketQueue, SUBTITLE_QUEUE_SIZE, 0) < 0) {
+    if (is->subtitleFrameQueue.frameQueueInit(&is->subtitlePacketQueue, SUBTITLE_QUEUE_SIZE, 0) < 0) {
         ALOGE("%s subtitle frame queue init fail", __func__);
         streamClose();
         return nullptr;
@@ -302,45 +302,6 @@ int FFPlay::getStartupVolume() {
     return startupVolume;
 }
 
-int FFPlay::frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, int queueSize, int keepLast) {
-
-    if (!(pFrameQueue->mutex = new Mutex())) {
-        ALOGE("%s create mutex fail", __func__);
-        return NEGATIVE(S_NOT_MEMORY);
-    }
-
-    pFrameQueue->packetQueue = pPacketQueue;
-    pFrameQueue->maxSize = FFMIN(queueSize, FRAME_QUEUE_SIZE);
-    pFrameQueue->keepLast = keepLast;
-
-    for (int i = 0; i < pFrameQueue->maxSize; i++) {
-        if (!(pFrameQueue->queue[i].frame = av_frame_alloc())) {
-            return NEGATIVE(ENOMEM);
-        }
-    }
-
-    ALOGI("%s packetQueue=%p maxSize=%d keepLast=%d",
-          __func__,
-          pFrameQueue->packetQueue,
-          pFrameQueue->maxSize,
-          pFrameQueue->keepLast);
-
-    return POSITIVE;
-}
-
-int FFPlay::frameQueueDestroy(FrameQueue *pFrameQueue) {
-    if (pFrameQueue) {
-        for (int i = 0; i < pFrameQueue->maxSize; i++) {
-            Frame *frame = &pFrameQueue->queue[i];
-            av_frame_free(&frame->frame);
-        }
-        delete pFrameQueue->mutex;
-        pFrameQueue->mutex = nullptr;
-        return POSITIVE;
-    }
-    return NEGATIVE(S_NULL);
-}
-
 
 void FFPlay::streamClose() {
     if (videoState) {
@@ -373,9 +334,9 @@ void FFPlay::streamClose() {
         videoState->subtitlePacketQueue.packetQueueDestroy();
 
         // free all frame
-        frameQueueDestroy(&videoState->videoFrameQueue);
-        frameQueueDestroy(&videoState->audioFrameQueue);
-        frameQueueDestroy(&videoState->subtitleFrameQueue);
+        videoState->videoFrameQueue.frameQueueDestroy();
+        videoState->audioFrameQueue.frameQueueDestroy();
+        videoState->subtitleFrameQueue.frameQueueDestroy();
 
         if (videoState->continueReadThread) {
             delete videoState->continueReadThread;
@@ -758,9 +719,9 @@ int FFPlay::readThread() {
 
         if (!is->paused &&
             (!is->audioStream || (is->audioDecoder.finished == is->audioPacketQueue.serial &&
-                                  frameQueueNbRemaining(&is->audioFrameQueue) == 0)) &&
+                                  is->audioFrameQueue.frameQueueNbRemaining() == 0)) &&
             (!is->videoStream || (is->videoDecoder.finished == is->videoPacketQueue.serial &&
-                                  frameQueueNbRemaining(&is->videoFrameQueue) == 0))) {
+                                  is->videoFrameQueue.frameQueueNbRemaining() == 0))) {
             if (loop != 1 && (!loop || --loop)) {
                 // stream_seek(is, startTime != AV_NOPTS_VALUE ? startTime : 0, 0, 0);
                 // TODO
@@ -843,13 +804,6 @@ int FFPlay::streamHasEnoughPackets(AVStream *pStream, int streamIndex, PacketQue
             (!pQueue->duration || av_q2d(pStream->time_base) * pQueue->duration > 1.0));
 }
 
-int FFPlay::frameQueueNbRemaining(FrameQueue *pQueue) {
-    /* return the number of undisplayed frames in the queue */
-    if (pQueue != nullptr) {
-        return pQueue->size - pQueue->rIndexShown;
-    }
-    return 0;
-}
 
 void FFPlay::streamComponentClose(AVStream *pStream) {
 

@@ -176,13 +176,9 @@ private:
 
     int streamHasEnoughPackets(AVStream *pStream, int index, PacketQueue *pQueue);
 
-    int frameQueueNbRemaining(FrameQueue *pQueue);
 
     void streamComponentClose(AVStream *pStream);
 
-    int frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, int queueSize, int keepLast);
-
-    int frameQueueDestroy(FrameQueue *pFrameQueue);
 };
 
 #endif //SPLAYER_PLAY_H
