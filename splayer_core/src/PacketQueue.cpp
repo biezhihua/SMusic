@@ -100,6 +100,14 @@ int PacketQueue::packetQueuePut(AVPacket *pPacket) {
     if (pPacket != flushPacket && ret < 0) {
         av_packet_unref(pPacket);
     }
+
+    ALOGD("%s size=%d serial=%d nbPackets=%d duration=%lld abortRequest=%d", __func__,
+          size,
+          serial,
+          nbPackets,
+          duration,
+          abortRequest);
+
     return ret;
 }
 

@@ -11,7 +11,6 @@ class PacketQueue {
 private:
     AVPacket *flushPacket;
     MyAVPacketList *firstPacketList, *lastPacketList;
-
     Mutex *mutex;
 
 public:

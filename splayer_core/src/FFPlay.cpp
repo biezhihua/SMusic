@@ -101,27 +101,28 @@ int FFPlay::getMsg(Message *msg, bool block) {
     while (true) {
         bool continueWaitNextMsg = false;
         int ret = msgQueue->getMsg(msg, block);
+        ALOGD("%s get msg ret=%d", __func__, ret);
         if (ret != POSITIVE) {
             return ret;
         }
         switch (msg->what) {
             case Message::MSG_PREPARED:
-                ALOGD("get_msg: MSG_PREPARED");
+                ALOGD("%s MSG_PREPARED", __func__);
                 break;
             case Message::MSG_COMPLETED:
-                ALOGD("get_msg: MSG_COMPLETED");
+                ALOGD("%s MSG_COMPLETED", __func__);
                 break;
             case Message::MSG_SEEK_COMPLETE:
-                ALOGD("get_msg: MSG_SEEK_COMPLETE");
+                ALOGD("%s MSG_SEEK_COMPLETE", __func__);
                 break;
             case Message::REQ_START:
-                ALOGD("get_msg: REQ_START");
+                ALOGD("%s REQ_START", __func__);
                 break;
             case Message::REQ_PAUSE:
-                ALOGD("get_msg: REQ_PAUSE");
+                ALOGD("%s REQ_PAUSE", __func__);
                 break;
             case Message::REQ_SEEK:
-                ALOGD("get_msg: REQ_SEEK");
+                ALOGD("%s REQ_SEEK", __func__);
                 break;
             default:
                 break;
