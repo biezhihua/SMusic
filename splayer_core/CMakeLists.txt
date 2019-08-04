@@ -23,7 +23,7 @@ add_library(${PROJECT_NAME}
         ${include}
         ${src}
         ${extra_soundtouch}
-        include/ErrorNo.h include/VideoState.h)
+        )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
