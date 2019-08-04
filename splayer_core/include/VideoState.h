@@ -32,6 +32,10 @@ public:
     Clock audioClock;
     Clock subtitleClock;
 
+    AVStream *videoStream;
+    AVStream *audioStream;
+    AVStream *subtitleStream;
+
     Mutex *continueReadThread;
     Mutex *accurateSeekMutex;
     Mutex *playMutex;
@@ -39,8 +43,6 @@ public:
     Thread *readTid;
 
     AVFormatContext *ic;
-
-    AVStream *videoSt;
 
     int abortRequest;
     int forceRefresh;
@@ -67,12 +69,16 @@ public:
     int lastVideoStream;
     int lastAudioStream;
     int lastSubtitleStream;
-    int videoStream;
-    int audioStream;
-    int subtitleStream;
+    int videoStreamIndex;
+    int audioStreamIndex;
+    int subtitleStreamIndex;
     int eof;
+
     double maxFrameDuration;
+
     int showMode;
+
+    int readPauseReturn;
 };
 
 #endif //SPLAYER_MAC_VIDEOSTATE_H

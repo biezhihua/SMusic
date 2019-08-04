@@ -2,11 +2,12 @@
 #define SPLAYER_MAC_PACKETQUEUE_H
 
 #include "Mutex.h"
+#include "MyAVPacketList.h"
 
 class PacketQueue {
 
 public:
-    //MyAVPacketList *first_pkt, *last_pkt;
+    MyAVPacketList *firstPacketList, *lastPacketList;
     int nbPackets;
     int size;
     int64_t duration;

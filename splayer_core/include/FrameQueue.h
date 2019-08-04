@@ -7,13 +7,16 @@
 #include "Frame.h"
 
 class FrameQueue {
-
 public:
     Frame queue[FRAME_QUEUE_SIZE];
     Mutex *mutex;
     PacketQueue *packetQueue;
     int maxSize;
     int keepLast;
+    int rIndex;
+    int wIndex;
+    int size;
+    int rIndexShown;
 };
 
 

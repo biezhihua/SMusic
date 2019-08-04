@@ -399,14 +399,14 @@ int FFPlay::readThread() {
     int err, i, ret;
     int st_index[AVMEDIA_TYPE_NB];
     AVPacket pkt1, *pkt = &pkt1;
-    int64_t stream_start_time;
-    int pkt_in_play_range = 0;
+    int64_t streamStartTime;
+    int pktInPlayRange = 0;
     AVDictionaryEntry *t;
-    auto *wait_mutex = new Mutex();
+    auto *waitMutex = new Mutex();
     int scan_all_pmts_set = 0;
-    int64_t pkt_ts;
+    int64_t pktTs;
 
-    if (!wait_mutex) {
+    if (!waitMutex) {
         ALOGE("%s create wait mutex fail", __func__);
         // TODO
         return S_ERROR(SE_NOT_MEMORY);
@@ -414,9 +414,9 @@ int FFPlay::readThread() {
 
     memset(st_index, -1, sizeof(st_index));
 
-    is->lastVideoStream = is->videoStream = -1;
-    is->lastAudioStream = is->audioStream = -1;
-    is->lastSubtitleStream = is->subtitleStream = -1;
+    is->lastVideoStream = is->videoStreamIndex = -1;
+    is->lastAudioStream = is->audioStreamIndex = -1;
+    is->lastSubtitleStream = is->subtitleStreamIndex = -1;
     is->eof = 0;
 
     ic = avformat_alloc_context();
@@ -612,7 +612,7 @@ int FFPlay::readThread() {
 
     /* open the streams */
     if (st_index[AVMEDIA_TYPE_AUDIO] >= 0) {
-        ret = streamComponentOpen(st_index[AVMEDIA_TYPE_AUDIO]);
+        streamComponentOpen(st_index[AVMEDIA_TYPE_AUDIO]);
     } else {
         is->avSyncType = avSyncType = AV_SYNC_VIDEO_MASTER;
     }
@@ -633,7 +633,7 @@ int FFPlay::readThread() {
         msgQueue->notifyMsg(Message::MSG_COMPONENT_OPEN);
     }
 
-    if (is->videoStream < 0 && is->audioStream < 0) {
+    if (is->videoStreamIndex < 0 && is->audioStreamIndex < 0) {
         ALOGD("%s Failed to open file '%s' or configure filtergraph", __func__, is->fileName);
         return S_ERROR(SE_NOT_OPEN_FILE);
     }
@@ -647,8 +647,8 @@ int FFPlay::readThread() {
         // toggle_pause(1);
     }
 
-    if (is->videoSt && is->videoSt->codecpar) {
-        AVCodecParameters *codecpar = is->videoSt->codecpar;
+    if (is->videoStream && is->videoStream->codecpar) {
+        AVCodecParameters *codecpar = is->videoStream->codecpar;
         if (msgQueue) {
             msgQueue->notifyMsg(Message::MSG_VIDEO_SIZE_CHANGED, codecpar->width, codecpar->height);
             msgQueue->notifyMsg(Message::MSG_SAR_CHANGED, codecpar->width, codecpar->height);
@@ -677,8 +677,108 @@ int FFPlay::readThread() {
     }
 
     /* offset should be seeked*/
-    if (seek_at_start > 0) {
-        // ffp_seek_to_l((long) (seek_at_start));
+    if (seekAtStart > 0) {
+        // ffp_seek_to_l((long) (seekAtStart));
+    }
+
+    for (;;) {
+
+        if (is->abortRequest) {
+            break;
+        }
+
+        if (is->paused != is->lastPaused) {
+            is->lastPaused = is->paused;
+            if (is->paused) {
+                is->readPauseReturn = av_read_pause(ic);
+            } else {
+                av_read_play(ic);
+            }
+        }
+
+        if (is->queueAttachmentsReq) {
+            if (is->videoStream && is->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC) {
+                AVPacket copy = {nullptr};
+                if ((av_packet_ref(&copy, &is->videoStream->attached_pic)) < 0) {
+                    return S_ERROR(SE_ATTACHED_PIC);
+                }
+                packetQueuePut(&is->videoPacketQueue, &copy);
+                packetQueuePutNullPacket(&is->videoPacketQueue, is->videoStreamIndex);
+            }
+            is->queueAttachmentsReq = 0;
+        }
+
+        /* if the queue are full, no need to read more */
+        if (infiniteBuffer < 1 &&
+            (is->audioPacketQueue.size + is->videoPacketQueue.size + is->subtitlePacketQueue.size > MAX_QUEUE_SIZE ||
+             (streamHasEnoughPackets(is->audioStream, is->audioStreamIndex, &is->audioPacketQueue) &&
+              streamHasEnoughPackets(is->videoStream, is->videoStreamIndex, &is->videoPacketQueue) &&
+              streamHasEnoughPackets(is->subtitleStream, is->subtitleStreamIndex, &is->subtitlePacketQueue)))) {
+            /* wait 10 ms */
+            waitMutex->mutexLock();
+            is->continueReadThread->condWaitTimeout(waitMutex, 10);
+            waitMutex->mutexUnLock();
+            continue;
+        }
+
+        if (!is->paused &&
+            (!is->audioStream || (is->audioDecoder.finished == is->audioPacketQueue.serial &&
+                                  frameQueueNbRemaining(&is->audioFrameQueue) == 0)) &&
+            (!is->videoStream || (is->videoDecoder.finished == is->videoPacketQueue.serial &&
+                                  frameQueueNbRemaining(&is->videoFrameQueue) == 0))) {
+            if (loop != 1 && (!loop || --loop)) {
+                // stream_seek(is, startTime != AV_NOPTS_VALUE ? startTime : 0, 0, 0);
+                // TODO
+            } else if (autoExit) {
+                return S_ERROR(SE_EOF);
+            }
+        }
+
+        ret = av_read_frame(ic, pkt);
+
+        if (ret < 0) {
+            if ((ret == AVERROR_EOF || avio_feof(ic->pb)) && !is->eof) {
+                if (is->videoStreamIndex >= 0) {
+                    packetQueuePutNullPacket(&is->videoPacketQueue, is->videoStreamIndex);
+                }
+                if (is->audioStreamIndex >= 0) {
+                    packetQueuePutNullPacket(&is->audioPacketQueue, is->audioStreamIndex);
+                }
+                if (is->subtitleStreamIndex >= 0) {
+                    packetQueuePutNullPacket(&is->subtitlePacketQueue, is->subtitleStreamIndex);
+                }
+                is->eof = 1;
+            }
+            if (ic->pb && ic->pb->error) {
+                break;
+            }
+            waitMutex->mutexLock();
+            is->continueReadThread->condWaitTimeout(waitMutex, 10);
+            waitMutex->mutexUnLock();
+            continue;
+        } else {
+            is->eof = 0;
+        }
+
+        /* check if packet is in play range specified by user, then queue, otherwise discard */
+        streamStartTime = ic->streams[pkt->stream_index]->start_time;
+        pktTs = (pkt->pts == AV_NOPTS_VALUE) ? pkt->dts : pkt->pts;
+        pktInPlayRange = (duration == AV_NOPTS_VALUE) ||
+                         (pktTs - (streamStartTime != AV_NOPTS_VALUE ? streamStartTime : 0)) *
+                         av_q2d(ic->streams[pkt->stream_index]->time_base) -
+                         (double) (startTime != AV_NOPTS_VALUE ? startTime : 0) / 1000000
+                         <= ((double) duration / 1000000);
+
+        if (pkt->stream_index == is->audioStreamIndex && pktInPlayRange) {
+            packetQueuePut(&is->audioPacketQueue, pkt);
+        } else if (pkt->stream_index == is->videoStreamIndex && pktInPlayRange
+                   && !(is->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
+            packetQueuePut(&is->videoPacketQueue, pkt);
+        } else if (pkt->stream_index == is->subtitleStreamIndex && pktInPlayRange) {
+            packetQueuePut(&is->subtitlePacketQueue, pkt);
+        } else {
+            av_packet_unref(pkt);
+        }
     }
 
     return S_CORRECT;
@@ -698,6 +798,79 @@ int FFPlay::isRealTime(AVFormatContext *s) {
 int FFPlay::streamComponentOpen(int streamIndex) {
     ALOGD("%s streamIndex=%d", __func__, streamIndex);
     return S_CORRECT;
+}
+
+int FFPlay::packetQueuePut(PacketQueue *pQueue, AVPacket *pPacket) {
+    int ret;
+    if (pQueue && pQueue->mutex) {
+        pQueue->mutex->mutexLock();
+        ret = packetQueuePutPrivate(pQueue, pPacket);
+        pQueue->mutex->mutexUnLock();
+    } else {
+        ret = S_ERROR(SE_NULL);
+    }
+    if (pPacket != &flushPacket && ret < 0) {
+        av_packet_unref(pPacket);
+    }
+    return ret;
+}
+
+int FFPlay::packetQueuePutNullPacket(PacketQueue *pQueue, int streamIndex) {
+    AVPacket pkt1, *pkt = &pkt1;
+    av_init_packet(pkt);
+    pkt->data = nullptr;
+    pkt->size = 0;
+    pkt->stream_index = streamIndex;
+    return packetQueuePut(pQueue, pkt);
+}
+
+int FFPlay::packetQueuePutPrivate(PacketQueue *pQueue, AVPacket *avPacket) {
+    if (!pQueue || !avPacket) {
+        return S_ERROR(SE_NULL);
+    }
+    if (pQueue->abortRequest) {
+        return S_ERROR(SE_ABORT_REQUEST);
+    }
+    auto *packetList = new MyAVPacketList();
+    if (!packetList) {
+        return S_ERROR(SE_NOT_MEMORY);
+    }
+    packetList->pkt = *avPacket;
+    packetList->next = nullptr;
+    if (avPacket == &flushPacket) {
+        pQueue->serial++;
+    }
+    packetList->serial = pQueue->serial;
+    if (!pQueue->lastPacketList) {
+        pQueue->firstPacketList = packetList;
+    } else {
+        pQueue->lastPacketList->next = packetList;
+    }
+    pQueue->lastPacketList = packetList;
+    pQueue->nbPackets++;
+    // TODO
+    // pQueue->size += packetList->pkt.size + sizeof(*packetList);
+    pQueue->size++;
+    pQueue->duration += packetList->pkt.duration;
+    /* XXX: should duplicate packet data in DV case */
+    pQueue->mutex->condSignal();
+    return S_CORRECT;
+}
+
+int FFPlay::streamHasEnoughPackets(AVStream *pStream, int streamIndex, PacketQueue *pQueue) {
+    return streamIndex < 0 ||
+           pQueue->abortRequest ||
+           (pStream->disposition & AV_DISPOSITION_ATTACHED_PIC) ||
+           (pQueue->nbPackets > MIN_FRAMES &&
+            (!pQueue->duration || av_q2d(pStream->time_base) * pQueue->duration > 1.0));
+}
+
+int FFPlay::frameQueueNbRemaining(FrameQueue *pQueue) {
+    /* return the number of undisplayed frames in the queue */
+    if (pQueue != nullptr) {
+        return pQueue->size - pQueue->rIndexShown;
+    }
+    return 0;
 }
 
 #pragma clang diagnostic pop

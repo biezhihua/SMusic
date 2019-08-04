@@ -23,4 +23,8 @@
 #define SHOW_MODE_RDFT      2
 #define SHOW_MODE_NB        3
 
+#define MAX_QUEUE_SIZE (15 * 1024 * 1024)
+
+#define MIN_FRAMES 25
+
 #endif //SPLAYER_MAC_DEFINE_H

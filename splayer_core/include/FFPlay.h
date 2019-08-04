@@ -67,7 +67,7 @@ extern "C" {
 //static int genpts = 0;
 //static int lowres = 0;
 //static int decoder_reorder_pts = -1;
-//static int autoexit;
+//static int autoExit;
 //static int exit_on_keydown;
 //static int exit_on_mousedown;
 //static int loop = 1;
@@ -172,7 +172,14 @@ private:
 
     int autoResume;
 
-    int seek_at_start;
+    int seekAtStart;
+
+    AVPacket flushPacket;
+
+    int loop = 1;
+
+    int autoExit;
+
 public:
     FFPlay();
 
@@ -226,8 +233,15 @@ private:
 
     int streamComponentOpen(int streamIndex);
 
+    int packetQueuePut(PacketQueue *pPacketQueue, AVPacket *pPacket);
 
+    int packetQueuePutNullPacket(PacketQueue *pQueue, int streamIndex);
 
+    int packetQueuePutPrivate(PacketQueue *pQueue, AVPacket *avPacket);
+
+    int streamHasEnoughPackets(AVStream *pStream, int index, PacketQueue *pQueue);
+
+    int frameQueueNbRemaining(FrameQueue *pQueue);
 };
 
 #endif //SPLAYER_PLAY_H
