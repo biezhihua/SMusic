@@ -1,7 +1,8 @@
-
-#include <FFPlay.h>
-
 #include "FFPlay.h"
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunknown-pragmas"
+#pragma ide diagnostic ignored "OCDFAInspection"
 
 FFPlay::FFPlay() {
     ALOGD(__func__);
@@ -208,46 +209,101 @@ void FFPlay::showDict(const char *tag, AVDictionary *dict) {
     }
 }
 
+/* this thread gets the stream from the disk or the network */
+static int innerReadThread(void *arg) {
+    auto *play = static_cast<FFPlay *>(arg);
+    if (play) {
+        play->readThread();
+    }
+    return 1;
+}
+
 VideoState *FFPlay::streamOpen(const char *fileName, AVInputFormat *inputFormat) {
+
     if (!fileName) {
         ALOGE("%s param fileName is null", __func__);
         return nullptr;
     }
+
     auto *is = new VideoState();
     if (!is) {
         ALOGD("%s create VideoState OOM", __func__);
         return nullptr;
     }
-    is->fileName = av_strdup(fileName);
 
-    is->inputFormat = inputFormat;
-    is->yTop = 0;
-    is->xLeft = 0;
-
-    if (frameQueueInit(&is->videoFQueue, &is->videoPQueue, videoQueueSize, 1) < 0) {
+    if (frameQueueInit(&is->videoFrameQueue, &is->videoPacketQueue, videoQueueSize, 1) < 0) {
         ALOGE("%s video frame queue init fail", __func__);
         streamClose();
         return nullptr;
     }
-    if (frameQueueInit(&is->audioFQueue, &is->audioPQueue, AUDIO_QUEUE_SIZE, 0) < 0) {
+
+    if (frameQueueInit(&is->audioFrameQueue, &is->audioPacketQueue, AUDIO_QUEUE_SIZE, 0) < 0) {
         ALOGE("%s audio frame queue init fail", __func__);
         streamClose();
         return nullptr;
     }
-    if (frameQueueInit(&is->subtitleFQueue, &is->subtitlePQueue, SUBTITLE_QUEUE_SIZE, 0) < 0) {
+
+    if (frameQueueInit(&is->subtitleFrameQueue, &is->subtitlePacketQueue, SUBTITLE_QUEUE_SIZE, 0) < 0) {
         ALOGE("%s subtitle frame queue init fail", __func__);
         streamClose();
         return nullptr;
     }
 
-    if (packetQueueInit(&is->videoPQueue) < 0 ||
-        packetQueueInit(&is->audioPQueue) < 0 ||
-        packetQueueInit(&is->subtitlePQueue) < 0) {
-
+    if (packetQueueInit(&is->videoPacketQueue) < 0 ||
+        packetQueueInit(&is->audioPacketQueue) < 0 ||
+        packetQueueInit(&is->subtitlePacketQueue) < 0) {
+        ALOGE("%s packet queue init fail", __func__);
+        streamClose();
+        return nullptr;
     }
 
+    if (!(is->continueReadThread = new Mutex())) {
+        ALOGE("%s create continue read thread mutex fail", __func__);
+        streamClose();
+        return nullptr;
+    }
+
+    if (initClock(&is->videoClock, &is->videoPacketQueue.serial) < 0 ||
+        initClock(&is->audioClock, &is->audioPacketQueue.serial) < 0 ||
+        initClock(&is->subtitleClock, &is->subtitlePacketQueue.serial) < 0) {
+        ALOGE("%s init clock fail", __func__);
+        streamClose();
+        return nullptr;
+    }
+
+    is->audioClockSerial = -1;
+    is->fileName = av_strdup(fileName);
+    is->inputFormat = inputFormat;
+    is->yTop = 0;
+    is->xLeft = 0;
+    is->audioVolume = getStartupVolume();
+    is->muted = 0;
+    is->avSyncType = avSyncType;
+    is->playMutex = new Mutex();
+    is->accurateSeekMutex = new Mutex();
+    is->pauseReq = !startOnPrepared;
+    is->initializedDecoder = 0;
+    is->readTid = new Thread(innerReadThread, this, "readThread");
+
+    if (!is->readTid) {
+        ALOGE("%s create read thread fail", __func__);
+        streamClose();
+        return nullptr;
+    }
 
     return is;
+}
+
+int FFPlay::getStartupVolume() {
+    if (startupVolume < 0) {
+        ALOGD("%s -volume=%d < 0, setting to 0", __func__, startupVolume);
+    }
+    if (startupVolume > 100) {
+        ALOGD("%s -volume=%d > 100 0, setting to 100", __func__, startupVolume);
+    }
+    startupVolume = av_clip(startupVolume, 0, 100);
+    startupVolume = av_clip(MIX_MAX_VOLUME * startupVolume / 100, 0, MIX_MAX_VOLUME);
+    return startupVolume;
 }
 
 int FFPlay::frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, int queueSize, int keepLast) {
@@ -304,5 +360,33 @@ int FFPlay::packetQueueInit(PacketQueue *pPacketQueue) {
     return S_CORRECT;
 }
 
+int FFPlay::initClock(Clock *pClock, int *pQueueSerial) {
+    if (!pClock) {
+        return S_ERROR(SE_NULL);
+    }
+    pClock->speed = 1.0F;
+    pClock->paused = 0;
+    pClock->queueSerial = pQueueSerial;
+    setClock(pClock, NAN, -1);
+    return S_CORRECT;
+}
 
+void FFPlay::setClock(Clock *pClock, double pts, int serial) {
+    double time = av_gettime_relative() / 1000000.0;
+    setClockAt(pClock, pts, serial, time);
+}
 
+void FFPlay::setClockAt(Clock *pClock, double pts, int serial, double time) {
+    if (pClock) {
+        pClock->pts = pts;
+        pClock->lastUpdated = time;
+        pClock->ptsDrift = pClock->pts - time;
+        pClock->serial = serial;
+    }
+}
+
+void FFPlay::readThread() {
+
+}
+
+#pragma clang diagnostic pop

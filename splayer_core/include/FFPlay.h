@@ -14,6 +14,7 @@
 #include "State.h"
 #include "Error.h"
 #include "VideoState.h"
+#include "Thread.h"
 
 extern "C" {
 #include <libavutil/time.h>
@@ -129,6 +130,12 @@ private:
 
     int videoQueueSize;
 
+    int startupVolume;
+
+    int avSyncType = AV_SYNC_AUDIO_MASTER;
+
+    int startOnPrepared;
+
 public:
     FFPlay();
 
@@ -152,6 +159,8 @@ public:
 
     int getMsg(Message *pMessage, bool block);
 
+    void readThread();
+
 private:
     void showVersionsAndOptions();
 
@@ -164,6 +173,15 @@ private:
     int frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, int queueSize, int keepLast);
 
     int packetQueueInit(PacketQueue *pQueue);
+
+    int initClock(Clock *pClock, int *pQueueSerial);
+
+    void setClock(Clock *pClock, double pts, int serial);
+
+    void setClockAt(Clock *pClock, double pts, int serial, double time);
+
+
+    int getStartupVolume();
 };
 
 #endif //SPLAYER_PLAY_H

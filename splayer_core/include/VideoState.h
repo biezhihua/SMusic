@@ -8,27 +8,47 @@ extern "C" {
 #include "FrameQueue.h"
 #include "Decoder.h"
 #include "PacketQueue.h"
+#include "Clock.h"
+#include "Thread.h"
 
 class VideoState {
 
 public:
     AVInputFormat *inputFormat;
 
-    FrameQueue videoFQueue;
-    FrameQueue audioFQueue;
-    FrameQueue subtitleFQueue;
+    FrameQueue videoFrameQueue;
+    FrameQueue audioFrameQueue;
+    FrameQueue subtitleFrameQueue;
 
-    PacketQueue videoPQueue;
-    PacketQueue audioPQueue;
-    PacketQueue subtitlePQueue;
+    PacketQueue videoPacketQueue;
+    PacketQueue audioPacketQueue;
+    PacketQueue subtitlePacketQueue;
 
     Decoder videoDecoder;
     Decoder audioDecoder;
     Decoder subtitleDecoder;
 
+    Clock videoClock;
+    Clock audioClock;
+    Clock subtitleClock;
+
+    Mutex *continueReadThread;
+    Mutex *accurateSeekMutex;
+    Mutex *playMutex;
+
+    Thread *readTid;
+
     char *fileName;
     int yTop;
     int xLeft;
+    int audioClockSerial;
+    int audioVolume;
+    int muted;
+
+    int avSyncType;
+    int pauseReq;
+    int initializedDecoder;
+
 };
 
 #endif //SPLAYER_MAC_VIDEOSTATE_H
