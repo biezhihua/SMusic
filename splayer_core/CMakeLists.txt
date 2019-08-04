@@ -19,16 +19,15 @@ endif ()
 aux_source_directory(src src)
 aux_source_directory(extra/soundtouch extra_soundtouch)
 
-add_library(splayer_core
+add_library(${PROJECT_NAME}
         ${include}
         ${src}
         ${extra_soundtouch}
         include/ErrorNo.h)
 
-target_include_directories(splayer_core PRIVATE
+target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${DISTRIBUTION}/ffmpeg/include
         src
         extra_soundtouch
         )
-

@@ -12,12 +12,60 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="268858df-e7ee-4bd6-9bd6-f8cd5fddfdaf" name="Default Changelist" comment="">
+    <list default="true" id="268858df-e7ee-4bd6-9bd6-f8cd5fddfdaf" name="Default Changelist" comment="m">
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/LICENSE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/README.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/README" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/avio_dir_cmd.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/avio_reading.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/decode_audio.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/decode_video.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/demuxing_decoding.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/encode_audio.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/encode_video.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/extract_mvs.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/filter_audio.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/filtering_audio.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/filtering_video.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/http_multiclient.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/hw_decode.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/metadata.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/muxing.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/qsvdec.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/remuxing.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/resampling_audio.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/scaling_video.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/transcode_aac.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/transcoding.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/vaapi_encode.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/examples/vaapi_transcode.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavcodec/avcodec.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavcodec/avcodec.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavcodec/version.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavcodec/version.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavdevice/version.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavdevice/version.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavfilter/version.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavfilter/version.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavformat/avformat.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavformat/avformat.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavformat/avio.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavformat/avio.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavformat/version.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavformat/version.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/avstring.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/avstring.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/ffversion.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/ffversion.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/frame.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/frame.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/hdr_dynamic_metadata.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/intreadwrite.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/intreadwrite.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/mem.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/mem.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/pixfmt.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/pixfmt.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/tx.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/version.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/version.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libpostproc/postprocess.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libpostproc/version.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libswresample/version.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libswresample/version.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libswscale/version.h" beforeDir="false" afterPath="$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libswscale/version.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer_core/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../splayer_core/src/FFPlay.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/src/FFPlay.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MacSDL2VideoOut.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/MacSDL2VideoOut.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/c_cpp_properties.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/c_cpp_properties.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -65,6 +113,42 @@
         </counts>
       </usages-collector>
     </session>
+    <session id="-777634137">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.open.time.1" value="1" />
+          <entry key="project.opened" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="cpp" value="2" />
+          <entry key="h" value="6" />
+          <entry key="log" value="1" />
+          <entry key="txt" value="2" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="CMakeLists.txt" value="2" />
+          <entry key="ObjectiveC" value="8" />
+          <entry key="PLAIN_TEXT" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="cpp" value="4" />
+          <entry key="txt" value="241" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="CMakeLists.txt" value="240" />
+          <entry key="ObjectiveC" value="4" />
+          <entry key="PLAIN_TEXT" value="1" />
+        </counts>
+      </usages-collector>
+    </session>
   </component>
   <component name="FavoritesManager">
     <favorites_list name="splayer_mac" />
@@ -72,58 +156,46 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main.cpp">
+        <entry file="file://$PROJECT_DIR$/../splayer_core/src/FFPlay.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="303">
-              <caret line="23" column="33" lean-forward="true" selection-start-line="23" selection-start-column="33" selection-end-line="23" selection-end-column="33" />
-              <folding>
-                <element signature="e#0#16#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="-158">
+              <caret line="65" column="35" selection-start-line="65" selection-start-column="35" selection-end-line="65" selection-end-column="35" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../splayer_core/src/MediaPlayer.cpp">
+        <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="214">
-              <caret line="170" column="26" selection-start-line="170" selection-start-column="26" selection-end-line="170" selection-end-column="26" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../splayer_core/src/MessageQueue.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="120" column="18" selection-start-line="120" selection-start-column="18" selection-end-line="120" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../splayer_core/include/Message.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="25" column="21" selection-start-line="25" selection-start-column="21" selection-end-line="25" selection-end-column="21" />
+            <state relative-caret-position="813">
+              <caret line="50" selection-start-line="50" selection-end-line="50" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/../splayer_core/src/FFPlay.cpp">
+        <entry file="file://$PROJECT_DIR$/../splayer_core/CMakeLists.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="55" column="74" selection-start-line="55" selection-start-column="74" selection-end-line="55" selection-end-column="74" />
+            <state relative-caret-position="-88">
+              <caret line="13" column="38" selection-start-line="13" selection-start-column="38" selection-end-line="13" selection-end-column="38" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file:///Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/string.h">
+        <entry file="file://$PROJECT_DIR$/../splayer_core/include/FFPlay.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="116" column="9" selection-start-line="116" selection-start-column="9" selection-end-line="116" selection-end-column="9" />
+            <state relative-caret-position="133">
+              <caret line="18" column="26" selection-start-line="18" selection-start-column="26" selection-end-line="18" selection-end-column="26" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/log.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="921">
+              <caret line="233" column="5" selection-start-line="233" selection-start-column="5" selection-end-line="233" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -131,11 +203,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../splayer_core/include/MediaPlayer.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="392">
+            <state relative-caret-position="861">
               <caret line="41" column="19" selection-start-line="41" selection-start-column="19" selection-end-line="41" selection-end-column="19" />
-              <folding>
-                <element signature="e#63#79#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -144,10 +213,7 @@
         <entry file="file://$PROJECT_DIR$/../splayer_core/include/VOut.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="378">
-              <caret line="18" column="20" lean-forward="true" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
-              <folding>
-                <element signature="e#47#66#0" expanded="true" />
-              </folding>
+              <caret line="18" column="20" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
             </state>
           </provider>
         </entry>
@@ -165,7 +231,7 @@
         <entry file="file://$PROJECT_DIR$/src/MacSDL2VideoOut.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="294">
-              <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
+              <caret line="14" selection-start-line="14" selection-end-line="14" />
             </state>
           </provider>
         </entry>
@@ -178,6 +244,7 @@
       <find>msgQueue</find>
       <find>state</find>
       <find>dataSource</find>
+      <find>.a</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -199,6 +266,8 @@
         <option value="$PROJECT_DIR$/src/main.cpp" />
         <option value="$PROJECT_DIR$/src/MacSDL2VideoOut.h" />
         <option value="$PROJECT_DIR$/../splayer_core/src/FFPlay.cpp" />
+        <option value="$PROJECT_DIR$/../splayer_core/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
       </list>
     </option>
   </component>
@@ -224,13 +293,18 @@
             <path>
               <item name="splayer_mac" type="b2602c69:ProjectViewProjectNode" />
               <item name="splayer_mac" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="splayer_core" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="splayer_mac" type="b2602c69:ProjectViewProjectNode" />
+              <item name="splayer_mac" type="47feb1d3:ProjectViewModuleNode" />
               <item name="splayer_mac" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="splayer_mac" type="b2602c69:ProjectViewProjectNode" />
               <item name="splayer_mac" type="47feb1d3:ProjectViewModuleNode" />
               <item name="splayer_mac" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="cmake-build-debug" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -298,11 +372,12 @@
       <workItem from="1564812353867" duration="599000" />
       <workItem from="1564819672655" duration="2123000" />
       <workItem from="1564822293353" duration="1481000" />
+      <workItem from="1564837286076" duration="4591000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="4654000" />
+    <option name="totallyTimeSpent" value="9245000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="831" extended-state="0" />
@@ -319,7 +394,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Messages" order="8" weight="0.3299566" />
+      <window_info active="true" anchor="bottom" id="Messages" order="8" visible="true" weight="0.3299566" />
       <window_info anchor="bottom" id="Terminal" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="11" show_stripe_button="false" />
@@ -330,7 +405,7 @@
       <window_info anchor="right" id="Database" order="3" />
     </layout>
     <layout-to-restore>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49676025" visible="true" weight="0.25864553" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49676025" weight="0.25864553" />
       <window_info id="Structure" order="1" sideWeight="0.5010799" side_tool="true" weight="0.25864553" />
       <window_info id="Favorites" order="2" sideWeight="0.50323975" side_tool="true" weight="0.25864553" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -365,13 +440,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="189">
           <caret line="9" selection-start-line="9" selection-end-line="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../splayer_core/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="66">
-          <caret line="17" lean-forward="true" selection-start-line="17" selection-end-line="17" />
         </state>
       </provider>
     </entry>
@@ -411,13 +479,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="672">
-          <caret line="32" column="7" selection-start-line="32" selection-start-column="7" selection-end-line="32" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -425,19 +486,58 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="189">
           <caret line="9" column="35" selection-start-line="9" selection-start-column="35" selection-end-line="9" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="483">
+          <caret line="23" column="33" selection-start-line="23" selection-start-column="33" selection-end-line="23" selection-end-column="33" />
           <folding>
-            <element signature="e#82#106#0" expanded="true" />
+            <element signature="e#0#16#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer_core/src/MediaPlayer.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3570">
+          <caret line="170" column="26" selection-start-line="170" selection-start-column="26" selection-end-line="170" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer_core/src/MessageQueue.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2520">
+          <caret line="120" column="18" selection-start-line="120" selection-start-column="18" selection-end-line="120" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer_core/include/Message.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="525">
+          <caret line="25" column="21" selection-start-line="25" selection-start-column="21" selection-end-line="25" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/string.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2436">
+          <caret line="116" column="9" selection-start-line="116" selection-start-column="9" selection-end-line="116" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../splayer_core/include/MediaPlayer.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="392">
+        <state relative-caret-position="861">
           <caret line="41" column="19" selection-start-line="41" selection-start-column="19" selection-end-line="41" selection-end-column="19" />
-          <folding>
-            <element signature="e#63#79#0" expanded="true" />
-          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer_core/include/VOut.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="378">
+          <caret line="18" column="20" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
         </state>
       </provider>
     </entry>
@@ -448,65 +548,48 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../splayer_core/include/VOut.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="378">
-          <caret line="18" column="20" lean-forward="true" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
-          <folding>
-            <element signature="e#47#66#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/MacSDL2VideoOut.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="294">
-          <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
+          <caret line="14" selection-start-line="14" selection-end-line="14" />
         </state>
       </provider>
     </entry>
-    <entry file="file:///Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/string.h">
+    <entry file="file://$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/log.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="116" column="9" selection-start-line="116" selection-start-column="9" selection-end-line="116" selection-end-column="9" />
+        <state relative-caret-position="921">
+          <caret line="233" column="5" selection-start-line="233" selection-start-column="5" selection-end-line="233" selection-end-column="5" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.cpp">
+    <entry file="file://$PROJECT_DIR$/../splayer_core/include/FFPlay.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="303">
-          <caret line="23" column="33" lean-forward="true" selection-start-line="23" selection-start-column="33" selection-end-line="23" selection-end-column="33" />
-          <folding>
-            <element signature="e#0#16#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="133">
+          <caret line="18" column="26" selection-start-line="18" selection-start-column="26" selection-end-line="18" selection-end-column="26" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../splayer_core/include/Message.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="25" column="21" selection-start-line="25" selection-start-column="21" selection-end-line="25" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../splayer_core/src/MessageQueue.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="120" column="18" selection-start-line="120" selection-start-column="18" selection-end-line="120" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../splayer_core/src/MediaPlayer.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
-          <caret line="170" column="26" selection-start-line="170" selection-start-column="26" selection-end-line="170" selection-end-column="26" />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/../splayer_core/src/FFPlay.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="55" column="74" selection-start-line="55" selection-start-column="74" selection-end-line="55" selection-end-column="74" />
+        <state relative-caret-position="-158">
+          <caret line="65" column="35" selection-start-line="65" selection-start-column="35" selection-end-line="65" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="813">
+          <caret line="50" selection-start-line="50" selection-end-line="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer_core/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-88">
+          <caret line="13" column="38" selection-start-line="13" selection-start-column="38" selection-end-line="13" selection-end-column="38" />
         </state>
       </provider>
     </entry>
