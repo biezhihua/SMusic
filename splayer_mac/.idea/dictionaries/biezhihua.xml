@@ -2,6 +2,8 @@
   <dictionary name="biezhihua">
     <words>
       <w>avformat</w>
+      <w>pragmas</w>
+      <w>wunknown</w>
     </words>
   </dictionary>
 </component>
