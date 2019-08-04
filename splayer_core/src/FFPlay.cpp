@@ -66,10 +66,10 @@ int FFPlay::prepareAsync(const char *fileName) {
 //        }
 //    }
 
-//    videoState = streamOpen(fileName, nullptr);
-//    if (!videoState) {
-//        return S_ERROR(S_ERROR_UNKNOWN);
-//    }
+    videoState = streamOpen(fileName, nullptr);
+    if (!videoState) {
+        return S_ERROR(SE_NOMEM);
+    }
     inputFileName = av_strdup(fileName);
     return S_CORRECT;
 }
@@ -206,5 +206,24 @@ void FFPlay::showDict(const char *tag, AVDictionary *dict) {
     while ((t = av_dict_get(dict, "", t, AV_DICT_IGNORE_SUFFIX))) {
         ALOGI("%-*s: %-*s = %s\n", 12, tag, 28, t->key, t->value);
     }
+}
+
+VideoState *FFPlay::streamOpen(const char *fileName, AVInputFormat *inputFormat) {
+    if (!fileName) {
+        ALOGD("%s param fileName is null", __func__);
+        return nullptr;
+    }
+    auto *is = new VideoState();
+    if (!is) {
+        ALOGD("%s create VideoState OOM", __func__);
+        return nullptr;
+    }
+    is->fileName = av_strdup(fileName);
+
+    is->inputFormat = inputFormat;
+    is->yTop = 0;
+    is->xLeft = 0;
+
+    return is;
 }
 

@@ -13,6 +13,7 @@ static const int VERSION_MODULE_FILE_NAME_LENGTH = 13;
 #include "Pipeline.h"
 #include "State.h"
 #include "Error.h"
+#include "VideoState.h"
 
 extern "C" {
 #include <libavutil/time.h>
@@ -22,6 +23,7 @@ extern "C" {
 #include <libavutil/error.h>
 #include <libavutil/frame.h>
 #include <libavutil/avutil.h>
+#include <libavutil/dict.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
@@ -90,19 +92,46 @@ private:
 
     Mutex *avMutex = nullptr;
     Mutex *vfMutex = nullptr;
+
+    /**
+     * Message Loop
+     */
     MessageQueue *msgQueue = nullptr;
+
+    /**
+     * Audio Output
+     */
     AOut *aOut = nullptr;
+
+    /**
+     * Video Output
+     */
     VOut *vOut = nullptr;
+
+    /**
+     * Data input
+     */
     Pipeline *pipeline = nullptr;
+
+    /**
+     * format/codec options
+     */
+    AVDictionary *formatOpts = nullptr;
+    AVDictionary *codecOpts = nullptr;
+    AVDictionary *swsDict = nullptr;
+    AVDictionary *swrOpts = nullptr;
+    AVDictionary *swrPresetOpts = nullptr;
+    AVDictionary *playerOpts = nullptr;
+
+    /**
+     * Stream File Name
+     */
     char *inputFileName = nullptr;
 
-    /* format/codec options */
-    AVDictionary *formatOpts;
-    AVDictionary *codecOpts;
-    AVDictionary *swsDict;
-    AVDictionary *swrOpts;
-    AVDictionary *swrPresetOpts;
-    AVDictionary *playerOpts;
+    /**
+     * Video State
+     */
+    VideoState *videoState = nullptr;
 
 public:
     FFPlay();
@@ -131,6 +160,8 @@ private:
     void showVersionsAndOptions();
 
     void showDict(const char *tag, AVDictionary *dict);
+
+    VideoState *streamOpen(const char *fileName, AVInputFormat *inputFormat);
 };
 
 #endif //SPLAYER_PLAY_H
