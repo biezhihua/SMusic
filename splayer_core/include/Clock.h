@@ -1,5 +1,13 @@
-#ifndef SPLAYER_MAC_CLOCK_H
-#define SPLAYER_MAC_CLOCK_H
+#ifndef SPLAYER_MAC1_CLOCK_H
+#define SPLAYER_MAC1_CLOCK_H
+
+#include "Error.h"
+
+extern "C" {
+#include <libavutil/time.h>
+#include <libavutil/mathematics.h>
+};
+
 
 class Clock {
 public:
@@ -27,6 +35,17 @@ public:
      * pointer to the current packet queue serial, used for obsolete clock detection
      */
     int *queueSerial;
+
+public:
+    int initClock(int *pQueueSerial);
+
+    int setClock(double pts, int serial);
+
+    int setClockAt(double pts, int serial, double time);
+
+    double getClock();
+
+
 };
 
 

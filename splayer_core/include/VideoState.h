@@ -30,7 +30,7 @@ public:
 
     Clock videoClock;
     Clock audioClock;
-    Clock subtitleClock;
+    Clock exitClock;
 
     AVStream *videoStream;
     AVStream *audioStream;

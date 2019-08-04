@@ -263,9 +263,9 @@ VideoState *FFPlay::streamOpen() {
         return nullptr;
     }
 
-    if (initClock(&is->videoClock, &is->videoPacketQueue.serial) < 0 ||
-        initClock(&is->audioClock, &is->audioPacketQueue.serial) < 0 ||
-        initClock(&is->subtitleClock, &is->subtitlePacketQueue.serial) < 0) {
+    if (is->videoClock.initClock(&is->videoPacketQueue.serial) < 0 ||
+        is->audioClock.initClock(&is->audioPacketQueue.serial) < 0 ||
+        is->exitClock.initClock(&is->subtitlePacketQueue.serial) < 0) {
         ALOGE("%s init clock fail", __func__);
         streamClose();
         return nullptr;
@@ -301,7 +301,6 @@ int FFPlay::getStartupVolume() {
     startupVolume = av_clip(MIX_MAX_VOLUME * startupVolume / 100, 0, MIX_MAX_VOLUME);
     return startupVolume;
 }
-
 
 void FFPlay::streamClose() {
     if (videoState) {
@@ -355,30 +354,6 @@ void FFPlay::streamClose() {
     }
 }
 
-int FFPlay::initClock(Clock *pClock, int *pQueueSerial) {
-    if (!pClock) {
-        return NEGATIVE(S_NULL);
-    }
-    pClock->speed = 1.0F;
-    pClock->paused = 0;
-    pClock->queueSerial = pQueueSerial;
-    setClock(pClock, NAN, -1);
-    return POSITIVE;
-}
-
-void FFPlay::setClock(Clock *pClock, double pts, int serial) {
-    double time = av_gettime_relative() / 1000000.0;
-    setClockAt(pClock, pts, serial, time);
-}
-
-void FFPlay::setClockAt(Clock *pClock, double pts, int serial, double time) {
-    if (pClock) {
-        pClock->pts = pts;
-        pClock->lastUpdated = time;
-        pClock->ptsDrift = pClock->pts - time;
-        pClock->serial = serial;
-    }
-}
 
 static int decodeInterruptCallback(void *ctx) {
     auto *is = static_cast<VideoState *>(ctx);
@@ -809,5 +784,40 @@ void FFPlay::streamComponentClose(AVStream *pStream) {
 
 }
 
+
+/* get the current master clock value */
+double FFPlay::getMasterClock() {
+    double val;
+    switch (getMasterSyncType()) {
+        case AV_SYNC_VIDEO_MASTER:
+            val = videoState->videoClock.getClock();
+            break;
+        case AV_SYNC_AUDIO_MASTER:
+            val = videoState->audioClock.getClock();
+            break;
+        default:
+            val = videoState->exitClock.getClock();
+            break;
+    }
+    return val;
+}
+
+int FFPlay::getMasterSyncType() {
+    if (videoState && videoState->avSyncType == AV_SYNC_VIDEO_MASTER) {
+        if (videoState->videoStream) {
+            return AV_SYNC_VIDEO_MASTER;
+        } else {
+            return AV_SYNC_AUDIO_MASTER;
+        }
+    } else if (videoState && videoState->avSyncType == AV_SYNC_AUDIO_MASTER) {
+        if (videoState->audioStream) {
+            return AV_SYNC_AUDIO_MASTER;
+        } else {
+            return AV_SYNC_EXTERNAL_CLOCK;
+        }
+    } else {
+        return AV_SYNC_EXTERNAL_CLOCK;
+    }
+}
 
 #pragma clang diagnostic pop

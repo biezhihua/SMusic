@@ -162,11 +162,6 @@ private:
 
     void streamClose();
 
-    int initClock(Clock *pClock, int *pQueueSerial);
-
-    void setClock(Clock *pClock, double pts, int serial);
-
-    void setClockAt(Clock *pClock, double pts, int serial, double time);
 
     int getStartupVolume();
 
@@ -179,6 +174,9 @@ private:
 
     void streamComponentClose(AVStream *pStream);
 
+    double getMasterClock();
+
+    int getMasterSyncType();
 };
 
 #endif //SPLAYER_PLAY_H
