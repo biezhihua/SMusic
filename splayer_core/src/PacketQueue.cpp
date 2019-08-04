@@ -1,8 +1,7 @@
-
-
 #include "PacketQueue.h"
 
 #pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 #pragma clang diagnostic ignored "-Wunknown-pragmas"
 #pragma ide diagnostic ignored "OCDFAInspection"
 

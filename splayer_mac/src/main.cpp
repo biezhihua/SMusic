@@ -3,7 +3,6 @@
 #include "MacMediaPlayer.h"
 
 
-
 int main() {
     auto *player = new MacMediaPlayer();
 
@@ -18,7 +17,7 @@ int main() {
             ret = player->create();
             std::cout << "Main create result " << ret << std::endl;
         } else if ("url" == input) {
-            ret = player->setDataSource("I'm is url");
+            ret = player->setDataSource("/Users/biezhihua/Downloads/复仇者联盟.mkv");
             std::cout << "Main setDataSource result " << ret << std::endl;
         } else if ("prepare" == input) {
             ret = player->prepareAsync();

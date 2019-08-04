@@ -505,6 +505,7 @@ int FFPlay::readThread() {
 
     if (videoState->videoStreamIndex < 0 && videoState->audioStreamIndex < 0) {
         ALOGD("%s failed to open file '%s' or configure filter graph", __func__, videoState->fileName);
+        closeReadThread(videoState, formatContext);
         return NEGATIVE(S_NOT_OPEN_FILE);
     }
 
