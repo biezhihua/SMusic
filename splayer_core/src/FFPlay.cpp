@@ -248,7 +248,13 @@ int FFPlay::frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, i
             return S_ERROR(ENOMEM);
         }
     }
-    
+
+    ALOGI("%s packetQueue=%p maxSize=%d keepLast=%d",
+          __func__,
+          pFrameQueue->packetQueue,
+          pFrameQueue->maxSize,
+          pFrameQueue->keepLast);
+
     return S_CORRECT;
 }
 
