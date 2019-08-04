@@ -271,8 +271,8 @@ VideoState *FFPlay::streamOpen(const char *fileName, AVInputFormat *inputFormat)
         return nullptr;
     }
 
-    is->audioClockSerial = -1;
     is->fileName = av_strdup(fileName);
+    is->audioClockSerial = -1;
     is->inputFormat = inputFormat;
     is->yTop = 0;
     is->xLeft = 0;
@@ -282,7 +282,6 @@ VideoState *FFPlay::streamOpen(const char *fileName, AVInputFormat *inputFormat)
     is->playMutex = new Mutex();
     is->accurateSeekMutex = new Mutex();
     is->pauseReq = !startOnPrepared;
-    is->initializedDecoder = 0;
     is->readTid = new Thread(innerReadThread, this, "readThread");
 
     if (!is->readTid) {
@@ -386,7 +385,7 @@ void FFPlay::setClockAt(Clock *pClock, double pts, int serial, double time) {
 }
 
 void FFPlay::readThread() {
-
+    ALOGD(__func__);
 }
 
 #pragma clang diagnostic pop

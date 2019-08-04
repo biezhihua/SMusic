@@ -1,7 +1,7 @@
 #include "Thread.h"
 
 static void *runThread(void *data) {
-    Thread *thread = static_cast<Thread *>(data);
+    auto *thread = static_cast<Thread *>(data);
     if (thread) {
 #ifdef __ANDROID__
         ALOGD("%s android", __func__);
@@ -19,7 +19,6 @@ static void *runThread(void *data) {
 }
 
 Thread::Thread(int (*func)(void *), void *data, const char *name) {
-    ALOGD(__func__);
     Thread::func = func;
     Thread::data = data;
     Thread::name = new string(name);
@@ -27,7 +26,6 @@ Thread::Thread(int (*func)(void *), void *data, const char *name) {
 }
 
 Thread::~Thread() {
-    ALOGD(__func__);
     delete name;
 }
 

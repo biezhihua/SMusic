@@ -47,7 +47,6 @@ public:
 
     int avSyncType;
     int pauseReq;
-    int initializedDecoder;
 
 };
 

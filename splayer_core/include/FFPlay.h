@@ -130,7 +130,7 @@ private:
 
     int videoQueueSize;
 
-    int startupVolume;
+    int startupVolume = 100;
 
     int avSyncType = AV_SYNC_AUDIO_MASTER;
 
