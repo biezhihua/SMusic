@@ -1,3 +1,6 @@
+
+#include <FFPlay.h>
+
 #include "FFPlay.h"
 
 FFPlay::FFPlay() {
@@ -51,22 +54,41 @@ int FFPlay::waitStop() {
     return S_ERROR(S_ERROR_UNKNOWN);
 }
 
-int FFPlay::prepareAsync(const char *fileName) {
-    ALOGD("%s ===== versions =====", __func__);
-    av_log(this, AV_LOG_DEBUG, "%-*s: %s\n", 13, "FFmpeg", av_version_info());
 
+int FFPlay::prepareAsync(const char *fileName) {
+    showVersionsAndOptions();
+
+    // TODO Audio Out
 //    if (!aOut) {
 //        int result = aOut->open();
 //        if (!result) {
 //            return S_ERROR(SE_NXIO);
 //        }
 //    }
+
 //    videoState = streamOpen(fileName, nullptr);
 //    if (!videoState) {
 //        return S_ERROR(S_ERROR_UNKNOWN);
 //    }
-    inputFileName = strdup(fileName);
+    inputFileName = av_strdup(fileName);
     return S_CORRECT;
+}
+
+void FFPlay::showVersionsAndOptions() {
+    ALOGI("===== versions =====");
+    ALOGI("%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "FFmpeg", av_version_info());
+    ALOGI("%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavutil", avutil_version());
+    ALOGI("%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavcodec", avcodec_version());
+    ALOGI("%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavformat", avformat_version());
+    ALOGI("%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libswscale", swscale_version());
+    ALOGI("%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libswresample", swresample_version());
+
+    ALOGI("===== options =====");
+    showDict("player-opts", playerOpts);
+    showDict("format-opts", formatOpts);
+    showDict("codec-opts ", codecOpts);
+    showDict("sws-opts   ", swsDict);
+    showDict("swr-opts   ", swrOpts);
 }
 
 int FFPlay::getMsg(Message *msg, bool block) {
@@ -177,5 +199,12 @@ int FFPlay::getMsg(Message *msg, bool block) {
         return ret;
     }
     return S_ERROR(S_ERROR_EXIT);
+}
+
+void FFPlay::showDict(const char *tag, AVDictionary *dict) {
+    AVDictionaryEntry *t = nullptr;
+    while ((t = av_dict_get(dict, "", t, AV_DICT_IGNORE_SUFFIX))) {
+        ALOGI("%-*s: %-*s = %s\n", 12, tag, 28, t->key, t->value);
+    }
 }
 

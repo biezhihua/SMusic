@@ -3,6 +3,8 @@
 #ifndef SPLAYER_PLAY_H
 #define SPLAYER_PLAY_H
 
+static const int VERSION_MODULE_FILE_NAME_LENGTH = 13;
+
 #include "Log.h"
 #include "Mutex.h"
 #include "MessageQueue.h"
@@ -92,10 +94,15 @@ private:
     AOut *aOut = nullptr;
     VOut *vOut = nullptr;
     Pipeline *pipeline = nullptr;
-
     char *inputFileName = nullptr;
 
-private:
+    /* format/codec options */
+    AVDictionary *formatOpts;
+    AVDictionary *codecOpts;
+    AVDictionary *swsDict;
+    AVDictionary *swrOpts;
+    AVDictionary *swrPresetOpts;
+    AVDictionary *playerOpts;
 
 public:
     FFPlay();
@@ -119,6 +126,11 @@ public:
     int prepareAsync(const char *fileName);
 
     int getMsg(Message *pMessage, bool block);
+
+private:
+    void showVersionsAndOptions();
+
+    void showDict(const char *tag, AVDictionary *dict);
 };
 
 #endif //SPLAYER_PLAY_H
