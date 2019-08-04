@@ -136,8 +136,6 @@ int PacketQueue::packetQueuePutPrivate(AVPacket *avPacket) {
     }
     lastPacketList = packetList;
     nbPackets++;
-    // TODO
-    //size += packetList->pkt.size + sizeof(*packetList);
     size++;
     duration += packetList->pkt.duration;
     /* XXX: should duplicate packet data in DV case */

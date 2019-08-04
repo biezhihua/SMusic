@@ -67,9 +67,9 @@ public:
     int avSyncType;
     int pauseReq;
 
-    int lastVideoStream;
-    int lastAudioStream;
-    int lastSubtitleStream;
+    int lastVideoStreamIndex;
+    int lastAudioStreamIndex;
+    int lastSubtitleStreamIndex;
     int videoStreamIndex;
     int audioStreamIndex;
     int subtitleStreamIndex;

@@ -25,12 +25,14 @@ public:
     double lastUpdated;
 
     double speed;
+
     /**
      * clock is based on a packet with this serial
      */
     int serial;
 
     int paused;
+
     /**
      * pointer to the current packet queue serial, used for obsolete clock detection
      */

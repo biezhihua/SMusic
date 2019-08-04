@@ -2,8 +2,17 @@
   <dictionary name="biezhihua">
     <words>
       <w>avformat</w>
+      <w>filtergraph</w>
+      <w>fmpeg</w>
+      <w>libavcodec</w>
+      <w>libavformat</w>
+      <w>libavutil</w>
+      <w>libswresample</w>
+      <w>libswscale</w>
+      <w>pmts</w>
       <w>pragmas</w>
       <w>wunknown</w>
+      <w>wunused</w>
     </words>
   </dictionary>
 </component>

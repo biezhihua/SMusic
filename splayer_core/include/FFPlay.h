@@ -3,7 +3,6 @@
 #ifndef SPLAYER_PLAY_H
 #define SPLAYER_PLAY_H
 
-
 #include "Log.h"
 #include "Define.h"
 #include "Mutex.h"
@@ -32,6 +31,22 @@ extern "C" {
 #include <libswresample/swresample.h>
 #include "Cmdutils.h"
 };
+
+static const char *const SCAN_ALL_PMTS = "scan_all_pmts";
+
+static const char *const OGG = "ogg";
+
+static const char *const TITLE = "title";
+
+static const char *const FORMAT_RTP = "rtp";
+
+static const char *const FORMAT_RTSP = "rtsp";
+
+static const char *const FORMAT_SDP = "sdp";
+
+static const char *const URL_FORMAT_RTP = "rtp:";
+
+static const char *const URL_FORMAT_UDP = "udp:";
 
 class FFPlay {
 
@@ -83,8 +98,6 @@ private:
 
     char *inputFormatName;
 
-    int skipCalcFrameRate;
-
     int genpts;
 
     int findStreamInfo;
@@ -99,11 +112,11 @@ private:
 
     char *wantedStreamSpec[AVMEDIA_TYPE_NB] = {0};
 
-    int audioDisable;
+    int audioDisable = 0;
 
-    int videoDisable;
+    int videoDisable = 0;
 
-    int subtitleDisable;
+    int subtitleDisable = 0;
 
     int showMode = SHOW_MODE_NONE;
 
@@ -124,6 +137,8 @@ private:
     int loop = 1;
 
     int autoExit;
+
+    int showStatus = 1;
 
 public:
     FFPlay();
@@ -162,7 +177,6 @@ private:
 
     void streamClose();
 
-
     int getStartupVolume();
 
     int isRealTime(AVFormatContext *pContext);
@@ -171,12 +185,17 @@ private:
 
     int streamHasEnoughPackets(AVStream *pStream, int index, PacketQueue *pQueue);
 
-
     void streamComponentClose(AVStream *pStream);
 
     double getMasterClock();
 
     int getMasterSyncType();
+
+    void closeReadThread(const VideoState *is, AVFormatContext *&formatContext) const;
+
+    void stepToNextFrame();
+
+    void streamSeek(int64_t pos, int64_t rel, int seek_by_bytes);
 };
 
 #endif //SPLAYER_PLAY_H

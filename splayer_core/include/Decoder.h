@@ -24,7 +24,6 @@ extern "C" {
 #include "Cmdutils.h"
 };
 
-
 class Decoder {
 public:
     AVPacket pkt;
