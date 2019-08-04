@@ -143,5 +143,14 @@ int64_t FrameQueue::frameQueueLastPos() {
     }
 }
 
+int FrameQueue::frameQueueUnrefItem(Frame *frame) {
+    if (frame) {
+        av_frame_unref(frame->frame);
+        avsubtitle_free(&frame->sub);
+        return POSITIVE;
+    }
+    return NEGATIVE(S_NULL);
+}
+
 
 #pragma clang diagnostic pop
