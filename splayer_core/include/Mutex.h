@@ -25,7 +25,6 @@ public:
      */
     int mutexLock();
 
-
     /**
      * unlock a mutex
      */

@@ -8,17 +8,37 @@
 #include "Error.h"
 #include "Log.h"
 
+/**
+ * https://www.jianshu.com/p/6014de9c47ea
+ */
 class FrameQueue {
 public:
+    // queue是存储Frame的数组
     Frame queue[FRAME_QUEUE_SIZE];
+
+    // 锁对象
     Mutex *mutex;
+
+    // 指向各自数据包(ES包)的队列
     PacketQueue *packetQueue;
-    int maxSize;
+
+    // 是写帧数据索引， 相当于是队列的队尾
+    int writeIndex;
+
+    // 是读帧数据索引， 相当于是队列的队首
+    int readIndex;
+
+    // 表示当前是否有帧在显示
+    int readIndexShown;
+
+    // 这个变量的含义，据我分析， 是用来判断队列是否保留正在显示的帧(Frame)
     int keepLast;
-    int rIndex;
-    int wIndex;
+
+    // 是存储在这个队列的Frame的数量
     int size;
-    int rIndexShown;
+
+    // 是可以存储Frame的最大数量
+    int maxSize;
 
 public:
 
@@ -30,11 +50,11 @@ public:
 
     int frameQueueSignal();
 
-    Frame frameQueuePeek();
+    Frame *frameQueuePeek();
 
-    Frame frameQueuePeekNext();
+    Frame *frameQueuePeekNext();
 
-    Frame frameQueuePeekLast();
+    Frame *frameQueuePeekLast();
 
     Frame *frameQueuePeekWritable();
 
