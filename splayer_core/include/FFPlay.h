@@ -3,9 +3,9 @@
 #ifndef SPLAYER_PLAY_H
 #define SPLAYER_PLAY_H
 
-static const int VERSION_MODULE_FILE_NAME_LENGTH = 13;
 
 #include "Log.h"
+#include "Define.h"
 #include "Mutex.h"
 #include "MessageQueue.h"
 #include "AOut.h"
@@ -123,15 +123,11 @@ private:
     AVDictionary *swrPresetOpts = nullptr;
     AVDictionary *playerOpts = nullptr;
 
-    /**
-     * Stream File Name
-     */
     char *inputFileName = nullptr;
 
-    /**
-     * Video State
-     */
     VideoState *videoState = nullptr;
+
+    int videoQueueSize;
 
 public:
     FFPlay();
@@ -162,6 +158,8 @@ private:
     void showDict(const char *tag, AVDictionary *dict);
 
     VideoState *streamOpen(const char *fileName, AVInputFormat *inputFormat);
+
+    int frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, int queueSize, int keepLast);
 };
 
 #endif //SPLAYER_PLAY_H

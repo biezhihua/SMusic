@@ -210,7 +210,7 @@ void FFPlay::showDict(const char *tag, AVDictionary *dict) {
 
 VideoState *FFPlay::streamOpen(const char *fileName, AVInputFormat *inputFormat) {
     if (!fileName) {
-        ALOGD("%s param fileName is null", __func__);
+        ALOGE("%s param fileName is null", __func__);
         return nullptr;
     }
     auto *is = new VideoState();
@@ -224,6 +224,33 @@ VideoState *FFPlay::streamOpen(const char *fileName, AVInputFormat *inputFormat)
     is->yTop = 0;
     is->xLeft = 0;
 
+    if (frameQueueInit(&is->videoFQueue, &is->videoPQueue, videoQueueSize, 1) < 0) {
+        ALOGE("%s video frame queue init fail", __func__);
+        return nullptr;
+    }
+
     return is;
 }
+
+int FFPlay::frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, int queueSize, int keepLast) {
+
+    if (!(pFrameQueue->mutex = new Mutex())) {
+        ALOGE("%s create mutex fail", __func__);
+        return S_ERROR(SE_NOMEM);
+    }
+
+    pFrameQueue->packetQueue = pPacketQueue;
+    pFrameQueue->maxSize = FFMIN(queueSize, FRAME_QUEUE_SIZE);
+    pFrameQueue->keepLast = keepLast;
+
+    for (int i = 0; i < pFrameQueue->maxSize; i++) {
+        if (!(pFrameQueue->queue[i].frame = av_frame_alloc())) {
+            return S_ERROR(ENOMEM);
+        }
+    }
+    
+    return S_CORRECT;
+}
+
+
 
