@@ -38,16 +38,8 @@ target_link_libraries(${PROJECT_NAME}
         )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    target_link_libraries(${PROJECT_NAME}
-            ${DISTRIBUTION}/ffmpeg/lib/libavcodec.58.dylib
-            ${DISTRIBUTION}/ffmpeg/lib/libavdevice.58.dylib
-            ${DISTRIBUTION}/ffmpeg/lib/libavfilter.7.dylib
-            ${DISTRIBUTION}/ffmpeg/lib/libavformat.58.dylib
-            ${DISTRIBUTION}/ffmpeg/lib/libavutil.56.dylib
-            ${DISTRIBUTION}/ffmpeg/lib/libpostproc.55.dylib
-            ${DISTRIBUTION}/ffmpeg/lib/libswresample.3.dylib
-            ${DISTRIBUTION}/ffmpeg/lib/libswscale.5.dylib
-            )
+    file(GLOB libs "${DISTRIBUTION}/ffmpeg/lib/*.dylib")
+    target_link_libraries(${PROJECT_NAME} ${libs})
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Android")

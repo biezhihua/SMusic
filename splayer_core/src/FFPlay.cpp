@@ -53,7 +53,7 @@ int FFPlay::waitStop() {
 
 int FFPlay::prepareAsync(const char *fileName) {
     ALOGD("%s ===== versions =====", __func__);
-    av_log(this, AV_LOG_INFO, "%-*s: %s\n", 13, "FFmpeg", "s");
+    av_log(this, AV_LOG_DEBUG, "%-*s: %s\n", 13, "FFmpeg", av_version_info());
 
 //    if (!aOut) {
 //        int result = aOut->open();
