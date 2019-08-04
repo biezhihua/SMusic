@@ -11,7 +11,6 @@
 
 #define S_FFERRTAG(a, b, c, d) (-(int)S_MKTAG(a, b, c, d))
 
-#define S_ERROR_OOM                S_FFERRTAG( 'O','O','M',"1")
 #define S_ERROR_BUG                S_FFERRTAG( 'B','U','G','!')
 #define S_ERROR_EOF                S_FFERRTAG( 'E','O','F',' ')
 #define S_ERROR_EXIT               S_FFERRTAG( 'E','X','I','T')

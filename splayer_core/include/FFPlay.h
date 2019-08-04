@@ -159,7 +159,11 @@ private:
 
     VideoState *streamOpen(const char *fileName, AVInputFormat *inputFormat);
 
+    void streamClose();
+
     int frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, int queueSize, int keepLast);
+
+    int packetQueueInit(PacketQueue *pQueue);
 };
 
 #endif //SPLAYER_PLAY_H

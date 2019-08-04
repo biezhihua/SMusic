@@ -226,8 +226,26 @@ VideoState *FFPlay::streamOpen(const char *fileName, AVInputFormat *inputFormat)
 
     if (frameQueueInit(&is->videoFQueue, &is->videoPQueue, videoQueueSize, 1) < 0) {
         ALOGE("%s video frame queue init fail", __func__);
+        streamClose();
         return nullptr;
     }
+    if (frameQueueInit(&is->audioFQueue, &is->audioPQueue, AUDIO_QUEUE_SIZE, 0) < 0) {
+        ALOGE("%s audio frame queue init fail", __func__);
+        streamClose();
+        return nullptr;
+    }
+    if (frameQueueInit(&is->subtitleFQueue, &is->subtitlePQueue, SUBTITLE_QUEUE_SIZE, 0) < 0) {
+        ALOGE("%s subtitle frame queue init fail", __func__);
+        streamClose();
+        return nullptr;
+    }
+
+    if (packetQueueInit(&is->videoPQueue) < 0 ||
+        packetQueueInit(&is->audioPQueue) < 0 ||
+        packetQueueInit(&is->subtitlePQueue) < 0) {
+
+    }
+
 
     return is;
 }
@@ -254,6 +272,34 @@ int FFPlay::frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, i
           pFrameQueue->packetQueue,
           pFrameQueue->maxSize,
           pFrameQueue->keepLast);
+
+    return S_CORRECT;
+}
+
+void FFPlay::streamClose() {
+
+}
+
+int FFPlay::packetQueueInit(PacketQueue *pPacketQueue) {
+
+    if (!pPacketQueue) {
+        ALOGE("%s param is null", __func__);
+        return S_ERROR(SE_NULL);
+    }
+
+    pPacketQueue->mutex = new Mutex();
+
+    if (!pPacketQueue->mutex) {
+        ALOGE("%s create mutex fail", __func__);
+        return S_ERROR(SE_NOMEM);
+    }
+
+    pPacketQueue->abortRequest = 1;
+
+    ALOGI("%s mutex=%p abortRequest=%d",
+          __func__,
+          pPacketQueue->mutex,
+          pPacketQueue->abortRequest);
 
     return S_CORRECT;
 }
