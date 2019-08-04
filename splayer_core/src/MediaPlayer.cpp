@@ -18,19 +18,19 @@ int MediaPlayer::create() {
 
     state = new State();
     if (!state) {
-        return S_ERROR(SE_NOMEM);
+        return S_ERROR(SE_NOT_MEMORY);
     }
 
     mutex = new Mutex();
     if (!mutex) {
         delete state;
-        return S_ERROR(SE_NOMEM);
+        return S_ERROR(SE_NOT_MEMORY);
     }
 
     play = new FFPlay();
     if (!play) {
         delete mutex;
-        return S_ERROR(SE_NOMEM);
+        return S_ERROR(SE_NOT_MEMORY);
     }
 
     // 设置消息
@@ -43,7 +43,7 @@ int MediaPlayer::create() {
         delete mutex;
         delete play;
         ALOGE("create surface error");
-        return S_ERROR(SE_NOMEM);
+        return S_ERROR(SE_NOT_MEMORY);
     }
     play->setVOut(vOut);
 
@@ -55,7 +55,7 @@ int MediaPlayer::create() {
         delete play;
         delete vOut;
         ALOGE("create pipeline error");
-        return S_ERROR(SE_NOMEM);
+        return S_ERROR(SE_NOT_MEMORY);
     }
     play->setPipeline(pipeline);
     pipeline->setVOut(vOut);
@@ -149,7 +149,7 @@ int MediaPlayer::setDataSource(const char *url) {
             return S_CORRECT;
         }
         mutex->mutexUnLock();
-        return S_ERROR(SE_NOMEM);
+        return S_ERROR(SE_NOT_MEMORY);
     }
     return S_ERROR(SE_NULL);
 }
@@ -184,7 +184,7 @@ int MediaPlayer::startMsgQueueThread() {
     if (msgThread) {
         return S_CORRECT;
     }
-    return S_ERROR(SE_NOMEM);
+    return S_ERROR(SE_NOT_MEMORY);
 }
 
 int MediaPlayer::startMsgQueue() const {

@@ -38,6 +38,22 @@ public:
 
     Thread *readTid;
 
+    AVFormatContext *ic;
+
+    AVStream *videoSt;
+
+    int abortRequest;
+    int forceRefresh;
+    int paused;
+    int lastPaused;
+    int queueAttachmentsReq;
+    int seekReq;
+    int seekFlags;
+    int64_t seekPos;
+    int64_t seekRel;
+    int realTime;
+
+
     char *fileName;
     int yTop;
     int xLeft;
@@ -48,6 +64,15 @@ public:
     int avSyncType;
     int pauseReq;
 
+    int lastVideoStream;
+    int lastAudioStream;
+    int lastSubtitleStream;
+    int videoStream;
+    int audioStream;
+    int subtitleStream;
+    int eof;
+    double maxFrameDuration;
+    int showMode;
 };
 
 #endif //SPLAYER_MAC_VIDEOSTATE_H

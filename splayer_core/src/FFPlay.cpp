@@ -41,18 +41,18 @@ MessageQueue *FFPlay::getMsgQueue() const {
 
 int FFPlay::stop() {
     // TODO
-    return S_ERROR(S_ERROR_UNKNOWN);
+    return S_ERROR(SE_UNKNOWN);
 }
 
 int FFPlay::shutdown() {
     // TODO
     waitStop();
-    return S_ERROR(S_ERROR_UNKNOWN);
+    return S_ERROR(SE_UNKNOWN);
 }
 
 int FFPlay::waitStop() {
     // TODO
-    return S_ERROR(S_ERROR_UNKNOWN);
+    return S_ERROR(SE_UNKNOWN);
 }
 
 
@@ -69,7 +69,7 @@ int FFPlay::prepareAsync(const char *fileName) {
 
     videoState = streamOpen(fileName, nullptr);
     if (!videoState) {
-        return S_ERROR(SE_NOMEM);
+        return S_ERROR(SE_NOT_MEMORY);
     }
     inputFileName = av_strdup(fileName);
     return S_CORRECT;
@@ -110,7 +110,7 @@ int FFPlay::getMsg(Message *msg, bool block) {
 //                    // FIXME: 1: onError() ?
 //                    av_log(mp->ffSPLAYER, AV_LOG_DEBUG, "MSG_PREPARED: expecting mp_state==STATE_ASYNC_PREPARING\n");
 //                }
-//                if (!mp->ffSPLAYER->start_on_prepared) {
+//                if (!mp->ffSPLAYER->startOnPrepared1) {
 //                    ijkmp_change_state_l(mp, STATE_PAUSED);
 //                }
 //                pthread_mutex_unlock(&mp->mutex);
@@ -199,7 +199,7 @@ int FFPlay::getMsg(Message *msg, bool block) {
         }
         return ret;
     }
-    return S_ERROR(S_ERROR_EXIT);
+    return S_ERROR(SE_EXIT);
 }
 
 void FFPlay::showDict(const char *tag, AVDictionary *dict) {
@@ -213,7 +213,7 @@ void FFPlay::showDict(const char *tag, AVDictionary *dict) {
 static int innerReadThread(void *arg) {
     auto *play = static_cast<FFPlay *>(arg);
     if (play) {
-        play->readThread();
+        return play->readThread();
     }
     return 1;
 }
@@ -309,7 +309,7 @@ int FFPlay::frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, i
 
     if (!(pFrameQueue->mutex = new Mutex())) {
         ALOGE("%s create mutex fail", __func__);
-        return S_ERROR(SE_NOMEM);
+        return S_ERROR(SE_NOT_MEMORY);
     }
 
     pFrameQueue->packetQueue = pPacketQueue;
@@ -346,7 +346,7 @@ int FFPlay::packetQueueInit(PacketQueue *pPacketQueue) {
 
     if (!pPacketQueue->mutex) {
         ALOGE("%s create mutex fail", __func__);
-        return S_ERROR(SE_NOMEM);
+        return S_ERROR(SE_NOT_MEMORY);
     }
 
     pPacketQueue->abortRequest = 1;
@@ -384,8 +384,320 @@ void FFPlay::setClockAt(Clock *pClock, double pts, int serial, double time) {
     }
 }
 
-void FFPlay::readThread() {
+static int decodeInterruptCallback(void *ctx) {
+    auto *is = static_cast<VideoState *>(ctx);
+    return is->abortRequest;
+}
+
+int FFPlay::readThread() {
     ALOGD(__func__);
+    VideoState *is = videoState;
+    if (!is) {
+        return S_ERROR(SE_NULL);
+    }
+    AVFormatContext *ic = nullptr;
+    int err, i, ret;
+    int st_index[AVMEDIA_TYPE_NB];
+    AVPacket pkt1, *pkt = &pkt1;
+    int64_t stream_start_time;
+    int pkt_in_play_range = 0;
+    AVDictionaryEntry *t;
+    auto *wait_mutex = new Mutex();
+    int scan_all_pmts_set = 0;
+    int64_t pkt_ts;
+
+    if (!wait_mutex) {
+        ALOGE("%s create wait mutex fail", __func__);
+        // TODO
+        return S_ERROR(SE_NOT_MEMORY);
+    }
+
+    memset(st_index, -1, sizeof(st_index));
+
+    is->lastVideoStream = is->videoStream = -1;
+    is->lastAudioStream = is->audioStream = -1;
+    is->lastSubtitleStream = is->subtitleStream = -1;
+    is->eof = 0;
+
+    ic = avformat_alloc_context();
+    if (!ic) {
+        ALOGE("%s avformat could not allocate context", __func__);
+        // TODO
+        return S_ERROR(SE_NOT_MEMORY);
+    }
+
+    ic->interrupt_callback.callback = decodeInterruptCallback;
+    ic->interrupt_callback.opaque = is;
+
+    if (!av_dict_get(formatOpts, "scan_all_pmts", nullptr, AV_DICT_MATCH_CASE)) {
+        av_dict_set(&formatOpts, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
+        scan_all_pmts_set = 1;
+    }
+
+    if (av_stristart(is->fileName, "rtmp", nullptr) ||
+        av_stristart(is->fileName, "rtsp", nullptr)) {
+        // TODO
+        av_dict_set(&formatOpts, "timeout", nullptr, 0);
+    }
+
+    if (skipCalcFrameRate) {
+        av_dict_set_int(&ic->metadata, "skip-calc-frame-rate", skipCalcFrameRate, 0);
+        av_dict_set_int(&formatOpts, "skip-calc-frame-rate", skipCalcFrameRate, 0);
+    }
+
+    if (inputFormatName) {
+        is->inputFormat = av_find_input_format(inputFormatName);
+    }
+
+    err = avformat_open_input(&ic, is->fileName, is->inputFormat, &formatOpts);
+    if (err < 0) {
+        ALOGE("%s avformat could not open input", __func__);
+        return S_ERROR(SE_NOT_OPEN_INPUT);
+    }
+
+    if (msgQueue) {
+        msgQueue->notifyMsg(Message::MSG_OPEN_INPUT);
+    }
+
+    if (scan_all_pmts_set) {
+        av_dict_set(&formatOpts, "scan_all_pmts", nullptr, AV_DICT_MATCH_CASE);
+    }
+
+    if ((t = av_dict_get(formatOpts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
+        ALOGE("%s option %s not found.", __func__, t->key);
+        return S_ERROR(SE_OPTION_NOT_FOUND);
+    }
+    is->ic = ic;
+
+    if (genpts) {
+        ic->flags |= AVFMT_FLAG_GENPTS;
+    }
+
+    av_format_inject_global_side_data(ic);
+
+    if (findStreamInfo) {
+        AVDictionary **opts = setup_find_stream_info_opts(ic, codecOpts);
+        int orig_nb_streams = ic->nb_streams;
+        if (av_stristart(is->fileName, "data:", nullptr) && orig_nb_streams > 0) {
+            for (i = 0; i < orig_nb_streams; i++) {
+                if (!ic->streams[i] || !ic->streams[i]->codecpar ||
+                    ic->streams[i]->codecpar->profile == FF_PROFILE_UNKNOWN) {
+                    break;
+                }
+            }
+        }
+        err = avformat_find_stream_info(ic, opts);
+        if (msgQueue) {
+            msgQueue->notifyMsg(Message::MSG_FIND_STREAM_INFO);
+        }
+        for (i = 0; i < orig_nb_streams; i++) {
+            av_dict_free(&opts[i]);
+        }
+        av_freep(&opts);
+        if (err < 0) {
+            ALOGD("%s %s: could not find codec parameters", __func__, is->fileName);
+            return S_ERROR(SE_NOT_FIND_PARAMETERS);
+        }
+    }
+
+    if (ic->pb) {
+        ic->pb->eof_reached = 0; // FIXME hack, ffplay maybe should not use avio_feof() to test for the end
+    }
+
+    if (seekByBytes < 0) {
+        seekByBytes = (ic->iformat->flags & AVFMT_TS_DISCONT) && strcmp("ogg", ic->iformat->name) != 0;
+    }
+
+    is->maxFrameDuration = (ic->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
+
+    if (!windowTitle && (t = av_dict_get(ic->metadata, "title", nullptr, 0))) {
+        windowTitle = av_asprintf("%s - %s", t->value, inputFileName);
+    }
+
+    /* if seeking requested, we execute it */
+    if (startTime != AV_NOPTS_VALUE) {
+        int64_t timestamp = startTime;
+        /* add the stream start time */
+        if (ic->start_time != AV_NOPTS_VALUE) {
+            timestamp += ic->start_time;
+        }
+        ret = avformat_seek_file(ic, -1, INT64_MIN, timestamp, INT64_MAX, 0);
+        if (ret < 0) {
+            ALOGD("%s %s: could not seek to position %0.3f", __func__, is->fileName, (double) timestamp / AV_TIME_BASE);
+        }
+    }
+
+    is->realTime = isRealTime(ic);
+
+    av_dump_format(ic, 0, is->fileName, 0);
+
+    for (i = 0; i < ic->nb_streams; i++) {
+        AVStream *st = ic->streams[i];
+        enum AVMediaType type = st->codecpar->codec_type;
+        st->discard = AVDISCARD_ALL;
+        if (type >= 0 && wantedStreamSpec[type] && st_index[type] == -1) {
+            if (avformat_match_stream_specifier(ic, st, wantedStreamSpec[type]) > 0) {
+                st_index[type] = i;
+            }
+        }
+    }
+
+    int video_stream_count = 0;
+    int h264_stream_count = 0;
+    int first_h264_stream = -1;
+    for (i = 0; i < ic->nb_streams; i++) {
+        AVStream *st = ic->streams[i];
+        enum AVMediaType type = st->codecpar->codec_type;
+        if (type == AVMEDIA_TYPE_VIDEO) {
+            enum AVCodecID codec_id = st->codecpar->codec_id;
+            video_stream_count++;
+            if (codec_id == AV_CODEC_ID_H264) {
+                h264_stream_count++;
+                if (first_h264_stream < 0) {
+                    first_h264_stream = i;
+                }
+            }
+        }
+    }
+
+    if (video_stream_count > 1 && st_index[AVMEDIA_TYPE_VIDEO] < 0) {
+        st_index[AVMEDIA_TYPE_VIDEO] = first_h264_stream;
+        ALOGD("%s multiple video stream found, prefer first h264 stream: %d", __func__, first_h264_stream);
+    }
+
+    for (i = 0; i < AVMEDIA_TYPE_NB; i++) {
+        if (wantedStreamSpec[i] && st_index[i] == -1) {
+            ALOGD("%s Stream specifier %s does not match any stream", __func__, wantedStreamSpec[i]);
+            st_index[i] = INT_MAX;
+        }
+    }
+
+    if (!videoDisable) {
+        st_index[AVMEDIA_TYPE_VIDEO] =
+                av_find_best_stream(ic,
+                                    AVMEDIA_TYPE_VIDEO,
+                                    st_index[AVMEDIA_TYPE_VIDEO],
+                                    -1,
+                                    nullptr,
+                                    0);
+    }
+    if (!audioDisable) {
+        st_index[AVMEDIA_TYPE_AUDIO] =
+                av_find_best_stream(ic, AVMEDIA_TYPE_AUDIO,
+                                    st_index[AVMEDIA_TYPE_AUDIO],
+                                    st_index[AVMEDIA_TYPE_VIDEO],
+                                    nullptr, 0);
+    }
+    if (!videoDisable && !subtitleDisable) {
+        st_index[AVMEDIA_TYPE_SUBTITLE] =
+                av_find_best_stream(ic, AVMEDIA_TYPE_SUBTITLE,
+                                    st_index[AVMEDIA_TYPE_SUBTITLE],
+                                    (st_index[AVMEDIA_TYPE_AUDIO] >= 0 ?
+                                     st_index[AVMEDIA_TYPE_AUDIO] :
+                                     st_index[AVMEDIA_TYPE_VIDEO]),
+                                    nullptr, 0);
+    }
+
+    is->showMode = showMode;
+
+    if (st_index[AVMEDIA_TYPE_VIDEO] >= 0) {
+        AVStream *st = ic->streams[st_index[AVMEDIA_TYPE_VIDEO]];
+        AVCodecParameters *codecpar = st->codecpar;
+        AVRational sar = av_guess_sample_aspect_ratio(ic, st, nullptr);
+        if (codecpar->width) {
+            // TODO
+            // set_default_window_size(codecpar->width, codecpar->height, sar);
+        }
+    }
+
+    /* open the streams */
+    if (st_index[AVMEDIA_TYPE_AUDIO] >= 0) {
+        ret = streamComponentOpen(st_index[AVMEDIA_TYPE_AUDIO]);
+    } else {
+        is->avSyncType = avSyncType = AV_SYNC_VIDEO_MASTER;
+    }
+
+    ret = -1;
+    if (st_index[AVMEDIA_TYPE_VIDEO] >= 0) {
+        ret = streamComponentOpen(st_index[AVMEDIA_TYPE_VIDEO]);
+    }
+    if (is->showMode == SHOW_MODE_NONE) {
+        is->showMode = ret >= 0 ? SHOW_MODE_VIDEO : SHOW_MODE_RDFT;
+    }
+
+    if (st_index[AVMEDIA_TYPE_SUBTITLE] >= 0) {
+        streamComponentOpen(st_index[AVMEDIA_TYPE_SUBTITLE]);
+    }
+
+    if (msgQueue) {
+        msgQueue->notifyMsg(Message::MSG_COMPONENT_OPEN);
+    }
+
+    if (is->videoStream < 0 && is->audioStream < 0) {
+        ALOGD("%s Failed to open file '%s' or configure filtergraph", __func__, is->fileName);
+        return S_ERROR(SE_NOT_OPEN_FILE);
+    }
+
+    if (infiniteBuffer < 0 && is->realTime) {
+        infiniteBuffer = 1;
+    }
+
+    if (!renderWaitStart && !startOnPrepared) {
+        // TODO
+        // toggle_pause(1);
+    }
+
+    if (is->videoSt && is->videoSt->codecpar) {
+        AVCodecParameters *codecpar = is->videoSt->codecpar;
+        if (msgQueue) {
+            msgQueue->notifyMsg(Message::MSG_VIDEO_SIZE_CHANGED, codecpar->width, codecpar->height);
+            msgQueue->notifyMsg(Message::MSG_SAR_CHANGED, codecpar->width, codecpar->height);
+        }
+    }
+
+    prepared = true;
+
+    if (msgQueue) {
+        msgQueue->notifyMsg(Message::MSG_PREPARED);
+    }
+
+    if (!renderWaitStart && !startOnPrepared) {
+        while (is->pauseReq && !is->abortRequest) {
+            // SDL_Delay(20);
+            // Delay
+            // TODO
+        }
+    }
+
+    if (autoResume) {
+        if (msgQueue) {
+            msgQueue->notifyMsg(Message::REQ_START);
+        }
+        autoResume = 0;
+    }
+
+    /* offset should be seeked*/
+    if (seek_at_start > 0) {
+        // ffp_seek_to_l((long) (seek_at_start));
+    }
+
+    return S_CORRECT;
+}
+
+int FFPlay::isRealTime(AVFormatContext *s) {
+    if (!strcmp(s->iformat->name, "rtp") || !strcmp(s->iformat->name, "rtsp") || !strcmp(s->iformat->name, "sdp")) {
+        return S_CORRECT;
+    }
+    if (s->pb && (!strncmp(s->url, "rtp:", 4) || !strncmp(s->url, "udp:", 4))) {
+        return S_CORRECT;
+    }
+    return S_ERROR(SERROR);
+}
+
+/* open a given stream. Return 0 if OK */
+int FFPlay::streamComponentOpen(int streamIndex) {
+    ALOGD("%s streamIndex=%d", __func__, streamIndex);
+    return S_CORRECT;
 }
 
 #pragma clang diagnostic pop

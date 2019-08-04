@@ -25,10 +25,12 @@ extern "C" {
 #include <libavutil/frame.h>
 #include <libavutil/avutil.h>
 #include <libavutil/dict.h>
+#include <libavutil/avstring.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
+#include "Cmdutils.h"
 };
 
 //enum {
@@ -134,8 +136,43 @@ private:
 
     int avSyncType = AV_SYNC_AUDIO_MASTER;
 
+    char *inputFormatName;
+
+    int skipCalcFrameRate;
+
+    int genpts;
+
+    int findStreamInfo;
+
+    int seekByBytes;
+
+    char *windowTitle;
+
+    int64_t startTime = AV_NOPTS_VALUE;
+
+    int64_t duration = AV_NOPTS_VALUE;
+
+    char *wantedStreamSpec[AVMEDIA_TYPE_NB] = {0};
+
+    int audioDisable;
+
+    int videoDisable;
+
+    int subtitleDisable;
+
+    int showMode = SHOW_MODE_NONE;
+
+    int infiniteBuffer = -1;
+
+    int renderWaitStart;
+
     int startOnPrepared;
 
+    bool prepared;
+
+    int autoResume;
+
+    int seek_at_start;
 public:
     FFPlay();
 
@@ -159,7 +196,10 @@ public:
 
     int getMsg(Message *pMessage, bool block);
 
-    void readThread();
+    /**
+     * this thread gets the stream from the disk or the network
+     */
+    int readThread();
 
 private:
     void showVersionsAndOptions();
@@ -180,8 +220,14 @@ private:
 
     void setClockAt(Clock *pClock, double pts, int serial, double time);
 
-
     int getStartupVolume();
+
+    int isRealTime(AVFormatContext *pContext);
+
+    int streamComponentOpen(int streamIndex);
+
+
+
 };
 
 #endif //SPLAYER_PLAY_H
