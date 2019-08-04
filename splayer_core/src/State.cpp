@@ -14,9 +14,9 @@ int State::changeState(const int state) {
     State::state = state;
     if (msgQueue) {
         msgQueue->notifyMsg(Message::MSG_PLAYBACK_STATE_CHANGED);
-        return S_CORRECT;
+        return POSITIVE;
     }
-    return S_ERROR(SE_NULL);
+    return NEGATIVE(S_NULL);
 }
 
 const char *State::getState(const int state) {

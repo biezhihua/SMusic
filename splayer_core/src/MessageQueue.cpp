@@ -14,7 +14,7 @@ MessageQueue::~MessageQueue() {
 }
 
 int MessageQueue::putMsg(Message *msg) {
-    int ret = S_ERROR(SE_UNKNOWN);
+    int ret = NEGATIVE(ERROR_UNKNOWN);
     if (mutex && queue) {
         mutex->mutexLock();
         ret = _putMsg(msg);
@@ -26,7 +26,7 @@ int MessageQueue::putMsg(Message *msg) {
 int MessageQueue::_putMsg(Message *msg) {
     if (abortRequest || !msg) {
         ALOGE("%s %d %p", __func__, abortRequest, msg);
-        return S_ERROR(SE_NULL);
+        return NEGATIVE(S_NULL);
     }
     ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(msg->what));
     if (queue && mutex) {
@@ -34,7 +34,7 @@ int MessageQueue::_putMsg(Message *msg) {
         mutex->condSignal();
     }
     ALOGD("%s size=%ld", __func__, queue->size());
-    return S_CORRECT;
+    return POSITIVE;
 }
 
 int MessageQueue::setAbortRequest(bool abortRequest) {
@@ -45,7 +45,7 @@ int MessageQueue::setAbortRequest(bool abortRequest) {
         mutex->condSignal();
         mutex->mutexUnLock();
     }
-    return S_CORRECT;
+    return POSITIVE;
 }
 
 int MessageQueue::clearMsgQueue() {
@@ -63,16 +63,16 @@ int MessageQueue::clearMsgQueue() {
         }
         mutex->mutexUnLock();
     }
-    return S_CORRECT;
+    return POSITIVE;
 }
 
 int MessageQueue::getMsg(Message *msg, bool block) {
-    int ret = S_ERROR(SE_UNKNOWN);
+    int ret = NEGATIVE(ERROR_UNKNOWN);
     if (mutex && queue) {
         mutex->mutexLock();
         while (true) {
             if (abortRequest) {
-                ret = S_ERROR(SE_CONDITION);
+                ret = NEGATIVE(S_CONDITION);
                 ALOGE("%s abort=%d", __func__, abortRequest);
                 break;
             }
@@ -80,11 +80,11 @@ int MessageQueue::getMsg(Message *msg, bool block) {
             if (message) {
                 queue->pop_front();
                 *msg = *message;
-                ret = S_CORRECT;
+                ret = POSITIVE;
                 ALOGD("%s success", __func__);
                 break;
             } else if (!block) {
-                ret = S_ERROR(SE_CONDITION);
+                ret = NEGATIVE(S_CONDITION);
                 ALOGD("%s not block", __func__);
                 break;
             } else {
@@ -113,9 +113,9 @@ int MessageQueue::removeMsg(int what) {
         queue->remove(message);
         delete message;
         mutex->mutexUnLock();
-        return S_CORRECT;
+        return POSITIVE;
     }
-    return S_ERROR(SE_NULL);
+    return NEGATIVE(S_NULL);
 }
 
 int MessageQueue::startMsgQueue() {
@@ -127,9 +127,9 @@ int MessageQueue::startMsgQueue() {
         message->what = Message::MSG_FLUSH;
         _putMsg(message);
         mutex->mutexUnLock();
-        return S_CORRECT;
+        return POSITIVE;
     }
-    return S_ERROR(SE_NULL);
+    return NEGATIVE(S_NULL);
 }
 
 int MessageQueue::notifyMsg(int what) {
@@ -137,7 +137,7 @@ int MessageQueue::notifyMsg(int what) {
     auto *message = new Message();
     message->what = what;
     putMsg(message);
-    return S_CORRECT;
+    return POSITIVE;
 }
 
 int MessageQueue::notifyMsg(int what, int arg1) {
@@ -146,7 +146,7 @@ int MessageQueue::notifyMsg(int what, int arg1) {
     message->what = what;
     message->arg1 = arg1;
     putMsg(message);
-    return S_CORRECT;
+    return POSITIVE;
 }
 
 int MessageQueue::notifyMsg(int what, int arg1, int arg2) {
@@ -156,7 +156,7 @@ int MessageQueue::notifyMsg(int what, int arg1, int arg2) {
     message->arg1 = arg1;
     message->arg2 = arg2;
     putMsg(message);
-    return S_CORRECT;
+    return POSITIVE;
 }
 
 

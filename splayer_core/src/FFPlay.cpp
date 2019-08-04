@@ -1,3 +1,6 @@
+
+#include <FFPlay.h>
+
 #include "FFPlay.h"
 
 #pragma clang diagnostic push
@@ -41,38 +44,35 @@ MessageQueue *FFPlay::getMsgQueue() const {
 
 int FFPlay::stop() {
     // TODO
-    return S_ERROR(SE_UNKNOWN);
+    return NEGATIVE(ERROR_UNKNOWN);
 }
 
 int FFPlay::shutdown() {
     // TODO
     waitStop();
-    return S_ERROR(SE_UNKNOWN);
+    return NEGATIVE(ERROR_UNKNOWN);
 }
 
 int FFPlay::waitStop() {
     // TODO
-    return S_ERROR(SE_UNKNOWN);
+    return NEGATIVE(ERROR_UNKNOWN);
 }
-
 
 int FFPlay::prepareAsync(const char *fileName) {
     showVersionsAndOptions();
 
-    // TODO Audio Out
-//    if (!aOut) {
-//        int result = aOut->open();
-//        if (!result) {
-//            return S_ERROR(SE_NXIO);
-//        }
-//    }
+    av_init_packet(&flushPacket);
+    flushPacket.data = (uint8_t *) &flushPacket;
 
-    videoState = streamOpen(fileName, nullptr);
+    inputFileName = fileName != nullptr ? av_strdup(fileName) : nullptr;
+
+    videoState = streamOpen();
+
     if (!videoState) {
-        return S_ERROR(SE_NOT_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
-    inputFileName = av_strdup(fileName);
-    return S_CORRECT;
+
+    return POSITIVE;
 }
 
 void FFPlay::showVersionsAndOptions() {
@@ -96,7 +96,7 @@ int FFPlay::getMsg(Message *msg, bool block) {
     while (true) {
         bool continueWaitNextMsg = false;
         int ret = msgQueue->getMsg(msg, block);
-        if (ret != S_CORRECT) {
+        if (ret != POSITIVE) {
             return ret;
         }
 
@@ -199,7 +199,7 @@ int FFPlay::getMsg(Message *msg, bool block) {
         }
         return ret;
     }
-    return S_ERROR(SE_EXIT);
+    return NEGATIVE(ERROR_EXIT);
 }
 
 void FFPlay::showDict(const char *tag, AVDictionary *dict) {
@@ -218,20 +218,20 @@ static int innerReadThread(void *arg) {
     return 1;
 }
 
-VideoState *FFPlay::streamOpen(const char *fileName, AVInputFormat *inputFormat) {
+VideoState *FFPlay::streamOpen() {
 
-    if (!fileName) {
-        ALOGE("%s param fileName is null", __func__);
+    if (!inputFileName) {
+        ALOGE("%s input file name is null", __func__);
         return nullptr;
     }
 
     auto *is = new VideoState();
     if (!is) {
-        ALOGD("%s create VideoState OOM", __func__);
+        ALOGD("%s create video state oom", __func__);
         return nullptr;
     }
 
-    if (frameQueueInit(&is->videoFrameQueue, &is->videoPacketQueue, videoQueueSize, 1) < 0) {
+    if (frameQueueInit(&is->videoFrameQueue, &is->videoPacketQueue, VIDEO_QUEUE_SIZE, 1) < 0) {
         ALOGE("%s video frame queue init fail", __func__);
         streamClose();
         return nullptr;
@@ -249,9 +249,9 @@ VideoState *FFPlay::streamOpen(const char *fileName, AVInputFormat *inputFormat)
         return nullptr;
     }
 
-    if (packetQueueInit(&is->videoPacketQueue) < 0 ||
-        packetQueueInit(&is->audioPacketQueue) < 0 ||
-        packetQueueInit(&is->subtitlePacketQueue) < 0) {
+    if (is->videoPacketQueue.packetQueueInit(&flushPacket) < 0 ||
+        is->audioPacketQueue.packetQueueInit(&flushPacket) < 0 ||
+        is->subtitlePacketQueue.packetQueueInit(&flushPacket) < 0) {
         ALOGE("%s packet queue init fail", __func__);
         streamClose();
         return nullptr;
@@ -271,7 +271,7 @@ VideoState *FFPlay::streamOpen(const char *fileName, AVInputFormat *inputFormat)
         return nullptr;
     }
 
-    is->fileName = av_strdup(fileName);
+    is->fileName = av_strdup(inputFileName);
     is->audioClockSerial = -1;
     is->inputFormat = inputFormat;
     is->yTop = 0;
@@ -279,9 +279,6 @@ VideoState *FFPlay::streamOpen(const char *fileName, AVInputFormat *inputFormat)
     is->audioVolume = getStartupVolume();
     is->muted = 0;
     is->avSyncType = avSyncType;
-    is->playMutex = new Mutex();
-    is->accurateSeekMutex = new Mutex();
-    is->pauseReq = !startOnPrepared;
     is->readTid = new Thread(innerReadThread, this, "readThread");
 
     if (!is->readTid) {
@@ -309,7 +306,7 @@ int FFPlay::frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, i
 
     if (!(pFrameQueue->mutex = new Mutex())) {
         ALOGE("%s create mutex fail", __func__);
-        return S_ERROR(SE_NOT_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
 
     pFrameQueue->packetQueue = pPacketQueue;
@@ -318,7 +315,7 @@ int FFPlay::frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, i
 
     for (int i = 0; i < pFrameQueue->maxSize; i++) {
         if (!(pFrameQueue->queue[i].frame = av_frame_alloc())) {
-            return S_ERROR(ENOMEM);
+            return NEGATIVE(ENOMEM);
         }
     }
 
@@ -328,46 +325,84 @@ int FFPlay::frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, i
           pFrameQueue->maxSize,
           pFrameQueue->keepLast);
 
-    return S_CORRECT;
+    return POSITIVE;
 }
+
+int FFPlay::frameQueueDestroy(FrameQueue *pFrameQueue) {
+    if (pFrameQueue) {
+        for (int i = 0; i < pFrameQueue->maxSize; i++) {
+            Frame *frame = &pFrameQueue->queue[i];
+            av_frame_free(&frame->frame);
+        }
+        delete pFrameQueue->mutex;
+        pFrameQueue->mutex = nullptr;
+        return POSITIVE;
+    }
+    return NEGATIVE(S_NULL);
+}
+
 
 void FFPlay::streamClose() {
+    if (videoState) {
 
-}
+        /* XXX: use a special url_shutdown call to abort parse cleanly */
 
-int FFPlay::packetQueueInit(PacketQueue *pPacketQueue) {
+        videoState->abortRequest = 0;
 
-    if (!pPacketQueue) {
-        ALOGE("%s param is null", __func__);
-        return S_ERROR(SE_NULL);
+        if (videoState->readTid) {
+            videoState->readTid->waitThread();
+        }
+
+        // close all streams
+        if (videoState->audioStreamIndex >= 0) {
+            streamComponentClose(videoState->audioStream);
+        }
+        if (videoState->videoStreamIndex >= 0) {
+            streamComponentClose(videoState->videoStream);
+        }
+        if (videoState->subtitleStreamIndex >= 0) {
+            streamComponentClose(videoState->subtitleStream);
+        }
+
+        // close stream input
+        avformat_close_input(&videoState->ic);
+
+        // free all packet
+        videoState->videoPacketQueue.packetQueueDestroy();
+        videoState->audioPacketQueue.packetQueueDestroy();
+        videoState->subtitlePacketQueue.packetQueueDestroy();
+
+        // free all frame
+        frameQueueDestroy(&videoState->videoFrameQueue);
+        frameQueueDestroy(&videoState->audioFrameQueue);
+        frameQueueDestroy(&videoState->subtitleFrameQueue);
+
+        if (videoState->continueReadThread) {
+            delete videoState->continueReadThread;
+            videoState->continueReadThread = nullptr;
+        }
+
+        sws_freeContext(videoState->imgConvertCtx);
+        sws_freeContext(videoState->subConvertCtx);
+
+        av_free(videoState->fileName);
+
+        // TODO Texture
+
+        delete videoState;
+        videoState = nullptr;
     }
-
-    pPacketQueue->mutex = new Mutex();
-
-    if (!pPacketQueue->mutex) {
-        ALOGE("%s create mutex fail", __func__);
-        return S_ERROR(SE_NOT_MEMORY);
-    }
-
-    pPacketQueue->abortRequest = 1;
-
-    ALOGI("%s mutex=%p abortRequest=%d",
-          __func__,
-          pPacketQueue->mutex,
-          pPacketQueue->abortRequest);
-
-    return S_CORRECT;
 }
 
 int FFPlay::initClock(Clock *pClock, int *pQueueSerial) {
     if (!pClock) {
-        return S_ERROR(SE_NULL);
+        return NEGATIVE(S_NULL);
     }
     pClock->speed = 1.0F;
     pClock->paused = 0;
     pClock->queueSerial = pQueueSerial;
     setClock(pClock, NAN, -1);
-    return S_CORRECT;
+    return POSITIVE;
 }
 
 void FFPlay::setClock(Clock *pClock, double pts, int serial) {
@@ -393,7 +428,7 @@ int FFPlay::readThread() {
     ALOGD(__func__);
     VideoState *is = videoState;
     if (!is) {
-        return S_ERROR(SE_NULL);
+        return NEGATIVE(S_NULL);
     }
     AVFormatContext *ic = nullptr;
     int err, i, ret;
@@ -409,7 +444,7 @@ int FFPlay::readThread() {
     if (!waitMutex) {
         ALOGE("%s create wait mutex fail", __func__);
         // TODO
-        return S_ERROR(SE_NOT_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
 
     memset(st_index, -1, sizeof(st_index));
@@ -423,7 +458,7 @@ int FFPlay::readThread() {
     if (!ic) {
         ALOGE("%s avformat could not allocate context", __func__);
         // TODO
-        return S_ERROR(SE_NOT_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
 
     ic->interrupt_callback.callback = decodeInterruptCallback;
@@ -452,7 +487,7 @@ int FFPlay::readThread() {
     err = avformat_open_input(&ic, is->fileName, is->inputFormat, &formatOpts);
     if (err < 0) {
         ALOGE("%s avformat could not open input", __func__);
-        return S_ERROR(SE_NOT_OPEN_INPUT);
+        return NEGATIVE(S_NOT_OPEN_INPUT);
     }
 
     if (msgQueue) {
@@ -465,7 +500,7 @@ int FFPlay::readThread() {
 
     if ((t = av_dict_get(formatOpts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
         ALOGE("%s option %s not found.", __func__, t->key);
-        return S_ERROR(SE_OPTION_NOT_FOUND);
+        return NEGATIVE(ERROR_OPTION_NOT_FOUND);
     }
     is->ic = ic;
 
@@ -496,7 +531,7 @@ int FFPlay::readThread() {
         av_freep(&opts);
         if (err < 0) {
             ALOGD("%s %s: could not find codec parameters", __func__, is->fileName);
-            return S_ERROR(SE_NOT_FIND_PARAMETERS);
+            return NEGATIVE(S_NOT_FIND_PARAMETERS);
         }
     }
 
@@ -635,7 +670,7 @@ int FFPlay::readThread() {
 
     if (is->videoStreamIndex < 0 && is->audioStreamIndex < 0) {
         ALOGD("%s Failed to open file '%s' or configure filtergraph", __func__, is->fileName);
-        return S_ERROR(SE_NOT_OPEN_FILE);
+        return NEGATIVE(S_NOT_OPEN_FILE);
     }
 
     if (infiniteBuffer < 0 && is->realTime) {
@@ -700,10 +735,10 @@ int FFPlay::readThread() {
             if (is->videoStream && is->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC) {
                 AVPacket copy = {nullptr};
                 if ((av_packet_ref(&copy, &is->videoStream->attached_pic)) < 0) {
-                    return S_ERROR(SE_ATTACHED_PIC);
+                    return NEGATIVE(S_NOT_ATTACHED_PIC);
                 }
-                packetQueuePut(&is->videoPacketQueue, &copy);
-                packetQueuePutNullPacket(&is->videoPacketQueue, is->videoStreamIndex);
+                is->videoPacketQueue.packetQueuePut(&copy);
+                is->videoPacketQueue.packetQueuePutNullPacket(is->videoStreamIndex);
             }
             is->queueAttachmentsReq = 0;
         }
@@ -730,7 +765,7 @@ int FFPlay::readThread() {
                 // stream_seek(is, startTime != AV_NOPTS_VALUE ? startTime : 0, 0, 0);
                 // TODO
             } else if (autoExit) {
-                return S_ERROR(SE_EOF);
+                return NEGATIVE(ERROR_EOF);
             }
         }
 
@@ -739,13 +774,13 @@ int FFPlay::readThread() {
         if (ret < 0) {
             if ((ret == AVERROR_EOF || avio_feof(ic->pb)) && !is->eof) {
                 if (is->videoStreamIndex >= 0) {
-                    packetQueuePutNullPacket(&is->videoPacketQueue, is->videoStreamIndex);
+                    is->videoPacketQueue.packetQueuePutNullPacket(is->videoStreamIndex);
                 }
                 if (is->audioStreamIndex >= 0) {
-                    packetQueuePutNullPacket(&is->audioPacketQueue, is->audioStreamIndex);
+                    is->audioPacketQueue.packetQueuePutNullPacket(is->audioStreamIndex);
                 }
                 if (is->subtitleStreamIndex >= 0) {
-                    packetQueuePutNullPacket(&is->subtitlePacketQueue, is->subtitleStreamIndex);
+                    is->subtitlePacketQueue.packetQueuePutNullPacket(is->subtitleStreamIndex);
                 }
                 is->eof = 1;
             }
@@ -770,91 +805,34 @@ int FFPlay::readThread() {
                          <= ((double) duration / 1000000);
 
         if (pkt->stream_index == is->audioStreamIndex && pktInPlayRange) {
-            packetQueuePut(&is->audioPacketQueue, pkt);
+            is->audioPacketQueue.packetQueuePut(pkt);
         } else if (pkt->stream_index == is->videoStreamIndex && pktInPlayRange
                    && !(is->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
-            packetQueuePut(&is->videoPacketQueue, pkt);
+            is->videoPacketQueue.packetQueuePut(pkt);
         } else if (pkt->stream_index == is->subtitleStreamIndex && pktInPlayRange) {
-            packetQueuePut(&is->subtitlePacketQueue, pkt);
+            is->subtitlePacketQueue.packetQueuePut(pkt);
         } else {
             av_packet_unref(pkt);
         }
     }
 
-    return S_CORRECT;
+    return POSITIVE;
 }
 
 int FFPlay::isRealTime(AVFormatContext *s) {
     if (!strcmp(s->iformat->name, "rtp") || !strcmp(s->iformat->name, "rtsp") || !strcmp(s->iformat->name, "sdp")) {
-        return S_CORRECT;
+        return POSITIVE;
     }
     if (s->pb && (!strncmp(s->url, "rtp:", 4) || !strncmp(s->url, "udp:", 4))) {
-        return S_CORRECT;
+        return POSITIVE;
     }
-    return S_ERROR(SERROR);
+    return NEGATIVE(S_ERROR);
 }
 
 /* open a given stream. Return 0 if OK */
 int FFPlay::streamComponentOpen(int streamIndex) {
     ALOGD("%s streamIndex=%d", __func__, streamIndex);
-    return S_CORRECT;
-}
-
-int FFPlay::packetQueuePut(PacketQueue *pQueue, AVPacket *pPacket) {
-    int ret;
-    if (pQueue && pQueue->mutex) {
-        pQueue->mutex->mutexLock();
-        ret = packetQueuePutPrivate(pQueue, pPacket);
-        pQueue->mutex->mutexUnLock();
-    } else {
-        ret = S_ERROR(SE_NULL);
-    }
-    if (pPacket != &flushPacket && ret < 0) {
-        av_packet_unref(pPacket);
-    }
-    return ret;
-}
-
-int FFPlay::packetQueuePutNullPacket(PacketQueue *pQueue, int streamIndex) {
-    AVPacket pkt1, *pkt = &pkt1;
-    av_init_packet(pkt);
-    pkt->data = nullptr;
-    pkt->size = 0;
-    pkt->stream_index = streamIndex;
-    return packetQueuePut(pQueue, pkt);
-}
-
-int FFPlay::packetQueuePutPrivate(PacketQueue *pQueue, AVPacket *avPacket) {
-    if (!pQueue || !avPacket) {
-        return S_ERROR(SE_NULL);
-    }
-    if (pQueue->abortRequest) {
-        return S_ERROR(SE_ABORT_REQUEST);
-    }
-    auto *packetList = new MyAVPacketList();
-    if (!packetList) {
-        return S_ERROR(SE_NOT_MEMORY);
-    }
-    packetList->pkt = *avPacket;
-    packetList->next = nullptr;
-    if (avPacket == &flushPacket) {
-        pQueue->serial++;
-    }
-    packetList->serial = pQueue->serial;
-    if (!pQueue->lastPacketList) {
-        pQueue->firstPacketList = packetList;
-    } else {
-        pQueue->lastPacketList->next = packetList;
-    }
-    pQueue->lastPacketList = packetList;
-    pQueue->nbPackets++;
-    // TODO
-    // pQueue->size += packetList->pkt.size + sizeof(*packetList);
-    pQueue->size++;
-    pQueue->duration += packetList->pkt.duration;
-    /* XXX: should duplicate packet data in DV case */
-    pQueue->mutex->condSignal();
-    return S_CORRECT;
+    return POSITIVE;
 }
 
 int FFPlay::streamHasEnoughPackets(AVStream *pStream, int streamIndex, PacketQueue *pQueue) {
@@ -872,5 +850,10 @@ int FFPlay::frameQueueNbRemaining(FrameQueue *pQueue) {
     }
     return 0;
 }
+
+void FFPlay::streamComponentClose(AVStream *pStream) {
+
+}
+
 
 #pragma clang diagnostic pop

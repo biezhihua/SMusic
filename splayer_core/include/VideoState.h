@@ -37,12 +37,13 @@ public:
     AVStream *subtitleStream;
 
     Mutex *continueReadThread;
-    Mutex *accurateSeekMutex;
-    Mutex *playMutex;
 
     Thread *readTid;
 
     AVFormatContext *ic;
+
+    struct SwsContext *imgConvertCtx;
+    struct SwsContext *subConvertCtx;
 
     int abortRequest;
     int forceRefresh;

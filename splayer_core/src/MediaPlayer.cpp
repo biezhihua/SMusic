@@ -18,19 +18,19 @@ int MediaPlayer::create() {
 
     state = new State();
     if (!state) {
-        return S_ERROR(SE_NOT_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
 
     mutex = new Mutex();
     if (!mutex) {
         delete state;
-        return S_ERROR(SE_NOT_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
 
     play = new FFPlay();
     if (!play) {
         delete mutex;
-        return S_ERROR(SE_NOT_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
 
     // 设置消息
@@ -43,7 +43,7 @@ int MediaPlayer::create() {
         delete mutex;
         delete play;
         ALOGE("create surface error");
-        return S_ERROR(SE_NOT_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
     play->setVOut(vOut);
 
@@ -55,12 +55,12 @@ int MediaPlayer::create() {
         delete play;
         delete vOut;
         ALOGE("create pipeline error");
-        return S_ERROR(SE_NOT_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
     play->setPipeline(pipeline);
     pipeline->setVOut(vOut);
 
-    return S_CORRECT;
+    return POSITIVE;
 }
 
 int MediaPlayer::start() {
@@ -73,7 +73,7 @@ int MediaPlayer::start() {
         mutex->mutexUnLock();
         return 0;
     }
-    return S_ERROR(ENOMEM);
+    return NEGATIVE(ENOMEM);
 }
 
 int MediaPlayer::stop() {
@@ -88,9 +88,9 @@ int MediaPlayer::stop() {
             return 0;
         }
         mutex->mutexUnLock();
-        return S_ERROR(ENOMEM);
+        return NEGATIVE(ENOMEM);
     }
-    return S_ERROR(ENOMEM);
+    return NEGATIVE(ENOMEM);
 }
 
 int MediaPlayer::pause() {
@@ -101,9 +101,9 @@ int MediaPlayer::pause() {
         removeMsg(Message::REQ_PAUSE);
         notifyMsg(Message::REQ_PAUSE);
         mutex->mutexUnLock();
-        return S_CORRECT;
+        return POSITIVE;
     }
-    return S_ERROR(ENOMEM);
+    return NEGATIVE(ENOMEM);
 }
 
 int MediaPlayer::reset() {
@@ -115,11 +115,11 @@ int MediaPlayer::reset() {
                 ALOGD("reset - create success");
                 return 0;
             }
-            return S_ERROR(ENOMEM);
+            return NEGATIVE(ENOMEM);
         }
-        return S_ERROR(ENOMEM);
+        return NEGATIVE(ENOMEM);
     }
-    return S_ERROR(ENOMEM);
+    return NEGATIVE(ENOMEM);
 }
 
 int MediaPlayer::destroy() {
@@ -135,7 +135,7 @@ int MediaPlayer::destroy() {
         delete state;
         return 0;
     }
-    return S_ERROR(ENOMEM);
+    return NEGATIVE(ENOMEM);
 }
 
 int MediaPlayer::setDataSource(const char *url) {
@@ -146,12 +146,12 @@ int MediaPlayer::setDataSource(const char *url) {
         if (dataSource) {
             state->changeState(State::STATE_INITIALIZED);
             mutex->mutexUnLock();
-            return S_CORRECT;
+            return POSITIVE;
         }
         mutex->mutexUnLock();
-        return S_ERROR(SE_NOT_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
-    return S_ERROR(SE_NULL);
+    return NEGATIVE(S_NULL);
 }
 
 static int staticMsgLoop(void *arg) {
@@ -159,7 +159,7 @@ static int staticMsgLoop(void *arg) {
         auto *mediaPlayer = static_cast<MediaPlayer *>(arg);
         return mediaPlayer->messageLoop();
     }
-    return S_ERROR(SE_NULL);
+    return NEGATIVE(S_NULL);
 }
 
 int MediaPlayer::prepareAsync() {
@@ -170,21 +170,21 @@ int MediaPlayer::prepareAsync() {
         startMsgQueueThread();
         if (play->prepareAsync(dataSource)) {
             mutex->mutexUnLock();
-            return S_CORRECT;
+            return POSITIVE;
         }
         state->changeState(State::STATE_ERROR);
         mutex->mutexUnLock();
-        return S_ERROR(SE_CONDITION);
+        return NEGATIVE(S_CONDITION);
     }
-    return S_ERROR(SE_NULL);
+    return NEGATIVE(S_NULL);
 }
 
 int MediaPlayer::startMsgQueueThread() {
     msgThread = new Thread(staticMsgLoop, this, "msg_loop");
     if (msgThread) {
-        return S_CORRECT;
+        return POSITIVE;
     }
-    return S_ERROR(SE_NOT_MEMORY);
+    return NEGATIVE(S_NOT_MEMORY);
 }
 
 int MediaPlayer::startMsgQueue() const {
@@ -192,7 +192,7 @@ int MediaPlayer::startMsgQueue() const {
     if (msgQueue) {
         return msgQueue->startMsgQueue();
     }
-    return S_ERROR(SE_NULL);
+    return NEGATIVE(S_NULL);
 }
 
 void MediaPlayer::notifyMsg(int what) {

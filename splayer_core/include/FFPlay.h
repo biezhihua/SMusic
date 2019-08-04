@@ -33,62 +33,6 @@ extern "C" {
 #include "Cmdutils.h"
 };
 
-//enum {
-//    AV_SYNC_AUDIO_MASTER, /* default choice */
-//    AV_SYNC_VIDEO_MASTER,
-//    AV_SYNC_EXTERNAL_CLOCK, /* synchronize to an external clock */
-//};
-
-//static AVDictionary *format_opts, *codec_opts, *resample_opts;
-///* options specified by the user */
-//static AVInputFormat *file_iformat;
-//static const char *input_filename;
-//static const char *window_title;
-//static int default_width = 640;
-//static int default_height = 480;
-//static int screen_width = 0;
-//static int screen_height = 0;
-//static int screen_left = 0;
-//static int screen_top = 0;
-//static int audio_disable;
-//static int video_disable;
-//static int subtitle_disable;
-//static const char *wanted_stream_spec[AVMEDIA_TYPE_NB] = {0};
-//static int seek_by_bytes = -1;
-//static float seek_interval = 10;
-//static int display_disable;
-//static int borderless;
-//static int startup_volume = 100;
-//static int show_status = 1;
-//static int av_sync_type = AV_SYNC_AUDIO_MASTER;
-//static int64_t start_time = AV_NOPTS_VALUE;
-//static int64_t duration = AV_NOPTS_VALUE;
-//static int fast = 0;
-//static int genpts = 0;
-//static int lowres = 0;
-//static int decoder_reorder_pts = -1;
-//static int autoExit;
-//static int exit_on_keydown;
-//static int exit_on_mousedown;
-//static int loop = 1;
-//static int framedrop = -1;
-//static int infinite_buffer = -1;
-////static int show_mode = SHOW_MODE_NONE;
-//static const char *audio_codec_name;
-//static const char *subtitle_codec_name;
-//static const char *video_codec_name;
-//static double rdftspeed = 0.02;
-//static int64_t cursor_last_shown;
-//static int cursor_hidden = 0;
-//static int autorotate = 1;
-//static int find_stream_info = 1;
-//
-///* current context */
-//static int is_full_screen;
-//static int64_t audio_callback_time;
-//
-//static AVPacket flush_pkt;
-
 class FFPlay {
 
 private:
@@ -126,6 +70,7 @@ private:
     AVDictionary *swrPresetOpts = nullptr;
     AVDictionary *playerOpts = nullptr;
 
+    AVInputFormat *inputFormat = nullptr;
     char *inputFileName = nullptr;
 
     VideoState *videoState = nullptr;
@@ -213,13 +158,9 @@ private:
 
     void showDict(const char *tag, AVDictionary *dict);
 
-    VideoState *streamOpen(const char *fileName, AVInputFormat *inputFormat);
+    VideoState *streamOpen();
 
     void streamClose();
-
-    int frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, int queueSize, int keepLast);
-
-    int packetQueueInit(PacketQueue *pQueue);
 
     int initClock(Clock *pClock, int *pQueueSerial);
 
@@ -233,15 +174,15 @@ private:
 
     int streamComponentOpen(int streamIndex);
 
-    int packetQueuePut(PacketQueue *pPacketQueue, AVPacket *pPacket);
-
-    int packetQueuePutNullPacket(PacketQueue *pQueue, int streamIndex);
-
-    int packetQueuePutPrivate(PacketQueue *pQueue, AVPacket *avPacket);
-
     int streamHasEnoughPackets(AVStream *pStream, int index, PacketQueue *pQueue);
 
     int frameQueueNbRemaining(FrameQueue *pQueue);
+
+    void streamComponentClose(AVStream *pStream);
+
+    int frameQueueInit(FrameQueue *pFrameQueue, PacketQueue *pPacketQueue, int queueSize, int keepLast);
+
+    int frameQueueDestroy(FrameQueue *pFrameQueue);
 };
 
 #endif //SPLAYER_PLAY_H

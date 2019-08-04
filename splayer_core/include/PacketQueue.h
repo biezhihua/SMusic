@@ -3,17 +3,44 @@
 
 #include "Mutex.h"
 #include "MyAVPacketList.h"
+#include "Error.h"
+#include "Log.h"
 
 class PacketQueue {
 
-public:
+private:
+    AVPacket *flushPacket;
     MyAVPacketList *firstPacketList, *lastPacketList;
-    int nbPackets;
+
+    Mutex *mutex;
+
+public:
     int size;
+    int serial;
+    int nbPackets;
     int64_t duration;
     int abortRequest;
-    int serial;
-    Mutex *mutex;
+
+public:
+
+    int packetQueueInit(AVPacket *pPacket);
+
+    int packetQueueStart();
+
+    int packetQueueAbort();
+
+    int packetQueuePut(AVPacket *pPacket);
+
+    int packetQueuePutNullPacket(int streamIndex);
+
+    int packetQueuePutPrivate(AVPacket *avPacket);
+
+    int packetQueueDestroy();
+
+    int packetQueueFlush();
+
+    int packetQueueGet(AVPacket *pPacket, int block, int *serial);
+
 };
 
 

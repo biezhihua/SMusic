@@ -2,16 +2,17 @@
 #ifndef SPLAYER_CORE_ERRORNO_H
 #define SPLAYER_CORE_ERRORNO_H
 
-#define SERROR 0
-#define SE_NULL 2
-#define SE_NXIO  4
-#define SE_CONDITION  5
-#define SE_NOT_MEMORY  6
-#define SE_NOT_OPEN_INPUT 7
-#define SE_NOT_FIND_PARAMETERS 8
-#define SE_NOT_OPEN_FILE 9
-#define SE_ATTACHED_PIC 10
-#define SE_ABORT_REQUEST 11
+#define S_ERROR 0
+#define S_NULL 2
+#define S_NXIO  4
+#define S_CONDITION  5
+#define S_NOT_MEMORY  6
+#define S_NOT_OPEN_INPUT 7
+#define S_NOT_FIND_PARAMETERS 8
+#define S_NOT_OPEN_FILE 9
+#define S_NOT_ATTACHED_PIC 10
+#define S_NOT_ABORT_REQUEST 11
+#define S_NOT_PACKET 12
 
 
 #endif //SPLAYER_CORE_ERRORNO_H
