@@ -13,17 +13,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="268858df-e7ee-4bd6-9bd6-f8cd5fddfdaf" name="Default Changelist" comment="m">
-      <change afterPath="$PROJECT_DIR$/../splayer_core/src/Decoder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../splayer_core/include/Decoder.h" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/include/Decoder.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../splayer_core/include/Define.h" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/include/Define.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../splayer_core/include/ErrorNo.h" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/include/ErrorNo.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../splayer_core/include/FFPlay.h" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/include/FFPlay.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../splayer_core/include/MyAVPacketList.h" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/include/MyAVPacketList.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer_core/src/Decoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/src/Decoder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../splayer_core/src/FFPlay.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/src/FFPlay.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../splayer_core/src/FrameQueue.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/src/FrameQueue.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../splayer_core/src/PacketQueue.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/src/PacketQueue.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -85,7 +78,7 @@
         <counts>
           <entry key="c" value="3" />
           <entry key="cpp" value="26" />
-          <entry key="h" value="79" />
+          <entry key="h" value="80" />
           <entry key="log" value="1" />
           <entry key="txt" value="3" />
         </counts>
@@ -93,14 +86,14 @@
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CMakeLists.txt" value="3" />
-          <entry key="ObjectiveC" value="108" />
+          <entry key="ObjectiveC" value="109" />
           <entry key="PLAIN_TEXT" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="c" value="20" />
-          <entry key="cpp" value="10218" />
+          <entry key="cpp" value="10272" />
           <entry key="h" value="2652" />
           <entry key="mm" value="13" />
           <entry key="txt" value="278" />
@@ -110,7 +103,7 @@
         <counts>
           <entry key="CMakeLists.txt" value="277" />
           <entry key="Doxygen file" value="24" />
-          <entry key="ObjectiveC" value="12879" />
+          <entry key="ObjectiveC" value="12933" />
           <entry key="PLAIN_TEXT" value="1" />
         </counts>
       </usages-collector>
@@ -121,11 +114,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../splayer_core/src/FFPlay.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-21">
-              <caret line="848" selection-start-line="848" selection-end-line="848" />
+            <state relative-caret-position="207">
+              <caret line="887" column="48" selection-start-line="887" selection-start-column="48" selection-end-line="887" selection-end-column="48" />
             </state>
           </provider>
         </entry>
@@ -164,11 +157,20 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../splayer_core/src/Decoder.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="34" column="25" selection-start-line="34" selection-start-column="13" selection-end-line="34" selection-end-column="25" />
+            <state relative-caret-position="252">
+              <caret line="14" column="21" selection-start-line="14" selection-start-column="21" selection-end-line="14" selection-end-column="21" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../splayer_core/include/Error.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="168">
+              <caret line="8" column="8" selection-start-line="8" selection-start-column="8" selection-end-line="8" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -197,17 +199,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../splayer_core/src/PacketQueue.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-636">
-              <caret line="33" column="24" selection-start-line="33" selection-start-column="24" selection-end-line="33" selection-end-column="24" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../splayer_core/src/FrameQueue.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="137">
-              <caret line="104" selection-start-line="104" selection-end-line="104" />
+            <state relative-caret-position="236">
+              <caret line="100" column="5" selection-start-line="100" selection-start-column="5" selection-end-line="100" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -313,12 +306,12 @@
         <option value="$PROJECT_DIR$/src/main.cpp" />
         <option value="$PROJECT_DIR$/../splayer_core/include/Define.h" />
         <option value="$PROJECT_DIR$/../splayer_core/include/MyAVPacketList.h" />
-        <option value="$PROJECT_DIR$/../splayer_core/src/PacketQueue.cpp" />
-        <option value="$PROJECT_DIR$/../splayer_core/src/Decoder.cpp" />
         <option value="$PROJECT_DIR$/../splayer_core/include/FFPlay.h" />
         <option value="$PROJECT_DIR$/../splayer_core/include/ErrorNo.h" />
         <option value="$PROJECT_DIR$/../splayer_core/include/Decoder.h" />
+        <option value="$PROJECT_DIR$/../splayer_core/src/PacketQueue.cpp" />
         <option value="$PROJECT_DIR$/../splayer_core/src/FFPlay.cpp" />
+        <option value="$PROJECT_DIR$/../splayer_core/src/Decoder.cpp" />
       </list>
     </option>
   </component>
@@ -439,12 +432,12 @@
       <workItem from="1564822293353" duration="1481000" />
       <workItem from="1564837286076" duration="36225000" />
       <workItem from="1564980210833" duration="668000" />
-      <workItem from="1565003684129" duration="4073000" />
+      <workItem from="1565003684129" duration="4379000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="45620000" />
+    <option name="totallyTimeSpent" value="45926000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
@@ -455,7 +448,7 @@
       <window_info id="Favorites" order="2" sideWeight="0.50323975" side_tool="true" weight="0.25864553" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32992327" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32992327" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.8567775" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39897698" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -477,7 +470,7 @@
       <window_info id="Favorites" order="2" sideWeight="0.50323975" side_tool="true" weight="0.25864553" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32992327" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32992327" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.8567775" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39897698" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -768,13 +761,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../splayer_core/include/Error.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="9" column="8" selection-start-line="9" selection-start-column="8" selection-end-line="9" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../distribution/mac/ffmpeg/include/libavutil/avutil.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="315">
@@ -827,20 +813,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../splayer_core/src/PacketQueue.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-636">
-          <caret line="33" column="24" selection-start-line="33" selection-start-column="24" selection-end-line="33" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../splayer_core/src/Decoder.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="34" column="25" selection-start-line="34" selection-start-column="13" selection-end-line="34" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../splayer_core/include/FFPlay.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="524">
@@ -883,10 +855,31 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer_core/src/PacketQueue.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="236">
+          <caret line="100" column="5" selection-start-line="100" selection-start-column="5" selection-end-line="100" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/../splayer_core/src/FFPlay.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-21">
-          <caret line="848" selection-start-line="848" selection-end-line="848" />
+        <state relative-caret-position="207">
+          <caret line="887" column="48" selection-start-line="887" selection-start-column="48" selection-end-line="887" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer_core/include/Error.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="168">
+          <caret line="8" column="8" selection-start-line="8" selection-start-column="8" selection-end-line="8" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer_core/src/Decoder.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="14" column="21" selection-start-line="14" selection-start-column="21" selection-end-line="14" selection-end-column="21" />
         </state>
       </provider>
     </entry>

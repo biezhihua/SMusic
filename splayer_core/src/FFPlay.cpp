@@ -681,11 +681,29 @@ int FFPlay::readThread() {
 
         if (packet->stream_index == videoState->audioStreamIndex && packetInPlayRange) {
             videoState->audioPacketQueue.packetQueuePut(packet);
+            ALOGD("%s audio size=%d serial=%d nbPackets=%d duration=%lld abortRequest=%d", __func__,
+                  videoState->audioPacketQueue.size,
+                  videoState->audioPacketQueue.serial,
+                  videoState->audioPacketQueue.nbPackets,
+                  duration,
+                  videoState->audioPacketQueue.abortRequest);
         } else if (packet->stream_index == videoState->videoStreamIndex && packetInPlayRange &&
                    !(videoState->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
             videoState->videoPacketQueue.packetQueuePut(packet);
+            ALOGD("%s video size=%d serial=%d nbPackets=%d duration=%lld abortRequest=%d", __func__,
+                  videoState->videoPacketQueue.size,
+                  videoState->videoPacketQueue.serial,
+                  videoState->videoPacketQueue.nbPackets,
+                  duration,
+                  videoState->videoPacketQueue.abortRequest);
         } else if (packet->stream_index == videoState->subtitleStreamIndex && packetInPlayRange) {
             videoState->subtitlePacketQueue.packetQueuePut(packet);
+            ALOGD("%s subtitle size=%d serial=%d nbPackets=%d duration=%lld abortRequest=%d", __func__,
+                  videoState->subtitlePacketQueue.size,
+                  videoState->subtitlePacketQueue.serial,
+                  videoState->subtitlePacketQueue.nbPackets,
+                  duration,
+                  videoState->subtitlePacketQueue.abortRequest);
         } else {
             av_packet_unref(packet);
         }
