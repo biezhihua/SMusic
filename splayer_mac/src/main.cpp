@@ -5,14 +5,12 @@
 
 int main() {
     auto *player = new MacMediaPlayer();
-
     int ret = 0;
 
     std::string input;
     int exit = 1;
     while (exit) {
         std::getline(std::cin, input);
-
         if ("create" == input) {
             ret = player->create();
             std::cout << "Main create result " << ret << std::endl;

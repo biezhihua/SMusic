@@ -2,7 +2,7 @@
 #ifndef SPLAYER_CORE_ERRORNO_H
 #define SPLAYER_CORE_ERRORNO_H
 
-#define S_ERROR 0
+#define S_ERROR 1
 #define S_NULL 2
 #define S_NXIO  4
 #define S_CONDITION  5

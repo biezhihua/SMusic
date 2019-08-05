@@ -246,13 +246,13 @@ void FFPlay::streamClose() {
 
         // close all streams
         if (videoState->audioStreamIndex >= 0) {
-            streamComponentClose(videoState->audioStream);
+            streamComponentClose(videoState->audioStream, videoState->audioStreamIndex);
         }
         if (videoState->videoStreamIndex >= 0) {
-            streamComponentClose(videoState->videoStream);
+            streamComponentClose(videoState->videoStream, videoState->videoStreamIndex);
         }
         if (videoState->subtitleStreamIndex >= 0) {
-            streamComponentClose(videoState->subtitleStream);
+            streamComponentClose(videoState->subtitleStream, videoState->subtitleStreamIndex);
         }
 
         // close stream input
@@ -437,31 +437,24 @@ int FFPlay::readThread() {
     }
 
     if (!videoDisable) {
-        streamIndex[AVMEDIA_TYPE_VIDEO] =
-                av_find_best_stream(formatContext,
-                                    AVMEDIA_TYPE_VIDEO,
-                                    streamIndex[AVMEDIA_TYPE_VIDEO],
-                                    -1,
-                                    nullptr,
-                                    0);
+        streamIndex[AVMEDIA_TYPE_VIDEO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_VIDEO,
+                                                              streamIndex[AVMEDIA_TYPE_VIDEO], -1, nullptr, 0);
     }
 
     if (!audioDisable) {
-        streamIndex[AVMEDIA_TYPE_AUDIO] =
-                av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO,
-                                    streamIndex[AVMEDIA_TYPE_AUDIO],
-                                    streamIndex[AVMEDIA_TYPE_VIDEO],
-                                    nullptr, 0);
+        streamIndex[AVMEDIA_TYPE_AUDIO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO,
+                                                              streamIndex[AVMEDIA_TYPE_AUDIO],
+                                                              streamIndex[AVMEDIA_TYPE_VIDEO],
+                                                              nullptr, 0);
     }
 
     if (!videoDisable && !subtitleDisable) {
-        streamIndex[AVMEDIA_TYPE_SUBTITLE] =
-                av_find_best_stream(formatContext, AVMEDIA_TYPE_SUBTITLE,
-                                    streamIndex[AVMEDIA_TYPE_SUBTITLE],
-                                    (streamIndex[AVMEDIA_TYPE_AUDIO] >= 0 ?
-                                     streamIndex[AVMEDIA_TYPE_AUDIO] :
-                                     streamIndex[AVMEDIA_TYPE_VIDEO]),
-                                    nullptr, 0);
+        streamIndex[AVMEDIA_TYPE_SUBTITLE] = av_find_best_stream(formatContext, AVMEDIA_TYPE_SUBTITLE,
+                                                                 streamIndex[AVMEDIA_TYPE_SUBTITLE],
+                                                                 (streamIndex[AVMEDIA_TYPE_AUDIO] >= 0 ?
+                                                                  streamIndex[AVMEDIA_TYPE_AUDIO] :
+                                                                  streamIndex[AVMEDIA_TYPE_VIDEO]),
+                                                                 nullptr, 0);
     }
 
     videoState->showMode = showMode;
@@ -603,19 +596,17 @@ int FFPlay::readThread() {
         }
 
         /* if the packetQueue are full, no need to read more */
-        if (infiniteBuffer < 1 &&
-            ((videoState->audioPacketQueue.size +
-              videoState->videoPacketQueue.size +
-              videoState->subtitlePacketQueue.size) > MAX_QUEUE_SIZE ||
-             (streamHasEnoughPackets(videoState->audioStream,
-                                     videoState->audioStreamIndex,
-                                     &videoState->audioPacketQueue) &&
-              streamHasEnoughPackets(videoState->videoStream,
-                                     videoState->videoStreamIndex,
-                                     &videoState->videoPacketQueue) &&
-              streamHasEnoughPackets(videoState->subtitleStream,
-                                     videoState->subtitleStreamIndex,
-                                     &videoState->subtitlePacketQueue)))) {
+        bool cond1 = infiniteBuffer < 1;
+        bool cond2 = (videoState->audioPacketQueue.size + videoState->videoPacketQueue.size +
+                      videoState->subtitlePacketQueue.size) > MAX_QUEUE_SIZE;
+        int cond31 = streamHasEnoughPackets(videoState->audioStream, videoState->audioStreamIndex,
+                                            &videoState->audioPacketQueue);
+        int cond32 = streamHasEnoughPackets(videoState->videoStream, videoState->videoStreamIndex,
+                                            &videoState->videoPacketQueue);
+        int cond33 = streamHasEnoughPackets(videoState->subtitleStream, videoState->subtitleStreamIndex,
+                                            &videoState->subtitlePacketQueue);
+        bool cond3 = cond31 && cond32 && cond33;
+        if (cond1 && (cond2 || cond3)) {
             /* wait 10 ms */
             waitMutex->mutexLock();
             videoState->continueReadThread->condWaitTimeout(waitMutex, 10);
@@ -874,7 +865,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
                 videoState->audioDecoder.startPts = videoState->audioStream->start_time;
                 videoState->audioDecoder.startPtsTb = videoState->audioStream->time_base;
             }
-            if (videoState->audioDecoder.decoderStart(innerSubtitleThread, this) <= 0) {
+            if (videoState->audioDecoder.decoderStart(innerSubtitleThread, this) < 0) {
                 av_dict_free(&opts);
                 return NEGATIVE(S_NOT_AUDIO_DECODE_START);
             }
@@ -885,7 +876,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
             videoState->videoDecoder.decoderInit(codecContext,
                                                  &videoState->videoPacketQueue,
                                                  videoState->continueReadThread);
-            if (videoState->videoDecoder.decoderStart(innerVideoThread, this) <= 0) {
+            if (videoState->videoDecoder.decoderStart(innerVideoThread, this) < 0) {
                 av_dict_free(&opts);
                 return NEGATIVE(S_NOT_VIDEO_DECODE_START);
             }
@@ -897,7 +888,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
             videoState->subtitleDecoder.decoderInit(codecContext,
                                                     &videoState->subtitlePacketQueue,
                                                     videoState->continueReadThread);
-            if (videoState->subtitleDecoder.decoderStart(innerSubtitleThread, this) <= 0) {
+            if (videoState->subtitleDecoder.decoderStart(innerSubtitleThread, this) < 0) {
                 av_dict_free(&opts);
                 return NEGATIVE(S_NOT_SUBTITLE_DECODE_START);
             }
@@ -916,8 +907,63 @@ int FFPlay::streamHasEnoughPackets(AVStream *pStream, int streamIndex, PacketQue
             (!pQueue->duration || av_q2d(pStream->time_base) * pQueue->duration > 1.0));
 }
 
-void FFPlay::streamComponentClose(AVStream *pStream) {
+int FFPlay::streamComponentClose(AVStream *pStream, int streamIndex) {
+    AVFormatContext *ic = videoState->ic;
+    AVCodecParameters *codecParameters;
 
+    if (streamIndex < 0 || streamIndex >= ic->nb_streams) {
+        return NEGATIVE(S_INVALID_STREAM_INDEX);
+    }
+
+    codecParameters = ic->streams[streamIndex]->codecpar;
+
+    switch (codecParameters->codec_type) {
+        case AVMEDIA_TYPE_AUDIO:
+            videoState->audioDecoder.decoderAbort(&videoState->audioFrameQueue);
+            videoState->audioDecoder.decoderDestroy();
+            swr_free(&videoState->swrContext);
+            av_freep(&videoState->audioBuf1);
+            videoState->audioBuf1Size = 0;
+            videoState->audioBuf = nullptr;
+            if (videoState->rdft) {
+                av_rdft_end(videoState->rdft);
+                av_freep(&videoState->rdft_data);
+                videoState->rdft = nullptr;
+                videoState->rdft_bits = 0;
+            }
+            break;
+        case AVMEDIA_TYPE_VIDEO:
+            videoState->videoDecoder.decoderAbort(&videoState->videoFrameQueue);
+            videoState->videoDecoder.decoderDestroy();
+            break;
+        case AVMEDIA_TYPE_SUBTITLE:
+            videoState->subtitleDecoder.decoderAbort(&videoState->subtitleFrameQueue);
+            videoState->subtitleDecoder.decoderDestroy();
+            break;
+        default:
+            break;
+    }
+
+    ic->streams[streamIndex]->discard = AVDISCARD_ALL;
+
+    switch (codecParameters->codec_type) {
+        case AVMEDIA_TYPE_AUDIO:
+            videoState->audioStream = nullptr;
+            videoState->audioStreamIndex = -1;
+            break;
+        case AVMEDIA_TYPE_VIDEO:
+            videoState->videoStream = nullptr;
+            videoState->videoStreamIndex = -1;
+            break;
+        case AVMEDIA_TYPE_SUBTITLE:
+            videoState->subtitleStream = nullptr;
+            videoState->subtitleStreamIndex = -1;
+            break;
+        default:
+            break;
+    }
+
+    return POSITIVE;
 }
 
 /* get the current master clock value */

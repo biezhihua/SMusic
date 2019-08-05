@@ -45,6 +45,7 @@ public:
     struct SwsContext *imgConvertCtx;
     struct SwsContext *subConvertCtx;
 
+
     int abortRequest;
     int forceRefresh;
     int paused;
@@ -55,7 +56,6 @@ public:
     int64_t seekPos;
     int64_t seekRel;
     int realTime;
-
 
     char *fileName;
     int yTop;
@@ -80,6 +80,15 @@ public:
     int showMode;
 
     int readPauseReturn;
+
+    struct SwrContext *swrContext;
+    uint8_t *audioBuf;
+    uint8_t *audioBuf1;
+    unsigned int audio_buf_size; /* in bytes */
+    unsigned int audioBuf1Size;
+    RDFTContext *rdft;
+    int rdft_bits;
+    FFTSample *rdft_data;
 };
 
 #endif //SPLAYER_MAC_VIDEOSTATE_H
