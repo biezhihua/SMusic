@@ -51,7 +51,7 @@ int FrameQueue::frameQueueDestroy() {
 }
 
 int FrameQueue::frameQueueNbRemaining() {
-    /* return the number of undisplayed frames in the queue */
+    /* return the number of undisplayed frames in the packetQueue */
     // 返回队列中待显示帧的数目
     return size - readIndexShown;
 }

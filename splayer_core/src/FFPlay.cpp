@@ -1,16 +1,14 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunknown-pragmas"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 #pragma ide diagnostic ignored "modernize-use-auto"
+#pragma ide diagnostic ignored "OCDFAInspection"
 
 #include <FFPlay.h>
 
 #include "FFPlay.h"
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunknown-pragmas"
-#pragma ide diagnostic ignored "OCDFAInspection"
 
 FFPlay::FFPlay() {
     ALOGD(__func__);
@@ -165,19 +163,19 @@ VideoState *FFPlay::streamOpen() {
     }
 
     if (is->videoFrameQueue.frameQueueInit(&is->videoPacketQueue, VIDEO_QUEUE_SIZE, 1) < 0) {
-        ALOGE("%s video frame queue init fail", __func__);
+        ALOGE("%s video frame packetQueue init fail", __func__);
         streamClose();
         return nullptr;
     }
 
     if (is->audioFrameQueue.frameQueueInit(&is->audioPacketQueue, AUDIO_QUEUE_SIZE, 0) < 0) {
-        ALOGE("%s audio frame queue init fail", __func__);
+        ALOGE("%s audio frame packetQueue init fail", __func__);
         streamClose();
         return nullptr;
     }
 
     if (is->subtitleFrameQueue.frameQueueInit(&is->subtitlePacketQueue, SUBTITLE_QUEUE_SIZE, 0) < 0) {
-        ALOGE("%s subtitle frame queue init fail", __func__);
+        ALOGE("%s subtitle frame packetQueue init fail", __func__);
         streamClose();
         return nullptr;
     }
@@ -185,7 +183,7 @@ VideoState *FFPlay::streamOpen() {
     if (is->videoPacketQueue.packetQueueInit(&flushPacket) < 0 ||
         is->audioPacketQueue.packetQueueInit(&flushPacket) < 0 ||
         is->subtitlePacketQueue.packetQueueInit(&flushPacket) < 0) {
-        ALOGE("%s packet queue init fail", __func__);
+        ALOGE("%s packet packetQueue init fail", __func__);
         streamClose();
         return nullptr;
     }
@@ -604,7 +602,7 @@ int FFPlay::readThread() {
             videoState->queueAttachmentsReq = 0;
         }
 
-        /* if the queue are full, no need to read more */
+        /* if the packetQueue are full, no need to read more */
         if (infiniteBuffer < 1 &&
             ((videoState->audioPacketQueue.size +
               videoState->videoPacketQueue.size +
@@ -672,7 +670,7 @@ int FFPlay::readThread() {
             videoState->eof = 0;
         }
 
-        /* check if packet videoState in play range specified by user, then queue, otherwise discard */
+        /* check if packet videoState in play range specified by user, then packetQueue, otherwise discard */
         streamStartTime = formatContext->streams[packet->stream_index]->start_time;
         packetTs = (packet->pts == AV_NOPTS_VALUE) ? packet->dts : packet->pts;
         packetInPlayRange = (duration == AV_NOPTS_VALUE) ||
@@ -714,9 +712,181 @@ int FFPlay::isRealTime(AVFormatContext *s) {
     return NEGATIVE(S_ERROR);
 }
 
+static int innerVideoThread(void *arg) {
+    FFPlay *play = static_cast<FFPlay *>(arg);
+    if (play) {
+        return play->videoThread();
+    }
+    return NEGATIVE(S_ERROR);
+}
+
+static int innerSubtitleThread(void *arg) {
+    FFPlay *play = static_cast<FFPlay *>(arg);
+    if (play) {
+        return play->subtitleThread();
+    }
+    return NEGATIVE(S_ERROR);
+}
+
+static int innerAudioThread(void *arg) {
+    FFPlay *play = static_cast<FFPlay *>(arg);
+    if (play) {
+        return play->audioThread();
+    }
+    return NEGATIVE(S_ERROR);
+}
+
 /* open a given stream. Return 0 if OK */
 int FFPlay::streamComponentOpen(int streamIndex) {
     ALOGD("%s streamIndex=%d", __func__, streamIndex);
+    AVFormatContext *formatContext = videoState->ic;
+    AVCodecContext *codecContext;
+    AVCodec *codec;
+    const char *forcedCodecName = nullptr;
+    AVDictionary *opts = nullptr;
+    AVDictionaryEntry *t = nullptr;
+    int sampleRate, nbChannels;
+    int64_t channelLayout;
+    int streamLowres = lowres;
+
+    if (streamIndex < 0 || streamIndex >= formatContext->nb_streams) {
+        return NEGATIVE(S_INVALID_STREAM_INDEX);
+    }
+
+    codecContext = avcodec_alloc_context3(nullptr);
+    if (!codecContext) {
+        return NEGATIVE(S_NOT_MEMORY);
+    }
+
+    if (avcodec_parameters_to_context(codecContext, formatContext->streams[streamIndex]->codecpar) < 0) {
+        avcodec_free_context(&codecContext);
+        return NEGATIVE(S_CODEC_PARAMS_CONTEXT);
+    }
+
+    codecContext->pkt_timebase = formatContext->streams[streamIndex]->time_base;
+
+    codec = avcodec_find_decoder(codecContext->codec_id);
+
+    switch (codecContext->codec_type) {
+        case AVMEDIA_TYPE_AUDIO   :
+            videoState->lastAudioStreamIndex = streamIndex;
+            forcedCodecName = audioCodecName;
+            break;
+        case AVMEDIA_TYPE_SUBTITLE:
+            videoState->lastSubtitleStreamIndex = streamIndex;
+            forcedCodecName = subtitleCodecName;
+            break;
+        case AVMEDIA_TYPE_VIDEO   :
+            videoState->lastVideoStreamIndex = streamIndex;
+            forcedCodecName = videoCodecName;
+            break;
+        case AVMEDIA_TYPE_UNKNOWN:
+            break;
+        case AVMEDIA_TYPE_DATA:
+            break;
+        case AVMEDIA_TYPE_ATTACHMENT:
+            break;
+        case AVMEDIA_TYPE_NB:
+            break;
+    }
+
+    if (forcedCodecName) {
+        codec = avcodec_find_decoder_by_name(forcedCodecName);
+    }
+
+    if (!codec) {
+        if (forcedCodecName) {
+            ALOGD("%s No codec could be found with name '%s'", __func__, forcedCodecName);
+        } else {
+            ALOGD("%sNo decoder could be found for codec %s", __func__, avcodec_get_name(codecContext->codec_id));
+        }
+        avcodec_free_context(&codecContext);
+        return NEGATIVE(S_EINVAL);
+    }
+
+    codecContext->codec_id = codec->id;
+
+    if (streamLowres > codec->max_lowres) {
+        ALOGD("%s The maximum value for lowres supported by the decoder is %d", __func__,
+              codec->max_lowres);
+        streamLowres = codec->max_lowres;
+    }
+    codecContext->lowres = streamLowres;
+
+    if (fast) {
+        codecContext->flags2 |= AV_CODEC_FLAG2_FAST;
+    }
+
+    opts = filter_codec_opts(codecOpts, codecContext->codec_id, formatContext, formatContext->streams[streamIndex],
+                             codec);
+
+    if (!av_dict_get(opts, "threads", nullptr, 0)) {
+        av_dict_set(&opts, "threads", "auto", 0);
+    }
+    if (streamLowres) {
+        av_dict_set_int(&opts, "lowres", streamLowres, 0);
+    }
+    if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO || codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
+        av_dict_set(&opts, "refcounted_frames", "1", 0);
+    }
+
+    if (avcodec_open2(codecContext, codec, &opts) < 0) {
+        avcodec_free_context(&codecContext);
+        return NEGATIVE(S_NOT_OPEN_CODEC);
+    }
+
+    if ((t = av_dict_get(opts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
+        ALOGE("%s Option %s not found.", __func__, t->key);
+        return NEGATIVE(S_OPTION_NOT_FOUND);
+    }
+
+    videoState->eof = 0;
+
+    formatContext->streams[streamIndex]->discard = AVDISCARD_DEFAULT;
+
+    switch (codecContext->codec_type) {
+        case AVMEDIA_TYPE_AUDIO:
+            videoState->audioStreamIndex = streamIndex;
+            videoState->audioStream = formatContext->streams[streamIndex];
+            videoState->audioDecoder.decoderInit(codecContext,
+                                                 &videoState->audioPacketQueue,
+                                                 videoState->continueReadThread);
+            if ((videoState->ic->iformat->flags & (AVFMT_NOBINSEARCH | AVFMT_NOGENSEARCH | AVFMT_NO_BYTE_SEEK)) &&
+                !videoState->ic->iformat->read_seek) {
+                videoState->audioDecoder.startPts = videoState->audioStream->start_time;
+                videoState->audioDecoder.startPtsTb = videoState->audioStream->time_base;
+            }
+            if (videoState->audioDecoder.decoderStart(innerSubtitleThread, this) <= 0) {
+                av_dict_free(&opts);
+                return NEGATIVE(S_NOT_AUDIO_DECODE_START);
+            }
+            break;
+        case AVMEDIA_TYPE_VIDEO:
+            videoState->videoStreamIndex = streamIndex;
+            videoState->videoStream = formatContext->streams[streamIndex];
+            videoState->videoDecoder.decoderInit(codecContext,
+                                                 &videoState->videoPacketQueue,
+                                                 videoState->continueReadThread);
+            if (videoState->videoDecoder.decoderStart(innerVideoThread, this) <= 0) {
+                av_dict_free(&opts);
+                return NEGATIVE(S_NOT_VIDEO_DECODE_START);
+            }
+            videoState->queueAttachmentsReq = 1;
+            break;
+        case AVMEDIA_TYPE_SUBTITLE:
+            videoState->subtitleStreamIndex = streamIndex;
+            videoState->subtitleStream = formatContext->streams[streamIndex];
+            videoState->subtitleDecoder.decoderInit(codecContext,
+                                                    &videoState->subtitlePacketQueue,
+                                                    videoState->continueReadThread);
+            if (videoState->subtitleDecoder.decoderStart(innerSubtitleThread, this) <= 0) {
+                av_dict_free(&opts);
+                return NEGATIVE(S_NOT_SUBTITLE_DECODE_START);
+            }
+            break;
+        default:
+            break;
+    }
     return POSITIVE;
 }
 
@@ -768,7 +938,7 @@ int FFPlay::getMasterSyncType() {
 }
 
 void FFPlay::stepToNextFrame() {
-
+    // TODO
 }
 
 void FFPlay::streamSeek(int64_t pos, int64_t rel, int seek_by_bytes) {
@@ -783,6 +953,21 @@ void FFPlay::streamSeek(int64_t pos, int64_t rel, int seek_by_bytes) {
         videoState->seekReq = 1;
         videoState->continueReadThread->condSignal();
     }
+}
+
+int FFPlay::videoThread() {
+    ALOGD(__func__);
+    return POSITIVE;
+}
+
+int FFPlay::subtitleThread() {
+    ALOGD(__func__);
+    return POSITIVE;
+}
+
+int FFPlay::audioThread() {
+    ALOGD(__func__);
+    return POSITIVE;
 }
 
 

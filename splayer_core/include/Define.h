@@ -8,7 +8,10 @@
 #define AUDIO_QUEUE_SIZE        9
 #define SUBTITLE_QUEUE_SIZE     16
 #define FRAME_QUEUE_SIZE        FFMAX(AUDIO_QUEUE_SIZE, FFMAX(VIDEO_QUEUE_SIZE, SUBTITLE_QUEUE_SIZE))
+#define MAX_QUEUE_SIZE (15 * 1024 * 1024)
+#define MIN_FRAMES 25
 
+// Volume
 #define MIX_MAX_VOLUME      128
 
 // Sync Type
@@ -23,8 +26,5 @@
 #define SHOW_MODE_RDFT      2
 #define SHOW_MODE_NB        3
 
-#define MAX_QUEUE_SIZE (15 * 1024 * 1024)
-
-#define MIN_FRAMES 25
 
 #endif //SPLAYER_MAC_DEFINE_H

@@ -13,5 +13,4 @@ public:
     int serial;
 };
 
-
-#endif //SPLAYER_MAC_MYAVPACKETLIST_H
+#endif

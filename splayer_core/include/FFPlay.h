@@ -90,6 +90,8 @@ private:
 
     VideoState *videoState = nullptr;
 
+    AVPacket flushPacket;
+
     int videoQueueSize;
 
     int startupVolume = 100;
@@ -97,6 +99,14 @@ private:
     int avSyncType = AV_SYNC_AUDIO_MASTER;
 
     char *inputFormatName;
+
+    char *wantedStreamSpec[AVMEDIA_TYPE_NB] = {0};
+
+    char *audioCodecName;
+
+    char *subtitleCodecName;
+
+    char *videoCodecName;
 
     int genpts;
 
@@ -109,8 +119,6 @@ private:
     int64_t startTime = AV_NOPTS_VALUE;
 
     int64_t duration = AV_NOPTS_VALUE;
-
-    char *wantedStreamSpec[AVMEDIA_TYPE_NB] = {0};
 
     int audioDisable = 0;
 
@@ -132,13 +140,15 @@ private:
 
     int seekAtStart;
 
-    AVPacket flushPacket;
-
     int loop = 1;
 
     int autoExit;
 
     int showStatus = 1;
+
+    int lowres = 0;
+
+    int fast = 0;
 
 public:
     FFPlay();
@@ -167,6 +177,12 @@ public:
      * this thread gets the stream from the disk or the network
      */
     int readThread();
+
+    int videoThread();
+
+    int subtitleThread();
+
+    int audioThread();
 
 private:
     void showVersionsAndOptions();

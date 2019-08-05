@@ -28,8 +28,8 @@ int PacketQueue::packetQueueFlush() {
 int PacketQueue::packetQueueStart() {
     if (mutex) {
         mutex->mutexLock();
-        abortRequest = 1;
-        mutex->condSignal();
+        abortRequest = 0;
+        packetQueuePutPrivate(flushPacket);
         mutex->mutexUnLock();
         return POSITIVE;
     }
@@ -39,8 +39,8 @@ int PacketQueue::packetQueueStart() {
 int PacketQueue::packetQueueAbort() {
     if (mutex) {
         mutex->mutexLock();
-        abortRequest = 0;
-        packetQueuePutPrivate(flushPacket);
+        abortRequest = 1;
+        mutex->condSignal();
         mutex->mutexUnLock();
         return POSITIVE;
     }

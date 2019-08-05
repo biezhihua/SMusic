@@ -1,4 +1,3 @@
-
 #ifndef SPLAYER_MAC_DECODER_H
 #define SPLAYER_MAC_DECODER_H
 
@@ -6,6 +5,7 @@
 #include "Thread.h"
 #include "Mutex.h"
 #include "PacketQueue.h"
+#include "FrameQueue.h"
 
 extern "C" {
 #include <libavutil/time.h>
@@ -27,17 +27,26 @@ extern "C" {
 class Decoder {
 public:
     AVPacket pkt;
-    PacketQueue *queue;
+    PacketQueue *packetQueue;
     AVCodecContext *avctx;
-    int pkt_serial;
+    int pktSerial;
     int finished;
-    int packet_pending;
-    Mutex *empty_queue_cond;
-    int64_t start_pts;
-    AVRational start_pts_tb;
-    int64_t next_pts;
-    AVRational next_pts_tb;
-    Thread *decoder_tid;
+    int packetPending;
+    Mutex *emptyQueueCond;
+    int64_t startPts;
+    AVRational startPtsTb;
+    int64_t nextPts;
+    AVRational nextPtsTb;
+    Thread *decoderTid;
+
+public:
+    void decoderInit(AVCodecContext *codecContext, PacketQueue *packetQueue, Mutex *emptyQueueMutex);
+
+    void decoderDestroy();
+
+    void decoderAbort(FrameQueue *frameQueue);
+
+    int decoderStart(int (*fn)(void *), void *arg);
 };
 
 
