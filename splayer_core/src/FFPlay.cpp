@@ -1075,13 +1075,14 @@ int FFPlay::getVideoFrame(AVFrame *frame) {
 
 int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *subtitle) {
     int ret = AVERROR(EAGAIN);
+
     for (;;) {
         AVPacket packet;
 
         if (decoder->packetQueue->serial == decoder->packetSerial) {
             do {
                 if (decoder->packetQueue->abortRequest) {
-                    return NEGATIVE(S_NOT_ABORT_REQUEST);
+                    return NEGATIVE(S_ABORT_REQUEST);
                 }
                 switch (decoder->codecContext->codec_type) {
                     case AVMEDIA_TYPE_VIDEO:
@@ -1165,8 +1166,7 @@ int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                 }
             } else {
                 if (avcodec_send_packet(decoder->codecContext, &packet) == AVERROR(EAGAIN)) {
-                    ALOGE("%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
-                          __func__);
+                    ALOGE("%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.", __func__);
                     decoder->packetPending = 1;
                     av_packet_move_ref(&decoder->packet, &packet);
                 }
@@ -1174,6 +1174,7 @@ int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
             av_packet_unref(&packet);
         }
     }
+    
     return ret;
 }
 

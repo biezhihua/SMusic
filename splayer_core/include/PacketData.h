@@ -6,11 +6,11 @@ extern "C" {
 #include <libavformat/avformat.h>
 };
 
-class MyAVPacketList {
+class PacketData {
 public:
     AVPacket packet;
+    PacketData *next;
     int serial;
-    MyAVPacketList *next;
 };
 
 #endif

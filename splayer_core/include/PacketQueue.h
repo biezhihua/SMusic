@@ -2,7 +2,7 @@
 #define SPLAYER_MAC_PACKETQUEUE_H
 
 #include "Mutex.h"
-#include "MyAVPacketList.h"
+#include "PacketData.h"
 #include "Error.h"
 #include "Log.h"
 
@@ -10,8 +10,7 @@ class PacketQueue {
 
 private:
     AVPacket *flushPacket;
-    // 队首、队尾指针
-    MyAVPacketList *firstPacketList, *lastPacketList;
+    PacketData *firstPacket, *lastPacket;// 队首、队尾指针
     Mutex *mutex;
 public:
     // 占用内存大小

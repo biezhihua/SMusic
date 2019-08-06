@@ -46,15 +46,15 @@ int PacketQueue::packetQueueStart() {
 
 int PacketQueue::packetQueueFlush() {
     if (mutex) {
-        MyAVPacketList *packetList, *packetList1;
+        PacketData *packetList, *packetList1;
         mutex->mutexLock();
-        for (packetList = firstPacketList; packetList; packetList = packetList1) {
+        for (packetList = firstPacket; packetList; packetList = packetList1) {
             packetList1 = packetList->next;
             av_packet_unref(&packetList->packet);
             av_freep(&packetList);
         }
-        lastPacketList = nullptr;
-        firstPacketList = nullptr;
+        lastPacket = nullptr;
+        firstPacket = nullptr;
         packetSize = 0;
         memorySize = 0;
         duration = 0;
@@ -78,27 +78,27 @@ int PacketQueue::packetQueueAbort() {
 int PacketQueue::packetQueueGet(AVPacket *packet, int block, int *serial) {
     int ret = 0;
     if (mutex) {
-        MyAVPacketList *packetList;
+        PacketData *packetData;
         mutex->mutexLock();
         for (;;) {
             if (abortRequest) {
-                ret = NEGATIVE(S_NOT_ABORT_REQUEST);
+                ret = NEGATIVE(S_ABORT_REQUEST);
                 break;
             }
-            packetList = firstPacketList;
-            if (packetList) {
-                firstPacketList = packetList->next;
-                if (!firstPacketList) {
-                    lastPacketList = nullptr;
+            packetData = firstPacket;
+            if (packetData) {
+                firstPacket = packetData->next;
+                if (!firstPacket) {
+                    lastPacket = nullptr;
                 }
                 packetSize--;
-                memorySize -= packetList->packet.size + sizeof(*packetList);
-                duration -= packetList->packet.duration;
-                *packet = packetList->packet;
+                memorySize -= packetData->packet.size + sizeof(*packetData);
+                duration -= packetData->packet.duration;
+                *packet = packetData->packet;
                 if (serial) {
-                    *serial = packetList->serial;
+                    *serial = packetData->serial;
                 }
-                av_free(packetList);
+                av_free(packetData);
                 ret = POSITIVE;
                 break;
             } else if (!block) {
@@ -144,9 +144,9 @@ int PacketQueue::packetQueuePutPrivate(AVPacket *packet) {
         return NEGATIVE(S_NULL);
     }
     if (abortRequest) {
-        return NEGATIVE(S_NOT_ABORT_REQUEST);
+        return NEGATIVE(S_ABORT_REQUEST);
     }
-    auto *packetList = new MyAVPacketList();
+    auto *packetList = new PacketData();
     if (!packetList) {
         return NEGATIVE(S_NOT_MEMORY);
     }
@@ -156,12 +156,12 @@ int PacketQueue::packetQueuePutPrivate(AVPacket *packet) {
         serial++;
     }
     packetList->serial = serial;
-    if (!lastPacketList) {
-        firstPacketList = packetList;
+    if (!lastPacket) {
+        firstPacket = packetList;
     } else {
-        lastPacketList->next = packetList;
+        lastPacket->next = packetList;
     }
-    lastPacketList = packetList;
+    lastPacket = packetList;
     packetSize++;
     memorySize += packetList->packet.size + sizeof(*packetList);
     duration += packetList->packet.duration;
