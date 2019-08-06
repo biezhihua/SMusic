@@ -140,7 +140,6 @@ void FFPlay::showDict(const char *tag, AVDictionary *dict) {
     }
 }
 
-/* this thread gets the stream from the disk or the network */
 static int innerReadThread(void *arg) {
     auto *play = static_cast<FFPlay *>(arg);
     if (play) {
@@ -210,9 +209,9 @@ VideoState *FFPlay::streamOpen() {
     is->audioVolume = getStartupVolume();
     is->muted = 0;
     is->avSyncType = avSyncType;
-    is->readTid = new Thread(innerReadThread, this, "readThread");
+    is->readThread = new Thread(innerReadThread, this, "readThread");
 
-    if (!is->readTid) {
+    if (!is->readThread) {
         ALOGE("%s create read thread fail", __func__);
         streamClose();
         return nullptr;
@@ -240,8 +239,8 @@ void FFPlay::streamClose() {
 
         videoState->abortRequest = 0;
 
-        if (videoState->readTid) {
-            videoState->readTid->waitThread();
+        if (videoState->readThread) {
+            videoState->readThread->waitThread();
         }
 
         // close all streams
@@ -291,6 +290,7 @@ static int decodeInterruptCallback(void *ctx) {
     return is->abortRequest;
 }
 
+/* this thread gets the stream from the disk or the network */
 int FFPlay::readThread() {
     ALOGD(__func__);
     if (!videoState) {
@@ -299,13 +299,13 @@ int FFPlay::readThread() {
     AVFormatContext *formatContext = nullptr;
     AVPacket packet1, *packet = &packet1;
     Mutex *waitMutex = new Mutex();
-    AVDictionaryEntry *t;
-    int err, i, ret;
+    AVDictionaryEntry *dictionaryEntry;
     int streamIndex[AVMEDIA_TYPE_NB] = {-1};
     int packetInPlayRange = 0;
     int scanAllPmtsSet = 0;
+    int ret = 0;
     int64_t streamStartTime;
-    int64_t packetTs;
+    int64_t packetTimestamp;
 
     if (!waitMutex) {
         ALOGE("%s create wait mutex fail", __func__);
@@ -335,8 +335,7 @@ int FFPlay::readThread() {
         videoState->inputFormat = av_find_input_format(inputFormatName);
     }
 
-    err = avformat_open_input(&formatContext, videoState->fileName, videoState->inputFormat, &formatOpts);
-    if (err < 0) {
+    if (avformat_open_input(&formatContext, videoState->fileName, videoState->inputFormat, &formatOpts) < 0) {
         ALOGE("%s avformat could not open input", __func__);
         closeReadThread(videoState, formatContext);
         return NEGATIVE(S_NOT_OPEN_INPUT);
@@ -350,8 +349,8 @@ int FFPlay::readThread() {
         av_dict_set(&formatOpts, SCAN_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE);
     }
 
-    if ((t = av_dict_get(formatOpts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
-        ALOGE("%s option %s not found.", __func__, t->key);
+    if ((dictionaryEntry = av_dict_get(formatOpts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
+        ALOGE("%s option %s not found.", __func__, dictionaryEntry->key);
         closeReadThread(videoState, formatContext);
         return NEGATIVE_OPTION_NOT_FOUND;
     }
@@ -366,16 +365,15 @@ int FFPlay::readThread() {
 
     if (findStreamInfo) {
         AVDictionary **opts = setupFindStreamInfoOpts(formatContext, codecOpts);
-        int originNbStreams = formatContext->nb_streams;
-        err = avformat_find_stream_info(formatContext, opts);
+        int ret = avformat_find_stream_info(formatContext, opts);
         if (msgQueue) {
             msgQueue->notifyMsg(Message::MSG_FIND_STREAM_INFO);
         }
-        for (i = 0; i < originNbStreams; i++) {
+        for (int i = 0; i < formatContext->nb_streams; i++) {
             av_dict_free(&opts[i]);
         }
         av_freep(&opts);
-        if (err < 0) {
+        if (ret < 0) {
             ALOGD("%s %s: could not find codec parameters", __func__, videoState->fileName);
             closeReadThread(videoState, formatContext);
             return NEGATIVE(S_NOT_FIND_STREAM_INFO);
@@ -383,7 +381,6 @@ int FFPlay::readThread() {
     }
 
     if (formatContext->pb) {
-        // FIXME hack, ffplay maybe should not use avio_feof() to test for the end
         formatContext->pb->eof_reached = 0;
     }
 
@@ -394,8 +391,8 @@ int FFPlay::readThread() {
 
     videoState->maxFrameDuration = (formatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 
-    if (!windowTitle && (t = av_dict_get(formatContext->metadata, TITLE, nullptr, 0))) {
-        windowTitle = av_asprintf("%s - %s", t->value, inputFileName);
+    if (!windowTitle && (dictionaryEntry = av_dict_get(formatContext->metadata, TITLE, nullptr, 0))) {
+        windowTitle = av_asprintf("%s - %s", dictionaryEntry->value, inputFileName);
     }
 
     /* if seeking requested, we execute it */
@@ -405,8 +402,7 @@ int FFPlay::readThread() {
         if (formatContext->start_time != AV_NOPTS_VALUE) {
             timestamp += formatContext->start_time;
         }
-        ret = avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX, 0);
-        if (ret < 0) {
+        if (avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX, 0) < 0) {
             ALOGD("%s %s: could not seek to position %0.3f", __func__, videoState->fileName,
                   (double) timestamp / AV_TIME_BASE);
         }
@@ -418,18 +414,18 @@ int FFPlay::readThread() {
         av_dump_format(formatContext, 0, videoState->fileName, 0);
     }
 
-    for (i = 0; i < formatContext->nb_streams; i++) {
-        AVStream *st = formatContext->streams[i];
-        enum AVMediaType type = st->codecpar->codec_type;
-        st->discard = AVDISCARD_ALL;
+    for (int i = 0; i < formatContext->nb_streams; i++) {
+        AVStream *stream = formatContext->streams[i];
+        AVMediaType type = stream->codecpar->codec_type;
+        stream->discard = AVDISCARD_ALL;
         if (type >= 0 && wantedStreamSpec[type] && streamIndex[type] == -1) {
-            if (avformat_match_stream_specifier(formatContext, st, wantedStreamSpec[type]) > 0) {
+            if (avformat_match_stream_specifier(formatContext, stream, wantedStreamSpec[type]) > 0) {
                 streamIndex[type] = i;
             }
         }
     }
 
-    for (i = 0; i < AVMEDIA_TYPE_NB; i++) {
+    for (int i = 0; i < AVMEDIA_TYPE_NB; i++) {
         if (wantedStreamSpec[i] && streamIndex[i] == -1) {
             ALOGD("%s Stream specifier %s does not match any stream", __func__, wantedStreamSpec[i]);
             streamIndex[i] = INT_MAX;
@@ -460,9 +456,9 @@ int FFPlay::readThread() {
     videoState->showMode = showMode;
 
     if (streamIndex[AVMEDIA_TYPE_VIDEO] >= 0) {
-        AVStream *st = formatContext->streams[streamIndex[AVMEDIA_TYPE_VIDEO]];
-        AVCodecParameters *codecParameters = st->codecpar;
-        AVRational sar = av_guess_sample_aspect_ratio(formatContext, st, nullptr);
+        AVStream *stream = formatContext->streams[streamIndex[AVMEDIA_TYPE_VIDEO]];
+        AVCodecParameters *codecParameters = stream->codecpar;
+        AVRational sar = av_guess_sample_aspect_ratio(formatContext, stream, nullptr);
         if (codecParameters->width) {
             // TODO
             // set_default_window_size(codecParameters->width, codecParameters->height, sar);
@@ -475,8 +471,6 @@ int FFPlay::readThread() {
     } else {
         videoState->avSyncType = avSyncType = AV_SYNC_VIDEO_MASTER;
     }
-
-    ret = -1;
 
     if (streamIndex[AVMEDIA_TYPE_VIDEO] >= 0) {
         ret = streamComponentOpen(streamIndex[AVMEDIA_TYPE_VIDEO]);
@@ -534,7 +528,6 @@ int FFPlay::readThread() {
             break;
         }
 
-        // network stream pause or resume
         if (videoState->paused != videoState->lastPaused) {
             videoState->lastPaused = videoState->paused;
             if (videoState->paused) {
@@ -545,15 +538,10 @@ int FFPlay::readThread() {
         }
 
         if (videoState->seekReq) {
-            int64_t seek_target = videoState->seekPos;
-            int64_t seek_min = videoState->seekRel > 0 ? seek_target - videoState->seekRel + 2 : INT64_MIN;
-            int64_t seek_max = videoState->seekRel < 0 ? seek_target - videoState->seekRel - 2 : INT64_MAX;
-
-            // FIXME the +-2 videoState due to rounding being not done in the correct direction in generation
-            //      of the seek_pos/seek_rel variables
-
-            ret = avformat_seek_file(videoState->ic, -1, seek_min, seek_target, seek_max, videoState->seekFlags);
-            if (ret < 0) {
+            int64_t seekTarget = videoState->seekPos;
+            int64_t seekMin = videoState->seekRel > 0 ? (seekTarget - videoState->seekRel + 2) : INT64_MIN;
+            int64_t seekMax = videoState->seekRel < 0 ? (seekTarget - videoState->seekRel - 2) : INT64_MAX;
+            if (avformat_seek_file(videoState->ic, -1, seekMin, seekTarget, seekMax, videoState->seekFlags) < 0) {
                 ALOGD("%s %s: error while seeking", __func__, videoState->ic->url);
             } else {
                 if (videoState->audioStreamIndex >= 0) {
@@ -571,7 +559,7 @@ int FFPlay::readThread() {
                 if (videoState->seekFlags & AVSEEK_FLAG_BYTE) {
                     videoState->exitClock.setClock(NAN, 0);
                 } else {
-                    videoState->exitClock.setClock(seek_target / (double) AV_TIME_BASE, 0);
+                    videoState->exitClock.setClock(seekTarget / (double) AV_TIME_BASE, 0);
                 }
             }
             videoState->seekReq = 0;
@@ -582,6 +570,7 @@ int FFPlay::readThread() {
             }
         }
 
+        // https://segmentfault.com/a/1190000018373504?utm_source=tag-newest
         if (videoState->queueAttachmentsReq) {
             if (videoState->videoStream && videoState->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC) {
                 AVPacket copy = {nullptr};
@@ -597,14 +586,10 @@ int FFPlay::readThread() {
 
         /* if the packetQueue are full, no need to read more */
         bool cond1 = infiniteBuffer < 1;
-        bool cond2 = (videoState->audioPacketQueue.memorySize + videoState->videoPacketQueue.memorySize +
-                      videoState->subtitlePacketQueue.memorySize) > MAX_QUEUE_SIZE;
-        int cond31 = streamHasEnoughPackets(videoState->audioStream, videoState->audioStreamIndex,
-                                            &videoState->audioPacketQueue);
-        int cond32 = streamHasEnoughPackets(videoState->videoStream, videoState->videoStreamIndex,
-                                            &videoState->videoPacketQueue);
-        int cond33 = streamHasEnoughPackets(videoState->subtitleStream, videoState->subtitleStreamIndex,
-                                            &videoState->subtitlePacketQueue);
+        bool cond2 = (videoState->audioPacketQueue.memorySize + videoState->videoPacketQueue.memorySize + videoState->subtitlePacketQueue.memorySize) > MAX_QUEUE_SIZE;
+        int cond31 = streamHasEnoughPackets(videoState->audioStream, videoState->audioStreamIndex, &videoState->audioPacketQueue);
+        int cond32 = streamHasEnoughPackets(videoState->videoStream, videoState->videoStreamIndex, &videoState->videoPacketQueue);
+        int cond33 = streamHasEnoughPackets(videoState->subtitleStream, videoState->subtitleStreamIndex, &videoState->subtitlePacketQueue);
         bool cond3 = cond31 && cond32 && cond33;
         if (cond1 && (cond2 || cond3)) {
             /* wait 10 ms */
@@ -617,14 +602,10 @@ int FFPlay::readThread() {
         // 未暂停
         bool notPaused = !videoState->paused;
         // 未初始化音频流 或者 解码结束 同时 无可用帧
-        bool audioSeekCondition = !videoState->audioStream ||
-                                  (videoState->audioDecoder.finished == videoState->audioPacketQueue.serial &&
-                                   videoState->audioFrameQueue.frameQueueNumberRemaining() == 0);
+        bool audioSeekCond = !videoState->audioStream || (videoState->audioDecoder.finished == videoState->audioPacketQueue.serial && videoState->audioFrameQueue.frameQueueNumberRemaining() == 0);
         // 未初始化视频流 或者 解码结束 同时 无可用帧
-        bool videoSeekCondition = !videoState->videoStream ||
-                                  (videoState->videoDecoder.finished == videoState->videoPacketQueue.serial &&
-                                   videoState->videoFrameQueue.frameQueueNumberRemaining() == 0);
-        if (notPaused && audioSeekCondition && videoSeekCondition) {
+        bool videoSeekCond = !videoState->videoStream || (videoState->videoDecoder.finished == videoState->videoPacketQueue.serial && videoState->videoFrameQueue.frameQueueNumberRemaining() == 0);
+        if (notPaused && audioSeekCond && videoSeekCond) {
             if (loop != 1 && (!loop || --loop)) {
                 streamSeek(startTime != AV_NOPTS_VALUE ? startTime : 0, 0, 0);
             } else if (autoExit) {
@@ -663,12 +644,15 @@ int FFPlay::readThread() {
 
         /* check if packet videoState in play range specified by user, then packetQueue, otherwise discard */
         streamStartTime = formatContext->streams[packet->stream_index]->start_time;
-        packetTs = (packet->pts == AV_NOPTS_VALUE) ? packet->dts : packet->pts;
-        packetInPlayRange = (duration == AV_NOPTS_VALUE) ||
-                            (packetTs - (streamStartTime != AV_NOPTS_VALUE ? streamStartTime : 0)) *
-                            av_q2d(formatContext->streams[packet->stream_index]->time_base) -
-                            (double) (startTime != AV_NOPTS_VALUE ? startTime : 0) / 1000000 <=
-                            ((double) duration / 1000000);
+        // https://baike.baidu.com/item/PTS/13977433
+        packetTimestamp = (packet->pts == AV_NOPTS_VALUE) ? packet->dts : packet->pts;
+        int64_t diffTimestamp = packetTimestamp - (streamStartTime != AV_NOPTS_VALUE ? streamStartTime : 0);
+
+        double _diffTime = diffTimestamp * av_q2d(formatContext->streams[packet->stream_index]->time_base);
+        double _startTime = (double) (startTime != AV_NOPTS_VALUE ? startTime : 0) / 1000000;
+        double _duration = (double) duration / 1000000;
+        
+        packetInPlayRange = (duration == AV_NOPTS_VALUE) || (_diffTime - _startTime <= _duration);
 
         if (packet->stream_index == videoState->audioStreamIndex && packetInPlayRange) {
             videoState->audioPacketQueue.packetQueuePut(packet);
@@ -899,15 +883,11 @@ int FFPlay::streamComponentOpen(int streamIndex) {
     return POSITIVE;
 }
 
-int FFPlay::streamHasEnoughPackets(AVStream *pStream, int streamIndex, PacketQueue *pQueue) {
-    return streamIndex < 0 ||
-           pQueue->abortRequest ||
-           (pStream->disposition & AV_DISPOSITION_ATTACHED_PIC) ||
-           (pQueue->packetSize > MIN_FRAMES &&
-            (!pQueue->duration || av_q2d(pStream->time_base) * pQueue->duration > 1.0));
+int FFPlay::streamHasEnoughPackets(AVStream *stream, int streamIndex, PacketQueue *packetQueue) {
+    return streamIndex < 0 || packetQueue->abortRequest || (stream->disposition & AV_DISPOSITION_ATTACHED_PIC) || (packetQueue->packetSize > MIN_FRAMES && (!packetQueue->duration || av_q2d(stream->time_base) * packetQueue->duration > 1.0));
 }
 
-int FFPlay::streamComponentClose(AVStream *pStream, int streamIndex) {
+int FFPlay::streamComponentClose(AVStream *stream, int streamIndex) {
     AVFormatContext *ic = videoState->ic;
     AVCodecParameters *codecParameters;
 

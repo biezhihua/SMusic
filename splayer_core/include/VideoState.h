@@ -38,7 +38,7 @@ public:
 
     Mutex *continueReadThread;
 
-    Thread *readTid;
+    Thread *readThread;
 
     AVFormatContext *ic;
 
@@ -51,10 +51,7 @@ public:
     int paused;
     int lastPaused;
     int queueAttachmentsReq;
-    int seekReq;
-    int seekFlags;
-    int64_t seekPos;
-    int64_t seekRel;
+
     int realTime;
 
     char *fileName;
@@ -90,12 +87,15 @@ public:
     int rdft_bits;
     FFTSample *rdft_data;
 
-    double frame_timer;
-    double frame_last_returned_time;
     double frameLastFilterDelay;
 
     int frameDropsEarly;
-    int frame_drops_late;
+
+    // seek
+    int seekReq;
+    int seekFlags;
+    int64_t seekPos;
+    int64_t seekRel;
 
 };
 

@@ -203,9 +203,9 @@ private:
 
     int streamComponentOpen(int streamIndex);
 
-    int streamHasEnoughPackets(AVStream *pStream, int index, PacketQueue *pQueue);
+    int streamHasEnoughPackets(AVStream *stream, int index, PacketQueue *packetQueue);
 
-    int streamComponentClose(AVStream *pStream, int streamIndex);
+    int streamComponentClose(AVStream *stream, int streamIndex);
 
     double getMasterClock();
 
