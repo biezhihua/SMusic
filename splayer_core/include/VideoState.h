@@ -40,10 +40,10 @@ public:
 
     Thread *readThread;
 
-    AVFormatContext *ic;
+    AVFormatContext *formatContext;
 
-    struct SwsContext *imgConvertCtx;
-    struct SwsContext *subConvertCtx;
+    SwsContext *imgConvertCtx;
+    SwsContext *subConvertCtx;
 
 
     int abortRequest;

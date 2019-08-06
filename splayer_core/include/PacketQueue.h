@@ -13,7 +13,6 @@ private:
     // 队首、队尾指针
     MyAVPacketList *firstPacketList, *lastPacketList;
     Mutex *mutex;
-
 public:
     // 占用内存大小
     int memorySize;

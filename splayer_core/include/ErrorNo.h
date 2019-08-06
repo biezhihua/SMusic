@@ -14,10 +14,10 @@
 #define S_NOT_ABORT_REQUEST 11
 #define S_NOT_PACKET 12
 #define S_INVALID_STREAM_INDEX 13
-#define S_CODEC_PARAMS_CONTEXT 14
+#define S_NOT_CODEC_PARAMS_CONTEXT 14
 #define S_EINVAL          15
-#define S_NOT_OPEN_CODEC          16
-#define S_OPTION_NOT_FOUND          17
+#define S_NOT_OPEN_DECODEC          16
+#define S_NOT_FOUND_OPTION          17
 #define S_NOT_VIDEO_DECODE_START          18
 #define S_NOT_SUBTITLE_DECODE_START          19
 #define S_NOT_AUDIO_DECODE_START          20
@@ -25,6 +25,7 @@
 #define S_NOT_GET_PACKET_QUEUE          22
 #define S_NOT_GET_VIDEO_FRAME          23
 #define S_NOT_QUEUE_PICTURE          24
+#define S_NOT_FOUND_CODER          25
 
 
 #endif //SPLAYER_CORE_ERRORNO_H
