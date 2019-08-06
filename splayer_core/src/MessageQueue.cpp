@@ -33,7 +33,7 @@ int MessageQueue::_putMsg(Message *msg) {
         queue->push_back(msg);
         mutex->condSignal();
     }
-    ALOGD("%s size=%ld", __func__, queue->size());
+    ALOGD("%s memorySize=%ld", __func__, queue->size());
     return POSITIVE;
 }
 

@@ -146,7 +146,7 @@ static int innerReadThread(void *arg) {
     if (play) {
         return play->readThread();
     }
-    return 1;
+    return POSITIVE;
 }
 
 VideoState *FFPlay::streamOpen() {
@@ -597,8 +597,8 @@ int FFPlay::readThread() {
 
         /* if the packetQueue are full, no need to read more */
         bool cond1 = infiniteBuffer < 1;
-        bool cond2 = (videoState->audioPacketQueue.size + videoState->videoPacketQueue.size +
-                      videoState->subtitlePacketQueue.size) > MAX_QUEUE_SIZE;
+        bool cond2 = (videoState->audioPacketQueue.memorySize + videoState->videoPacketQueue.memorySize +
+                      videoState->subtitlePacketQueue.memorySize) > MAX_QUEUE_SIZE;
         int cond31 = streamHasEnoughPackets(videoState->audioStream, videoState->audioStreamIndex,
                                             &videoState->audioPacketQueue);
         int cond32 = streamHasEnoughPackets(videoState->videoStream, videoState->videoStreamIndex,
@@ -619,11 +619,11 @@ int FFPlay::readThread() {
         // 未初始化音频流 或者 解码结束 同时 无可用帧
         bool audioSeekCondition = !videoState->audioStream ||
                                   (videoState->audioDecoder.finished == videoState->audioPacketQueue.serial &&
-                                   videoState->audioFrameQueue.frameQueueNbRemaining() == 0);
+                                          videoState->audioFrameQueue.frameQueueNumberRemaining() == 0);
         // 未初始化视频流 或者 解码结束 同时 无可用帧
         bool videoSeekCondition = !videoState->videoStream ||
                                   (videoState->videoDecoder.finished == videoState->videoPacketQueue.serial &&
-                                   videoState->videoFrameQueue.frameQueueNbRemaining() == 0);
+                                          videoState->videoFrameQueue.frameQueueNumberRemaining() == 0);
         if (notPaused && audioSeekCondition && videoSeekCondition) {
             if (loop != 1 && (!loop || --loop)) {
                 streamSeek(startTime != AV_NOPTS_VALUE ? startTime : 0, 0, 0);
@@ -672,27 +672,27 @@ int FFPlay::readThread() {
 
         if (packet->stream_index == videoState->audioStreamIndex && packetInPlayRange) {
             videoState->audioPacketQueue.packetQueuePut(packet);
-            ALOGD("%s audio size=%d serial=%d nbPackets=%d duration=%lld abortRequest=%d", __func__,
-                  videoState->audioPacketQueue.size,
+            ALOGD("%s audio memorySize=%d serial=%d packetSize=%d duration=%lld abortRequest=%d", __func__,
+                  videoState->audioPacketQueue.memorySize,
                   videoState->audioPacketQueue.serial,
-                  videoState->audioPacketQueue.nbPackets,
+                  videoState->audioPacketQueue.packetSize,
                   duration,
                   videoState->audioPacketQueue.abortRequest);
         } else if (packet->stream_index == videoState->videoStreamIndex && packetInPlayRange &&
                    !(videoState->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
             videoState->videoPacketQueue.packetQueuePut(packet);
-            ALOGD("%s video size=%d serial=%d nbPackets=%d duration=%lld abortRequest=%d", __func__,
-                  videoState->videoPacketQueue.size,
+            ALOGD("%s video memorySize=%d serial=%d packetSize=%d duration=%lld abortRequest=%d", __func__,
+                  videoState->videoPacketQueue.memorySize,
                   videoState->videoPacketQueue.serial,
-                  videoState->videoPacketQueue.nbPackets,
+                  videoState->videoPacketQueue.packetSize,
                   duration,
                   videoState->videoPacketQueue.abortRequest);
         } else if (packet->stream_index == videoState->subtitleStreamIndex && packetInPlayRange) {
             videoState->subtitlePacketQueue.packetQueuePut(packet);
-            ALOGD("%s subtitle size=%d serial=%d nbPackets=%d duration=%lld abortRequest=%d", __func__,
-                  videoState->subtitlePacketQueue.size,
+            ALOGD("%s subtitle memorySize=%d serial=%d packetSize=%d duration=%lld abortRequest=%d", __func__,
+                  videoState->subtitlePacketQueue.memorySize,
                   videoState->subtitlePacketQueue.serial,
-                  videoState->subtitlePacketQueue.nbPackets,
+                  videoState->subtitlePacketQueue.packetSize,
                   duration,
                   videoState->subtitlePacketQueue.abortRequest);
         } else {
@@ -903,7 +903,7 @@ int FFPlay::streamHasEnoughPackets(AVStream *pStream, int streamIndex, PacketQue
     return streamIndex < 0 ||
            pQueue->abortRequest ||
            (pStream->disposition & AV_DISPOSITION_ATTACHED_PIC) ||
-           (pQueue->nbPackets > MIN_FRAMES &&
+           (pQueue->packetSize > MIN_FRAMES &&
             (!pQueue->duration || av_q2d(pStream->time_base) * pQueue->duration > 1.0));
 }
 
@@ -1089,7 +1089,7 @@ int FFPlay::getVideoFrame(AVFrame *frame) {
                 if (!isnan(diff) && fabs(diff) < NOSYNC_THRESHOLD &&
                     diff - videoState->frameLastFilterDelay < 0 &&
                     videoState->videoDecoder.packetSerial == videoState->videoClock.serial &&
-                    videoState->videoPacketQueue.nbPackets) {
+                    videoState->videoPacketQueue.packetSize) {
                     videoState->frameDropsEarly++;
                     av_frame_unref(frame);
                     gotPicture = 0;
@@ -1149,7 +1149,7 @@ int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
         }
 
         do {
-            if (decoder->packetQueue->nbPackets == 0) {
+            if (decoder->packetQueue->packetSize == 0) {
                 decoder->emptyQueueCond->condSignal();
             }
             if (decoder->packetPending) {

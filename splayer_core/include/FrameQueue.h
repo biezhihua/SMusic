@@ -64,7 +64,7 @@ public:
 
     int frameQueuePush();
 
-    int frameQueueNbRemaining();
+    int frameQueueNumberRemaining();
 
     /**
      * return last shown position

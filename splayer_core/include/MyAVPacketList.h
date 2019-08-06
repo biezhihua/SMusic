@@ -8,9 +8,9 @@ extern "C" {
 
 class MyAVPacketList {
 public:
-    AVPacket pkt;
-    struct MyAVPacketList *next;
+    AVPacket packet;
     int serial;
+    MyAVPacketList *next;
 };
 
 #endif

@@ -10,14 +10,19 @@ class PacketQueue {
 
 private:
     AVPacket *flushPacket;
+    // 队首、队尾指针
     MyAVPacketList *firstPacketList, *lastPacketList;
     Mutex *mutex;
 
 public:
-    int size;
+    // 占用内存大小
+    int memorySize;
+    // 序列，作拖动时用，作为区分前后帧序列
     int serial;
-    int nbPackets;
+    // 包数量，也就是队列元素数量
+    int packetSize;
     int64_t duration;
+    // 用户退出请求标志
     int abortRequest;
 
 public:
@@ -28,17 +33,17 @@ public:
 
     int packetQueueAbort();
 
-    int packetQueuePut(AVPacket *pPacket);
+    int packetQueuePut(AVPacket *packet);
 
     int packetQueuePutNullPacket(int streamIndex);
 
-    int packetQueuePutPrivate(AVPacket *avPacket);
+    int packetQueuePutPrivate(AVPacket *packet);
 
     int packetQueueDestroy();
 
     int packetQueueFlush();
 
-    int packetQueueGet(AVPacket *pPacket, int block, int *serial);
+    int packetQueueGet(AVPacket *packet, int block, int *serial);
 
 };
 

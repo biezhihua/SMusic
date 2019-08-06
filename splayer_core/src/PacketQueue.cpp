@@ -5,24 +5,32 @@
 #pragma clang diagnostic ignored "-Wunknown-pragmas"
 #pragma ide diagnostic ignored "OCDFAInspection"
 
-int PacketQueue::packetQueueFlush() {
-    if (mutex) {
-        MyAVPacketList *pkt, *pkt1;
-        mutex->mutexLock();
-        for (pkt = firstPacketList; pkt; pkt = pkt1) {
-            pkt1 = pkt->next;
-            av_packet_unref(&pkt->pkt);
-            av_freep(&pkt);
-        }
-        lastPacketList = nullptr;
-        firstPacketList = nullptr;
-        nbPackets = 0;
-        size = 0;
-        duration = 0;
-        mutex->mutexUnLock();
-        return POSITIVE;
+int PacketQueue::packetQueueInit(AVPacket *pFlushPacket) {
+
+    flushPacket = pFlushPacket;
+
+    mutex = new Mutex();
+
+    if (!mutex) {
+        ALOGE("%s create mutex fail", __func__);
+        return NEGATIVE(S_NOT_MEMORY);
     }
-    return NEGATIVE(S_NULL);
+
+    abortRequest = 1;
+
+    ALOGI("%s mutex=%p abortRequest=%d",
+          __func__,
+          mutex,
+          abortRequest);
+
+    return POSITIVE;
+}
+
+int PacketQueue::packetQueueDestroy() {
+    packetQueueFlush();
+    delete mutex;
+    mutex = nullptr;
+    return POSITIVE;
 }
 
 int PacketQueue::packetQueueStart() {
@@ -30,6 +38,26 @@ int PacketQueue::packetQueueStart() {
         mutex->mutexLock();
         abortRequest = 0;
         packetQueuePutPrivate(flushPacket);
+        mutex->mutexUnLock();
+        return POSITIVE;
+    }
+    return NEGATIVE(S_NULL);
+}
+
+int PacketQueue::packetQueueFlush() {
+    if (mutex) {
+        MyAVPacketList *packetList, *packetList1;
+        mutex->mutexLock();
+        for (packetList = firstPacketList; packetList; packetList = packetList1) {
+            packetList1 = packetList->next;
+            av_packet_unref(&packetList->packet);
+            av_freep(&packetList);
+        }
+        lastPacketList = nullptr;
+        firstPacketList = nullptr;
+        packetSize = 0;
+        memorySize = 0;
+        duration = 0;
         mutex->mutexUnLock();
         return POSITIVE;
     }
@@ -47,7 +75,7 @@ int PacketQueue::packetQueueAbort() {
     return NEGATIVE(S_NULL);
 }
 
-int PacketQueue::packetQueueGet(AVPacket *pPacket, int block, int *serial) {
+int PacketQueue::packetQueueGet(AVPacket *packet, int block, int *serial) {
     int ret = 0;
     if (mutex) {
         MyAVPacketList *packetList;
@@ -63,10 +91,10 @@ int PacketQueue::packetQueueGet(AVPacket *pPacket, int block, int *serial) {
                 if (!firstPacketList) {
                     lastPacketList = nullptr;
                 }
-                nbPackets--;
-                size--;
-                duration -= packetList->pkt.duration;
-                *pPacket = packetList->pkt;
+                packetSize--;
+                memorySize -= packetList->packet.size + sizeof(*packetList);
+                duration -= packetList->packet.duration;
+                *packet = packetList->packet;
                 if (serial) {
                     *serial = packetList->serial;
                 }
@@ -87,19 +115,18 @@ int PacketQueue::packetQueueGet(AVPacket *pPacket, int block, int *serial) {
     return ret;
 }
 
-int PacketQueue::packetQueuePut(AVPacket *pPacket) {
+int PacketQueue::packetQueuePut(AVPacket *packet) {
     int ret;
     if (mutex) {
         mutex->mutexLock();
-        ret = packetQueuePutPrivate(pPacket);
+        ret = packetQueuePutPrivate(packet);
         mutex->mutexUnLock();
     } else {
         ret = NEGATIVE(S_NULL);
     }
-    if (pPacket != flushPacket && ret < 0) {
-        av_packet_unref(pPacket);
+    if (packet != flushPacket && ret < 0) {
+        av_packet_unref(packet);
     }
-
     return ret;
 }
 
@@ -112,8 +139,8 @@ int PacketQueue::packetQueuePutNullPacket(int streamIndex) {
     return packetQueuePut(pkt);
 }
 
-int PacketQueue::packetQueuePutPrivate(AVPacket *avPacket) {
-    if (!avPacket) {
+int PacketQueue::packetQueuePutPrivate(AVPacket *packet) {
+    if (!packet) {
         return NEGATIVE(S_NULL);
     }
     if (abortRequest) {
@@ -123,9 +150,9 @@ int PacketQueue::packetQueuePutPrivate(AVPacket *avPacket) {
     if (!packetList) {
         return NEGATIVE(S_NOT_MEMORY);
     }
-    packetList->pkt = *avPacket;
+    packetList->packet = *packet;
     packetList->next = nullptr;
-    if (avPacket == flushPacket) {
+    if (packet == flushPacket) {
         serial++;
     }
     packetList->serial = serial;
@@ -135,40 +162,11 @@ int PacketQueue::packetQueuePutPrivate(AVPacket *avPacket) {
         lastPacketList->next = packetList;
     }
     lastPacketList = packetList;
-    nbPackets++;
-    size++;
-    duration += packetList->pkt.duration;
+    packetSize++;
+    memorySize += packetList->packet.size + sizeof(*packetList);
+    duration += packetList->packet.duration;
     /* XXX: should duplicate packet data in DV case */
     mutex->condSignal();
-    return POSITIVE;
-}
-
-
-int PacketQueue::packetQueueDestroy() {
-    packetQueueFlush();
-    delete mutex;
-    mutex = nullptr;
-    return POSITIVE;
-}
-
-int PacketQueue::packetQueueInit(AVPacket *pFlushPacket) {
-
-    flushPacket = pFlushPacket;
-
-    mutex = new Mutex();
-
-    if (!mutex) {
-        ALOGE("%s create mutex fail", __func__);
-        return NEGATIVE(S_NOT_MEMORY);
-    }
-
-    abortRequest = 1;
-
-    ALOGI("%s mutex=%p abortRequest=%d",
-          __func__,
-          mutex,
-          abortRequest);
-
     return POSITIVE;
 }
 
