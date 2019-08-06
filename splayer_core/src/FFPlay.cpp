@@ -619,11 +619,11 @@ int FFPlay::readThread() {
         // 未初始化音频流 或者 解码结束 同时 无可用帧
         bool audioSeekCondition = !videoState->audioStream ||
                                   (videoState->audioDecoder.finished == videoState->audioPacketQueue.serial &&
-                                          videoState->audioFrameQueue.frameQueueNumberRemaining() == 0);
+                                   videoState->audioFrameQueue.frameQueueNumberRemaining() == 0);
         // 未初始化视频流 或者 解码结束 同时 无可用帧
         bool videoSeekCondition = !videoState->videoStream ||
                                   (videoState->videoDecoder.finished == videoState->videoPacketQueue.serial &&
-                                          videoState->videoFrameQueue.frameQueueNumberRemaining() == 0);
+                                   videoState->videoFrameQueue.frameQueueNumberRemaining() == 0);
         if (notPaused && audioSeekCondition && videoSeekCondition) {
             if (loop != 1 && (!loop || --loop)) {
                 streamSeek(startTime != AV_NOPTS_VALUE ? startTime : 0, 0, 0);

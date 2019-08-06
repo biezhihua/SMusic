@@ -39,7 +39,7 @@ public:
     int *queueSerial;
 
 public:
-    int initClock(int *pQueueSerial);
+    int initClock(int *queueSerial);
 
     int setClock(double pts, int serial);
 
