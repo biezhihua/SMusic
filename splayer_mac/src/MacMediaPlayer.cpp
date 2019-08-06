@@ -7,7 +7,7 @@ int MacMediaPlayer::messageLoop() {
         Message msg;
         int ret = play->getMsg(&msg, true);
         ALOGD("%s msg=%p", __func__, &msg);
-        if (ret == ERROR_EXIT) {
+        if (ret == NEGATIVE_EXIT) {
             break;
         }
     }

@@ -26,5 +26,14 @@
 #define SHOW_MODE_RDFT      2
 #define SHOW_MODE_NB        3
 
+/* no AV sync correction is done if below the minimum AV sync threshold */
+#define SYNC_THRESHOLD_MIN 0.04
+/* AV sync correction is done if above the maximum AV sync threshold */
+#define SYNC_THRESHOLD_MAX 0.1
+/* If a frame duration is longer than this, it will not be duplicated to compensate AV sync */
+#define SYNC_FRAMEDUP_THRESHOLD 0.1
+/* no AV correction is done if too big error */
+#define NOSYNC_THRESHOLD 10.0
+
 
 #endif //SPLAYER_MAC_DEFINE_H

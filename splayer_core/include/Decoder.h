@@ -21,15 +21,15 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
-#include "Cmdutils.h"
+#include "CmdUtils.h"
 };
 
 class Decoder {
 public:
-    AVPacket pkt;
-    PacketQueue *packetQueue;
     AVCodecContext *codecContext;
-    int pktSerial;
+    PacketQueue *packetQueue;
+    AVPacket packet;
+    int packetSerial;
     int finished;
     int packetPending;
     Mutex *emptyQueueCond;

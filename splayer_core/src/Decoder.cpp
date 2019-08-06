@@ -12,11 +12,11 @@ void Decoder::decoderInit(AVCodecContext *codecContext, PacketQueue *packetQueue
     Decoder::packetQueue = packetQueue;
     Decoder::emptyQueueCond = emptyQueueMutex;
     Decoder::startPts = AV_NOPTS_VALUE;
-    Decoder::pktSerial = -1;
+    Decoder::packetSerial = -1;
 }
 
 void Decoder::decoderDestroy() {
-    av_packet_unref(&pkt);
+    av_packet_unref(&packet);
     avcodec_free_context(&codecContext);
 }
 

@@ -47,18 +47,18 @@ MessageQueue *FFPlay::getMsgQueue() const {
 
 int FFPlay::stop() {
     // TODO
-    return NEGATIVE(ERROR_UNKNOWN);
+    return NEGATIVE_UNKNOWN;
 }
 
 int FFPlay::shutdown() {
     // TODO
     waitStop();
-    return NEGATIVE(ERROR_UNKNOWN);
+    return NEGATIVE_UNKNOWN;
 }
 
 int FFPlay::waitStop() {
     // TODO
-    return NEGATIVE(ERROR_UNKNOWN);
+    return NEGATIVE_UNKNOWN;
 }
 
 int FFPlay::prepareAsync(const char *fileName) {
@@ -353,7 +353,7 @@ int FFPlay::readThread() {
     if ((t = av_dict_get(formatOpts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
         ALOGE("%s option %s not found.", __func__, t->key);
         closeReadThread(videoState, formatContext);
-        return NEGATIVE(ERROR_OPTION_NOT_FOUND);
+        return NEGATIVE_OPTION_NOT_FOUND;
     }
 
     videoState->ic = formatContext;
@@ -461,11 +461,11 @@ int FFPlay::readThread() {
 
     if (streamIndex[AVMEDIA_TYPE_VIDEO] >= 0) {
         AVStream *st = formatContext->streams[streamIndex[AVMEDIA_TYPE_VIDEO]];
-        AVCodecParameters *codecpar = st->codecpar;
+        AVCodecParameters *codecParameters = st->codecpar;
         AVRational sar = av_guess_sample_aspect_ratio(formatContext, st, nullptr);
-        if (codecpar->width) {
+        if (codecParameters->width) {
             // TODO
-            // set_default_window_size(codecpar->width, codecpar->height, sar);
+            // set_default_window_size(codecParameters->width, codecParameters->height, sar);
         }
     }
 
@@ -505,10 +505,10 @@ int FFPlay::readThread() {
     }
 
     if (videoState->videoStream && videoState->videoStream->codecpar) {
-        AVCodecParameters *codecpar = videoState->videoStream->codecpar;
+        AVCodecParameters *codecParameters = videoState->videoStream->codecpar;
         if (msgQueue) {
-            msgQueue->notifyMsg(Message::MSG_VIDEO_SIZE_CHANGED, codecpar->width, codecpar->height);
-            msgQueue->notifyMsg(Message::MSG_SAR_CHANGED, codecpar->width, codecpar->height);
+            msgQueue->notifyMsg(Message::MSG_VIDEO_SIZE_CHANGED, codecParameters->width, codecParameters->height);
+            msgQueue->notifyMsg(Message::MSG_SAR_CHANGED, codecParameters->width, codecParameters->height);
         }
     }
 
@@ -523,7 +523,7 @@ int FFPlay::readThread() {
         autoResume = 0;
     }
 
-    /* offset should be seeked*/
+    /* offset should be seeked */
     if (seekAtStart > 0) {
         // ffp_seek_to_l((long) (seekAtStart));
     }
@@ -628,7 +628,7 @@ int FFPlay::readThread() {
             if (loop != 1 && (!loop || --loop)) {
                 streamSeek(startTime != AV_NOPTS_VALUE ? startTime : 0, 0, 0);
             } else if (autoExit) {
-                return NEGATIVE(ERROR_EOF);
+                return NEGATIVE(NEGATIVE_EOF);
             }
         }
 
@@ -1021,6 +1021,39 @@ void FFPlay::streamSeek(int64_t pos, int64_t rel, int seek_by_bytes) {
 
 int FFPlay::videoThread() {
     ALOGD(__func__);
+
+    VideoState *is = videoState;
+    AVFrame *frame = av_frame_alloc();
+    double pts;
+    double duration;
+    int ret;
+    AVRational tb = is->videoStream->time_base;
+    AVRational frame_rate = av_guess_frame_rate(is->ic, is->videoStream, nullptr);
+
+    if (!frame) {
+        return NEGATIVE(S_NOT_MEMORY);
+    }
+
+    for (;;) {
+        ret = getVideoFrame(frame);
+        if (ret < 0) {
+            av_frame_free(&frame);
+            return NEGATIVE(S_NOT_GET_VIDEO_FRAME);
+        }
+        if (!ret) {
+            continue;
+        }
+
+        duration = (frame_rate.num && frame_rate.den ? av_q2d((AVRational) {frame_rate.den, frame_rate.num}) : 0);
+        pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
+        ret = queuePicture(frame, pts, duration, frame->pkt_pos, is->videoDecoder.packetSerial);
+        av_frame_unref(frame);
+
+        if (ret < 0) {
+            av_frame_free(&frame);
+            return NEGATIVE(S_NOT_QUEUE_PICTURE);
+        }
+    }
     return POSITIVE;
 }
 
@@ -1031,6 +1064,138 @@ int FFPlay::subtitleThread() {
 
 int FFPlay::audioThread() {
     ALOGD(__func__);
+    return POSITIVE;
+}
+
+int FFPlay::getVideoFrame(AVFrame *frame) {
+    int gotPicture;
+
+    if ((gotPicture = decoderDecodeFrame(&videoState->videoDecoder, frame, nullptr)) < 0) {
+        return NEGATIVE(S_NOT_DECODE_FRAME);
+    }
+
+    if (gotPicture) {
+        double dpts = NAN;
+
+        if (frame->pts != AV_NOPTS_VALUE) {
+            dpts = av_q2d(videoState->videoStream->time_base) * frame->pts;
+        }
+
+        frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(videoState->ic, videoState->videoStream, frame);
+
+        if (frameDrop > 0 || (frameDrop && getMasterSyncType() != AV_SYNC_VIDEO_MASTER)) {
+            if (frame->pts != AV_NOPTS_VALUE) {
+                double diff = dpts - getMasterClock();
+                if (!isnan(diff) && fabs(diff) < NOSYNC_THRESHOLD &&
+                    diff - videoState->frameLastFilterDelay < 0 &&
+                    videoState->videoDecoder.packetSerial == videoState->videoClock.serial &&
+                    videoState->videoPacketQueue.nbPackets) {
+                    videoState->frameDropsEarly++;
+                    av_frame_unref(frame);
+                    gotPicture = 0;
+                }
+            }
+        }
+    }
+
+    return gotPicture;
+}
+
+int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *subtitle) {
+    int ret = AVERROR(EAGAIN);
+    for (;;) {
+        AVPacket packet;
+        if (decoder->packetQueue->serial == decoder->packetSerial) {
+            do {
+                if (decoder->packetQueue->abortRequest) {
+                    return NEGATIVE(S_NOT_ABORT_REQUEST);
+                }
+                switch (decoder->codecContext->codec_type) {
+                    case AVMEDIA_TYPE_VIDEO:
+                        ret = avcodec_receive_frame(decoder->codecContext, frame);
+                        if (ret >= 0) {
+                            if (decoderReorderPts == -1) {
+                                frame->pts = frame->best_effort_timestamp;
+                            } else if (!decoderReorderPts) {
+                                frame->pts = frame->pkt_dts;
+                            }
+                        }
+                        break;
+                    case AVMEDIA_TYPE_AUDIO:
+                        ret = avcodec_receive_frame(decoder->codecContext, frame);
+                        if (ret >= 0) {
+                            AVRational tb = (AVRational) {1, frame->sample_rate};
+                            if (frame->pts != AV_NOPTS_VALUE) {
+                                frame->pts = av_rescale_q(frame->pts, decoder->codecContext->pkt_timebase, tb);
+                            } else if (decoder->nextPts != AV_NOPTS_VALUE) {
+                                frame->pts = av_rescale_q(decoder->nextPts, decoder->nextPtsTb, tb);
+                            }
+                            if (frame->pts != AV_NOPTS_VALUE) {
+                                decoder->nextPts = frame->pts + frame->nb_samples;
+                                decoder->nextPtsTb = tb;
+                            }
+                        }
+                        break;
+                }
+                if (ret == AVERROR_EOF) {
+                    decoder->finished = decoder->packetSerial;
+                    avcodec_flush_buffers(decoder->codecContext);
+                    return NEGATIVE_EOF;
+                }
+                if (ret >= 0) {
+                    return POSITIVE;
+                }
+            } while (ret != AVERROR(EAGAIN));
+        }
+
+        do {
+            if (decoder->packetQueue->nbPackets == 0) {
+                decoder->emptyQueueCond->condSignal();
+            }
+            if (decoder->packetPending) {
+                av_packet_move_ref(&packet, &decoder->packet);
+                decoder->packetPending = 0;
+            } else {
+                if (decoder->packetQueue->packetQueueGet(&packet, 1, &decoder->packetSerial) < 0) {
+                    return NEGATIVE(S_NOT_GET_PACKET_QUEUE);
+                }
+            }
+        } while (decoder->packetQueue->serial != decoder->packetSerial);
+
+        if (packet.data == flushPacket.data) {
+            avcodec_flush_buffers(decoder->codecContext);
+            decoder->finished = 0;
+            decoder->nextPts = decoder->startPts;
+            decoder->nextPtsTb = decoder->startPtsTb;
+        } else {
+            if (decoder->codecContext->codec_type == AVMEDIA_TYPE_SUBTITLE) {
+                int gotFrame = 0;
+                ret = avcodec_decode_subtitle2(decoder->codecContext, subtitle, &gotFrame, &packet);
+                if (ret < 0) {
+                    ret = NEGATIVE(EAGAIN);
+                } else {
+                    if (gotFrame && !packet.data) {
+                        decoder->packetPending = 1;
+                        av_packet_move_ref(&decoder->packet, &packet);
+                    }
+                    ret = gotFrame ? POSITIVE : (packet.data ? NEGATIVE(EAGAIN) : NEGATIVE_EOF);
+                }
+            } else {
+                if (avcodec_send_packet(decoder->codecContext, &packet) == AVERROR(EAGAIN)) {
+                    ALOGE("%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
+                          __func__);
+                    decoder->packetPending = 1;
+                    av_packet_move_ref(&decoder->packet, &packet);
+                }
+            }
+            av_packet_unref(&packet);
+        }
+    }
+    return ret;
+}
+
+int FFPlay::queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
+    ALOGD("%s pts=%lf duration=%lf pos=%ld serial=%d", __func__, pts, duration, pos, serial);
     return POSITIVE;
 }
 

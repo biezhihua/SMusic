@@ -14,7 +14,7 @@ MessageQueue::~MessageQueue() {
 }
 
 int MessageQueue::putMsg(Message *msg) {
-    int ret = NEGATIVE(ERROR_UNKNOWN);
+    int ret = NEGATIVE_UNKNOWN;
     if (mutex && queue) {
         mutex->mutexLock();
         ret = _putMsg(msg);
@@ -67,7 +67,7 @@ int MessageQueue::clearMsgQueue() {
 }
 
 int MessageQueue::getMsg(Message *msg, bool block) {
-    int ret = NEGATIVE(ERROR_UNKNOWN);
+    int ret = NEGATIVE_UNKNOWN;
     if (mutex && queue) {
         mutex->mutexLock();
         while (true) {

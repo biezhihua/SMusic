@@ -50,27 +50,27 @@ int PacketQueue::packetQueueAbort() {
 int PacketQueue::packetQueueGet(AVPacket *pPacket, int block, int *serial) {
     int ret = 0;
     if (mutex) {
-        MyAVPacketList *pkt1;
+        MyAVPacketList *packetList;
         mutex->mutexLock();
         for (;;) {
             if (abortRequest) {
                 ret = NEGATIVE(S_NOT_ABORT_REQUEST);
                 break;
             }
-            pkt1 = firstPacketList;
-            if (pkt1) {
-                firstPacketList = pkt1->next;
+            packetList = firstPacketList;
+            if (packetList) {
+                firstPacketList = packetList->next;
                 if (!firstPacketList) {
                     lastPacketList = nullptr;
                 }
                 nbPackets--;
                 size--;
-                duration -= pkt1->pkt.duration;
-                *pPacket = pkt1->pkt;
+                duration -= packetList->pkt.duration;
+                *pPacket = packetList->pkt;
                 if (serial) {
-                    *serial = pkt1->serial;
+                    *serial = packetList->serial;
                 }
-                av_free(pkt1);
+                av_free(packetList);
                 ret = POSITIVE;
                 break;
             } else if (!block) {

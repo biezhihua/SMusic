@@ -29,7 +29,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
-#include "Cmdutils.h"
+#include "CmdUtils.h"
 };
 
 static const char *const SCAN_ALL_PMTS = "scan_all_pmts";
@@ -150,6 +150,10 @@ private:
 
     int fast = 0;
 
+    int frameDrop = -1;
+
+    int decoderReorderPts = -1;
+
 public:
     FFPlay();
 
@@ -212,6 +216,12 @@ private:
     void stepToNextFrame();
 
     void streamSeek(int64_t pos, int64_t rel, int seek_by_bytes);
+
+    int getVideoFrame(AVFrame *pFrame);
+
+    int decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *subtitle);
+
+    int queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial);
 };
 
 #endif //SPLAYER_PLAY_H

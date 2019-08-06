@@ -21,6 +21,10 @@
 #define S_NOT_VIDEO_DECODE_START          18
 #define S_NOT_SUBTITLE_DECODE_START          19
 #define S_NOT_AUDIO_DECODE_START          20
+#define S_NOT_DECODE_FRAME          21
+#define S_NOT_GET_PACKET_QUEUE          22
+#define S_NOT_GET_VIDEO_FRAME          23
+#define S_NOT_QUEUE_PICTURE          24
 
 
 #endif //SPLAYER_CORE_ERRORNO_H

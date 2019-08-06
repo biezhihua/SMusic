@@ -89,6 +89,14 @@ public:
     RDFTContext *rdft;
     int rdft_bits;
     FFTSample *rdft_data;
+
+    double frame_timer;
+    double frame_last_returned_time;
+    double frameLastFilterDelay;
+
+    int frameDropsEarly;
+    int frame_drops_late;
+
 };
 
 #endif //SPLAYER_MAC_VIDEOSTATE_H
