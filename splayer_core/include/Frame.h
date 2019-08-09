@@ -14,7 +14,7 @@ class Frame {
 public:
     AVFrame *frame;
     AVSubtitle sub;
-    AVRational sar;
+    AVRational sampleAspectRatio;
     int serial;
     double pts;           /* presentation timestamp for the frame */
     double duration;      /* estimated duration of the frame */

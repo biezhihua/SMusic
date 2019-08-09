@@ -461,7 +461,7 @@ int FFPlay::readThread() {
         AVRational sar = av_guess_sample_aspect_ratio(formatContext, stream, nullptr);
         if (codecParameters->width) {
             // TODO
-            // set_default_window_size(codecParameters->width, codecParameters->height, sar);
+            // set_default_window_size(codecParameters->width, codecParameters->height, sampleAspectRatio);
         }
     }
 
@@ -1080,6 +1080,7 @@ int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
         AVPacket packet;
 
         if (decoder->packetQueue->serial == decoder->packetSerial) {
+            // 接收一帧解码后的数据
             do {
                 if (decoder->packetQueue->abortRequest) {
                     return NEGATIVE(S_ABORT_REQUEST);
@@ -1174,12 +1175,33 @@ int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
             av_packet_unref(&packet);
         }
     }
-    
+
     return ret;
 }
 
 int FFPlay::queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
     ALOGD("%s pts=%lf duration=%lf pos=%ld serial=%d", __func__, pts, duration, pos, serial);
+
+    Frame *vp;
+
+    if (!(vp = videoState->videoFrameQueue.frameQueuePeekWritable())) {
+        return NEGATIVE(S_NOT_FRAME_WRITEABLE);
+    }
+
+    vp->sampleAspectRatio = srcFrame->sample_aspect_ratio;
+    vp->uploaded = 0;
+
+    vp->width = srcFrame->width;
+    vp->height = srcFrame->height;
+    vp->format = srcFrame->format;
+
+    vp->pts = pts;
+    vp->duration = duration;
+    vp->pos = pos;
+    vp->serial = serial;
+
+    av_frame_move_ref(vp->frame, srcFrame);
+    videoState->videoFrameQueue.frameQueuePush();
     return POSITIVE;
 }
 

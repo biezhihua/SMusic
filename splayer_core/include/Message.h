@@ -28,7 +28,7 @@ public:
     static const int MSG_PREPARED = 2;
     static const int MSG_COMPLETED = 3;
     static const int MSG_VIDEO_SIZE_CHANGED = 4; /* arg1 = width, arg2 = height */
-    static const int MSG_SAR_CHANGED = 5;        /* arg1 = sar.num, arg2 = sar.den */
+    static const int MSG_SAR_CHANGED = 5;        /* arg1 = sampleAspectRatio.num, arg2 = sampleAspectRatio.den */
     static const int MSG_VIDEO_RENDERING_START = 6;
     static const int MSG_AUDIO_RENDERING_START = 7;
     static const int MSG_VIDEO_ROTATION_CHANGED = 8; /* arg1 = degree */

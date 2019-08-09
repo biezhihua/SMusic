@@ -26,6 +26,7 @@
 #define S_NOT_GET_VIDEO_FRAME          23
 #define S_NOT_QUEUE_PICTURE          24
 #define S_NOT_FOUND_CODER          25
+#define S_NOT_FRAME_WRITEABLE          26
 
 
 #endif //SPLAYER_CORE_ERRORNO_H
