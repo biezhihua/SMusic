@@ -47,6 +47,8 @@ public:
 
     double getClock();
 
+    void setClockSpeed(double speed);
+
 
 };
 

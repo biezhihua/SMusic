@@ -39,6 +39,7 @@ public:
     Mutex *continueReadThread;
 
     Thread *readThread;
+    Thread *refreshThread;
 
     AVFormatContext *formatContext;
 
@@ -55,6 +56,7 @@ public:
     int realTime;
 
     char *fileName;
+    int width, height;
     int yTop;
     int xLeft;
     int audioClockSerial;
@@ -74,7 +76,7 @@ public:
 
     double maxFrameDuration;
 
-    int showMode;
+    int showMode = SHOW_MODE_VIDEO;
 
     int readPauseReturn;
 
@@ -90,12 +92,19 @@ public:
     double frameLastFilterDelay;
 
     int frameDropsEarly;
+    int frameDropsLate;
 
     // seek
     int seekReq;
     int seekFlags;
     int64_t seekPos;
     int64_t seekRel;
+
+    double lastVisTime;
+
+    double frameTimer;
+
+    int step;
 
 };
 

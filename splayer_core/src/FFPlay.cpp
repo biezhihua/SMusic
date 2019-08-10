@@ -1,11 +1,3 @@
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-#pragma clang diagnostic ignored "-Wunknown-pragmas"
-#pragma clang diagnostic ignored "-Wunused-variable"
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-#pragma ide diagnostic ignored "modernize-use-auto"
-#pragma ide diagnostic ignored "OCDFAInspection"
-
 #include <FFPlay.h>
 
 #include "FFPlay.h"
@@ -61,6 +53,14 @@ int FFPlay::waitStop() {
     return NEGATIVE_UNKNOWN;
 }
 
+static int innerRefreshThread(void *arg) {
+    FFPlay *play = static_cast<FFPlay *>(arg);
+    if (play) {
+        return play->refreshThread();
+    }
+    return NEGATIVE(S_ERROR);
+}
+
 int FFPlay::prepareAsync(const char *fileName) {
     showVersionsAndOptions();
 
@@ -74,6 +74,8 @@ int FFPlay::prepareAsync(const char *fileName) {
     if (!videoState) {
         return NEGATIVE(S_NOT_MEMORY);
     }
+
+    videoState->refreshThread = new Thread(innerRefreshThread, this, "refreshThread");
 
     return POSITIVE;
 }
@@ -1205,6 +1207,256 @@ int FFPlay::queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t
     return POSITIVE;
 }
 
+int FFPlay::refreshThread() {
+    double remainingTime = 0.0;
+    while (videoState->abortRequest) {
+        if (remainingTime > 0.0) {
+            av_usleep((int64_t) (remainingTime * 1000000.0));
+        }
+        remainingTime = REFRESH_RATE;
+        if (videoState->showMode != SHOW_MODE_NONE && (!videoState->paused || videoState->forceRefresh)) {
+            videoRefresh(&remainingTime);
+        }
+    }
+    return POSITIVE;
+}
 
-#pragma clang diagnostic pop
-#pragma clang diagnostic pop
+void FFPlay::checkExternalClockSpeed() {
+    if ((videoState->videoStreamIndex >= 0 && videoState->videoPacketQueue.packetSize <= EXTERNAL_CLOCK_MIN_FRAMES) ||
+        (videoState->audioStreamIndex >= 0 && videoState->audioPacketQueue.packetSize <= EXTERNAL_CLOCK_MIN_FRAMES)) {
+        videoState->exitClock.setClockSpeed(FFMAX(EXTERNAL_CLOCK_SPEED_MIN, videoState->exitClock.speed - EXTERNAL_CLOCK_SPEED_STEP));
+    } else if ((videoState->videoStreamIndex < 0 || videoState->videoPacketQueue.packetSize > EXTERNAL_CLOCK_MAX_FRAMES) &&
+               (videoState->audioStreamIndex < 0 || videoState->audioPacketQueue.packetSize > EXTERNAL_CLOCK_MAX_FRAMES)) {
+        videoState->exitClock.setClockSpeed(FFMIN(EXTERNAL_CLOCK_SPEED_MAX, videoState->exitClock.speed + EXTERNAL_CLOCK_SPEED_STEP));
+    } else {
+        double speed = videoState->exitClock.speed;
+        if (speed != 1.0) {
+            videoState->exitClock.setClockSpeed(speed + EXTERNAL_CLOCK_SPEED_STEP * (1.0 - speed) / fabs(1.0 - speed));
+        }
+    }
+}
+
+void FFPlay::videoRefresh(double *remainingTime) {
+    double time;
+    Frame *sp, *sp2;
+
+    if (!videoState->paused && getMasterSyncType() == AV_SYNC_EXTERNAL_CLOCK && videoState->realTime) {
+        checkExternalClockSpeed();
+    }
+
+    if (videoState->showMode != SHOW_MODE_VIDEO && videoState->audioStream) {
+        time = av_gettime_relative() / 1000000.0;
+        if (videoState->forceRefresh || videoState->lastVisTime + rdftspeed < time) {
+            videoDisplay();
+            videoState->lastVisTime = time;
+        }
+        *remainingTime = FFMIN(*remainingTime, videoState->lastVisTime + rdftspeed - time);
+    }
+
+    if (videoState->videoStream) {
+        retry:
+        if (videoState->videoFrameQueue.frameQueueNumberRemaining() == 0) {
+            // nothing to do, no picture to display in the queue
+        } else {
+            double last_duration, duration, delay;
+            Frame *vp, *lastvp;
+            /* dequeue the picture */
+            lastvp = videoState->videoFrameQueue.frameQueuePeekLast();
+            vp = videoState->videoFrameQueue.frameQueuePeek();
+
+            if (vp->serial != videoState->videoPacketQueue.serial) {
+                videoState->videoFrameQueue.frameQueueNext();
+                goto retry;
+            }
+
+            if (lastvp->serial != vp->serial) {
+                videoState->frameTimer = av_gettime_relative() / 1000000.0;
+            }
+
+            if (videoState->paused) {
+                goto display;
+            }
+
+            /* compute nominal last_duration */
+            last_duration = frameDuration(lastvp, vp);
+            delay = computeTargetDelay(last_duration);
+
+            time = av_gettime_relative() / 1000000.0;
+            if (time < videoState->frameTimer + delay) {
+                *remainingTime = FFMIN(videoState->frameTimer + delay - time, *remainingTime);
+                goto display;
+            }
+
+            videoState->frameTimer += delay;
+            if (delay > 0 && time - videoState->frameTimer > SYNC_THRESHOLD_MAX) {
+                videoState->frameTimer = time;
+            }
+
+            videoState->videoFrameQueue.mutex->mutexLock();
+            if (!isnan(vp->pts)) {
+                updateVideoPts(vp->pts, vp->pos, vp->serial);
+            }
+            videoState->videoFrameQueue.mutex->mutexUnLock();
+
+
+            if (videoState->videoFrameQueue.frameQueueNumberRemaining() > 1) {
+                Frame *nextvp = videoState->videoFrameQueue.frameQueuePeekNext();
+                duration = frameDuration(vp, nextvp);
+                if (!videoState->step && (frameDrop > 0 || (frameDrop && getMasterSyncType() != AV_SYNC_VIDEO_MASTER)) && time > (videoState->frameTimer + duration)) {
+                    videoState->frameDropsLate++;
+                    videoState->videoFrameQueue.frameQueueNext();
+                    goto retry;
+                }
+            }
+
+            // TODO subtitle
+
+            videoState->videoFrameQueue.frameQueueNext();
+            videoState->forceRefresh = 1;
+
+            if (videoState->step && !videoState->paused) {
+                // stream_toggle_pause();
+                // TODO
+            }
+        }
+        display:
+        /* display picture */
+        if (videoState->forceRefresh && videoState->showMode == SHOW_MODE_VIDEO && videoState->videoFrameQueue.readIndexShown) {
+            videoDisplay();
+        }
+    }
+    videoState->forceRefresh = 0;
+}
+
+double FFPlay::frameDuration(Frame *vp, Frame *nextvp) {
+    if (vp->serial == nextvp->serial) {
+        double duration = nextvp->pts - vp->pts;
+        if (isnan(duration) || duration <= 0 || duration > videoState->maxFrameDuration)
+            return vp->duration;
+        else
+            return duration;
+    } else {
+        return 0.0;
+    }
+}
+
+/* display the current picture, if any */
+void FFPlay::videoDisplay() {
+
+    if (videoState->width) {
+        videoOpen();
+    }
+
+//    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+//    SDL_RenderClear(renderer);
+    if (videoState->audioStream && videoState->showMode != SHOW_MODE_VIDEO) {
+        // video_audio_display(videoState);
+    } else if (videoState->videoStream) {
+        videoImageDisplay();
+    }
+
+//    SDL_RenderPresent(renderer);
+
+}
+
+double FFPlay::computeTargetDelay(double delay) {
+    double sync_threshold, diff = 0;
+
+    /* update delay to follow master synchronisation source */
+    if (getMasterSyncType() != AV_SYNC_VIDEO_MASTER) {
+        /* if video is slave, we try to correct big delays by
+           duplicating or deleting a frame */
+        diff = videoState->videoClock.getClock() - getMasterClock();
+
+        /* skip or repeat frame. We take into account the
+           delay to compute the threshold. I still don't know
+           if it is the best guess */
+        sync_threshold = FFMAX(SYNC_THRESHOLD_MIN, FFMIN(SYNC_THRESHOLD_MAX, delay));
+        if (!isnan(diff) && fabs(diff) < videoState->maxFrameDuration) {
+            if (diff <= -sync_threshold) {
+                delay = FFMAX(0, delay + diff);
+            } else if (diff >= sync_threshold && delay > SYNC_FRAMEDUP_THRESHOLD) {
+                delay = delay + diff;
+            } else if (diff >= sync_threshold) {
+                delay = 2 * delay;
+            }
+        }
+    }
+    ALOGD("%s video: delay=%0.3f A-V=%f\n", __func__, delay, -diff);
+    return delay;
+}
+
+void FFPlay::updateVideoPts(double pts, int64_t pos, int serial) {
+    /* update current video pts */
+    videoState->videoClock.setClock(pts, serial);
+    syncClockToSlave(&videoState->exitClock, &videoState->videoClock);
+}
+
+void FFPlay::syncClockToSlave(Clock *c, Clock *slave) {
+    double clock = c->getClock();
+    double slave_clock = slave->getClock();
+    if (!isnan(slave_clock) && (isnan(clock) || fabs(clock - slave_clock) > NOSYNC_THRESHOLD)) {
+        c->setClock(slave_clock, slave->serial);
+    }
+}
+
+int FFPlay::videoOpen() {
+    int w, h;
+
+    if (screenWidth) {
+        w = screenWidth;
+        h = screenHeight;
+    } else {
+        w = defaultWidth;
+        h = defaultHeight;
+    }
+
+    if (!windowTitle) {
+        windowTitle = inputFileName;
+    }
+
+//    SDL_SetWindowTitle(window, windowTitle);
+//    SDL_SetWindowSize(window, w, h);
+//    SDL_SetWindowPosition(window, screen_left, screen_top);
+    if (is_full_screen) {
+//        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    }
+//    SDL_ShowWindow(window);
+
+    videoState->width = w;
+    videoState->height = h;
+
+    return POSITIVE;
+}
+
+
+void FFPlay::videoImageDisplay() {
+    Frame *vp;
+    Frame *sp = nullptr;
+//    SDL_Rect rect;
+
+    vp = videoState->videoFrameQueue.frameQueuePeekLast();
+    if (videoState->subtitleStream) {
+        // TODO
+    }
+
+    // calculate_display_rect(&rect, is->xleft, is->ytop, is->width, is->height, vp->width, vp->height, vp->sar);
+
+    if (!vp->uploaded) {
+        if (uploadTexture(vp->frame) < 0) {
+            return;
+        }
+        vp->uploaded = 1;
+        vp->flip_v = vp->frame->linesize[0] < 0;
+    }
+
+//    set_sdl_yuv_conversion_mode(vp->frame);
+//    SDL_RenderCopyEx(renderer, is->vid_texture, NULL, &rect, 0, NULL, vp->flip_v ? SDL_FLIP_VERTICAL : 0);
+//    set_sdl_yuv_conversion_mode(NULL);
+
+}
+
+int FFPlay::uploadTexture(AVFrame *pFrame) {
+    ALOGD(__func__);
+    return 0;
+}

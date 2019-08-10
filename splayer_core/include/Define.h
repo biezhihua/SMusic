@@ -9,7 +9,11 @@
 #define SUBTITLE_QUEUE_SIZE     16
 #define FRAME_QUEUE_SIZE        FFMAX(AUDIO_QUEUE_SIZE, FFMAX(VIDEO_QUEUE_SIZE, SUBTITLE_QUEUE_SIZE))
 #define MAX_QUEUE_SIZE (15 * 1024 * 1024)
+
 #define MIN_FRAMES 25
+
+#define EXTERNAL_CLOCK_MIN_FRAMES 2
+#define EXTERNAL_CLOCK_MAX_FRAMES 10
 
 // Volume
 #define MIX_MAX_VOLUME      128
@@ -35,5 +39,12 @@
 /* no AV correction is done if too big error */
 #define NOSYNC_THRESHOLD 10.0
 
+/* polls for possible required screen refresh at least this often, should be less than 1/fps */
+#define REFRESH_RATE 0.01
+
+/* external clock speed adjustment constants for realtime sources based on buffer fullness */
+#define EXTERNAL_CLOCK_SPEED_MIN  0.900
+#define EXTERNAL_CLOCK_SPEED_MAX  1.010
+#define EXTERNAL_CLOCK_SPEED_STEP 0.001
 
 #endif //SPLAYER_MAC_DEFINE_H

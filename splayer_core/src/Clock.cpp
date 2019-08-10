@@ -1,3 +1,6 @@
+
+#include <Clock.h>
+
 #include "Clock.h"
 
 int Clock::initClock(int *queueSerial) {
@@ -32,4 +35,9 @@ double Clock::getClock() {
         double time = av_gettime_relative() / 1000000.0;
         return ptsDrift + time - (time - lastUpdated) * (1.0 - speed);
     }
+}
+
+void Clock::setClockSpeed(double speed) {
+    setClock(getClock(), serial);
+    Clock::speed = speed;
 }

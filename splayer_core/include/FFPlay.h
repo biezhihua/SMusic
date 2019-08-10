@@ -85,6 +85,10 @@ private:
     AVDictionary *swrPresetOpts = nullptr;
     AVDictionary *playerOpts = nullptr;
 
+    /**
+     * Options specified by the user
+     */
+
     AVInputFormat *inputFormat = nullptr;
     char *inputFileName = nullptr;
 
@@ -154,6 +158,17 @@ private:
 
     int decoderReorderPts = -1;
 
+    double rdftspeed = 0.02;
+
+    int defaultWidth = 640;
+    int defaultHeight = 480;
+    int screenWidth = 0;
+    int screenHeight = 0;
+    int screen_left = 0;
+    int screen_top = 0;
+    int is_full_screen;
+
+
 public:
     FFPlay();
 
@@ -187,6 +202,8 @@ public:
     int subtitleThread();
 
     int audioThread();
+
+    int refreshThread();
 
 private:
     void showVersionsAndOptions();
@@ -222,6 +239,27 @@ private:
     int decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *subtitle);
 
     int queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial);
+
+
+    void videoRefresh(double *remainingTime);
+
+    void checkExternalClockSpeed();
+
+    void videoDisplay();
+
+    double frameDuration(Frame *vp, Frame *nextvp);
+
+    double computeTargetDelay(double delay);
+
+    void updateVideoPts(double pts, int64_t pos, int serial);
+
+    void syncClockToSlave(Clock *c, Clock *slave);
+
+    int videoOpen();
+
+    void videoImageDisplay();
+
+    int uploadTexture(AVFrame *pFrame);
 };
 
 #endif //SPLAYER_PLAY_H
