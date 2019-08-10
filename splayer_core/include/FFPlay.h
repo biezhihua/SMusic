@@ -63,7 +63,7 @@ private:
      */
     VideoState *videoState = nullptr;
     AVPacket flushPacket;
-    int isFullScreen;
+
 
     /**
      * Format/Codec Options
@@ -78,41 +78,41 @@ private:
     /**
      * Options specified by the user
      */
-    AVInputFormat *optionInputFormat = nullptr;
+    AVInputFormat *optionInputFormat = nullptr; // force format
     char *optionInputFileName = nullptr;
-    char *optionWindowTitle = nullptr;
+    char *optionWindowTitle = nullptr; // set window title
+    int optionIsFullScreen = 0; // force full screen
     int optionDefaultWidth = 640;
     int optionDefaultHeight = 480;
-    int optionScreenWidth = 0;
-    int optionScreenHeight = 0;
-    int optionScreenLeft = 0;
-    int optionScreenTop = 0;
-    char *optionWantedStreamSpec[AVMEDIA_TYPE_NB] = {nullptr};
-    int optionSeekByBytes = -1;
-    float optionSeekInterval = 10;
-    int optionAudioDisable = 0;
-    int optionVideoDisable = 0;
-    int optionSubtitleDisable = 0;
-    int optionStartupVolume = 100;
-    int optionSyncType = SYNC_TYPE_AUDIO_MASTER;
-    int64_t optionStartTime = AV_NOPTS_VALUE;
-    int64_t optionDuration = AV_NOPTS_VALUE;
-    int optionFast = 0;
-    int optionGenpts = 0;
+    int optionScreenWidth = 0; // force displayed width
+    int optionScreenHeight = 0; // force displayed height
+    int optionScreenLeft = 0; // set the x position for the left of the window
+    int optionScreenTop = 0;  // set the y position for the top of the window
+    char *optionWantedStreamSpec[AVMEDIA_TYPE_NB] = {nullptr}; // "select desired stream"
+    int optionSeekByBytes = -1; // seek by bytes 0=off 1=on -1=auto
+    float optionSeekInterval = 10; // set seek interval for left/right keys, in seconds
+    int optionStartupVolume = 100; // set startup volume 0=min 100=max
+    int optionSyncType = SYNC_TYPE_AUDIO_MASTER; // set audio-video sync. type (type=audio/video/ext)
+    int64_t optionStartTime = AV_NOPTS_VALUE; // seek to a given position in seconds
+    int64_t optionDuration = AV_NOPTS_VALUE; // play  \"duration\" seconds of audio/video
+    int optionBrorderless = 0; // borderless window
+    int optionFast = 0; // non spec compliant optimizations
+    int optionGeneratePts = 0; // generate pts
     int optionLowres = 0;
-    int optionDecoderReorderPts = -1;
-    int optionAutoExit;
-    int optionLoop = 1;
-    int optionFrameDrop = -1;
-    int optionShowMode = SHOW_MODE_NONE;
+    int optionAutoRotate = 0; // automatically rotate video
+    int optionDecoderReorderPts = -1; // let decoder reorder pts 0=off 1=on -1=auto
+    int optionAutoExit; // exit at the end
+    int optionLoop = 1; // set number of times the playback shall be looped
+    int optionDropFrameWhenSlow = -1; // drop frames when cpu is too slow
+    int optionShowMode = SHOW_MODE_VIDEO; // select show mode (0 = video, 1 = waves, 2 = RDFT)
     char *optionInputFormatName = nullptr;
-    char *optionAudioCodecName = nullptr;
-    char *optionSubtitleCodecName = nullptr;
-    char *optionVideoCodecName = nullptr;
-    double optionRDFTSpeed = 0.02;
-    int optionInfiniteBuffer = -1;
-    int optionShowStatus = 1;
-    int optionFindStreamInfo = 1;
+    char *optionAudioCodecName = nullptr; // force decoder
+    char *optionSubtitleCodecName = nullptr; // force decoder
+    char *optionVideoCodecName = nullptr; // force decoder
+    double optionRdftSpeed = 0.02;  // rdft speed
+    int optionInfiniteBuffer = -1; // don't limit the input buffer size (useful with realtime streams)
+    int optionShowStatus = 1; // show status
+    int optionFindStreamInfo = 1; // read and decode the streams to fill missing information with heuristics
 
 public:
     FFPlay();

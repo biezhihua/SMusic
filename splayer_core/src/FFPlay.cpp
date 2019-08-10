@@ -60,6 +60,8 @@ static int innerRefreshThread(void *arg) {
 int FFPlay::prepareAsync(const char *fileName) {
     showVersionsAndOptions();
 
+    avformat_network_init();
+
     av_init_packet(&flushPacket);
     flushPacket.data = (uint8_t *) &flushPacket;
 
@@ -355,7 +357,7 @@ int FFPlay::readThread() {
 
     videoState->formatContext = formatContext;
 
-    if (optionGenpts) {
+    if (optionGeneratePts) {
         formatContext->flags |= AVFMT_FLAG_GENPTS;
     }
 
@@ -430,26 +432,20 @@ int FFPlay::readThread() {
         }
     }
 
-    if (!optionVideoDisable) {
-        streamIndex[AVMEDIA_TYPE_VIDEO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_VIDEO,
-                                                              streamIndex[AVMEDIA_TYPE_VIDEO], -1, nullptr, 0);
-    }
+    streamIndex[AVMEDIA_TYPE_VIDEO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_VIDEO,
+                                                          streamIndex[AVMEDIA_TYPE_VIDEO], -1, nullptr, 0);
 
-    if (!optionAudioDisable) {
-        streamIndex[AVMEDIA_TYPE_AUDIO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO,
-                                                              streamIndex[AVMEDIA_TYPE_AUDIO],
-                                                              streamIndex[AVMEDIA_TYPE_VIDEO],
-                                                              nullptr, 0);
-    }
+    streamIndex[AVMEDIA_TYPE_AUDIO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO,
+                                                          streamIndex[AVMEDIA_TYPE_AUDIO],
+                                                          streamIndex[AVMEDIA_TYPE_VIDEO],
+                                                          nullptr, 0);
 
-    if (!optionVideoDisable && !optionSubtitleDisable) {
-        streamIndex[AVMEDIA_TYPE_SUBTITLE] = av_find_best_stream(formatContext, AVMEDIA_TYPE_SUBTITLE,
-                                                                 streamIndex[AVMEDIA_TYPE_SUBTITLE],
-                                                                 (streamIndex[AVMEDIA_TYPE_AUDIO] >= 0 ?
-                                                                  streamIndex[AVMEDIA_TYPE_AUDIO] :
-                                                                  streamIndex[AVMEDIA_TYPE_VIDEO]),
-                                                                 nullptr, 0);
-    }
+    streamIndex[AVMEDIA_TYPE_SUBTITLE] = av_find_best_stream(formatContext, AVMEDIA_TYPE_SUBTITLE,
+                                                             streamIndex[AVMEDIA_TYPE_SUBTITLE],
+                                                             (streamIndex[AVMEDIA_TYPE_AUDIO] >= 0 ?
+                                                              streamIndex[AVMEDIA_TYPE_AUDIO] :
+                                                              streamIndex[AVMEDIA_TYPE_VIDEO]),
+                                                             nullptr, 0);
 
     videoState->showMode = optionShowMode;
 
@@ -1045,7 +1041,7 @@ int FFPlay::getVideoFrame(AVFrame *frame) {
 
         frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(videoState->formatContext, videoState->videoStream, frame);
 
-        if (optionFrameDrop > 0 || (optionFrameDrop && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) {
+        if (optionDropFrameWhenSlow > 0 || (optionDropFrameWhenSlow && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) {
             if (frame->pts != AV_NOPTS_VALUE) {
                 double diff = dpts - getMasterClock();
                 if (!isnan(diff) && fabs(diff) < NOSYNC_THRESHOLD &&
@@ -1234,11 +1230,11 @@ void FFPlay::videoRefresh(double *remainingTime) {
 
     if (videoState->showMode != SHOW_MODE_VIDEO && videoState->audioStream) {
         time = av_gettime_relative() / 1000000.0;
-        if (videoState->forceRefresh || videoState->lastVisTime + optionRDFTSpeed < time) {
+        if (videoState->forceRefresh || videoState->lastVisTime + optionRdftSpeed < time) {
             videoDisplay();
             videoState->lastVisTime = time;
         }
-        *remainingTime = FFMIN(*remainingTime, videoState->lastVisTime + optionRDFTSpeed - time);
+        *remainingTime = FFMIN(*remainingTime, videoState->lastVisTime + optionRdftSpeed - time);
     }
 
     if (videoState->videoStream) {
@@ -1290,7 +1286,7 @@ void FFPlay::videoRefresh(double *remainingTime) {
             if (videoState->videoFrameQueue.frameQueueNumberRemaining() > 1) {
                 Frame *nextvp = videoState->videoFrameQueue.frameQueuePeekNext();
                 duration = frameDuration(vp, nextvp);
-                if (!videoState->step && (optionFrameDrop > 0 || (optionFrameDrop && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) && time > (videoState->frameTimer + duration)) {
+                if (!videoState->step && (optionDropFrameWhenSlow > 0 || (optionDropFrameWhenSlow && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) && time > (videoState->frameTimer + duration)) {
                     videoState->frameDropsLate++;
                     videoState->videoFrameQueue.frameQueueNext();
                     goto retry;
@@ -1406,7 +1402,7 @@ int FFPlay::videoOpen() {
 //    SDL_SetWindowTitle(window, optionWindowTitle);
 //    SDL_SetWindowSize(window, w, h);
 //    SDL_SetWindowPosition(window, optionScreenLeft, optionScreenTop);
-    if (isFullScreen) {
+    if (optionIsFullScreen) {
 //        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
     }
 //    SDL_ShowWindow(window);
