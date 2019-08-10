@@ -104,22 +104,22 @@ int FFPlay::getMsg(Message *msg, bool block) {
         }
         switch (msg->what) {
             case Message::MSG_PREPARED:
-                ALOGD(FFPLAY_TAG, "%s MSG_PREPARED", __func__);
+                // ALOGD(FFPLAY_TAG, "%s MSG_PREPARED", __func__);
                 break;
             case Message::MSG_COMPLETED:
-                ALOGD(FFPLAY_TAG, "%s MSG_COMPLETED", __func__);
+                // ALOGD(FFPLAY_TAG, "%s MSG_COMPLETED", __func__);
                 break;
             case Message::MSG_SEEK_COMPLETE:
-                ALOGD(FFPLAY_TAG, "%s MSG_SEEK_COMPLETE", __func__);
+                // ALOGD(FFPLAY_TAG, "%s MSG_SEEK_COMPLETE", __func__);
                 break;
             case Message::REQ_START:
-                ALOGD(FFPLAY_TAG, "%s REQ_START", __func__);
+                // ALOGD(FFPLAY_TAG, "%s REQ_START", __func__);
                 break;
             case Message::REQ_PAUSE:
-                ALOGD(FFPLAY_TAG, "%s REQ_PAUSE", __func__);
+                // ALOGD(FFPLAY_TAG, "%s REQ_PAUSE", __func__);
                 break;
             case Message::REQ_SEEK:
-                ALOGD(FFPLAY_TAG, "%s REQ_SEEK", __func__);
+                // ALOGD(FFPLAY_TAG, "%s REQ_SEEK", __func__);
                 break;
             default:
                 break;
@@ -1002,9 +1002,11 @@ int FFPlay::videoThread() {
     }
 
     for (;;) {
+        ALOGI(FFPLAY_TAG, "%s prepare get video frame", __func__);
         ret = getVideoFrame(frame);
         if (ret < 0) {
             av_frame_free(&frame);
+            ALOGE(FFPLAY_TAG, "%s not get video frame", __func__);
             return NEGATIVE(S_NOT_GET_VIDEO_FRAME);
         }
         if (ret == NEGATIVE_EOF) {
@@ -1018,9 +1020,12 @@ int FFPlay::videoThread() {
 
         if (ret < 0) {
             av_frame_free(&frame);
+            ALOGE(FFPLAY_TAG, "%s not queue picture", __func__);
             return NEGATIVE(S_NOT_QUEUE_PICTURE);
         }
     }
+
+    ALOGD(FFPLAY_TAG, "%s end", __func__);
     return POSITIVE;
 }
 

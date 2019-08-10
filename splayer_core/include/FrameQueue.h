@@ -14,6 +14,8 @@
  * https://www.jianshu.com/p/6014de9c47ea
  */
 class FrameQueue {
+private:
+    bool _condWait = false;
 public:
     // queue是存储Frame的数组
     Frame queue[FRAME_QUEUE_SIZE];

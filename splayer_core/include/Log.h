@@ -55,7 +55,7 @@ logMutex->mutexLock();\
 (void)printf("-"); \
 (void)printf("\x1B[32m"); \
 (void)printf("%-13s",TAG); \
-(void)printf("\033[0m"); \
+(void)printf("\033[0m: "); \
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
 logMutex->mutexUnLock(); \
@@ -69,7 +69,7 @@ logMutex->mutexLock();\
 (void)printf("%-7s",Thread::getThreadNameById(pthread_self())); \
 (void)printf("\033[0m"); \
 (void)printf("-"); \
-(void)printf("\x1B[33m"); \
+(void)printf("\x1B[30;1m"); \
 (void)printf("%-13s",TAG); \
 (void)printf("\033[0m: "); \
 (void)printf(__VA_ARGS__); \
@@ -93,6 +93,22 @@ logMutex->mutexLock();\
 logMutex->mutexUnLock(); \
 } while (0)
 
+#define _ALOGW(TAG, ...) do { \
+logMutex->mutexLock();\
+(void)printf("\x1B[37m"); \
+(void)printf("%s-",LOG_TAG); \
+(void)printf("\x1B[35;1m"); \
+(void)printf("%-7s",Thread::getThreadNameById(pthread_self())); \
+(void)printf("\033[0m"); \
+(void)printf("-"); \
+(void)printf("\x1B[33m"); \
+(void)printf("%-13s",TAG); \
+(void)printf("\033[0m: "); \
+(void)printf(__VA_ARGS__); \
+(void)printf("\n"); \
+logMutex->mutexUnLock(); \
+} while (0)
+
 
 #endif
 
@@ -100,7 +116,7 @@ logMutex->mutexUnLock(); \
 #define ALOGI(TAG, ...)  _ALOGI(TAG, __VA_ARGS__)
 #define ALOGE(TAG, ...)  _ALOGE(TAG, __VA_ARGS__)
 #define ALOGV(TAG, ...)  _ALOGI(TAG, __VA_ARGS__)
-#define ALOGW(TAG, ...)  _ALOGI(TAG, __VA_ARGS__)
+#define ALOGW(TAG, ...)  _ALOGW(TAG, __VA_ARGS__)
 
 
 #endif //SPLAYER_LOG_H

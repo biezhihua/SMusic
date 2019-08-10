@@ -83,8 +83,13 @@ Frame *FrameQueue::peekWritable() {
         // wait until we have space to put a new frame
         mutex->mutexLock();
         while (size >= maxSize && !packetQueue->abortRequest) {
+            if (!_condWait) {
+                _condWait = true;
+                ALOGW(FRAME_QUEUE_TAG, "%s size = %d maxSize = %d do waiting", __func__, size, maxSize);
+            }
             mutex->condWait();
         }
+        _condWait = false;
         mutex->mutexUnLock();
 
         // abort
