@@ -239,7 +239,7 @@ void FFPlay::streamClose() {
 
         /* XXX: use a special url_shutdown call to abort parse cleanly */
 
-        videoState->abortRequest = 0;
+        videoState->abortRequest = 1;
 
         if (videoState->readThread) {
             videoState->readThread->waitThread();
@@ -1210,9 +1210,9 @@ int FFPlay::queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t
 }
 
 int FFPlay::refreshThread() {
-    ALOGD(FFPLAY_TAG, __func__);
+    ALOGD(FFPLAY_TAG, "%s abort = %d", __func__, videoState->abortRequest);
     double remainingTime = 0.0;
-    while (videoState->abortRequest) {
+    while (!videoState->abortRequest) {
         if (remainingTime > 0.0) {
             av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
         }
