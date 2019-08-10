@@ -103,7 +103,7 @@ double TDStretchSSE::calcCrossCorr(const float *pV1, const float *pV2, double &a
     pVec2 = (const __m128*)pV2;
     vSum = vNorm = _mm_setzero_ps();
 
-    // Unroll the loop by factor of 4 * 4 operations. Use same routine for
+    // Unroll the optionLoop by factor of 4 * 4 operations. Use same routine for
     // stereo & mono, for mono it just means twice the amount of unrolling.
     for (i = 0; i < channels * overlapLength / 16; i ++) 
     {
@@ -269,7 +269,7 @@ uint FIRFilterSSE::evaluateFilterStereo(float *dest, const float *source, uint n
 
         for (i = 0; i < length / 8; i ++) 
         {
-            // Unroll loop for efficiency & calculate filter for 2*2 stereo samples 
+            // Unroll optionLoop for efficiency & calculate filter for 2*2 stereo samples
             // at each pass
 
             // sum1 is accu for 2*2 filtered stereo sound data at the primary sound data offset
@@ -326,7 +326,7 @@ uint FIRFilterSSE::evaluateFilterStereo(float *dest, const float *source, uint n
         pFil = filterCoeffs;
         for (i = 0; i < lengthLocal; i ++) 
         {
-            // unroll loop for efficiency.
+            // unroll optionLoop for efficiency.
 
             suml1 += ptr[0] * pFil[0] + 
                      ptr[2] * pFil[2] +

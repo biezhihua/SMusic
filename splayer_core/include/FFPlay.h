@@ -1,5 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 #ifndef SPLAYER_PLAY_H
 #define SPLAYER_PLAY_H
 
@@ -52,9 +50,6 @@ class FFPlay {
 
 private:
 
-    Mutex *avMutex = nullptr;
-    Mutex *vfMutex = nullptr;
-
     /**
      * Message Loop
      */
@@ -75,6 +70,14 @@ private:
      */
     Pipeline *pipeline = nullptr;
 
+
+    /**
+     *  current context
+     */
+    VideoState *videoState = nullptr;
+    AVPacket flushPacket;
+    int isFullScreen;
+
     /**
      * format/codec options
      */
@@ -86,88 +89,44 @@ private:
     AVDictionary *playerOpts = nullptr;
 
     /**
-     * Options specified by the user
+     * options specified by the user
      */
+    AVInputFormat *optionInputFormat = nullptr;
+    char *optionInputFileName = nullptr;
+    char *optionWindowTitle = nullptr;
+    int optionDefaultWidth = 640;
+    int optionDefaultHeight = 480;
+    int optionScreenWidth = 0;
+    int optionScreenHeight = 0;
+    int optionScreenLeft = 0;
+    int optionScreenTop = 0;
 
-    AVInputFormat *inputFormat = nullptr;
-    char *inputFileName = nullptr;
-
-    VideoState *videoState = nullptr;
-
-    AVPacket flushPacket;
-
-    int videoQueueSize;
-
-    int startupVolume = 100;
-
-    int avSyncType = AV_SYNC_AUDIO_MASTER;
-
-    char *inputFormatName;
-
-    char *wantedStreamSpec[AVMEDIA_TYPE_NB] = {0};
-
-    char *audioCodecName;
-
-    char *subtitleCodecName;
-
-    char *videoCodecName;
-
-    int genpts;
-
-    int findStreamInfo;
-
-    int seekByBytes;
-
-    char *windowTitle;
-
-    int64_t startTime = AV_NOPTS_VALUE;
-
-    int64_t duration = AV_NOPTS_VALUE;
-
-    int audioDisable = 0;
-
-    int videoDisable = 0;
-
-    int subtitleDisable = 0;
-
-    int showMode = SHOW_MODE_NONE;
-
-    int infiniteBuffer = -1;
-
-    int renderWaitStart;
-
-    int startOnPrepared;
-
-    bool prepared;
-
-    int autoResume;
-
-    int seekAtStart;
-
-    int loop = 1;
-
-    int autoExit;
-
-    int showStatus = 1;
-
-    int lowres = 0;
-
-    int fast = 0;
-
-    int frameDrop = -1;
-
-    int decoderReorderPts = -1;
-
-    double rdftspeed = 0.02;
-
-    int defaultWidth = 640;
-    int defaultHeight = 480;
-    int screenWidth = 0;
-    int screenHeight = 0;
-    int screen_left = 0;
-    int screen_top = 0;
-    int is_full_screen;
-
+    char *optionWantedStreamSpec[AVMEDIA_TYPE_NB] = {nullptr};
+    int optionSeekByBytes = -1;
+    float optionSeekInterval = 10;
+    int optionAudioDisable = 0;
+    int optionVideoDisable = 0;
+    int optionSubtitleDisable = 0;
+    int optionStartupVolume = 100;
+    int optionSyncType = SYNC_TYPE_AUDIO_MASTER;
+    int64_t optionStartTime = AV_NOPTS_VALUE;
+    int64_t optionDuration = AV_NOPTS_VALUE;
+    int optionFast = 0;
+    int optionGenpts = 0;
+    int optionLowres = 0;
+    int optionDecoderReorderPts = -1;
+    int optionAutoExit;
+    int optionLoop = 1;
+    int optionFrameDrop = -1;
+    int optionShowMode = SHOW_MODE_NONE;
+    char *optionInputFormatName = nullptr;
+    char *optionAudioCodecName = nullptr;
+    char *optionSubtitleCodecName = nullptr;
+    char *optionVideoCodecName = nullptr;
+    double optionRDFTSpeed = 0.02;
+    int optionInfiniteBuffer = -1;
+    int optionShowStatus = 1;
+    int optionFindStreamInfo = 1;
 
 public:
     FFPlay();
@@ -263,5 +222,3 @@ private:
 };
 
 #endif //SPLAYER_PLAY_H
-
-#pragma clang diagnostic pop

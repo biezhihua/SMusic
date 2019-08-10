@@ -19,9 +19,9 @@
 #define MIX_MAX_VOLUME      128
 
 // Sync Type
-#define AV_SYNC_AUDIO_MASTER        0 /* default choice */
-#define AV_SYNC_VIDEO_MASTER        1
-#define AV_SYNC_EXTERNAL_CLOCK      2 /* synchronize to an external clock */
+#define SYNC_TYPE_AUDIO_MASTER        0 /* default choice */
+#define SYNC_TYPE_VIDEO_MASTER        1
+#define SYNC_TYPE_EXTERNAL_CLOCK      2 /* synchronize to an external clock */
 
 // Show Mode
 #define SHOW_MODE_NONE      -1
@@ -34,7 +34,7 @@
 #define SYNC_THRESHOLD_MIN 0.04
 /* AV sync correction is done if above the maximum AV sync threshold */
 #define SYNC_THRESHOLD_MAX 0.1
-/* If a frame duration is longer than this, it will not be duplicated to compensate AV sync */
+/* If a frame optionDuration is longer than this, it will not be duplicated to compensate AV sync */
 #define SYNC_FRAMEDUP_THRESHOLD 0.1
 /* no AV correction is done if too big error */
 #define NOSYNC_THRESHOLD 10.0

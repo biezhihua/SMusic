@@ -43,7 +43,7 @@ public:
     static const int MSG_BUFFERING_END = 17;
     static const int MSG_BUFFERING_UPDATE = 18;       /* arg1 = buffering head position in time, arg2 = minimum percent in time or bytes */
     static const int MSG_BUFFERING_BYTES_UPDATE = 19; /* arg1 = cached data in bytes,            arg2 = high water mark */
-    static const int MSG_BUFFERING_TIME_UPDATE = 20;  /* arg1 = cached duration in milliseconds, arg2 = high water mark */
+    static const int MSG_BUFFERING_TIME_UPDATE = 20;  /* arg1 = cached optionDuration in milliseconds, arg2 = high water mark */
     static const int MSG_SEEK_COMPLETE = 21;          /* arg1 = seek position,                   arg2 = error */
     static const int MSG_PLAYBACK_STATE_CHANGED = 22;
     static const int MSG_TIMED_TEXT = 23;
