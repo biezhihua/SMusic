@@ -15,7 +15,8 @@
  */
 class FrameQueue {
 private:
-    bool _condWait = false;
+    bool _condWriteableWait = false;
+    bool _condReadableWait = false;
 public:
     // queue是存储Frame的数组
     Frame queue[FRAME_QUEUE_SIZE];
