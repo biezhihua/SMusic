@@ -51,45 +51,32 @@ class FFPlay {
 private:
 
     /**
-     * Message Loop
+     * Self Implement
      */
     MessageQueue *msgQueue = nullptr;
-
-    /**
-     * Audio Output
-     */
     AOut *aOut = nullptr;
-
-    /**
-     * Video Output
-     */
     VOut *vOut = nullptr;
-
-    /**
-     * Data input
-     */
     Pipeline *pipeline = nullptr;
 
-
     /**
-     *  current context
+     *  Current Context
      */
     VideoState *videoState = nullptr;
     AVPacket flushPacket;
     int isFullScreen;
 
     /**
-     * format/codec options
+     * Format/Codec Options
      */
-    AVDictionary *formatOpts = nullptr;
-    AVDictionary *codecOpts = nullptr;
-    AVDictionary *swsDict = nullptr;
-    AVDictionary *swrOpts = nullptr;
-    AVDictionary *swrPresetOpts = nullptr;
-    AVDictionary *playerOpts = nullptr;
+    AVDictionary *optionFormat = nullptr;
+    AVDictionary *optionCodec = nullptr;
+    AVDictionary *optionSws = nullptr;
+    AVDictionary *optionSwr = nullptr;
+    AVDictionary *optionSwrPreset = nullptr;
+    AVDictionary *optionPlayer = nullptr;
 
     /**
-     * options specified by the user
+     * Options specified by the user
      */
     AVInputFormat *optionInputFormat = nullptr;
     char *optionInputFileName = nullptr;
@@ -100,7 +87,6 @@ private:
     int optionScreenHeight = 0;
     int optionScreenLeft = 0;
     int optionScreenTop = 0;
-
     char *optionWantedStreamSpec[AVMEDIA_TYPE_NB] = {nullptr};
     int optionSeekByBytes = -1;
     float optionSeekInterval = 10;
@@ -198,7 +184,6 @@ private:
     int decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *subtitle);
 
     int queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial);
-
 
     void videoRefresh(double *remainingTime);
 

@@ -86,11 +86,11 @@ void FFPlay::showVersionsAndOptions() {
     ALOGI("%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libswresample", swresample_version());
 
     ALOGI("===== options =====");
-    showDict("player-opts", playerOpts);
-    showDict("format-opts", formatOpts);
-    showDict("codec-opts ", codecOpts);
-    showDict("sws-opts   ", swsDict);
-    showDict("swr-opts   ", swrOpts);
+    showDict("player-opts", optionPlayer);
+    showDict("format-opts", optionFormat);
+    showDict("codec-opts ", optionCodec);
+    showDict("sws-opts   ", optionSws);
+    showDict("swr-opts   ", optionSwr);
 }
 
 int FFPlay::getMsg(Message *msg, bool block) {
@@ -324,8 +324,8 @@ int FFPlay::readThread() {
     formatContext->interrupt_callback.callback = decodeInterruptCallback;
     formatContext->interrupt_callback.opaque = videoState;
 
-    if (!av_dict_get(formatOpts, SCAN_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE)) {
-        av_dict_set(&formatOpts, SCAN_ALL_PMTS, "1", AV_DICT_DONT_OVERWRITE);
+    if (!av_dict_get(optionFormat, SCAN_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE)) {
+        av_dict_set(&optionFormat, SCAN_ALL_PMTS, "1", AV_DICT_DONT_OVERWRITE);
         scanAllPmtsSet = 1;
     }
 
@@ -333,7 +333,7 @@ int FFPlay::readThread() {
         videoState->inputFormat = av_find_input_format(optionInputFormatName);
     }
 
-    if (avformat_open_input(&formatContext, videoState->fileName, videoState->inputFormat, &formatOpts) < 0) {
+    if (avformat_open_input(&formatContext, videoState->fileName, videoState->inputFormat, &optionFormat) < 0) {
         ALOGE("%s avformat could not open input", __func__);
         closeReadThread(videoState, formatContext);
         return NEGATIVE(S_NOT_OPEN_INPUT);
@@ -344,10 +344,10 @@ int FFPlay::readThread() {
     }
 
     if (scanAllPmtsSet) {
-        av_dict_set(&formatOpts, SCAN_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE);
+        av_dict_set(&optionFormat, SCAN_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE);
     }
 
-    if ((dictionaryEntry = av_dict_get(formatOpts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
+    if ((dictionaryEntry = av_dict_get(optionFormat, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
         ALOGE("%s option %s not found.", __func__, dictionaryEntry->key);
         closeReadThread(videoState, formatContext);
         return NEGATIVE_OPTION_NOT_FOUND;
@@ -362,7 +362,7 @@ int FFPlay::readThread() {
     av_format_inject_global_side_data(formatContext);
 
     if (optionFindStreamInfo) {
-        AVDictionary **opts = setupFindStreamInfoOpts(formatContext, codecOpts);
+        AVDictionary **opts = setupFindStreamInfoOpts(formatContext, optionCodec);
         int ret = avformat_find_stream_info(formatContext, opts);
         if (msgQueue) {
             msgQueue->notifyMsg(Message::MSG_FIND_STREAM_INFO);
@@ -800,7 +800,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
         codecContext->flags2 |= AV_CODEC_FLAG2_FAST;
     }
 
-    opts = filter_codec_opts(codecOpts, codecContext->codec_id, formatContext, formatContext->streams[streamIndex], codec);
+    opts = filter_codec_opts(optionCodec, codecContext->codec_id, formatContext, formatContext->streams[streamIndex], codec);
 
     if (!av_dict_get(opts, "threads", nullptr, 0)) {
         av_dict_set(&opts, "threads", "auto", 0);
