@@ -7,7 +7,7 @@
 #include "MacSDL2VideoOut.h"
 #include "MacPipeline.h"
 
-#define MAC_MEDIA_PLAYER_TAG "MacMP"
+#define MAC_MEDIA_PLAYER_TAG "MacMPlayer"
 
 class MacMediaPlayer : public MediaPlayer {
 

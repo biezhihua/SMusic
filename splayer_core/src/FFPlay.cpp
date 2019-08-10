@@ -99,7 +99,7 @@ int FFPlay::getMsg(Message *msg, bool block) {
     while (true) {
         bool continueWaitNextMsg = false;
         int ret = msgQueue->getMsg(msg, block);
-        ALOGD(FFPLAY_TAG, "%s get msg ret=%d", __func__, ret);
+        ALOGD(FFPLAY_TAG, "%s get msg ret = %d", __func__, ret);
         if (ret != POSITIVE) {
             return ret;
         }
@@ -410,7 +410,7 @@ int FFPlay::readThread() {
         }
         if (avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX, 0) < 0) {
             ALOGD(FFPLAY_TAG, "%s %s: could not seek to position %0.3f", __func__, videoState->fileName,
-                   (double) timestamp / AV_TIME_BASE);
+                  (double) timestamp / AV_TIME_BASE);
         }
     }
 
@@ -798,7 +798,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
 
     if (streamLowres > codec->max_lowres) {
         ALOGD(FFPLAY_TAG, "%s The maximum value for optionLowres supported by the decoder is %d", __func__,
-               codec->max_lowres);
+              codec->max_lowres);
         streamLowres = codec->max_lowres;
     }
     codecContext->lowres = streamLowres;

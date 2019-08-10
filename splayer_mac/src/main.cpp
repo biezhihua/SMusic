@@ -3,6 +3,8 @@
 #include "MacMediaPlayer.h"
 #include <string>
 
+Mutex *logMutex = new Mutex();
+
 int main() {
     auto *player = new MacMediaPlayer();
     int ret = 0;

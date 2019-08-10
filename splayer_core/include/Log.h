@@ -23,11 +23,9 @@
 
 #else
 
-#include <stdio.h>
 #include <pthread.h>
 #include "Mutex.h"
-
-static Mutex *logMutex = new Mutex();
+#include <stdio.h>
 
 #define LOG_UNKNOWN     0
 #define LOG_DEFAULT     1
@@ -40,9 +38,7 @@ static Mutex *logMutex = new Mutex();
 #define LOG_FATAL       7
 #define LOG_SILENT      8
 
-#define VLOG(level, TAG, ...)    do { (void)vprintf("%s : ",TAG); (void)vprintf(__VA_ARGS__); (void)vprintf("\n"); } while (0)
-#define ALOG(level, TAG, ...)    do { (void)printf("%-12s : ",TAG); (void)printf(__VA_ARGS__); (void)printf("\n"); } while (0)
-
+extern Mutex *logMutex;
 
 // http://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
 
