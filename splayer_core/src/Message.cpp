@@ -54,8 +54,8 @@ const char *Message::getMsgSimpleName(int what) {
             return "MSG_BUFFERING_TIME_UPDATE";
         case MSG_SEEK_COMPLETE :
             return "MSG_SEEK_COMPLETE";
-        case MSG_PLAYBACK_STATE_CHANGED :
-            return "MSG_PLAYBACK_STATE_CHANGED";
+        case MSG_STATE_CHANGED :
+            return "MSG_STATE_CHANGED";
         case MSG_TIMED_TEXT :
             return "MSG_TIMED_TEXT";
         case MSG_ACCURATE_SEEK_COMPLETE :

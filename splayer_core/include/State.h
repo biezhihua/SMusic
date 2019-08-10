@@ -5,6 +5,8 @@
 #include "Error.h"
 #include "MessageQueue.h"
 
+#define STATE_TAG "State"
+
 class State {
 
 private:
@@ -13,7 +15,7 @@ private:
 
     MessageQueue *msgQueue;
 
-    const char *getState(const int state);
+    const char *getState(int state);
 
 public:
     State();

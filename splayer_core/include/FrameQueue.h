@@ -8,6 +8,8 @@
 #include "Error.h"
 #include "Log.h"
 
+#define FRAME_QUEUE_TAG "FrameQueue"
+
 /**
  * https://www.jianshu.com/p/6014de9c47ea
  */

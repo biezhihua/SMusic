@@ -1,35 +1,31 @@
 #include "MediaPlayer.h"
 #include "Thread.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunknown-pragmas"
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 
-MediaPlayer::MediaPlayer() {
-    ALOGD(__func__);
-}
+MediaPlayer::MediaPlayer() = default;
 
-MediaPlayer::~MediaPlayer() {
-    ALOGD(__func__);
-}
+MediaPlayer::~MediaPlayer() = default;
 
 int MediaPlayer::create() {
-    ALOGD(__func__);
+    ALOGD(MEDIA_PLAYER_TAG, __func__);
 
     state = new State();
     if (!state) {
+        ALOGE(MEDIA_PLAYER_TAG, "create state error");
         return NEGATIVE(S_NOT_MEMORY);
     }
 
     mutex = new Mutex();
     if (!mutex) {
         delete state;
+        ALOGE(MEDIA_PLAYER_TAG, "create mutex error");
         return NEGATIVE(S_NOT_MEMORY);
     }
 
     play = new FFPlay();
     if (!play) {
         delete mutex;
+        ALOGE(MEDIA_PLAYER_TAG, "create play error");
         return NEGATIVE(S_NOT_MEMORY);
     }
 
@@ -42,7 +38,7 @@ int MediaPlayer::create() {
         delete state;
         delete mutex;
         delete play;
-        ALOGE("create surface error");
+        ALOGE(MEDIA_PLAYER_TAG, "create surface error");
         return NEGATIVE(S_NOT_MEMORY);
     }
     play->setVOut(vOut);
@@ -54,7 +50,7 @@ int MediaPlayer::create() {
         delete mutex;
         delete play;
         delete vOut;
-        ALOGE("create pipeline error");
+        ALOGE(MEDIA_PLAYER_TAG, "create pipeline error");
         return NEGATIVE(S_NOT_MEMORY);
     }
     play->setPipeline(pipeline);
@@ -64,7 +60,7 @@ int MediaPlayer::create() {
 }
 
 int MediaPlayer::start() {
-    ALOGD(__func__);
+    ALOGD(MEDIA_PLAYER_TAG, __func__);
     if (play && mutex) {
         mutex->mutexLock();
         removeMsg(Message::REQ_START);
@@ -77,7 +73,7 @@ int MediaPlayer::start() {
 }
 
 int MediaPlayer::stop() {
-    ALOGD(__func__);
+    ALOGD(MEDIA_PLAYER_TAG, __func__);
     if (play && mutex) {
         mutex->mutexLock();
         removeMsg(Message::REQ_START);
@@ -94,7 +90,7 @@ int MediaPlayer::stop() {
 }
 
 int MediaPlayer::pause() {
-    ALOGD(__func__);
+    ALOGD(MEDIA_PLAYER_TAG, __func__);
     if (play && mutex) {
         mutex->mutexLock();
         removeMsg(Message::REQ_START);
@@ -107,12 +103,12 @@ int MediaPlayer::pause() {
 }
 
 int MediaPlayer::reset() {
-    ALOGD(__func__);
+    ALOGD(MEDIA_PLAYER_TAG, __func__);
     if (play && mutex) {
         if (destroy()) {
-            ALOGD("reset - destroy success");
+            ALOGD(MEDIA_PLAYER_TAG, "reset - destroy success");
             if (create()) {
-                ALOGD("reset - create success");
+                ALOGD(MEDIA_PLAYER_TAG, "reset - create success");
                 return 0;
             }
             return NEGATIVE(ENOMEM);
@@ -123,7 +119,7 @@ int MediaPlayer::reset() {
 }
 
 int MediaPlayer::destroy() {
-    ALOGD(__func__);
+    ALOGD(MEDIA_PLAYER_TAG, __func__);
     if (state && mutex && play) {
         mutex->mutexLock();
         // TODO set new surface
@@ -139,7 +135,7 @@ int MediaPlayer::destroy() {
 }
 
 int MediaPlayer::setDataSource(const char *url) {
-    ALOGD("%s url=%s", "setDataSource", url);
+    ALOGD(MEDIA_PLAYER_TAG, "%s url = %s", "setDataSource", url);
     if (state && mutex && play) {
         mutex->mutexLock();
         dataSource = strdup(url);
@@ -229,5 +225,3 @@ MessageQueue *MediaPlayer::getMsgQueue() {
     }
     return nullptr;
 }
-
-#pragma clang diagnostic pop

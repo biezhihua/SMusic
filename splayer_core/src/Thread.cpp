@@ -7,7 +7,6 @@ static void *runThread(void *data) {
         ALOGD("%s android", __func__);
         pthread_setname_np(pthread_self(), thread->name->c_str());
 #elif __MAC_10_14_4
-        ALOGD("%s mac", __func__);
         pthread_setname_np(thread->name->c_str());
 #else
         ALOGD("%s else", __func__);
@@ -30,12 +29,10 @@ Thread::~Thread() {
 }
 
 int Thread::waitThread() {
-    ALOGD(__func__);
     pthread_join(id, nullptr);
     return retval;
 }
 
 void Thread::detachThread() {
-    ALOGD(__func__);
     pthread_detach(id);
 }

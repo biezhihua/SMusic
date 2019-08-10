@@ -1,19 +1,20 @@
 #include "MessageQueue.h"
 
 MessageQueue::MessageQueue() {
-    ALOGD(__func__);
     mutex = new Mutex();
     queue = new list<Message *>();
 }
 
 MessageQueue::~MessageQueue() {
-    ALOGD(__func__);
     clearMsgQueue();
     delete queue;
     delete mutex;
 }
 
 int MessageQueue::putMsg(Message *msg) {
+
+    ALOGD(MESSAGE_QUEUE_TAG, "%s abort = %d what = %s arg1 = %d arg2 = %d", __func__, abortRequest, Message::getMsgSimpleName(msg->what), msg->arg1, msg->arg2);
+
     int ret = NEGATIVE_UNKNOWN;
     if (mutex && queue) {
         mutex->mutexLock();
@@ -25,20 +26,17 @@ int MessageQueue::putMsg(Message *msg) {
 
 int MessageQueue::_putMsg(Message *msg) {
     if (abortRequest || !msg) {
-        ALOGE("%s %d %p", __func__, abortRequest, msg);
-        return NEGATIVE(S_NULL);
+        return NEGATIVE(S_ABORT_REQUEST);
     }
-    ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(msg->what));
     if (queue && mutex) {
         queue->push_back(msg);
         mutex->condSignal();
     }
-    ALOGD("%s memorySize=%ld", __func__, queue->size());
     return POSITIVE;
 }
 
 int MessageQueue::setAbortRequest(bool abortRequest) {
-    ALOGD("%s abortRequest=%d", __func__, abortRequest);
+    ALOGD(MESSAGE_QUEUE_TAG, "%s abortRequest=%d", __func__, abortRequest);
     if (mutex) {
         mutex->mutexLock();
         MessageQueue::abortRequest = abortRequest;
@@ -49,7 +47,7 @@ int MessageQueue::setAbortRequest(bool abortRequest) {
 }
 
 int MessageQueue::clearMsgQueue() {
-    ALOGD(__func__);
+    ALOGD(MESSAGE_QUEUE_TAG, __func__);
     if (mutex) {
         mutex->mutexLock();
         if (queue != nullptr) {
@@ -73,7 +71,7 @@ int MessageQueue::getMsg(Message *msg, bool block) {
         while (true) {
             if (abortRequest) {
                 ret = NEGATIVE(S_CONDITION);
-                ALOGE("%s abort=%d", __func__, abortRequest);
+                ALOGE(MESSAGE_QUEUE_TAG, "%s abort=%d", __func__, abortRequest);
                 break;
             }
             Message *message = queue->front();
@@ -81,14 +79,14 @@ int MessageQueue::getMsg(Message *msg, bool block) {
                 queue->pop_front();
                 *msg = *message;
                 ret = POSITIVE;
-                ALOGD("%s success", __func__);
+                ALOGD(MESSAGE_QUEUE_TAG, "%s success", __func__);
                 break;
             } else if (!block) {
                 ret = NEGATIVE(S_CONDITION);
-                ALOGD("%s not block", __func__);
+                ALOGD(MESSAGE_QUEUE_TAG, "%s not block", __func__);
                 break;
             } else {
-                ALOGD("%s waiting", __func__);
+                ALOGD(MESSAGE_QUEUE_TAG, "%s waiting", __func__);
                 mutex->condWait();
             }
         }
@@ -99,7 +97,7 @@ int MessageQueue::getMsg(Message *msg, bool block) {
 
 
 int MessageQueue::removeMsg(int what) {
-    ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(what));
+    ALOGD(MESSAGE_QUEUE_TAG, "%s what=%s", __func__, Message::getMsgSimpleName(what));
     if (queue && mutex) {
         mutex->mutexLock();
         std::list<Message *>::iterator it;
@@ -119,7 +117,7 @@ int MessageQueue::removeMsg(int what) {
 }
 
 int MessageQueue::startMsgQueue() {
-    ALOGD(__func__);
+    ALOGD(MESSAGE_QUEUE_TAG, __func__);
     if (queue && mutex) {
         mutex->mutexLock();
         abortRequest = false;
@@ -133,7 +131,6 @@ int MessageQueue::startMsgQueue() {
 }
 
 int MessageQueue::notifyMsg(int what) {
-    ALOGD("%s what=%s", __func__, Message::getMsgSimpleName(what));
     auto *message = new Message();
     message->what = what;
     putMsg(message);
@@ -141,7 +138,6 @@ int MessageQueue::notifyMsg(int what) {
 }
 
 int MessageQueue::notifyMsg(int what, int arg1) {
-    ALOGD("%s what=%s arg1=%d", __func__, Message::getMsgSimpleName(what), arg1);
     auto *message = new Message();
     message->what = what;
     message->arg1 = arg1;
@@ -150,7 +146,6 @@ int MessageQueue::notifyMsg(int what, int arg1) {
 }
 
 int MessageQueue::notifyMsg(int what, int arg1, int arg2) {
-    ALOGD("%s what=%s arg1=%d arg2=%d", __func__, Message::getMsgSimpleName(what), arg1, arg2);
     auto *message = new Message();
     message->what = what;
     message->arg1 = arg1;

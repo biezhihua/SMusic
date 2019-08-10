@@ -6,6 +6,8 @@
 #include "Error.h"
 #include "Log.h"
 
+#define PACKET_QUEUE_TAG "PacketQueue"
+
 class PacketQueue {
 
 private:

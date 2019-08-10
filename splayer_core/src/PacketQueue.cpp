@@ -1,10 +1,5 @@
 #include "PacketQueue.h"
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-#pragma clang diagnostic ignored "-Wunknown-pragmas"
-#pragma ide diagnostic ignored "OCDFAInspection"
-
 int PacketQueue::packetQueueInit(AVPacket *pFlushPacket) {
 
     flushPacket = pFlushPacket;
@@ -12,13 +7,13 @@ int PacketQueue::packetQueueInit(AVPacket *pFlushPacket) {
     mutex = new Mutex();
 
     if (!mutex) {
-        ALOGE("%s create mutex fail", __func__);
+        ALOGE(PACKET_QUEUE_TAG, "%s create mutex fail", __func__);
         return NEGATIVE(S_NOT_MEMORY);
     }
 
     abortRequest = 1;
 
-    ALOGI("%s mutex=%p abortRequest=%d",
+    ALOGD(PACKET_QUEUE_TAG, "%s mutex = %p abortRequest = %d",
           __func__,
           mutex,
           abortRequest);
@@ -170,4 +165,3 @@ int PacketQueue::packetQueuePutPrivate(AVPacket *packet) {
     return POSITIVE;
 }
 
-#pragma clang diagnostic pop

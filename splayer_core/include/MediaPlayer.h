@@ -10,6 +10,8 @@
 #include "State.h"
 #include "Thread.h"
 
+#define MEDIA_PLAYER_TAG "MediaPlayer"
+
 class MediaPlayer {
 
 protected:

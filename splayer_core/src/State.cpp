@@ -1,19 +1,17 @@
 #include "State.h"
 
 State::State() {
-    ALOGD(__func__);
 }
 
 State::~State() {
-    ALOGD(__func__);
     msgQueue = nullptr;
 }
 
 int State::changeState(const int state) {
-    ALOGD("%s state=%s", __func__, getState(state));
+    ALOGD(STATE_TAG, "%s change to state = %s", __func__, getState(state));
     State::state = state;
     if (msgQueue) {
-        msgQueue->notifyMsg(Message::MSG_PLAYBACK_STATE_CHANGED);
+        msgQueue->notifyMsg(Message::MSG_STATE_CHANGED);
         return POSITIVE;
     }
     return NEGATIVE(S_NULL);

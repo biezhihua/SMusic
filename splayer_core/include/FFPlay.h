@@ -46,6 +46,8 @@ static const char *const URL_FORMAT_RTP = "rtp:";
 
 static const char *const URL_FORMAT_UDP = "udp:";
 
+#define FFPLAY_TAG "FFplay"
+
 class FFPlay {
 
 private:

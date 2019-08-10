@@ -1,6 +1,7 @@
 #ifndef SPLAYER_LOG_H
 #define SPLAYER_LOG_H
 
+#define LOG_TAG "Media"
 
 #ifdef __ANDROID__
 
@@ -23,6 +24,10 @@
 #else
 
 #include <stdio.h>
+#include <pthread.h>
+#include "Mutex.h"
+
+static Mutex *logMutex = new Mutex();
 
 #define LOG_UNKNOWN     0
 #define LOG_DEFAULT     1
@@ -35,25 +40,59 @@
 #define LOG_FATAL       7
 #define LOG_SILENT      8
 
-#define VLOG(level, TAG, ...)    do { (void)vprintf("%s ",TAG); (void)vprintf(__VA_ARGS__); (void)vprintf("\n"); } while (0)
-#define ALOG(level, TAG, ...)    do { (void)printf("%s ",TAG); (void)printf(__VA_ARGS__); (void)printf("\n"); } while (0)
+#define VLOG(level, TAG, ...)    do { (void)vprintf("%s : ",TAG); (void)vprintf(__VA_ARGS__); (void)vprintf("\n"); } while (0)
+#define ALOG(level, TAG, ...)    do { (void)printf("%-12s : ",TAG); (void)printf(__VA_ARGS__); (void)printf("\n"); } while (0)
+
+
+// http://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
+
+#define _ALOGD(TAG, ...) do { \
+logMutex->mutexLock();\
+(void)printf("\x1B[37m"); \
+(void)printf("%s-",LOG_TAG); \
+(void)printf("\033[0m"); \
+(void)printf("\x1B[32m"); \
+(void)printf("%-13s",TAG); \
+(void)printf("\033[0m: "); \
+(void)printf(__VA_ARGS__); \
+(void)printf("\n"); \
+logMutex->mutexUnLock(); \
+} while (0)
+
+#define _ALOGI(TAG, ...) do { \
+logMutex->mutexLock();\
+(void)printf("\x1B[37m"); \
+(void)printf("%s-",LOG_TAG); \
+(void)printf("\033[0m"); \
+(void)printf("\x1B[33m"); \
+(void)printf("%-13s",TAG); \
+(void)printf("\033[0m: "); \
+(void)printf(__VA_ARGS__); \
+(void)printf("\n"); \
+logMutex->mutexUnLock(); \
+} while (0)
+
+#define _ALOGE(TAG, ...) do { \
+logMutex->mutexLock();\
+(void)printf("\x1B[37m"); \
+(void)printf("%s-",LOG_TAG); \
+(void)printf("\033[0m"); \
+(void)printf("\x1B[31m"); \
+(void)printf("%-13s",TAG); \
+(void)printf("\033[0m: "); \
+(void)printf(__VA_ARGS__); \
+(void)printf("\n"); \
+logMutex->mutexUnLock(); \
+} while (0)
+
 
 #endif
 
-#define LOG_TAG "Media"
-
-#define VLOGV(...)  VLOG(LOG_VERBOSE,   LOG_TAG, __VA_ARGS__)
-#define VLOGD(...)  VLOG(LOG_DEBUG,     LOG_TAG, __VA_ARGS__)
-#define VLOGI(...)  VLOG(LOG_INFO,      LOG_TAG, __VA_ARGS__)
-#define VLOGW(...)  VLOG(LOG_WARN,      LOG_TAG, __VA_ARGS__)
-#define VLOGE(...)  VLOG(LOG_ERROR,     LOG_TAG, __VA_ARGS__)
-
-#define ALOGV(...)  ALOG(LOG_VERBOSE,   LOG_TAG, __VA_ARGS__)
-#define ALOGD(...)  ALOG(LOG_DEBUG,     LOG_TAG, __VA_ARGS__)
-#define ALOGI(...)  ALOG(LOG_INFO,      LOG_TAG, __VA_ARGS__)
-#define ALOGW(...)  ALOG(LOG_WARN,      LOG_TAG, __VA_ARGS__)
-#define ALOGE(...)  ALOG(LOG_ERROR,     LOG_TAG, __VA_ARGS__)
-#define LOG_ALWAYS_FATAL(...)   do { ALOGE(__VA_ARGS__); exit(1); } while (0)
+#define ALOGD(TAG, ...)  _ALOGD(TAG, __VA_ARGS__)
+#define ALOGI(TAG, ...)  _ALOGI(TAG, __VA_ARGS__)
+#define ALOGE(TAG, ...)  _ALOGE(TAG, __VA_ARGS__)
+#define ALOGV(TAG, ...)  _ALOGI(TAG, __VA_ARGS__)
+#define ALOGW(TAG, ...)  _ALOGI(TAG, __VA_ARGS__)
 
 
 #endif //SPLAYER_LOG_H

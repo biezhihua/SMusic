@@ -1,17 +1,12 @@
-
 #include <FrameQueue.h>
 
 #include "FrameQueue.h"
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunknown-pragmas"
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 
 int FrameQueue::frameQueueInit(PacketQueue *pPacketQueue, int queueSize, int keepLast) {
 
     // 创建互斥量
     if (!(mutex = new Mutex())) {
-        ALOGE("%s create mutex fail", __func__);
+        ALOGE(FRAME_QUEUE_TAG, "%s create mutex fail", __func__);
         return NEGATIVE(S_NOT_MEMORY);
     }
 
@@ -28,7 +23,7 @@ int FrameQueue::frameQueueInit(PacketQueue *pPacketQueue, int queueSize, int kee
         }
     }
 
-    ALOGI("%s packetQueue=%p maxSize=%d keepLast=%d",
+    ALOGD(FRAME_QUEUE_TAG, "%s packetQueue=%p maxSize=%d keepLast=%d",
           __func__,
           packetQueue,
           maxSize,
@@ -189,4 +184,3 @@ int FrameQueue::frameQueueUnrefItem(Frame *frame) {
     return NEGATIVE(S_NULL);
 }
 
-#pragma clang diagnostic pop

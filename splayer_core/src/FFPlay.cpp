@@ -3,29 +3,27 @@
 #include "FFPlay.h"
 
 FFPlay::FFPlay() {
-    ALOGD(__func__);
     msgQueue = new MessageQueue();
 }
 
 FFPlay::~FFPlay() {
-    ALOGD(__func__);
     delete pipeline;
     delete aOut;
     delete msgQueue;
 }
 
 void FFPlay::setAOut(AOut *aOut) {
-    ALOGD(__func__);
+    ALOGD(FFPLAY_TAG, __func__);
     FFPlay::aOut = aOut;
 }
 
 void FFPlay::setVOut(VOut *vOut) {
-    ALOGD(__func__);
+    ALOGD(FFPLAY_TAG, __func__);
     FFPlay::vOut = vOut;
 }
 
 void FFPlay::setPipeline(Pipeline *pipeline) {
-    ALOGD(__func__);
+    ALOGD(FFPLAY_TAG, __func__);
     FFPlay::pipeline = pipeline;
 }
 
@@ -58,6 +56,8 @@ static int innerRefreshThread(void *arg) {
 }
 
 int FFPlay::prepareAsync(const char *fileName) {
+    ALOGD(FFPLAY_TAG, __func__);
+
     showVersionsAndOptions();
 
     avformat_network_init();
@@ -79,15 +79,15 @@ int FFPlay::prepareAsync(const char *fileName) {
 }
 
 void FFPlay::showVersionsAndOptions() {
-    ALOGI("===== versions =====");
-    ALOGI("%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "FFmpeg", av_version_info());
-    ALOGI("%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavutil", avutil_version());
-    ALOGI("%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavcodec", avcodec_version());
-    ALOGI("%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavformat", avformat_version());
-    ALOGI("%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libswscale", swscale_version());
-    ALOGI("%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libswresample", swresample_version());
+    ALOGD(FFPLAY_TAG, "===== versions =====");
+    ALOGD(FFPLAY_TAG, "%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "FFmpeg", av_version_info());
+    ALOGD(FFPLAY_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavutil", avutil_version());
+    ALOGD(FFPLAY_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavcodec", avcodec_version());
+    ALOGD(FFPLAY_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavformat", avformat_version());
+    ALOGD(FFPLAY_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libswscale", swscale_version());
+    ALOGD(FFPLAY_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libswresample", swresample_version());
 
-    ALOGI("===== options =====");
+    ALOGD(FFPLAY_TAG, "===== options =====");
     showDict("player-opts", optionPlayer);
     showDict("format-opts", optionFormat);
     showDict("codec-opts ", optionCodec);
@@ -99,28 +99,28 @@ int FFPlay::getMsg(Message *msg, bool block) {
     while (true) {
         bool continueWaitNextMsg = false;
         int ret = msgQueue->getMsg(msg, block);
-        ALOGD("%s get msg ret=%d", __func__, ret);
+        ALOGD(FFPLAY_TAG, "%s get msg ret=%d", __func__, ret);
         if (ret != POSITIVE) {
             return ret;
         }
         switch (msg->what) {
             case Message::MSG_PREPARED:
-                ALOGD("%s MSG_PREPARED", __func__);
+                ALOGD(FFPLAY_TAG, "%s MSG_PREPARED", __func__);
                 break;
             case Message::MSG_COMPLETED:
-                ALOGD("%s MSG_COMPLETED", __func__);
+                ALOGD(FFPLAY_TAG, "%s MSG_COMPLETED", __func__);
                 break;
             case Message::MSG_SEEK_COMPLETE:
-                ALOGD("%s MSG_SEEK_COMPLETE", __func__);
+                ALOGD(FFPLAY_TAG, "%s MSG_SEEK_COMPLETE", __func__);
                 break;
             case Message::REQ_START:
-                ALOGD("%s REQ_START", __func__);
+                ALOGD(FFPLAY_TAG, "%s REQ_START", __func__);
                 break;
             case Message::REQ_PAUSE:
-                ALOGD("%s REQ_PAUSE", __func__);
+                ALOGD(FFPLAY_TAG, "%s REQ_PAUSE", __func__);
                 break;
             case Message::REQ_SEEK:
-                ALOGD("%s REQ_SEEK", __func__);
+                ALOGD(FFPLAY_TAG, "%s REQ_SEEK", __func__);
                 break;
             default:
                 break;
@@ -136,7 +136,7 @@ int FFPlay::getMsg(Message *msg, bool block) {
 void FFPlay::showDict(const char *tag, AVDictionary *dict) {
     AVDictionaryEntry *t = nullptr;
     while ((t = av_dict_get(dict, "", t, AV_DICT_IGNORE_SUFFIX))) {
-        ALOGI("%-*s: %-*s = %s\n", 12, tag, 28, t->key, t->value);
+        ALOGD(FFPLAY_TAG, "%-*s: %-*s = %s\n", 12, tag, 28, t->key, t->value);
     }
 }
 
@@ -149,32 +149,33 @@ static int innerReadThread(void *arg) {
 }
 
 VideoState *FFPlay::streamOpen() {
+    ALOGD(FFPLAY_TAG, __func__);
 
     if (!optionInputFileName) {
-        ALOGE("%s input file name is null", __func__);
+        ALOGE(FFPLAY_TAG, "%s input file name is null", __func__);
         return nullptr;
     }
 
     auto *is = new VideoState();
     if (!is) {
-        ALOGD("%s create video state oom", __func__);
+        ALOGD(FFPLAY_TAG, "%s create video state oom", __func__);
         return nullptr;
     }
 
     if (is->videoFrameQueue.frameQueueInit(&is->videoPacketQueue, VIDEO_QUEUE_SIZE, 1) < 0) {
-        ALOGE("%s video frame packetQueue init fail", __func__);
+        ALOGE(FFPLAY_TAG, "%s video frame packetQueue init fail", __func__);
         streamClose();
         return nullptr;
     }
 
     if (is->audioFrameQueue.frameQueueInit(&is->audioPacketQueue, AUDIO_QUEUE_SIZE, 0) < 0) {
-        ALOGE("%s audio frame packetQueue init fail", __func__);
+        ALOGE(FFPLAY_TAG, "%s audio frame packetQueue init fail", __func__);
         streamClose();
         return nullptr;
     }
 
     if (is->subtitleFrameQueue.frameQueueInit(&is->subtitlePacketQueue, SUBTITLE_QUEUE_SIZE, 0) < 0) {
-        ALOGE("%s subtitle frame packetQueue init fail", __func__);
+        ALOGE(FFPLAY_TAG, "%s subtitle frame packetQueue init fail", __func__);
         streamClose();
         return nullptr;
     }
@@ -182,13 +183,13 @@ VideoState *FFPlay::streamOpen() {
     if (is->videoPacketQueue.packetQueueInit(&flushPacket) < 0 ||
         is->audioPacketQueue.packetQueueInit(&flushPacket) < 0 ||
         is->subtitlePacketQueue.packetQueueInit(&flushPacket) < 0) {
-        ALOGE("%s packet packetQueue init fail", __func__);
+        ALOGE(FFPLAY_TAG, "%s packet packetQueue init fail", __func__);
         streamClose();
         return nullptr;
     }
 
     if (!(is->continueReadThread = new Mutex())) {
-        ALOGE("%s create continue read thread mutex fail", __func__);
+        ALOGE(FFPLAY_TAG, "%s create continue read thread mutex fail", __func__);
         streamClose();
         return nullptr;
     }
@@ -196,7 +197,7 @@ VideoState *FFPlay::streamOpen() {
     if (is->videoClock.initClock(&is->videoPacketQueue.serial) < 0 ||
         is->audioClock.initClock(&is->audioPacketQueue.serial) < 0 ||
         is->exitClock.initClock(&is->subtitlePacketQueue.serial) < 0) {
-        ALOGE("%s init clock fail", __func__);
+        ALOGE(FFPLAY_TAG, "%s init clock fail", __func__);
         streamClose();
         return nullptr;
     }
@@ -212,7 +213,7 @@ VideoState *FFPlay::streamOpen() {
     is->readThread = new Thread(innerReadThread, this, "readThread");
 
     if (!is->readThread) {
-        ALOGE("%s create read thread fail", __func__);
+        ALOGE(FFPLAY_TAG, "%s create read thread fail", __func__);
         streamClose();
         return nullptr;
     }
@@ -221,11 +222,13 @@ VideoState *FFPlay::streamOpen() {
 }
 
 int FFPlay::getStartupVolume() {
+    ALOGD(FFPLAY_TAG, __func__);
+
     if (optionStartupVolume < 0) {
-        ALOGD("%s -volume=%d < 0, setting to 0", __func__, optionStartupVolume);
+        ALOGD(FFPLAY_TAG, "%s -volume=%d < 0, setting to 0", __func__, optionStartupVolume);
     }
     if (optionStartupVolume > 100) {
-        ALOGD("%s -volume=%d > 100 0, setting to 100", __func__, optionStartupVolume);
+        ALOGD(FFPLAY_TAG, "%s -volume=%d > 100 0, setting to 100", __func__, optionStartupVolume);
     }
     optionStartupVolume = av_clip(optionStartupVolume, 0, 100);
     optionStartupVolume = av_clip(MIX_MAX_VOLUME * optionStartupVolume / 100, 0, MIX_MAX_VOLUME);
@@ -233,6 +236,8 @@ int FFPlay::getStartupVolume() {
 }
 
 void FFPlay::streamClose() {
+    ALOGD(FFPLAY_TAG, __func__);
+
     if (videoState) {
 
         /* XXX: use a special url_shutdown call to abort parse cleanly */
@@ -292,7 +297,8 @@ static int decodeInterruptCallback(void *ctx) {
 
 /* this thread gets the stream from the disk or the network */
 int FFPlay::readThread() {
-    ALOGD(__func__);
+    ALOGD(FFPLAY_TAG, __func__);
+
     if (!videoState) {
         return NEGATIVE(S_NULL);
     }
@@ -308,7 +314,7 @@ int FFPlay::readThread() {
     int64_t packetTimestamp;
 
     if (!waitMutex) {
-        ALOGE("%s create wait mutex fail", __func__);
+        ALOGE(FFPLAY_TAG, "%s create wait mutex fail", __func__);
         return NEGATIVE(S_NOT_MEMORY);
     }
 
@@ -319,7 +325,7 @@ int FFPlay::readThread() {
 
     formatContext = avformat_alloc_context();
     if (!formatContext) {
-        ALOGE("%s avformat could not allocate context", __func__);
+        ALOGE(FFPLAY_TAG, "%s avformat could not allocate context", __func__);
         return NEGATIVE(S_NOT_MEMORY);
     }
 
@@ -336,7 +342,7 @@ int FFPlay::readThread() {
     }
 
     if (avformat_open_input(&formatContext, videoState->fileName, videoState->inputFormat, &optionFormat) < 0) {
-        ALOGE("%s avformat could not open input", __func__);
+        ALOGE(FFPLAY_TAG, "%s avformat could not open input", __func__);
         closeReadThread(videoState, formatContext);
         return NEGATIVE(S_NOT_OPEN_INPUT);
     }
@@ -350,7 +356,7 @@ int FFPlay::readThread() {
     }
 
     if ((dictionaryEntry = av_dict_get(optionFormat, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
-        ALOGE("%s option %s not found.", __func__, dictionaryEntry->key);
+        ALOGE(FFPLAY_TAG, "%s option %s not found.", __func__, dictionaryEntry->key);
         closeReadThread(videoState, formatContext);
         return NEGATIVE_OPTION_NOT_FOUND;
     }
@@ -374,7 +380,7 @@ int FFPlay::readThread() {
         }
         av_freep(&opts);
         if (ret < 0) {
-            ALOGD("%s %s: could not find codec parameters", __func__, videoState->fileName);
+            ALOGD(FFPLAY_TAG, "%s %s: could not find codec parameters", __func__, videoState->fileName);
             closeReadThread(videoState, formatContext);
             return NEGATIVE(S_NOT_FIND_STREAM_INFO);
         }
@@ -403,8 +409,8 @@ int FFPlay::readThread() {
             timestamp += formatContext->start_time;
         }
         if (avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX, 0) < 0) {
-            ALOGD("%s %s: could not seek to position %0.3f", __func__, videoState->fileName,
-                  (double) timestamp / AV_TIME_BASE);
+            ALOGD(FFPLAY_TAG, "%s %s: could not seek to position %0.3f", __func__, videoState->fileName,
+                   (double) timestamp / AV_TIME_BASE);
         }
     }
 
@@ -427,7 +433,7 @@ int FFPlay::readThread() {
 
     for (int i = 0; i < AVMEDIA_TYPE_NB; i++) {
         if (optionWantedStreamSpec[i] && streamIndex[i] == -1) {
-            ALOGD("%s Stream specifier %s does not match any stream", __func__, optionWantedStreamSpec[i]);
+            ALOGD(FFPLAY_TAG, "%s Stream specifier %s does not match any stream", __func__, optionWantedStreamSpec[i]);
             streamIndex[i] = INT_MAX;
         }
     }
@@ -483,7 +489,7 @@ int FFPlay::readThread() {
     }
 
     if (videoState->videoStreamIndex < 0 && videoState->audioStreamIndex < 0) {
-        ALOGD("%s failed to open file '%s' or configure filter graph", __func__, videoState->fileName);
+        ALOGD(FFPLAY_TAG, "%s failed to open file '%s' or configure filter graph", __func__, videoState->fileName);
         closeReadThread(videoState, formatContext);
         return NEGATIVE(S_NOT_OPEN_FILE);
     }
@@ -528,7 +534,7 @@ int FFPlay::readThread() {
             int64_t seekMin = videoState->seekRel > 0 ? (seekTarget - videoState->seekRel + 2) : INT64_MIN;
             int64_t seekMax = videoState->seekRel < 0 ? (seekTarget - videoState->seekRel - 2) : INT64_MAX;
             if (avformat_seek_file(videoState->formatContext, -1, seekMin, seekTarget, seekMax, videoState->seekFlags) < 0) {
-                ALOGD("%s %s: error while seeking", __func__, videoState->formatContext->url);
+                ALOGD(FFPLAY_TAG, "%s %s: error while seeking", __func__, videoState->formatContext->url);
             } else {
                 if (videoState->audioStreamIndex >= 0) {
                     videoState->audioPacketQueue.packetQueueFlush();
@@ -642,7 +648,7 @@ int FFPlay::readThread() {
 
         if (packet->stream_index == videoState->audioStreamIndex && packetInPlayRange) {
             videoState->audioPacketQueue.packetQueuePut(packet);
-//            ALOGD("%s audio memorySize=%d serial=%d packetSize=%d optionDuration=%lld abortRequest=%d", __func__,
+//            ALOGD(FFPLAY_TAG,"%s audio memorySize=%d serial=%d packetSize=%d optionDuration=%lld abortRequest=%d", __func__,
 //                  videoState->audioPacketQueue.memorySize,
 //                  videoState->audioPacketQueue.serial,
 //                  videoState->audioPacketQueue.packetSize,
@@ -651,7 +657,7 @@ int FFPlay::readThread() {
         } else if (packet->stream_index == videoState->videoStreamIndex && packetInPlayRange &&
                    !(videoState->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
             videoState->videoPacketQueue.packetQueuePut(packet);
-//            ALOGD("%s video memorySize=%d serial=%d packetSize=%d optionDuration=%lld abortRequest=%d", __func__,
+//            ALOGD(FFPLAY_TAG,"%s video memorySize=%d serial=%d packetSize=%d optionDuration=%lld abortRequest=%d", __func__,
 //                  videoState->videoPacketQueue.memorySize,
 //                  videoState->videoPacketQueue.serial,
 //                  videoState->videoPacketQueue.packetSize,
@@ -659,7 +665,7 @@ int FFPlay::readThread() {
 //                  videoState->videoPacketQueue.abortRequest);
         } else if (packet->stream_index == videoState->subtitleStreamIndex && packetInPlayRange) {
             videoState->subtitlePacketQueue.packetQueuePut(packet);
-//            ALOGD("%s subtitle memorySize=%d serial=%d packetSize=%d optionDuration=%lld abortRequest=%d", __func__,
+//            ALOGD(FFPLAY_TAG,"%s subtitle memorySize=%d serial=%d packetSize=%d optionDuration=%lld abortRequest=%d", __func__,
 //                  videoState->subtitlePacketQueue.memorySize,
 //                  videoState->subtitlePacketQueue.serial,
 //                  videoState->subtitlePacketQueue.packetSize,
@@ -673,12 +679,16 @@ int FFPlay::readThread() {
 }
 
 void FFPlay::closeReadThread(const VideoState *is, AVFormatContext *&formatContext) const {
+    ALOGD(FFPLAY_TAG, __func__);
+
     if (formatContext && !is->formatContext) {
         avformat_close_input(&formatContext);
     }
 }
 
 int FFPlay::isRealTime(AVFormatContext *s) {
+    ALOGD(FFPLAY_TAG, __func__);
+
     if (!strcmp(s->iformat->name, FORMAT_RTP) ||
         !strcmp(s->iformat->name, FORMAT_RTSP) ||
         !strcmp(s->iformat->name, FORMAT_SDP)) {
@@ -717,7 +727,8 @@ static int innerAudioThread(void *arg) {
 
 /* open a given stream. Return 0 if OK */
 int FFPlay::streamComponentOpen(int streamIndex) {
-    ALOGD("%s streamIndex=%d", __func__, streamIndex);
+    ALOGD(FFPLAY_TAG, "%s streamIndex=%d", __func__, streamIndex);
+
     AVFormatContext *formatContext = videoState->formatContext;
     AVCodecContext *codecContext;
     AVCodec *codec;
@@ -775,9 +786,9 @@ int FFPlay::streamComponentOpen(int streamIndex) {
 
     if (!codec) {
         if (forcedCodecName) {
-            ALOGD("%s No codec could be found with name '%s'", __func__, forcedCodecName);
+            ALOGD(FFPLAY_TAG, "%s No codec could be found with name '%s'", __func__, forcedCodecName);
         } else {
-            ALOGD("%sNo decoder could be found for codec %s", __func__, avcodec_get_name(codecContext->codec_id));
+            ALOGD(FFPLAY_TAG, "%sNo decoder could be found for codec %s", __func__, avcodec_get_name(codecContext->codec_id));
         }
         avcodec_free_context(&codecContext);
         return NEGATIVE(S_NOT_FOUND_CODER);
@@ -786,8 +797,8 @@ int FFPlay::streamComponentOpen(int streamIndex) {
     codecContext->codec_id = codec->id;
 
     if (streamLowres > codec->max_lowres) {
-        ALOGD("%s The maximum value for optionLowres supported by the decoder is %d", __func__,
-              codec->max_lowres);
+        ALOGD(FFPLAY_TAG, "%s The maximum value for optionLowres supported by the decoder is %d", __func__,
+               codec->max_lowres);
         streamLowres = codec->max_lowres;
     }
     codecContext->lowres = streamLowres;
@@ -814,7 +825,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
     }
 
     if ((t = av_dict_get(opts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
-        ALOGE("%s Option %s not found.", __func__, t->key);
+        ALOGE(FFPLAY_TAG, "%s Option %s not found.", __func__, t->key);
         return NEGATIVE(S_NOT_FOUND_OPTION);
     }
 
@@ -978,7 +989,7 @@ void FFPlay::streamSeek(int64_t pos, int64_t rel, int seek_by_bytes) {
 }
 
 int FFPlay::videoThread() {
-    ALOGD(__func__);
+    ALOGD(FFPLAY_TAG, __func__);
 
     VideoState *is = videoState;
     AVFrame *frame = av_frame_alloc();
@@ -1016,16 +1027,18 @@ int FFPlay::videoThread() {
 }
 
 int FFPlay::subtitleThread() {
-    ALOGD(__func__);
+    ALOGD(FFPLAY_TAG, __func__);
     return POSITIVE;
 }
 
 int FFPlay::audioThread() {
-    ALOGD(__func__);
+    ALOGD(FFPLAY_TAG, __func__);
     return POSITIVE;
 }
 
 int FFPlay::getVideoFrame(AVFrame *frame) {
+    ALOGD(FFPLAY_TAG, __func__);
+
     int gotPicture;
 
     if ((gotPicture = decoderDecodeFrame(&videoState->videoDecoder, frame, nullptr)) < 0) {
@@ -1060,6 +1073,8 @@ int FFPlay::getVideoFrame(AVFrame *frame) {
 }
 
 int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *subtitle) {
+    ALOGD(FFPLAY_TAG, __func__);
+
     int ret = AVERROR(EAGAIN);
 
     for (;;) {
@@ -1153,7 +1168,7 @@ int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                 }
             } else {
                 if (avcodec_send_packet(decoder->codecContext, &packet) == AVERROR(EAGAIN)) {
-                    ALOGE("%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.", __func__);
+                    ALOGE(FFPLAY_TAG, "%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.", __func__);
                     decoder->packetPending = 1;
                     av_packet_move_ref(&decoder->packet, &packet);
                 }
@@ -1166,7 +1181,7 @@ int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
 }
 
 int FFPlay::queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
-    ALOGD("%s pts=%lf optionDuration=%lf pos=%ld serial=%d", __func__, pts, duration, pos, serial);
+    ALOGD(FFPLAY_TAG, "%s pts=%lf optionDuration=%lf pos=%ld serial=%d", __func__, pts, duration, pos, serial);
 
     Frame *vp;
 
@@ -1192,6 +1207,7 @@ int FFPlay::queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t
 }
 
 int FFPlay::refreshThread() {
+    ALOGD(FFPLAY_TAG, __func__);
     double remainingTime = 0.0;
     while (videoState->abortRequest) {
         if (remainingTime > 0.0) {
@@ -1221,6 +1237,7 @@ void FFPlay::checkExternalClockSpeed() {
 }
 
 void FFPlay::videoRefresh(double *remainingTime) {
+    ALOGD(FFPLAY_TAG, "%s time=%lf", __func__, *remainingTime);
     double time;
     Frame *sp, *sp2;
 
@@ -1326,6 +1343,7 @@ double FFPlay::frameDuration(Frame *vp, Frame *nextvp) {
 
 /* display the current picture, if any */
 void FFPlay::videoDisplay() {
+    ALOGD(FFPLAY_TAG, __func__);
 
     if (videoState->width) {
         videoOpen();
@@ -1366,7 +1384,7 @@ double FFPlay::computeTargetDelay(double delay) {
             }
         }
     }
-    ALOGD("%s video: delay=%0.3f A-V=%f\n", __func__, delay, -diff);
+    ALOGD(FFPLAY_TAG, "%s video: delay=%0.3f A-V=%f\n", __func__, delay, -diff);
     return delay;
 }
 
@@ -1385,6 +1403,8 @@ void FFPlay::syncClockToSlave(Clock *c, Clock *slave) {
 }
 
 int FFPlay::videoOpen() {
+    ALOGD(FFPLAY_TAG, __func__);
+
     int w, h;
 
     if (optionScreenWidth) {
@@ -1415,6 +1435,8 @@ int FFPlay::videoOpen() {
 
 
 void FFPlay::videoImageDisplay() {
+    ALOGD(FFPLAY_TAG, __func__);
+
     Frame *vp;
     Frame *sp = nullptr;
 //    SDL_Rect rect;
@@ -1441,6 +1463,6 @@ void FFPlay::videoImageDisplay() {
 }
 
 int FFPlay::uploadTexture(AVFrame *pFrame) {
-    ALOGD(__func__);
+    ALOGD(FFPLAY_TAG, __func__);
     return 0;
 }

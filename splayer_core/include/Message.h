@@ -3,6 +3,8 @@
 #ifndef SPLAYER_MESSAGE_H
 #define SPLAYER_MESSAGE_H
 
+#define MESSAGE_TAG "Message"
+
 class MessageObject {
 public:
     virtual int destroy() = 0;
@@ -45,7 +47,7 @@ public:
     static const int MSG_BUFFERING_BYTES_UPDATE = 19; /* arg1 = cached data in bytes,            arg2 = high water mark */
     static const int MSG_BUFFERING_TIME_UPDATE = 20;  /* arg1 = cached optionDuration in milliseconds, arg2 = high water mark */
     static const int MSG_SEEK_COMPLETE = 21;          /* arg1 = seek position,                   arg2 = error */
-    static const int MSG_PLAYBACK_STATE_CHANGED = 22;
+    static const int MSG_STATE_CHANGED = 22;
     static const int MSG_TIMED_TEXT = 23;
     static const int MSG_ACCURATE_SEEK_COMPLETE = 24; /* arg1 = current position*/
     static const int MSG_GET_IMG_STATE = 25;         /* arg1 = timestamp, arg2 = result code, obj = file name*/

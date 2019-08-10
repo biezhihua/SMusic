@@ -8,8 +8,9 @@
 #include <list>
 #include <queue>
 
-
 using namespace std;
+
+#define MESSAGE_QUEUE_TAG "MsgQueue"
 
 class MessageQueue {
 private:
@@ -58,7 +59,6 @@ public:
     int notifyMsg(int what, int arg1);
 
     int notifyMsg(int what, int arg1, int arg2);
-
 
 };
 
