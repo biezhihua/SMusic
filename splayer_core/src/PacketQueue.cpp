@@ -1,6 +1,6 @@
 #include "PacketQueue.h"
 
-int PacketQueue::packetQueueInit(AVPacket *pFlushPacket) {
+int PacketQueue::init(AVPacket *pFlushPacket) {
 
     flushPacket = pFlushPacket;
 
@@ -21,25 +21,25 @@ int PacketQueue::packetQueueInit(AVPacket *pFlushPacket) {
     return POSITIVE;
 }
 
-int PacketQueue::packetQueueDestroy() {
-    packetQueueFlush();
+int PacketQueue::destroy() {
+    flush();
     delete mutex;
     mutex = nullptr;
     return POSITIVE;
 }
 
-int PacketQueue::packetQueueStart() {
+int PacketQueue::start() {
     if (mutex) {
         mutex->mutexLock();
         abortRequest = 0;
-        packetQueuePutPrivate(flushPacket);
+        putPrivate(flushPacket);
         mutex->mutexUnLock();
         return POSITIVE;
     }
     return NEGATIVE(S_NULL);
 }
 
-int PacketQueue::packetQueueFlush() {
+int PacketQueue::flush() {
     if (mutex) {
         PacketData *packetList, *packetList1;
         mutex->mutexLock();
@@ -59,7 +59,7 @@ int PacketQueue::packetQueueFlush() {
     return NEGATIVE(S_NULL);
 }
 
-int PacketQueue::packetQueueAbort() {
+int PacketQueue::abort() {
     if (mutex) {
         mutex->mutexLock();
         abortRequest = 1;
@@ -70,7 +70,7 @@ int PacketQueue::packetQueueAbort() {
     return NEGATIVE(S_NULL);
 }
 
-int PacketQueue::packetQueueGet(AVPacket *packet, int block, int *serial) {
+int PacketQueue::get(AVPacket *packet, int block, int *serial) {
     int ret = 0;
     if (mutex) {
         PacketData *packetData;
@@ -110,11 +110,11 @@ int PacketQueue::packetQueueGet(AVPacket *packet, int block, int *serial) {
     return ret;
 }
 
-int PacketQueue::packetQueuePut(AVPacket *packet) {
+int PacketQueue::put(AVPacket *packet) {
     int ret;
     if (mutex) {
         mutex->mutexLock();
-        ret = packetQueuePutPrivate(packet);
+        ret = putPrivate(packet);
         mutex->mutexUnLock();
     } else {
         ret = NEGATIVE(S_NULL);
@@ -125,16 +125,16 @@ int PacketQueue::packetQueuePut(AVPacket *packet) {
     return ret;
 }
 
-int PacketQueue::packetQueuePutNullPacket(int streamIndex) {
+int PacketQueue::putNullPacket(int streamIndex) {
     AVPacket pkt1, *pkt = &pkt1;
     av_init_packet(pkt);
     pkt->data = nullptr;
     pkt->size = 0;
     pkt->stream_index = streamIndex;
-    return packetQueuePut(pkt);
+    return put(pkt);
 }
 
-int PacketQueue::packetQueuePutPrivate(AVPacket *packet) {
+int PacketQueue::putPrivate(AVPacket *packet) {
     if (!packet) {
         return NEGATIVE(S_NULL);
     }

@@ -2,7 +2,7 @@
 
 #include "FrameQueue.h"
 
-int FrameQueue::frameQueueInit(PacketQueue *pPacketQueue, int queueSize, int keepLast) {
+int FrameQueue::init(PacketQueue *packetQueue, int queueSize, int keepLast) {
 
     // 创建互斥量
     if (!(mutex = new Mutex())) {
@@ -10,7 +10,7 @@ int FrameQueue::frameQueueInit(PacketQueue *pPacketQueue, int queueSize, int kee
         return NEGATIVE(S_NOT_MEMORY);
     }
 
-    packetQueue = pPacketQueue;
+    FrameQueue::packetQueue = packetQueue;
 
     maxSize = FFMIN(queueSize, FRAME_QUEUE_SIZE);
 
@@ -23,16 +23,16 @@ int FrameQueue::frameQueueInit(PacketQueue *pPacketQueue, int queueSize, int kee
         }
     }
 
-    ALOGD(FRAME_QUEUE_TAG, "%s packetQueue=%p maxSize=%d keepLast=%d",
+    ALOGD(FRAME_QUEUE_TAG, "%s packetQueue = %p maxSize = %d keepLast = %d",
           __func__,
-          packetQueue,
+          FrameQueue::packetQueue,
           maxSize,
           FrameQueue::keepLast);
 
     return POSITIVE;
 }
 
-int FrameQueue::frameQueueDestroy() {
+int FrameQueue::destroy() {
     // 释放Frame，释放互斥锁和互斥量
     for (int i = 0; i < maxSize; i++) {
         Frame *frame = &queue[i];
@@ -45,13 +45,13 @@ int FrameQueue::frameQueueDestroy() {
     return POSITIVE;
 }
 
-int FrameQueue::frameQueueNumberRemaining() {
+int FrameQueue::numberRemaining() {
     /* return the number of undisplayed frames in the packetQueue */
     // 返回队列中待显示帧的数目
     return size - readIndexShown;
 }
 
-int FrameQueue::frameQueueSignal() {
+int FrameQueue::signal() {
     if (mutex) {
         mutex->mutexUnLock();
         mutex->condSignal();
@@ -61,22 +61,22 @@ int FrameQueue::frameQueueSignal() {
     return NEGATIVE(S_ERROR);
 }
 
-Frame *FrameQueue::frameQueuePeek() {
+Frame *FrameQueue::peek() {
     // 获取待显示的第一个帧
     return &queue[(readIndex + readIndexShown) % maxSize];
 }
 
-Frame *FrameQueue::frameQueuePeekNext() {
+Frame *FrameQueue::peekNext() {
     // 获取待显示的第二个帧
     return &queue[(readIndex + readIndexShown + 1) % maxSize];
 }
 
-Frame *FrameQueue::frameQueuePeekLast() {
+Frame *FrameQueue::peekLast() {
     // 获取当前播放器显示的帧
     return &queue[readIndex];
 }
 
-Frame *FrameQueue::frameQueuePeekWritable() {
+Frame *FrameQueue::peekWritable() {
 
     if (mutex && packetQueue) {
 
@@ -98,7 +98,7 @@ Frame *FrameQueue::frameQueuePeekWritable() {
     return nullptr;
 }
 
-Frame *FrameQueue::frameQueuePeekReadable() {
+Frame *FrameQueue::peekReadable() {
     if (mutex && packetQueue) {
 
         // wait until we have a readable a new frame
@@ -120,7 +120,7 @@ Frame *FrameQueue::frameQueuePeekReadable() {
     return nullptr;
 }
 
-int FrameQueue::frameQueuePush() {
+int FrameQueue::push() {
     if (mutex) {
         // 推入一帧数据， 其实数据已经在调用这个方法前填充进去了，
         // 这个方法的作用是将队列的写索引(也就是队尾)向后移，
@@ -137,7 +137,7 @@ int FrameQueue::frameQueuePush() {
     return NEGATIVE(S_NULL);
 }
 
-int FrameQueue::frameQueueNext() {
+int FrameQueue::next() {
     if (mutex) {
 
         // 将读索引(队头)后移一位， 还有将这个队列中的Frame的数量减一
@@ -147,7 +147,7 @@ int FrameQueue::frameQueueNext() {
             return POSITIVE;
         }
 
-        frameQueueUnrefItem(&queue[readIndex]);
+        unrefItem(&queue[readIndex]);
 
         if (++readIndex == maxSize) {
             readIndex = 0;
@@ -163,7 +163,7 @@ int FrameQueue::frameQueueNext() {
     return NEGATIVE(S_NULL);
 }
 
-int64_t FrameQueue::frameQueueLastPos() {
+int64_t FrameQueue::lastPos() {
     /* return last shown position */
     Frame *fp = &queue[readIndex];
     if (readIndexShown && packetQueue && fp->serial == packetQueue->serial) {
@@ -174,7 +174,7 @@ int64_t FrameQueue::frameQueueLastPos() {
     }
 }
 
-int FrameQueue::frameQueueUnrefItem(Frame *frame) {
+int FrameQueue::unrefItem(Frame *frame) {
     if (frame) {
         // 取消引用帧引用的所有缓冲区并重置帧字段，释放给定字幕结构中的所有已分配数据。
         av_frame_unref(frame->frame);

@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <string>
 #include "Log.h"
+#include <map>
 
 using namespace std;
 
@@ -13,7 +14,9 @@ enum ThreadPriority {
     THREAD_PRIORITY_HIGH
 };
 
+
 class Thread {
+
 
 public:
     pthread_t id;
@@ -33,6 +36,10 @@ public:
     int waitThread();
 
     void detachThread();
+
+    static map<pthread_t, string> threads;
+
+    static const char *getThreadNameById(pthread_t t);
 };
 
 

@@ -22,25 +22,25 @@ void Decoder::decoderDestroy() {
 
 void Decoder::decoderAbort(FrameQueue *frameQueue) {
     if (packetQueue) {
-        packetQueue->packetQueueAbort();
+        packetQueue->abort();
     }
     if (frameQueue) {
-        frameQueue->frameQueueSignal();
+        frameQueue->signal();
     }
     if (decoderTid) {
         decoderTid->waitThread();
         decoderTid = nullptr;
     }
     if (packetQueue) {
-        packetQueue->packetQueueFlush();
+        packetQueue->flush();
     }
 }
 
 int Decoder::decoderStart(int (*fn)(void *), void *arg) {
     if (packetQueue) {
-        packetQueue->packetQueueStart();
+        packetQueue->start();
     }
-    decoderTid = new Thread(fn, arg, "decoder");
+    decoderTid = new Thread(fn, arg, "Decoder");
     if (!decoderTid) {
         ALOGD("%s create decoder thread fail ", __func__);
         return NEGATIVE(S_NOT_MEMORY);

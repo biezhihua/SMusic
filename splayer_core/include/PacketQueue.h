@@ -27,23 +27,23 @@ public:
 
 public:
 
-    int packetQueueInit(AVPacket *pPacket);
+    int init(AVPacket *pPacket);
 
-    int packetQueueStart();
+    int start();
 
-    int packetQueueAbort();
+    int abort();
 
-    int packetQueuePut(AVPacket *packet);
+    int put(AVPacket *packet);
 
-    int packetQueuePutNullPacket(int streamIndex);
+    int putNullPacket(int streamIndex);
 
-    int packetQueuePutPrivate(AVPacket *packet);
+    int putPrivate(AVPacket *packet);
 
-    int packetQueueDestroy();
+    int destroy();
 
-    int packetQueueFlush();
+    int flush();
 
-    int packetQueueGet(AVPacket *packet, int block, int *serial);
+    int get(AVPacket *packet, int block, int *serial);
 
 };
 

@@ -176,7 +176,7 @@ int MediaPlayer::prepareAsync() {
 }
 
 int MediaPlayer::startMsgQueueThread() {
-    msgThread = new Thread(staticMsgLoop, this, "msg_loop");
+    msgThread = new Thread(staticMsgLoop, this, "Message");
     if (msgThread) {
         return POSITIVE;
     }

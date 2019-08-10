@@ -22,9 +22,14 @@ Thread::Thread(int (*func)(void *), void *data, const char *name) {
     Thread::data = data;
     Thread::name = new string(name);
     Thread::retval = pthread_create(&id, nullptr, runThread, this);
+    threads.insert(pair<pthread_t, string>(id, name));
 }
 
 Thread::~Thread() {
+    auto it = Thread::threads.find(id);
+    if (it != Thread::threads.end()) {
+        threads.erase(it);
+    }
     delete name;
 }
 
@@ -35,4 +40,14 @@ int Thread::waitThread() {
 
 void Thread::detachThread() {
     pthread_detach(id);
+}
+
+map<pthread_t, string> Thread::threads;
+
+const char *Thread::getThreadNameById(pthread_t t) {
+    auto it = Thread::threads.find(t);
+    if (it != Thread::threads.end()) {
+        return it->second.c_str();
+    }
+    return "Main---";
 }

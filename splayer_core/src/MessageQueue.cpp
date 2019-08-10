@@ -88,15 +88,6 @@ int MessageQueue::getMsg(Message *msg, bool block) {
         }
         mutex->mutexUnLock();
     }
-    if (ret == S_ABORT_REQUEST) {
-        ALOGE(MESSAGE_QUEUE_TAG, "%s abort=%d", __func__, abortRequest);
-    } else if (ret == POSITIVE) {
-        ALOGD(MESSAGE_QUEUE_TAG, "%s success", __func__);
-    } else if (ret == S_NOT_BLOACK_GET_MSG) {
-        ALOGD(MESSAGE_QUEUE_TAG, "%s not block", __func__);
-    } else {
-        ALOGD(MESSAGE_QUEUE_TAG, "%s waiting", __func__);
-    }
     return ret;
 }
 

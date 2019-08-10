@@ -26,6 +26,7 @@
 #include <pthread.h>
 #include "Mutex.h"
 #include <stdio.h>
+#include "Thread.h"
 
 #define LOG_UNKNOWN     0
 #define LOG_DEFAULT     1
@@ -40,16 +41,21 @@
 
 extern Mutex *logMutex;
 
+
+
 // http://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
 
 #define _ALOGD(TAG, ...) do { \
 logMutex->mutexLock();\
 (void)printf("\x1B[37m"); \
 (void)printf("%s-",LOG_TAG); \
+(void)printf("\x1B[35;1m"); \
+(void)printf("%-7s",Thread::getThreadNameById(pthread_self())); \
 (void)printf("\033[0m"); \
+(void)printf("-"); \
 (void)printf("\x1B[32m"); \
 (void)printf("%-13s",TAG); \
-(void)printf("\033[0m: "); \
+(void)printf("\033[0m"); \
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
 logMutex->mutexUnLock(); \
@@ -59,7 +65,10 @@ logMutex->mutexUnLock(); \
 logMutex->mutexLock();\
 (void)printf("\x1B[37m"); \
 (void)printf("%s-",LOG_TAG); \
+(void)printf("\x1B[35;1m"); \
+(void)printf("%-7s",Thread::getThreadNameById(pthread_self())); \
 (void)printf("\033[0m"); \
+(void)printf("-"); \
 (void)printf("\x1B[33m"); \
 (void)printf("%-13s",TAG); \
 (void)printf("\033[0m: "); \
@@ -72,7 +81,10 @@ logMutex->mutexUnLock(); \
 logMutex->mutexLock();\
 (void)printf("\x1B[37m"); \
 (void)printf("%s-",LOG_TAG); \
+(void)printf("\x1B[35;1m"); \
+(void)printf("%-7s",Thread::getThreadNameById(pthread_self())); \
 (void)printf("\033[0m"); \
+(void)printf("-"); \
 (void)printf("\x1B[31m"); \
 (void)printf("%-13s",TAG); \
 (void)printf("\033[0m: "); \

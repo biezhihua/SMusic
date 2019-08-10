@@ -44,34 +44,34 @@ public:
 
 public:
 
-    int frameQueueUnrefItem(Frame *frame);
+    int unrefItem(Frame *frame);
 
-    int frameQueueInit(PacketQueue *pPacketQueue, int queueSize, int keepLast);
+    int init(PacketQueue *packetQueue, int queueSize, int keepLast);
 
-    int frameQueueDestroy();
+    int destroy();
 
-    int frameQueueSignal();
+    int signal();
 
-    Frame *frameQueuePeek();
+    Frame *peek();
 
-    Frame *frameQueuePeekNext();
+    Frame *peekNext();
 
-    Frame *frameQueuePeekLast();
+    Frame *peekLast();
 
-    Frame *frameQueuePeekWritable();
+    Frame *peekWritable();
 
-    Frame *frameQueuePeekReadable();
+    Frame *peekReadable();
 
-    int frameQueueNext();
+    int next();
 
-    int frameQueuePush();
+    int push();
 
-    int frameQueueNumberRemaining();
+    int numberRemaining();
 
     /**
      * return last shown position
      */
-    int64_t frameQueueLastPos();
+    int64_t lastPos();
 };
 
 
