@@ -1,0 +1,14 @@
+prefix=/Users/biezhihua/StudySpace/FFmpegBuildTool/macos/tools/build/ffmpeg-x86_64/output
+exec_prefix=${prefix}
+libdir=/Users/biezhihua/StudySpace/FFmpegBuildTool/macos/tools/build/ffmpeg-x86_64/output/lib
+includedir=/Users/biezhihua/StudySpace/FFmpegBuildTool/macos/tools/build/ffmpeg-x86_64/output/include
+
+Name: libavutil
+Description: FFmpeg utility library
+Version: 56.31.100
+Requires: 
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavutil 
+Libs.private: -pthread -lm -framework VideoToolbox -framework CoreFoundation -framework CoreMedia -framework CoreVideo -framework CoreServices
+Cflags: -I${includedir}
