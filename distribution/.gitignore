@@ -1,8 +1,8 @@
 android/ffmpeg/lib
 android/openssl/lib
 
-mac/ffmpeg/lib
-mac/openssl/lib
+macos/ffmpeg/lib
+macos/openssl/lib
 
 windows/ffmpeg/lib
 windows/openssl/lib
