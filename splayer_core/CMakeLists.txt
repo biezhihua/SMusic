@@ -5,7 +5,7 @@ project(splayer_core)
 set(CMAKE_CXX_STANDARD 14)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/mac)
+    set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/macos)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/windows)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
