@@ -1213,6 +1213,7 @@ int FFPlay::refreshThread() {
     ALOGD(FFPLAY_TAG, "%s abort = %d", __func__, videoState->abortRequest);
     double remainingTime = 0.0;
     while (!videoState->abortRequest) {
+        ALOGD(FFPLAY_TAG, "%s while remainingTime = %lf", __func__, remainingTime);
         if (remainingTime > 0.0) {
             av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
         }
@@ -1240,7 +1241,7 @@ void FFPlay::checkExternalClockSpeed() {
 }
 
 void FFPlay::videoRefresh(double *remainingTime) {
-    ALOGD(FFPLAY_TAG, "%s time=%lf", __func__, *remainingTime);
+    ALOGD(FFPLAY_TAG, "%s", __func__);
     double time;
     Frame *sp, *sp2;
 
