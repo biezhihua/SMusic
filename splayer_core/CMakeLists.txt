@@ -16,6 +16,7 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "iOS")
     set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/ios)
 endif ()
 
+
 aux_source_directory(src src)
 aux_source_directory(extra/soundtouch extra_soundtouch)
 
