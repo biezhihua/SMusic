@@ -1,4 +1,3 @@
-
 #include "MacSurface.h"
 
 int MacSurface::create() {

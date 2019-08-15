@@ -1,5 +1,3 @@
-#include <FFPlay.h>
-
 #include "FFPlay.h"
 
 FFPlay::FFPlay() {

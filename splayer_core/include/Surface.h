@@ -19,6 +19,7 @@ public:
     virtual ~Surface();
 
     virtual int create() = 0;
+
     virtual int destroy() = 0;
 };
 

@@ -30,23 +30,23 @@ extern "C" {
 #include "CmdUtils.h"
 };
 
-static const char *const SCAN_ALL_PMTS = "scan_all_pmts";
+#define SCAN_ALL_PMTS  "scan_all_pmts"
 
-static const char *const OGG = "ogg";
+#define OGG  "ogg"
 
-static const char *const TITLE = "title";
+#define TITLE  "title"
 
-static const char *const FORMAT_RTP = "rtp";
+#define FORMAT_RTP  "rtp"
 
-static const char *const FORMAT_RTSP = "rtsp";
+#define FORMAT_RTSP  "rtsp"
 
-static const char *const FORMAT_SDP = "sdp";
+#define FORMAT_SDP  "sdp"
 
-static const char *const URL_FORMAT_RTP = "rtp:";
+#define URL_FORMAT_RTP  "rtp:"
 
-static const char *const URL_FORMAT_UDP = "udp:";
+#define URL_FORMAT_UDP  "udp:"
 
-#define FFPLAY_TAG "FFplay"
+#define FFPLAY_TAG "FFPlay"
 
 class FFPlay {
 

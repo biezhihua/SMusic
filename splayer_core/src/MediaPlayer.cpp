@@ -39,6 +39,7 @@ int MediaPlayer::create() {
         ALOGE(MEDIA_PLAYER_TAG, "create surface error");
         return NEGATIVE(S_NOT_MEMORY);
     }
+
     play->setSurface(surface);
 
     Audio *audio = createAudio();
