@@ -49,5 +49,5 @@ const char *Thread::getThreadNameById(pthread_t t) {
     if (it != Thread::threads.end()) {
         return it->second.c_str();
     }
-    return "Main---";
+    return "Main   ";
 }

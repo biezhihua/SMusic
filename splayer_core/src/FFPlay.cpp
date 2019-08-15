@@ -1213,7 +1213,9 @@ int FFPlay::refreshThread() {
     ALOGD(FFPLAY_TAG, "%s abort = %d", __func__, videoState->abortRequest);
     double remainingTime = 0.0;
     while (!videoState->abortRequest) {
-        ALOGD(FFPLAY_TAG, "%s while remainingTime = %lf", __func__, remainingTime);
+        ALOGD(FFPLAY_TAG, "\n");
+        ALOGD(FFPLAY_TAG, "---------------- start");
+        ALOGD(FFPLAY_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime, videoState->paused, videoState->forceRefresh);
         if (remainingTime > 0.0) {
             av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
         }
@@ -1221,6 +1223,7 @@ int FFPlay::refreshThread() {
         if (videoState->showMode != SHOW_MODE_NONE && (!videoState->paused || videoState->forceRefresh)) {
             videoRefresh(&remainingTime);
         }
+        ALOGD(FFPLAY_TAG, "---------------- end");
     }
     return POSITIVE;
 }
@@ -1240,6 +1243,7 @@ void FFPlay::checkExternalClockSpeed() {
     }
 }
 
+/* called to display each frame */
 void FFPlay::videoRefresh(double *remainingTime) {
     ALOGD(FFPLAY_TAG, "%s", __func__);
     double time;
@@ -1251,7 +1255,7 @@ void FFPlay::videoRefresh(double *remainingTime) {
 
     if (videoState->showMode != SHOW_MODE_VIDEO && videoState->audioStream) {
         time = av_gettime_relative() / 1000000.0;
-        if (videoState->forceRefresh || videoState->lastVisTime + optionRdftSpeed < time) {
+        if (videoState->forceRefresh || (videoState->lastVisTime + optionRdftSpeed) < time) {
             videoDisplay();
             videoState->lastVisTime = time;
         }
@@ -1261,34 +1265,43 @@ void FFPlay::videoRefresh(double *remainingTime) {
     if (videoState->videoStream) {
         retry:
         if (videoState->videoFrameQueue.numberRemaining() == 0) {
-            // nothing to do, no picture to display in the queue
+            ALOGD(FFPLAY_TAG, "nothing to do, no picture to display in the queue");
         } else {
-            double last_duration, duration, delay;
+            double lastDuration, duration, delay;
             Frame *vp, *lastvp;
+
             /* dequeue the picture */
             lastvp = videoState->videoFrameQueue.peekLast();
             vp = videoState->videoFrameQueue.peek();
 
+            ALOGD(FFPLAY_TAG, "peek frame serial = %d list serial = %d ", vp->serial, videoState->videoPacketQueue.serial);
             if (vp->serial != videoState->videoPacketQueue.serial) {
                 videoState->videoFrameQueue.next();
+                ALOGD(FFPLAY_TAG, "goto retry");
                 goto retry;
             }
 
+            ALOGD(FFPLAY_TAG, "peek frame serial = %d last frame serial = %d ", vp->serial, lastvp->serial);
             if (lastvp->serial != vp->serial) {
                 videoState->frameTimer = av_gettime_relative() / 1000000.0;
+                ALOGD(FFPLAY_TAG, "update frameTimer = %fd ", videoState->frameTimer);
             }
 
             if (videoState->paused) {
+                ALOGD(FFPLAY_TAG, "goto display");
                 goto display;
             }
 
-            /* compute nominal last_duration */
-            last_duration = frameDuration(lastvp, vp);
-            delay = computeTargetDelay(last_duration);
+            /* compute nominal lastDuration */
+            lastDuration = frameDuration(lastvp, vp);
+            delay = computeTargetDelay(lastDuration);
 
             time = av_gettime_relative() / 1000000.0;
-            if (time < videoState->frameTimer + delay) {
+            double frameTimerDelay = videoState->frameTimer + delay;
+            ALOGD(FFPLAY_TAG, "relative time = %f frameTimerDelay = %f ", time, frameTimerDelay);
+            if (time < frameTimerDelay) {
                 *remainingTime = FFMIN(videoState->frameTimer + delay - time, *remainingTime);
+                ALOGD(FFPLAY_TAG, "goto display");
                 goto display;
             }
 
@@ -1329,6 +1342,8 @@ void FFPlay::videoRefresh(double *remainingTime) {
         if (videoState->forceRefresh && videoState->showMode == SHOW_MODE_VIDEO && videoState->videoFrameQueue.readIndexShown) {
             videoDisplay();
         }
+    } else {
+        ALOGD(FFPLAY_TAG, "not video streaming");
     }
     videoState->forceRefresh = 0;
 }
@@ -1336,10 +1351,12 @@ void FFPlay::videoRefresh(double *remainingTime) {
 double FFPlay::frameDuration(Frame *vp, Frame *nextvp) {
     if (vp->serial == nextvp->serial) {
         double duration = nextvp->pts - vp->pts;
-        if (isnan(duration) || duration <= 0 || duration > videoState->maxFrameDuration)
+        ALOGD(FFPLAY_TAG, "%s duration = %f maxFrameDuration = %f", __func__, duration, videoState->maxFrameDuration);
+        if (isnan(duration) || duration <= 0 || duration > videoState->maxFrameDuration) {
             return vp->duration;
-        else
+        } else {
             return duration;
+        }
     } else {
         return 0.0;
     }
@@ -1366,29 +1383,36 @@ void FFPlay::videoDisplay() {
 }
 
 double FFPlay::computeTargetDelay(double delay) {
-    double sync_threshold, diff = 0;
-
+    ALOGD(FFPLAY_TAG, "%s delay = %0.3f ", __func__, delay);
+    double syncThreshold, diff = 0;
     /* update delay to follow master synchronisation source */
     if (getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER) {
-        /* if video is slave, we try to correct big delays by
-           duplicating or deleting a frame */
-        diff = videoState->videoClock.getClock() - getMasterClock();
+        /* if video is slave, we try to correct big delays byduplicating or deleting a frame */
+        double videoClock = videoState->videoClock.getClock();
+        double masterClock = getMasterClock();
 
-        /* skip or repeat frame. We take into account the
-           delay to compute the threshold. I still don't know
-           if it is the best guess */
-        sync_threshold = FFMAX(SYNC_THRESHOLD_MIN, FFMIN(SYNC_THRESHOLD_MAX, delay));
+        diff = videoClock - masterClock;
+
+        ALOGD(FFPLAY_TAG, "videoClock = %lf masterClock = %lf ", videoClock, masterClock);
+
+        // skip or repeat frame. We take into account the delay to compute the threshold. I still don't know
+        // if it is the best guess */
+        // 0.04 ~ 0.1
+        syncThreshold = FFMAX(SYNC_THRESHOLD_MIN, FFMIN(SYNC_THRESHOLD_MAX, delay));
+
+        ALOGD(FFPLAY_TAG, "diff = %lf syncThreshold[0.04,0.1] = %lf ", diff, syncThreshold);
+
         if (!isnan(diff) && fabs(diff) < videoState->maxFrameDuration) {
-            if (diff <= -sync_threshold) {
+            if (diff <= -syncThreshold) {
                 delay = FFMAX(0, delay + diff);
-            } else if (diff >= sync_threshold && delay > SYNC_FRAMEDUP_THRESHOLD) {
+            } else if (diff >= syncThreshold && delay > SYNC_FRAMEDUP_THRESHOLD) {
                 delay = delay + diff;
-            } else if (diff >= sync_threshold) {
+            } else if (diff >= syncThreshold) {
                 delay = 2 * delay;
             }
         }
     }
-    ALOGD(FFPLAY_TAG, "%s video: delay=%0.3f A-V=%f\n", __func__, delay, -diff);
+    ALOGD(FFPLAY_TAG, "%s result delay = %0.3f ", __func__, delay);
     return delay;
 }
 

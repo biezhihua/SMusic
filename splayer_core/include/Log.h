@@ -48,11 +48,11 @@ extern Mutex *logMutex;
 #define _ALOGD(TAG, ...) do { \
 logMutex->mutexLock();\
 (void)printf("\x1B[37m"); \
-(void)printf("%s-",LOG_TAG); \
+(void)printf("%s ",LOG_TAG); \
 (void)printf("\x1B[35;1m"); \
 (void)printf("%-7s",Thread::getThreadNameById(pthread_self())); \
 (void)printf("\033[0m"); \
-(void)printf("-"); \
+(void)printf(" "); \
 (void)printf("\x1B[32m"); \
 (void)printf("%-13s",TAG); \
 (void)printf("\033[0m: "); \
@@ -64,11 +64,11 @@ logMutex->mutexUnLock(); \
 #define _ALOGI(TAG, ...) do { \
 logMutex->mutexLock();\
 (void)printf("\x1B[37m"); \
-(void)printf("%s-",LOG_TAG); \
+(void)printf("%s ",LOG_TAG); \
 (void)printf("\x1B[35;1m"); \
 (void)printf("%-7s",Thread::getThreadNameById(pthread_self())); \
 (void)printf("\033[0m"); \
-(void)printf("-"); \
+(void)printf(" "); \
 (void)printf("\x1B[30;1m"); \
 (void)printf("%-13s",TAG); \
 (void)printf("\033[0m: "); \
@@ -80,11 +80,11 @@ logMutex->mutexUnLock(); \
 #define _ALOGE(TAG, ...) do { \
 logMutex->mutexLock();\
 (void)printf("\x1B[37m"); \
-(void)printf("%s-",LOG_TAG); \
+(void)printf("%s ",LOG_TAG); \
 (void)printf("\x1B[35;1m"); \
 (void)printf("%-7s",Thread::getThreadNameById(pthread_self())); \
 (void)printf("\033[0m"); \
-(void)printf("-"); \
+(void)printf(" "); \
 (void)printf("\x1B[31m"); \
 (void)printf("%-13s",TAG); \
 (void)printf("\033[0m: "); \
@@ -96,11 +96,11 @@ logMutex->mutexUnLock(); \
 #define _ALOGW(TAG, ...) do { \
 logMutex->mutexLock();\
 (void)printf("\x1B[37m"); \
-(void)printf("%s-",LOG_TAG); \
+(void)printf("%s ",LOG_TAG); \
 (void)printf("\x1B[35;1m"); \
 (void)printf("%-7s",Thread::getThreadNameById(pthread_self())); \
 (void)printf("\033[0m"); \
-(void)printf("-"); \
+(void)printf(" "); \
 (void)printf("\x1B[33m"); \
 (void)printf("%-13s",TAG); \
 (void)printf("\033[0m: "); \
