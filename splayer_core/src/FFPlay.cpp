@@ -58,8 +58,6 @@ int FFPlay::prepareStream(const char *fileName) {
 
     showVersionsAndOptions();
 
-    avformat_network_init();
-
     av_init_packet(&flushPacket);
     flushPacket.data = (uint8_t *) &flushPacket;
 

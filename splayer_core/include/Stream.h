@@ -10,6 +10,11 @@ class FFPlay;
 #include "Surface.h"
 #include "FFPlay.h"
 #include "PipelineNode.h"
+#include "Error.h"
+
+extern "C" {
+#include <libavformat/avformat.h>
+}
 
 class Stream {
 
@@ -22,9 +27,9 @@ public:
 
     virtual ~Stream();
 
-    virtual int create() = 0;
+    virtual int create();
 
-    virtual int destroy() = 0;
+    virtual int destroy();
 
     void setSurface(Surface *surface);
 
