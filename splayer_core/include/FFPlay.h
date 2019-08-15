@@ -70,6 +70,7 @@ private:
     VideoState *videoState = nullptr;
     AVPacket flushPacket;
 
+public:
 
     /**
      * Format/Codec Options

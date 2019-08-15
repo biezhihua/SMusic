@@ -29,6 +29,8 @@
 #define S_NOT_FRAME_WRITEABLE          26
 #define S_NOT_BLOACK_GET_MSG          27
 #define S_SDL_NOT_INIT          28
+#define S_SDL_NOT_CREATE_WINDOW          29
+#define S_SDL_NOT_CREATE_RENDERER          30
 
 
 #endif //SPLAYER_CORE_ERRORNO_H

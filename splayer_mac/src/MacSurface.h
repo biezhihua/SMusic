@@ -15,6 +15,10 @@
  */
 class MacSurface : public Surface {
 
+private:
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    SDL_RendererInfo rendererInfo = {0};
 
 public:
     int create() override;
