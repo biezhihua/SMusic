@@ -14,15 +14,9 @@ public:
 
     virtual ~Audio();
 
-    virtual int open() = 0;
+    virtual int create() = 0;
 
-    virtual void pause() = 0;
-
-    virtual void flush() = 0;
-
-    virtual void close() = 0;
-
-    virtual void free() = 0;
+    virtual int destroy() = 0;
 
 };
 

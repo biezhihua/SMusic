@@ -1,17 +1,9 @@
 #include "MacStream.h"
 
-void MacStream::close() {
-
+int MacStream::create() {
+    return POSITIVE;
 }
 
-Audio *MacStream::openAudioOutput() {
-    return nullptr;
-}
-
-PipelineNode *MacStream::openAudioDecoder() {
-    return nullptr;
-}
-
-PipelineNode *MacStream::openVideoDecoder() {
-    return nullptr;
+int MacStream::destroy() {
+    return POSITIVE;
 }

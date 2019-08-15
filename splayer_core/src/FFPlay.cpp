@@ -1499,3 +1499,11 @@ int FFPlay::uploadTexture(AVFrame *pFrame) {
 Surface *FFPlay::getSurface() const {
     return surface;
 }
+
+Stream *FFPlay::getStream() const {
+    return stream;
+}
+
+Audio *FFPlay::getAudio() const {
+    return audio;
+}

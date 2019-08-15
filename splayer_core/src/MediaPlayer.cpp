@@ -170,7 +170,7 @@ int MediaPlayer::prepareAsync() {
     if (state && mutex && play) {
         mutex->mutexLock();
         state->changeState(State::STATE_ASYNC_PREPARING);
-        if (prepareMsgQueue() && prepareSurface() && play->prepareStream(dataSource)) {
+        if (prepareMsgQueue() && prepareSurface() && prepareAudio() && prepareStream() && play->prepareStream(dataSource)) {
             state->changeState(State::STATE_ERROR);
             mutex->mutexUnLock();
             return NEGATIVE(S_CONDITION);
@@ -208,6 +208,30 @@ int MediaPlayer::prepareSurface() {
     return surface->create();
 }
 
+
+int MediaPlayer::prepareStream() {
+    if (!play) {
+        return NEGATIVE(S_NULL);
+    }
+    Stream *stream = play->getStream();
+    if (!stream) {
+        return NEGATIVE(S_NULL);
+    }
+    return stream->create();
+}
+
+int MediaPlayer::prepareAudio() {
+    if (!play) {
+        return NEGATIVE(S_NULL);
+    }
+    Audio *audio = play->getAudio();
+    if (!audio) {
+        return NEGATIVE(S_NULL);
+    }
+    return audio->create();
+}
+
+
 void MediaPlayer::notifyMsg(int what) {
     if (play && play->getMsgQueue()) {
         MessageQueue *msg = play->getMsgQueue();
@@ -242,5 +266,7 @@ MessageQueue *MediaPlayer::getMsgQueue() {
     }
     return nullptr;
 }
+
+
 
 

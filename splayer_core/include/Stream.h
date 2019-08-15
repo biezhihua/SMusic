@@ -17,14 +17,9 @@ public:
 
     virtual ~Stream();
 
-    // destroy
-    virtual void close() = 0;
+    virtual int create() = 0;
 
-    virtual Audio *openAudioOutput() = 0;
-
-    virtual PipelineNode *openAudioDecoder() = 0;
-
-    virtual PipelineNode *openVideoDecoder() = 0;
+    virtual int destroy() = 0;
 
     void setSurface(Surface *surface);
 

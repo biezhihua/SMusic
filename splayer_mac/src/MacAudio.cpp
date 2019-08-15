@@ -1,21 +1,9 @@
 #include "MacAudio.h"
 
-int MacAudio::open() {
-    return 0;
+int MacAudio::create() {
+    return POSITIVE;
 }
 
-void MacAudio::pause() {
-
-}
-
-void MacAudio::flush() {
-
-}
-
-void MacAudio::close() {
-
-}
-
-void MacAudio::free() {
-
+int MacAudio::destroy() {
+    return POSITIVE;
 }

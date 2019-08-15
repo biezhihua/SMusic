@@ -1,20 +1,15 @@
 #ifndef SPLAYER_COMMAND_MACAOUT_H
 #define SPLAYER_COMMAND_MACAOUT_H
 
-#include <Audio.h>
+#include "Audio.h"
+#include "Error.h"
 
 class MacAudio : public Audio {
 
 public:
-    int open() override;
+    int create() override;
 
-    void pause() override;
-
-    void flush() override;
-
-    void close() override;
-
-    void free() override;
+    int destroy() override;
 };
 
 

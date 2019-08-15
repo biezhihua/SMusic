@@ -126,6 +126,8 @@ public:
 
     ~FFPlay();
 
+    Stream *getStream() const;
+
     Surface *getSurface() const;
 
     void setAudio(Audio *audio);
@@ -158,6 +160,8 @@ public:
     int audioThread();
 
     int refreshThread();
+
+    Audio *getAudio() const;
 
 private:
     void showVersionsAndOptions();

@@ -73,6 +73,10 @@ private:
     int prepareMsgQueue();
 
     int prepareSurface();
+
+    int prepareStream();
+
+    int prepareAudio();
 };
 
 

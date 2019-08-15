@@ -2,19 +2,15 @@
 #define SPLAYER_COMMAND_MACPIPELINE_H
 
 #include "Stream.h"
+#include "Error.h"
 
 class MacStream : public Stream {
 
 public:
 
-    void close() override;
+    int create() override;
 
-    Audio *openAudioOutput() override;
-
-    PipelineNode *openAudioDecoder() override;
-
-    PipelineNode *openVideoDecoder() override;
-
+    int destroy() override;
 
 };
 
