@@ -1,4 +1,3 @@
-
 #ifndef SPLAYER_PIPELINE_H
 #define SPLAYER_PIPELINE_H
 

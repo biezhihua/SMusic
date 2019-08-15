@@ -1,4 +1,3 @@
-
 #ifndef SPLAYER_MAC_CMDUTILS_H
 #define SPLAYER_MAC_CMDUTILS_H
 

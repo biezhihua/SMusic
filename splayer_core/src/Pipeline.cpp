@@ -1,4 +1,3 @@
-#include <Surface.h>
 #include "Pipeline.h"
 
 Pipeline::Pipeline() {

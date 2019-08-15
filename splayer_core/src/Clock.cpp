@@ -1,6 +1,3 @@
-
-#include <Clock.h>
-
 #include "Clock.h"
 
 int Clock::initClock(int *queueSerial) {

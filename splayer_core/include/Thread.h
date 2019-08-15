@@ -1,6 +1,8 @@
 #ifndef SPLAYER_THREAD_H
 #define SPLAYER_THREAD_H
 
+class Thread;
+
 #include <pthread.h>
 #include <string>
 #include "Log.h"

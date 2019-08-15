@@ -1,5 +1,4 @@
 #include "MediaPlayer.h"
-#include "Thread.h"
 
 MediaPlayer::MediaPlayer() = default;
 

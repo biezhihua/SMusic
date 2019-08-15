@@ -1,5 +1,3 @@
-#include <FrameQueue.h>
-
 #include "FrameQueue.h"
 
 int FrameQueue::init(PacketQueue *packetQueue, int queueSize, int keepLast) {

@@ -1,9 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
-#pragma clang diagnostic ignored "-Wunknown-pragmas"
-#pragma ide diagnostic ignored "bugprone-misplaced-widening-cast"
-#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
-
 #include "Mutex.h"
 
 int Mutex::mutexLock() {
@@ -101,4 +95,3 @@ int Mutex::condWaitTimeout(Mutex *other, uint32_t ms) {
     return -1;
 }
 
-#pragma clang diagnostic pop

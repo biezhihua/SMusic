@@ -41,8 +41,6 @@
 
 extern Mutex *logMutex;
 
-
-
 // http://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
 
 #define _ALOGD(TAG, ...) do { \
