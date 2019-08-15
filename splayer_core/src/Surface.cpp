@@ -8,4 +8,8 @@ Surface::~Surface() {
     delete mutex;
 }
 
+void Surface::setPlay(FFPlay *play) {
+    Surface::play = play;
+}
+
 

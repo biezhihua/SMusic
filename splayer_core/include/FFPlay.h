@@ -1,6 +1,10 @@
 #ifndef SPLAYER_PLAY_H
 #define SPLAYER_PLAY_H
 
+class Surface;
+
+class Pipeline;
+
 #include "Log.h"
 #include "Define.h"
 #include "Mutex.h"

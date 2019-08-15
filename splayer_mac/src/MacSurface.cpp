@@ -4,10 +4,10 @@ int MacSurface::create() {
 //    if (!play) {
 //        return NEGATIVE(S_NULL);
 //    }
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0) {
-        ALOGD(MAC_SURFACE_TAG, "%s init sdl fail SDL_Init", __func__);
-        return NEGATIVE(S_SDL_NOT_INIT);
-    }
+//    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0) {
+//        ALOGD(MAC_SURFACE_TAG, "%s init sdl fail SDL_Init", __func__);
+//        return NEGATIVE(S_SDL_NOT_INIT);
+//    }
 //    int flags = SDL_WINDOW_HIDDEN;
 //    if (play->borderless) {
 //        flags |= SDL_WINDOW_BORDERLESS;
