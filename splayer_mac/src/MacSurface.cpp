@@ -1,6 +1,8 @@
 #include "MacSurface.h"
 
 int MacSurface::create() {
+    ALOGD(MAC_SURFACE_TAG, __func__);
+
     if (!play) {
         return NEGATIVE(S_NULL);
     }
@@ -20,7 +22,7 @@ int MacSurface::create() {
     window = SDL_CreateWindow(play->optionWindowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, play->optionDefaultWidth, play->optionDefaultHeight, flags);
     if (window == nullptr) {
         ALOGE(MAC_SURFACE_TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
-        SDL_Quit();
+        destroy();
         return NEGATIVE(S_SDL_NOT_CREATE_WINDOW);
     }
 
@@ -31,29 +33,28 @@ int MacSurface::create() {
     }
     if (renderer == nullptr) {
         ALOGE(MAC_SURFACE_TAG, "%s create renderer fail: %s", __func__, SDL_GetError());
-        SDL_DestroyWindow(window);
-        SDL_Quit();
+        destroy();
         return NEGATIVE(S_SDL_NOT_CREATE_RENDERER);
     }
 
     if (!SDL_GetRendererInfo(renderer, &rendererInfo)) {
-        ALOGD(MAC_SURFACE_TAG, "%s Initialized %s renderer", __func__, SDL_GetError());
+        ALOGD(MAC_SURFACE_TAG, "initialized %s renderer", rendererInfo.name);
     }
 
     if (!window || !renderer || !rendererInfo.num_texture_formats) {
         ALOGD(MAC_SURFACE_TAG, "%s failed to create window or renderer: %s", __func__, SDL_GetError());
-        if (renderer) {
-            SDL_DestroyRenderer(renderer);
-        }
-        if (window) {
-            SDL_DestroyWindow(window);
-        }
-        SDL_Quit();
+        destroy();
     }
-
     return POSITIVE;
 }
 
 int MacSurface::destroy() {
+    if (renderer) {
+        SDL_DestroyRenderer(renderer);
+    }
+    if (window) {
+        SDL_DestroyWindow(window);
+    }
+    SDL_Quit();
     return POSITIVE;
 }

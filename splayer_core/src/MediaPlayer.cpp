@@ -170,7 +170,7 @@ int MediaPlayer::prepareAsync() {
     if (state && mutex && play) {
         mutex->mutexLock();
         state->changeState(State::STATE_ASYNC_PREPARING);
-        if (!prepareMsgQueue() && !prepareSurface() && !play->preparePipeline(dataSource)) {
+        if (prepareMsgQueue() && prepareSurface() && play->preparePipeline(dataSource)) {
             state->changeState(State::STATE_ERROR);
             mutex->mutexUnLock();
             return NEGATIVE(S_CONDITION);

@@ -207,7 +207,7 @@ VideoState *FFPlay::streamOpen() {
     is->audioVolume = getStartupVolume();
     is->muted = 0;
     is->avSyncType = optionSyncType;
-    is->readThread = new Thread(innerReadThread, this, "Read---");
+    is->readThread = new Thread(innerReadThread, this, "Read   ");
 
     if (!is->readThread) {
         ALOGE(FFPLAY_TAG, "%s create read thread fail", __func__);
