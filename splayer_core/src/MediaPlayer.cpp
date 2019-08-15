@@ -50,6 +50,7 @@ int MediaPlayer::create() {
         ALOGE(MEDIA_PLAYER_TAG, "create audio error");
         return NEGATIVE(S_NOT_MEMORY);
     }
+    audio->setPlay(play);
     play->setAudio(audio);
 
     Stream *stream = createStream();
@@ -61,8 +62,9 @@ int MediaPlayer::create() {
         ALOGE(MEDIA_PLAYER_TAG, "create stream error");
         return NEGATIVE(S_NOT_MEMORY);
     }
-    play->setStream(stream);
+    stream->setPlay(play);
     stream->setSurface(surface);
+    play->setStream(stream);
 
     return POSITIVE;
 }

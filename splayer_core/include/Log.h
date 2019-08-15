@@ -23,6 +23,8 @@
 
 #else
 
+class Thread;
+
 #include <pthread.h>
 #include "Mutex.h"
 #include <stdio.h>

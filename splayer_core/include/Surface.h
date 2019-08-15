@@ -14,8 +14,8 @@ class FFPlay;
 class Surface {
 
 protected:
-    FFPlay *play;
-    Mutex *mutex;
+    FFPlay *play = nullptr;
+    Mutex *mutex = nullptr;
 
 public:
     Surface();

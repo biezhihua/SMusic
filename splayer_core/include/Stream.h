@@ -1,16 +1,21 @@
 #ifndef SPLAYER_PIPELINE_H
 #define SPLAYER_PIPELINE_H
 
+class Surface;
+
+class FFPlay;
+
 #include "Log.h"
 #include "Audio.h"
 #include "Surface.h"
+#include "FFPlay.h"
 #include "PipelineNode.h"
 
 class Stream {
 
 private:
-
-    Surface *surface;
+    FFPlay *play = nullptr;
+    Surface *surface = nullptr;
 
 public:
     Stream();
@@ -22,6 +27,8 @@ public:
     virtual int destroy() = 0;
 
     void setSurface(Surface *surface);
+
+    void setPlay(FFPlay *play);
 
 };
 

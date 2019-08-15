@@ -3,6 +3,8 @@
 
 class Surface;
 
+class Audio;
+
 class Stream;
 
 #include "Log.h"

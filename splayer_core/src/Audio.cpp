@@ -1,8 +1,9 @@
 #include "Audio.h"
 
+Audio::Audio() = default;
 
-Audio::Audio() {
-}
+Audio::~Audio() = default;
 
-Audio::~Audio() {
+void Audio::setPlay(FFPlay *play) {
+    Audio::play = play;
 }
