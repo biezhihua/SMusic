@@ -193,11 +193,11 @@ private:
 
     void videoDisplay();
 
-    double frameDuration(Frame *vp, Frame *nextvp);
+    double frameDuration(Frame *currentFrame, Frame *nextFrame);
 
     double computeTargetDelay(double delay);
 
-    void updateVideoPts(double pts, int64_t pos, int serial);
+    void updateVideoClockPts(double pts, int64_t pos, int serial);
 
     void syncClockToSlave(Clock *c, Clock *slave);
 

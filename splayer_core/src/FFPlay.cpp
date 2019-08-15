@@ -1213,7 +1213,6 @@ int FFPlay::refreshThread() {
     ALOGD(FFPLAY_TAG, "%s abort = %d", __func__, videoState->abortRequest);
     double remainingTime = 0.0;
     while (!videoState->abortRequest) {
-        ALOGD(FFPLAY_TAG, "\n");
         ALOGD(FFPLAY_TAG, "---------------- start");
         ALOGD(FFPLAY_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime, videoState->paused, videoState->forceRefresh);
         if (remainingTime > 0.0) {
@@ -1268,21 +1267,21 @@ void FFPlay::videoRefresh(double *remainingTime) {
             ALOGD(FFPLAY_TAG, "nothing to do, no picture to display in the queue");
         } else {
             double lastDuration, duration, delay;
-            Frame *vp, *lastvp;
+            Frame *currentFrame, *lastFrame;
 
             /* dequeue the picture */
-            lastvp = videoState->videoFrameQueue.peekLast();
-            vp = videoState->videoFrameQueue.peek();
+            lastFrame = videoState->videoFrameQueue.peekLast();
+            currentFrame = videoState->videoFrameQueue.peek();
 
-            ALOGD(FFPLAY_TAG, "peek frame serial = %d list serial = %d ", vp->serial, videoState->videoPacketQueue.serial);
-            if (vp->serial != videoState->videoPacketQueue.serial) {
+            ALOGD(FFPLAY_TAG, "peek frame serial = %d list serial = %d ", currentFrame->serial, videoState->videoPacketQueue.serial);
+            if (currentFrame->serial != videoState->videoPacketQueue.serial) {
                 videoState->videoFrameQueue.next();
                 ALOGD(FFPLAY_TAG, "goto retry");
                 goto retry;
             }
 
-            ALOGD(FFPLAY_TAG, "peek frame serial = %d last frame serial = %d ", vp->serial, lastvp->serial);
-            if (lastvp->serial != vp->serial) {
+            ALOGD(FFPLAY_TAG, "peek frame serial = %d last frame serial = %d ", currentFrame->serial, lastFrame->serial);
+            if (lastFrame->serial != currentFrame->serial) {
                 videoState->frameTimer = av_gettime_relative() / 1000000.0;
                 ALOGD(FFPLAY_TAG, "update frameTimer = %fd ", videoState->frameTimer);
             }
@@ -1293,7 +1292,7 @@ void FFPlay::videoRefresh(double *remainingTime) {
             }
 
             /* compute nominal lastDuration */
-            lastDuration = frameDuration(lastvp, vp);
+            lastDuration = frameDuration(lastFrame, currentFrame);
             delay = computeTargetDelay(lastDuration);
 
             time = av_gettime_relative() / 1000000.0;
@@ -1306,23 +1305,26 @@ void FFPlay::videoRefresh(double *remainingTime) {
             }
 
             videoState->frameTimer += delay;
-            if (delay > 0 && time - videoState->frameTimer > SYNC_THRESHOLD_MAX) {
+            ALOGD(FFPLAY_TAG, "frameTimer = %f ", videoState->frameTimer);
+            if (delay > 0 && (time - videoState->frameTimer) > SYNC_THRESHOLD_MAX) {
                 videoState->frameTimer = time;
+                ALOGD(FFPLAY_TAG, "force frameTimer = %f ", videoState->frameTimer);
             }
 
             videoState->videoFrameQueue.mutex->mutexLock();
-            if (!isnan(vp->pts)) {
-                updateVideoPts(vp->pts, vp->pos, vp->serial);
+            if (!isnan(currentFrame->pts)) {
+                updateVideoClockPts(currentFrame->pts, currentFrame->pos, currentFrame->serial);
             }
             videoState->videoFrameQueue.mutex->mutexUnLock();
 
-
             if (videoState->videoFrameQueue.numberRemaining() > 1) {
-                Frame *nextvp = videoState->videoFrameQueue.peekNext();
-                duration = frameDuration(vp, nextvp);
+                Frame *nextFrame = videoState->videoFrameQueue.peekNext();
+                duration = frameDuration(currentFrame, nextFrame);
+                ALOGD(FFPLAY_TAG, "next frame duration = %lf ", duration);
                 if (!videoState->step && (optionDropFrameWhenSlow > 0 || (optionDropFrameWhenSlow && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) && time > (videoState->frameTimer + duration)) {
                     videoState->frameDropsLate++;
                     videoState->videoFrameQueue.next();
+                    ALOGD(FFPLAY_TAG, "goto retry");
                     goto retry;
                 }
             }
@@ -1337,6 +1339,7 @@ void FFPlay::videoRefresh(double *remainingTime) {
                 // TODO
             }
         }
+
         display:
         /* display picture */
         if (videoState->forceRefresh && videoState->showMode == SHOW_MODE_VIDEO && videoState->videoFrameQueue.readIndexShown) {
@@ -1348,12 +1351,12 @@ void FFPlay::videoRefresh(double *remainingTime) {
     videoState->forceRefresh = 0;
 }
 
-double FFPlay::frameDuration(Frame *vp, Frame *nextvp) {
-    if (vp->serial == nextvp->serial) {
-        double duration = nextvp->pts - vp->pts;
+double FFPlay::frameDuration(Frame *currentFrame, Frame *nextFrame) {
+    if (currentFrame->serial == nextFrame->serial) {
+        double duration = nextFrame->pts - currentFrame->pts;
         ALOGD(FFPLAY_TAG, "%s duration = %f maxFrameDuration = %f", __func__, duration, videoState->maxFrameDuration);
         if (isnan(duration) || duration <= 0 || duration > videoState->maxFrameDuration) {
-            return vp->duration;
+            return currentFrame->duration;
         } else {
             return duration;
         }
@@ -1366,7 +1369,7 @@ double FFPlay::frameDuration(Frame *vp, Frame *nextvp) {
 void FFPlay::videoDisplay() {
     ALOGD(FFPLAY_TAG, __func__);
 
-    if (videoState->width) {
+    if (!videoState->width) {
         videoOpen();
     }
 
@@ -1416,17 +1419,17 @@ double FFPlay::computeTargetDelay(double delay) {
     return delay;
 }
 
-void FFPlay::updateVideoPts(double pts, int64_t pos, int serial) {
-    /* update current video pts */
+/* update current video pts */
+void FFPlay::updateVideoClockPts(double pts, int64_t pos, int serial) {
     videoState->videoClock.setClock(pts, serial);
     syncClockToSlave(&videoState->exitClock, &videoState->videoClock);
 }
 
 void FFPlay::syncClockToSlave(Clock *c, Clock *slave) {
     double clock = c->getClock();
-    double slave_clock = slave->getClock();
-    if (!isnan(slave_clock) && (isnan(clock) || fabs(clock - slave_clock) > NOSYNC_THRESHOLD)) {
-        c->setClock(slave_clock, slave->serial);
+    double slaveClock = slave->getClock();
+    if (!isnan(slaveClock) && (isnan(clock) || fabs(clock - slaveClock) > NOSYNC_THRESHOLD)) {
+        c->setClock(slaveClock, slave->serial);
     }
 }
 
@@ -1465,27 +1468,27 @@ int FFPlay::videoOpen() {
 void FFPlay::videoImageDisplay() {
     ALOGD(FFPLAY_TAG, __func__);
 
-    Frame *vp;
+    Frame *lastFrame;
     Frame *sp = nullptr;
 //    SDL_Rect rect;
 
-    vp = videoState->videoFrameQueue.peekLast();
+    lastFrame = videoState->videoFrameQueue.peekLast();
     if (videoState->subtitleStream) {
         // TODO
     }
 
-    // calculate_display_rect(&rect, is->xleft, is->ytop, is->width, is->height, vp->width, vp->height, vp->sar);
+    // calculate_display_rect(&rect, is->xleft, is->ytop, is->width, is->height, lastFrame->width, lastFrame->height, lastFrame->sar);
 
-    if (!vp->uploaded) {
-        if (uploadTexture(vp->frame) < 0) {
+    if (!lastFrame->uploaded) {
+        if (uploadTexture(lastFrame->frame) < 0) {
             return;
         }
-        vp->uploaded = 1;
-        vp->flip_v = vp->frame->linesize[0] < 0;
+        lastFrame->uploaded = 1;
+        lastFrame->flip_v = lastFrame->frame->linesize[0] < 0;
     }
 
-//    set_sdl_yuv_conversion_mode(vp->frame);
-//    SDL_RenderCopyEx(renderer, is->vid_texture, NULL, &rect, 0, NULL, vp->flip_v ? SDL_FLIP_VERTICAL : 0);
+//    set_sdl_yuv_conversion_mode(lastFrame->frame);
+//    SDL_RenderCopyEx(renderer, is->vid_texture, NULL, &rect, 0, NULL, lastFrame->flip_v ? SDL_FLIP_VERTICAL : 0);
 //    set_sdl_yuv_conversion_mode(NULL);
 
 }
