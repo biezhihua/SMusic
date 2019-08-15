@@ -1,9 +1,9 @@
 #ifndef SPLAYER_COMMAND_MACPIPELINE_H
 #define SPLAYER_COMMAND_MACPIPELINE_H
 
-#include "Pipeline.h"
+#include "Stream.h"
 
-class MacPipeline : public Pipeline {
+class MacStream : public Stream {
 
 public:
 

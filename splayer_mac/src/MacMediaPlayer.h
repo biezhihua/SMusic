@@ -5,7 +5,7 @@
 #include <MediaPlayer.h>
 #include "MacAudio.h"
 #include "MacSurface.h"
-#include "MacPipeline.h"
+#include "MacStream.h"
 
 #define MAC_MEDIA_PLAYER_TAG "MacMPlayer"
 
@@ -18,7 +18,7 @@ public:
 
     Surface *createSurface() override;
 
-    Pipeline *createPipeline() override;
+    Stream *createStream() override;
 
 };
 

@@ -5,7 +5,7 @@ FFPlay::FFPlay() {
 }
 
 FFPlay::~FFPlay() {
-    delete pipeline;
+    delete stream;
     delete audio;
     delete msgQueue;
 }
@@ -20,9 +20,9 @@ void FFPlay::setSurface(Surface *surface) {
     FFPlay::surface = surface;
 }
 
-void FFPlay::setPipeline(Pipeline *pipeline) {
+void FFPlay::setStream(Stream *stream) {
     ALOGD(FFPLAY_TAG, __func__);
-    FFPlay::pipeline = pipeline;
+    FFPlay::stream = stream;
 }
 
 MessageQueue *FFPlay::getMsgQueue() const {
@@ -53,7 +53,7 @@ static int innerRefreshThread(void *arg) {
     return NEGATIVE(S_ERROR);
 }
 
-int FFPlay::preparePipeline(const char *fileName) {
+int FFPlay::prepareStream(const char *fileName) {
     ALOGD(FFPLAY_TAG, __func__);
 
     showVersionsAndOptions();

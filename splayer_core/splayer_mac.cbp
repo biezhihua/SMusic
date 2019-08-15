@@ -244,7 +244,7 @@
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_core/src/PacketQueue.cpp">
 			<Option target="splayer_core"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_core/src/Pipeline.cpp">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_core/src/Stream.cpp">
 			<Option target="splayer_core"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_core/src/PipelineNode.cpp">
@@ -277,10 +277,10 @@
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacMediaPlayer.h">
 			<Option target="splayer_mac"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacPipeline.cpp">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacStream.cpp">
 			<Option target="splayer_mac"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacPipeline.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacStream.h">
 			<Option target="splayer_mac"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacSurface.cpp">

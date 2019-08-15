@@ -21,6 +21,6 @@ Surface *MacMediaPlayer::createSurface() {
     return new MacSurface();
 }
 
-Pipeline *MacMediaPlayer::createPipeline() {
-    return new MacPipeline();
+Stream *MacMediaPlayer::createStream() {
+    return new MacStream();
 }

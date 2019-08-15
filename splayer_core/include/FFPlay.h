@@ -3,7 +3,7 @@
 
 class Surface;
 
-class Pipeline;
+class Stream;
 
 #include "Log.h"
 #include "Define.h"
@@ -11,7 +11,7 @@ class Pipeline;
 #include "MessageQueue.h"
 #include "Audio.h"
 #include "Surface.h"
-#include "Pipeline.h"
+#include "Stream.h"
 #include "State.h"
 #include "Error.h"
 #include "VideoState.h"
@@ -62,7 +62,7 @@ private:
     MessageQueue *msgQueue = nullptr;
     Audio *audio = nullptr;
     Surface *surface = nullptr;
-    Pipeline *pipeline = nullptr;
+    Stream *stream = nullptr;
 
     /**
      *  Current Context
@@ -132,7 +132,7 @@ public:
 
     void setSurface(Surface *surface);
 
-    void setPipeline(Pipeline *pipeline);
+    void setStream(Stream *stream);
 
     MessageQueue *getMsgQueue() const;
 
@@ -142,7 +142,7 @@ public:
 
     int waitStop();
 
-    int preparePipeline(const char *fileName);
+    int prepareStream(const char *fileName);
 
     int getMsg(Message *pMessage, bool block);
 

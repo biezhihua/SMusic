@@ -52,17 +52,17 @@ int MediaPlayer::create() {
     }
     play->setAudio(audio);
 
-    Pipeline *pipeline = createPipeline();
-    if (!pipeline) {
+    Stream *stream = createStream();
+    if (!stream) {
         delete state;
         delete mutex;
         delete play;
         delete surface;
-        ALOGE(MEDIA_PLAYER_TAG, "create pipeline error");
+        ALOGE(MEDIA_PLAYER_TAG, "create stream error");
         return NEGATIVE(S_NOT_MEMORY);
     }
-    play->setPipeline(pipeline);
-    pipeline->setSurface(surface);
+    play->setStream(stream);
+    stream->setSurface(surface);
 
     return POSITIVE;
 }
@@ -170,7 +170,7 @@ int MediaPlayer::prepareAsync() {
     if (state && mutex && play) {
         mutex->mutexLock();
         state->changeState(State::STATE_ASYNC_PREPARING);
-        if (prepareMsgQueue() && prepareSurface() && play->preparePipeline(dataSource)) {
+        if (prepareMsgQueue() && prepareSurface() && play->prepareStream(dataSource)) {
             state->changeState(State::STATE_ERROR);
             mutex->mutexUnLock();
             return NEGATIVE(S_CONDITION);

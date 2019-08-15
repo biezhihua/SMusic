@@ -6,16 +6,16 @@
 #include "Surface.h"
 #include "PipelineNode.h"
 
-class Pipeline {
+class Stream {
 
 private:
 
     Surface *surface;
 
 public:
-    Pipeline();
+    Stream();
 
-    virtual ~Pipeline();
+    virtual ~Stream();
 
     // destroy
     virtual void close() = 0;

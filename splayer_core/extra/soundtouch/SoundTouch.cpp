@@ -308,7 +308,7 @@ void SoundTouch::putSamples(const SAMPLETYPE *samples, uint nSamples)
 }
 
 
-// Flushes the last samples from the processing pipeline to the output.
+// Flushes the last samples from the processing stream to the output.
 // Clears also the internal processing buffers.
 //
 // Note: This function is meant for extracting the last samples of a sound
@@ -326,8 +326,8 @@ void SoundTouch::flush()
     if (numStillExpected < 0) numStillExpected = 0;
 
     memset(buff, 0, 128 * channels * sizeof(SAMPLETYPE));
-    // "Push" the last active samples out from the processing pipeline by
-    // feeding blank samples into the processing pipeline until new, 
+    // "Push" the last active samples out from the processing stream by
+    // feeding blank samples into the processing stream until new,
     // processed samples appear in the output (not however, more than 
     // 24ksamples in any case)
     for (i = 0; (numStillExpected > (int)numSamples()) && (i < 200); i ++)

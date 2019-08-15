@@ -6,7 +6,7 @@
 #include "Mutex.h"
 #include "FFPlay.h"
 #include "RefCount.h"
-#include "Pipeline.h"
+#include "Stream.h"
 #include "State.h"
 #include "Thread.h"
 
@@ -63,7 +63,7 @@ public:
 
     virtual Surface *createSurface() = 0;
 
-    virtual Pipeline *createPipeline() = 0;
+    virtual Stream *createStream() = 0;
 
     virtual int messageLoop() = 0;
 
