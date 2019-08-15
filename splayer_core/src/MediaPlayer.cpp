@@ -205,8 +205,7 @@ int MediaPlayer::prepareSurface() {
     if (!surface) {
         return NEGATIVE(S_NULL);
     }
-    // TODO
-    return POSITIVE;
+    return surface->create();
 }
 
 void MediaPlayer::notifyMsg(int what) {

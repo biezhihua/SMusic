@@ -28,6 +28,7 @@
 #define S_NOT_FOUND_CODER          25
 #define S_NOT_FRAME_WRITEABLE          26
 #define S_NOT_BLOACK_GET_MSG          27
+#define S_SDL_NOT_INIT          28
 
 
 #endif //SPLAYER_CORE_ERRORNO_H

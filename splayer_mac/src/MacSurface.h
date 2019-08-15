@@ -3,7 +3,11 @@
 #ifndef SPLAYER_COMMAND_MACVOUT_H
 #define SPLAYER_COMMAND_MACVOUT_H
 
-#include <Surface.h>
+#include "Surface.h"
+#include "Error.h"
+#include <SDL.h>
+
+#define MAC_SURFACE_TAG "MacSurface"
 
 /**
  * https://github.com/Twinklebear/TwinklebearDev-Lessons
@@ -11,6 +15,11 @@
  */
 class MacSurface : public Surface {
 
+
+public:
+    int create() override;
+
+    int destroy() override;
 };
 
 
