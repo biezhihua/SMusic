@@ -13,12 +13,12 @@ int MacMediaPlayer::messageLoop() {
     return POSITIVE;
 }
 
-AOut *MacMediaPlayer::createAOut() {
-    return new MacAudioOut();
+Audio *MacMediaPlayer::createAudio() {
+    return new MacAudio();
 }
 
-VOut *MacMediaPlayer::createVOut() {
-    return new MacSDL2VideoOut();
+Surface *MacMediaPlayer::createSurface() {
+    return new MacSurface();
 }
 
 Pipeline *MacMediaPlayer::createPipeline() {

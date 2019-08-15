@@ -4,7 +4,7 @@ void MacPipeline::close() {
 
 }
 
-AOut *MacPipeline::openAudioOutput() {
+Audio *MacPipeline::openAudioOutput() {
     return nullptr;
 }
 

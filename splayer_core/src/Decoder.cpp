@@ -36,11 +36,11 @@ void Decoder::decoderAbort(FrameQueue *frameQueue) {
     }
 }
 
-int Decoder::decoderStart(int (*fn)(void *), void *arg) {
+int Decoder::decoderStart(const char *name, int (*fn)(void *), void *arg) {
     if (packetQueue) {
         packetQueue->start();
     }
-    decoderTid = new Thread(fn, arg, "Decoder");
+    decoderTid = new Thread(fn, arg, name);
     if (!decoderTid) {
         ALOGD("%s create decoder thread fail ", __func__);
         return NEGATIVE(S_NOT_MEMORY);

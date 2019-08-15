@@ -4,15 +4,15 @@
 #include "Log.h"
 #include "Mutex.h"
 
-class AOut {
+class Audio {
 
 private:
     Mutex *mutex = nullptr;
 
 public:
-    AOut();
+    Audio();
 
-    virtual ~AOut();
+    virtual ~Audio();
 
     virtual int open() = 0;
 

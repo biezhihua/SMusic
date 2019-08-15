@@ -8,18 +8,18 @@ FFPlay::FFPlay() {
 
 FFPlay::~FFPlay() {
     delete pipeline;
-    delete aOut;
+    delete audio;
     delete msgQueue;
 }
 
-void FFPlay::setAOut(AOut *aOut) {
+void FFPlay::setAudio(Audio *audio) {
     ALOGD(FFPLAY_TAG, __func__);
-    FFPlay::aOut = aOut;
+    FFPlay::audio = audio;
 }
 
-void FFPlay::setVOut(VOut *vOut) {
+void FFPlay::setSurface(Surface *surface) {
     ALOGD(FFPLAY_TAG, __func__);
-    FFPlay::vOut = vOut;
+    FFPlay::surface = surface;
 }
 
 void FFPlay::setPipeline(Pipeline *pipeline) {
@@ -55,7 +55,7 @@ static int innerRefreshThread(void *arg) {
     return NEGATIVE(S_ERROR);
 }
 
-int FFPlay::prepareAsync(const char *fileName) {
+int FFPlay::preparePipeline(const char *fileName) {
     ALOGD(FFPLAY_TAG, __func__);
 
     showVersionsAndOptions();
@@ -840,7 +840,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
                 videoState->audioDecoder.startPts = videoState->audioStream->start_time;
                 videoState->audioDecoder.startPtsTb = videoState->audioStream->time_base;
             }
-            if (videoState->audioDecoder.decoderStart(innerSubtitleThread, this) < 0) {
+            if (videoState->audioDecoder.decoderStart("ADecode", innerAudioThread, this) < 0) {
                 av_dict_free(&opts);
                 return NEGATIVE(S_NOT_AUDIO_DECODE_START);
             }
@@ -849,7 +849,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
             videoState->videoStreamIndex = streamIndex;
             videoState->videoStream = formatContext->streams[streamIndex];
             videoState->videoDecoder.decoderInit(codecContext, &videoState->videoPacketQueue, videoState->continueReadThread);
-            if (videoState->videoDecoder.decoderStart(innerVideoThread, this) < 0) {
+            if (videoState->videoDecoder.decoderStart("VDecode", innerVideoThread, this) < 0) {
                 av_dict_free(&opts);
                 return NEGATIVE(S_NOT_VIDEO_DECODE_START);
             }
@@ -859,7 +859,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
             videoState->subtitleStreamIndex = streamIndex;
             videoState->subtitleStream = formatContext->streams[streamIndex];
             videoState->subtitleDecoder.decoderInit(codecContext, &videoState->subtitlePacketQueue, videoState->continueReadThread);
-            if (videoState->subtitleDecoder.decoderStart(innerSubtitleThread, this) < 0) {
+            if (videoState->subtitleDecoder.decoderStart("SDecode", innerSubtitleThread, this) < 0) {
                 av_dict_free(&opts);
                 return NEGATIVE(S_NOT_SUBTITLE_DECODE_START);
             }
@@ -1496,4 +1496,8 @@ void FFPlay::videoImageDisplay() {
 int FFPlay::uploadTexture(AVFrame *pFrame) {
     ALOGD(FFPLAY_TAG, __func__);
     return 0;
+}
+
+Surface *FFPlay::getSurface() const {
+    return surface;
 }

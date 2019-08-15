@@ -5,8 +5,8 @@
 #include "Define.h"
 #include "Mutex.h"
 #include "MessageQueue.h"
-#include "AOut.h"
-#include "VOut.h"
+#include "Audio.h"
+#include "Surface.h"
 #include "Pipeline.h"
 #include "State.h"
 #include "Error.h"
@@ -56,8 +56,8 @@ private:
      * Self Implement
      */
     MessageQueue *msgQueue = nullptr;
-    AOut *aOut = nullptr;
-    VOut *vOut = nullptr;
+    Audio *audio = nullptr;
+    Surface *surface = nullptr;
     Pipeline *pipeline = nullptr;
 
     /**
@@ -121,9 +121,11 @@ public:
 
     ~FFPlay();
 
-    void setAOut(AOut *aOut);
+    Surface *getSurface() const;
 
-    void setVOut(VOut *vOut);
+    void setAudio(Audio *audio);
+
+    void setSurface(Surface *surface);
 
     void setPipeline(Pipeline *pipeline);
 
@@ -135,7 +137,7 @@ public:
 
     int waitStop();
 
-    int prepareAsync(const char *fileName);
+    int preparePipeline(const char *fileName);
 
     int getMsg(Message *pMessage, bool block);
 

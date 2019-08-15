@@ -211,7 +211,7 @@
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_core/extra/soundtouch/sse_optimized.cpp">
 			<Option target="splayer_core"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_core/src/AOut.cpp">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_core/src/Audio.cpp">
 			<Option target="splayer_core"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_core/src/Clock.cpp">
@@ -259,16 +259,16 @@
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_core/src/Thread.cpp">
 			<Option target="splayer_core"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_core/src/VOut.cpp">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_core/src/Surface.cpp">
 			<Option target="splayer_core"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_core/src/VOutOverlay.cpp">
 			<Option target="splayer_core"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacAudioOut.cpp">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacAudio.cpp">
 			<Option target="splayer_mac"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacAudioOut.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacAudio.h">
 			<Option target="splayer_mac"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacMediaPlayer.cpp">
@@ -283,10 +283,10 @@
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacPipeline.h">
 			<Option target="splayer_mac"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacSDL2VideoOut.cpp">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacSurface.cpp">
 			<Option target="splayer_mac"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacSDL2VideoOut.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/MacSurface.h">
 			<Option target="splayer_mac"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac/src/main.cpp">

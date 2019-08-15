@@ -1,9 +1,9 @@
 #ifndef SPLAYER_COMMAND_MACAOUT_H
 #define SPLAYER_COMMAND_MACAOUT_H
 
-#include <AOut.h>
+#include <Audio.h>
 
-class MacAudioOut : public AOut {
+class MacAudio : public Audio {
 
 public:
     int open() override;

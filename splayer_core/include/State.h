@@ -111,7 +111,7 @@ public:
      */
     static const int STATE_END = 9;
 
-    int changeState(const int state);
+    int changeState(int state);
 
     void setMsgQueue(MessageQueue *msgQueue);
 };

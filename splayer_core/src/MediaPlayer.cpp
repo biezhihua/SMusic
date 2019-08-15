@@ -1,7 +1,6 @@
 #include "MediaPlayer.h"
 #include "Thread.h"
 
-
 MediaPlayer::MediaPlayer() = default;
 
 MediaPlayer::~MediaPlayer() = default;
@@ -32,29 +31,38 @@ int MediaPlayer::create() {
     // 设置消息
     state->setMsgQueue(play->getMsgQueue());
 
-    // 创建输出层
-    VOut *vOut = createVOut();
-    if (!vOut) {
+    Surface *surface = createSurface();
+    if (!surface) {
         delete state;
         delete mutex;
         delete play;
         ALOGE(MEDIA_PLAYER_TAG, "create surface error");
         return NEGATIVE(S_NOT_MEMORY);
     }
-    play->setVOut(vOut);
+    play->setSurface(surface);
 
-    // 创建数据管道
+    Audio *audio = createAudio();
+    if (!audio) {
+        delete state;
+        delete mutex;
+        delete surface;
+        delete play;
+        ALOGE(MEDIA_PLAYER_TAG, "create audio error");
+        return NEGATIVE(S_NOT_MEMORY);
+    }
+    play->setAudio(audio);
+
     Pipeline *pipeline = createPipeline();
     if (!pipeline) {
         delete state;
         delete mutex;
         delete play;
-        delete vOut;
+        delete surface;
         ALOGE(MEDIA_PLAYER_TAG, "create pipeline error");
         return NEGATIVE(S_NOT_MEMORY);
     }
     play->setPipeline(pipeline);
-    pipeline->setVOut(vOut);
+    pipeline->setSurface(surface);
 
     return POSITIVE;
 }
@@ -162,33 +170,43 @@ int MediaPlayer::prepareAsync() {
     if (state && mutex && play) {
         mutex->mutexLock();
         state->changeState(State::STATE_ASYNC_PREPARING);
-        startMsgQueue();
-        startMsgQueueThread();
-        if (play->prepareAsync(dataSource)) {
+        if (!prepareMsgQueue() && !prepareSurface() && !play->preparePipeline(dataSource)) {
+            state->changeState(State::STATE_ERROR);
             mutex->mutexUnLock();
-            return POSITIVE;
+            return NEGATIVE(S_CONDITION);
         }
-        state->changeState(State::STATE_ERROR);
         mutex->mutexUnLock();
-        return NEGATIVE(S_CONDITION);
-    }
-    return NEGATIVE(S_NULL);
-}
-
-int MediaPlayer::startMsgQueueThread() {
-    msgThread = new Thread(staticMsgLoop, this, "Message");
-    if (msgThread) {
         return POSITIVE;
     }
-    return NEGATIVE(S_NOT_MEMORY);
+    return NEGATIVE(S_NULL);
 }
 
-int MediaPlayer::startMsgQueue() const {
+int MediaPlayer::prepareMsgQueue() {
     MessageQueue *msgQueue = play->getMsgQueue();
-    if (msgQueue) {
-        return msgQueue->startMsgQueue();
+    if (!msgQueue) {
+        return NEGATIVE(S_NULL);
     }
-    return NEGATIVE(S_NULL);
+    int ret = msgQueue->startMsgQueue();
+    if (!ret) {
+        return ret;
+    }
+    msgThread = new Thread(staticMsgLoop, this, "Message");
+    if (!msgThread) {
+        return NEGATIVE(S_NOT_MEMORY);
+    }
+    return POSITIVE;
+}
+
+int MediaPlayer::prepareSurface() {
+    if (!play) {
+        return NEGATIVE(S_NULL);
+    }
+    Surface *surface = play->getSurface();
+    if (!surface) {
+        return NEGATIVE(S_NULL);
+    }
+    // TODO
+    return POSITIVE;
 }
 
 void MediaPlayer::notifyMsg(int what) {
@@ -225,3 +243,5 @@ MessageQueue *MediaPlayer::getMsgQueue() {
     }
     return nullptr;
 }
+
+

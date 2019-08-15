@@ -46,7 +46,7 @@ public:
 
     void decoderAbort(FrameQueue *frameQueue);
 
-    int decoderStart(int (*fn)(void *), void *arg);
+    int decoderStart(const char *name, int (*fn)(void *), void *arg);
 };
 
 

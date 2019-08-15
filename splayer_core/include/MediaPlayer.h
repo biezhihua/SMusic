@@ -59,9 +59,9 @@ public:
 
 public:
 
-    virtual AOut *createAOut() = 0;
+    virtual Audio *createAudio() = 0;
 
-    virtual VOut *createVOut() = 0;
+    virtual Surface *createSurface() = 0;
 
     virtual Pipeline *createPipeline() = 0;
 
@@ -69,9 +69,10 @@ public:
 
 
 private:
-    int startMsgQueue() const;
 
-    int startMsgQueueThread();
+    int prepareMsgQueue();
+
+    int prepareSurface();
 };
 
 

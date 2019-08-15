@@ -8,15 +8,15 @@
 #include "Mutex.h"
 #include "VOutOverlay.h"
 
-class VOut {
+class Surface {
 
 protected:
     Mutex *mutex;
 
 public:
-    VOut();
+    Surface();
 
-    virtual ~VOut();
+    virtual ~Surface();
 };
 
 

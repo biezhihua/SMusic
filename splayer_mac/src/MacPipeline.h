@@ -14,7 +14,7 @@ public:
 
     void close() override;
 
-    AOut *openAudioOutput() override;
+    Audio *openAudioOutput() override;
 
     PipelineNode *openAudioDecoder() override;
 

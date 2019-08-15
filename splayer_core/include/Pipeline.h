@@ -3,15 +3,15 @@
 #define SPLAYER_PIPELINE_H
 
 #include "Log.h"
-#include "AOut.h"
-#include "VOut.h"
+#include "Audio.h"
+#include "Surface.h"
 #include "PipelineNode.h"
 
 class Pipeline {
 
 private:
 
-    VOut *vOut;
+    Surface *surface;
 
 public:
     Pipeline();
@@ -21,13 +21,13 @@ public:
     // destroy
     virtual void close() = 0;
 
-    virtual AOut *openAudioOutput() = 0;
+    virtual Audio *openAudioOutput() = 0;
 
     virtual PipelineNode *openAudioDecoder() = 0;
 
     virtual PipelineNode *openVideoDecoder() = 0;
 
-    void setVOut(VOut *vOut);
+    void setSurface(Surface *surface);
 
 };
 
