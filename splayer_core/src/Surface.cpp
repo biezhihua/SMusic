@@ -12,4 +12,8 @@ void Surface::setPlay(FFPlay *play) {
     Surface::play = play;
 }
 
+void Surface::setWindowTitle(char *title) {
+
+}
+
 

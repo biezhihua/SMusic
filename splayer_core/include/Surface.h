@@ -26,6 +26,8 @@ public:
 
     virtual int destroy() = 0;
 
+    virtual void setWindowTitle(char *title);
+
     void setPlay(FFPlay *play);
 };
 

@@ -18,12 +18,14 @@ class MacSurface : public Surface {
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
-    SDL_RendererInfo rendererInfo = {0};
+    SDL_RendererInfo rendererInfo = {nullptr};
 
 public:
     int create() override;
 
     int destroy() override;
+
+    void setWindowTitle(char *title) override;
 };
 
 

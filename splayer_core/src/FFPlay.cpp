@@ -393,6 +393,9 @@ int FFPlay::readThread() {
 
     if (!optionWindowTitle && (dictionaryEntry = av_dict_get(formatContext->metadata, TITLE, nullptr, 0))) {
         optionWindowTitle = av_asprintf("%s - %s", dictionaryEntry->value, optionInputFileName);
+        if (surface) {
+            surface->setWindowTitle(optionWindowTitle);
+        }
     }
 
     /* if seeking requested, we execute it */

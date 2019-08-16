@@ -58,3 +58,7 @@ int MacSurface::destroy() {
     SDL_Quit();
     return POSITIVE;
 }
+
+void MacSurface::setWindowTitle(char *title) {
+
+}
