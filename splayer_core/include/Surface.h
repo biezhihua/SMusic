@@ -11,6 +11,10 @@ class FFPlay;
 #include "Mutex.h"
 #include "VOutOverlay.h"
 
+extern "C" {
+#include <libavutil/rational.h>
+}
+
 class Surface {
 
 protected:
@@ -27,6 +31,8 @@ public:
     virtual int destroy() = 0;
 
     virtual void setWindowTitle(char *title);
+
+    virtual void setWindowSize(int width, int height, AVRational rational);
 
     void setPlay(FFPlay *play);
 };

@@ -120,7 +120,7 @@ public:
     char *optionVideoCodecName = nullptr; // force decoder
     double optionRdftSpeed = 0.02;  // rdft speed
     int optionInfiniteBuffer = -1; // don't limit the input buffer size (useful with realtime streams)
-    int optionShowStatus = 1; // show status
+    int optionShowStatus = 0; // show status
     int optionFindStreamInfo = 1; // read and decode the streams to fill missing information with heuristics
 
 public:

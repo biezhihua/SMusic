@@ -16,4 +16,8 @@ void Surface::setWindowTitle(char *title) {
 
 }
 
+void Surface::setWindowSize(int width, int height, AVRational rational) {
+
+}
+
 

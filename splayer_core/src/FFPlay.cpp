@@ -455,10 +455,9 @@ int FFPlay::readThread() {
     if (streamIndex[AVMEDIA_TYPE_VIDEO] >= 0) {
         AVStream *stream = formatContext->streams[streamIndex[AVMEDIA_TYPE_VIDEO]];
         AVCodecParameters *codecParameters = stream->codecpar;
-        AVRational sar = av_guess_sample_aspect_ratio(formatContext, stream, nullptr);
-        if (codecParameters->width) {
-            // TODO
-            // set_default_window_size(codecParameters->width, codecParameters->height, sampleAspectRatio);
+        AVRational sampleAspectRatio = av_guess_sample_aspect_ratio(formatContext, stream, nullptr);
+        if (codecParameters->width && surface) {
+            surface->setWindowSize(codecParameters->width, codecParameters->height, sampleAspectRatio);
         }
     }
 
@@ -1476,7 +1475,7 @@ void FFPlay::videoImageDisplay() {
         // TODO
     }
 
-    // calculate_display_rect(&rect, is->xleft, is->ytop, is->width, is->height, lastFrame->width, lastFrame->height, lastFrame->sar);
+    // calculateDisplayRect(&rect, is->xleft, is->ytop, is->width, is->height, lastFrame->width, lastFrame->height, lastFrame->sar);
 
     if (!lastFrame->uploaded) {
         if (uploadTexture(lastFrame->frame) < 0) {

@@ -7,6 +7,10 @@
 #include "Error.h"
 #include <SDL.h>
 
+extern "C" {
+#include <libavutil/rational.h>
+};
+
 #define MAC_SURFACE_TAG "MacSurface"
 
 /**
@@ -26,6 +30,11 @@ public:
     int destroy() override;
 
     void setWindowTitle(char *title) override;
+
+    void setWindowSize(int width, int height, AVRational rational) override;
+
+private:
+    void calculateDisplayRect(SDL_Rect *rect, int scrXLeft, int scrYTop, int scrWidth, int scrHeight, int picWidth, int picHeight, AVRational picSar);
 };
 
 
