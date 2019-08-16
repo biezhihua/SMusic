@@ -37,6 +37,12 @@ public:
 
 private:
     void calculateDisplayRect(SDL_Rect *rect, int scrXLeft, int scrYTop, int scrWidth, int scrHeight, int picWidth, int picHeight, AVRational picSar);
+
+    void doKeySystem(const SDL_Event &event) const;
+
+    bool isHaveWindow() const;
+
+    bool isQuitKey(const SDL_Event &event) const;
 };
 
 

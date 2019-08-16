@@ -110,12 +110,9 @@ void MacSurface::calculateDisplayRect(SDL_Rect *rect, int scrXLeft, int scrYTop,
 }
 
 int MacSurface::eventLoop() {
-    SDL_Event event;
-    double incr, pos, frac;
     bool quit = false;
-    SDL_Event e;
+    SDL_Event event;
     while (!quit) {
-        double x;
         SDL_PumpEvents();
         while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
             if (play && !play->optionCursorHidden && av_gettime_relative() - play->optionCursorLastShown > CURSOR_HIDE_DELAY) {
@@ -126,56 +123,17 @@ int MacSurface::eventLoop() {
         }
         switch (event.type) {
             case SDL_KEYDOWN:
-                if (event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q) {
+                if (isQuitKey(event)) {
                     quit = true;
                     break;
                 }
-                // If we don't yet have a window, skip all key events, because read_thread might still be initializing...
-                if (play && play->getVideoState() && play->getVideoState()->width) {
+                if (isHaveWindow()) {
                     continue;
                 }
-                switch (event.key.keysym.sym) {
-                    case SDLK_f:
-                        break;
-                    case SDLK_p:
-                    case SDLK_SPACE:
-                        break;
-                    case SDLK_m:
-                        break;
-                    case SDLK_KP_MULTIPLY:
-                    case SDLK_0:
-                        break;
-                    case SDLK_KP_DIVIDE:
-                    case SDLK_9:
-                        break;
-                    case SDLK_s: // S: Step to next frame
-                        break;
-                    case SDLK_a:
-                        break;
-                    case SDLK_v:
-                        break;
-                    case SDLK_c:
-                        break;
-                    case SDLK_t:
-                        break;
-                    case SDLK_w:
-                        break;
-                    case SDLK_PAGEUP:
-                        break;
-                    case SDLK_PAGEDOWN:
-                        break;
-                    case SDLK_LEFT:
-                    case SDLK_RIGHT:
-                    case SDLK_UP:
-                    case SDLK_DOWN:
-                        break;
-                    default:
-                        break;
-                }
+                doKeySystem(event);
                 break;
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEMOTION:
-                break;
             case SDL_WINDOWEVENT:
                 break;
             case SDL_QUIT:
@@ -186,4 +144,54 @@ int MacSurface::eventLoop() {
         }
     }
     return POSITIVE;
+}
+
+bool MacSurface::isQuitKey(const SDL_Event &event) const {
+    return event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q;
+}
+
+bool MacSurface::isHaveWindow() const {
+    // If we don't yet have a window, skip all key events, because read_thread might still be initializing...
+    return play && play->getVideoState() && play->getVideoState()->width;
+}
+
+void MacSurface::doKeySystem(const SDL_Event &event) const {
+    switch (event.key.keysym.sym) {
+        case SDLK_f:
+            break;
+        case SDLK_p:
+        case SDLK_SPACE:
+            break;
+        case SDLK_m:
+            break;
+        case SDLK_KP_MULTIPLY:
+        case SDLK_0:
+            break;
+        case SDLK_KP_DIVIDE:
+        case SDLK_9:
+            break;
+        case SDLK_s: // S: Step to next frame
+            break;
+        case SDLK_a:
+            break;
+        case SDLK_v:
+            break;
+        case SDLK_c:
+            break;
+        case SDLK_t:
+            break;
+        case SDLK_w:
+            break;
+        case SDLK_PAGEUP:
+            break;
+        case SDLK_PAGEDOWN:
+            break;
+        case SDLK_LEFT:
+        case SDLK_RIGHT:
+        case SDLK_UP:
+        case SDLK_DOWN:
+            break;
+        default:
+            break;
+    }
 }
