@@ -221,9 +221,9 @@ private:
 
     void syncClockToSlave(Clock *c, Clock *slave);
 
-    int openWindow();
+    int displayWindow();
 
-    void videoImageDisplay();
+    void displayVideoImage();
 
     int uploadTexture(AVFrame *pFrame);
 

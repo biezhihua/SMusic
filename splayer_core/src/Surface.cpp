@@ -16,7 +16,11 @@ void Surface::setWindowSize(int width, int height, AVRational rational) {
 
 }
 
-void Surface::openWindow(int width, int height) {
+void Surface::displayWindow(int width, int height) {
+
+}
+
+void Surface::displayVideoImage() {
 
 }
 

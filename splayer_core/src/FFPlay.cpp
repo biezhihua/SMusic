@@ -1351,19 +1351,15 @@ void FFPlay::displayVideo() {
     ALOGD(FFPLAY_TAG, __func__);
 
     if (!videoState->width) {
-        openWindow();
+        displayWindow();
     }
 
-//    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-//    SDL_RenderClear(renderer);
+
     if (videoState->audioStream && videoState->showMode != SHOW_MODE_VIDEO) {
         // video_audio_display(videoState);
     } else if (videoState->videoStream) {
-        videoImageDisplay();
+        displayVideoImage();
     }
-
-//    SDL_RenderPresent(renderer);
-
 }
 
 double FFPlay::computeTargetDelay(double delay) {
@@ -1414,7 +1410,7 @@ void FFPlay::syncClockToSlave(Clock *c, Clock *slave) {
     }
 }
 
-int FFPlay::openWindow() {
+int FFPlay::displayWindow() {
     ALOGD(FFPLAY_TAG, __func__);
     int w, h;
     if (optionScreenWidth) {
@@ -1430,38 +1426,17 @@ int FFPlay::openWindow() {
     videoState->width = w;
     videoState->height = h;
     if (surface) {
-        surface->openWindow(w, h);
+        surface->displayWindow(w, h);
     }
     return POSITIVE;
 }
 
 
-void FFPlay::videoImageDisplay() {
+void FFPlay::displayVideoImage() {
     ALOGD(FFPLAY_TAG, __func__);
-
-    Frame *lastFrame;
-    Frame *sp = nullptr;
-//    SDL_Rect rect;
-
-    lastFrame = videoState->videoFrameQueue.peekLast();
-    if (videoState->subtitleStream) {
-        // TODO
+    if (surface) {
+        surface->displayVideoImage();
     }
-
-    // calculateDisplayRect(&rect, is->xleft, is->ytop, is->width, is->height, lastFrame->width, lastFrame->height, lastFrame->sar);
-
-    if (!lastFrame->uploaded) {
-        if (uploadTexture(lastFrame->frame) < 0) {
-            return;
-        }
-        lastFrame->uploaded = 1;
-        lastFrame->flip_v = lastFrame->frame->linesize[0] < 0;
-    }
-
-//    set_sdl_yuv_conversion_mode(lastFrame->frame);
-//    SDL_RenderCopyEx(renderer, is->vid_texture, NULL, &rect, 0, NULL, lastFrame->flip_v ? SDL_FLIP_VERTICAL : 0);
-//    set_sdl_yuv_conversion_mode(NULL);
-
 }
 
 int FFPlay::uploadTexture(AVFrame *pFrame) {

@@ -196,7 +196,7 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
     }
 }
 
-void MacSurface::openWindow(int width, int height) {
+void MacSurface::displayWindow(int width, int height) {
     if (window && play) {
         SDL_SetWindowTitle(window, play->optionWindowTitle);
         SDL_SetWindowSize(window, width, height);
@@ -207,3 +207,143 @@ void MacSurface::openWindow(int width, int height) {
         SDL_ShowWindow(window);
     }
 }
+
+void MacSurface::displayVideoImage() {
+    Frame *lastFrame;
+    Frame *sp = nullptr;
+    SDL_Rect rect;
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    if (play && play->getVideoState()) {
+        VideoState *videoState = play->getVideoState();
+
+        lastFrame = videoState->videoFrameQueue.peekLast();
+
+        if (videoState->subtitleStream) {
+            // TODO
+        }
+        calculateDisplayRect(&rect, videoState->xLeft, videoState->yTop, videoState->width, videoState->height, lastFrame->width, lastFrame->height, lastFrame->sampleAspectRatio);
+        if (!lastFrame->uploaded) {
+            if (uploadTexture(lastFrame->frame, videoState->imgConvertCtx) < 0) {
+                return;
+            }
+            lastFrame->uploaded = 1;
+            lastFrame->flip_v = lastFrame->frame->linesize[0] < 0;
+        }
+        setYuvConversionMode(lastFrame->frame);
+        SDL_RenderCopyEx(renderer, videoTexture, nullptr, &rect, 0, nullptr, lastFrame->flip_v ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
+        setYuvConversionMode(nullptr);
+    }
+    SDL_RenderPresent(renderer);
+}
+
+void MacSurface::setYuvConversionMode(AVFrame *frame) {
+#if SDL_VERSION_ATLEAST(2, 0, 8)
+    SDL_YUV_CONVERSION_MODE mode = SDL_YUV_CONVERSION_AUTOMATIC;
+    if (frame && (frame->format == AV_PIX_FMT_YUV420P || frame->format == AV_PIX_FMT_YUYV422 || frame->format == AV_PIX_FMT_UYVY422)) {
+        if (frame->color_range == AVCOL_RANGE_JPEG) {
+            mode = SDL_YUV_CONVERSION_JPEG;
+        } else if (frame->colorspace == AVCOL_SPC_BT709) {
+            mode = SDL_YUV_CONVERSION_BT709;
+        } else if (frame->colorspace == AVCOL_SPC_BT470BG || frame->colorspace == AVCOL_SPC_SMPTE170M || frame->colorspace == AVCOL_SPC_SMPTE240M) {
+            mode = SDL_YUV_CONVERSION_BT601;
+        }
+    }
+    SDL_SetYUVConversionMode(mode);
+#endif
+}
+
+int MacSurface::uploadTexture(AVFrame *frame, SwsContext *convertContext) {
+    int ret = 0;
+    Uint32 sdlPixFmt;
+    SDL_BlendMode sdlBlendMode;
+    getSDLPixFmtAndBlendMode(frame->format, &sdlPixFmt, &sdlBlendMode);
+    if (reallocTexture(&videoTexture, sdlPixFmt == SDL_PIXELFORMAT_UNKNOWN ? SDL_PIXELFORMAT_ARGB8888 : sdlPixFmt, frame->width, frame->height, sdlBlendMode, 0) < 0)
+        return -1;
+    switch (sdlPixFmt) {
+        case SDL_PIXELFORMAT_UNKNOWN:
+            /* This should only happen if we are not using avfilter... */
+            convertContext = sws_getCachedContext(convertContext,
+                                                  frame->width, frame->height, (AVPixelFormat) frame->format,
+                                                  frame->width, frame->height,
+                                                  AV_PIX_FMT_BGRA, swsFlags, nullptr, nullptr, nullptr);
+            if (convertContext != nullptr) {
+                uint8_t *pixels[4];
+                int pitch[4];
+                if (!SDL_LockTexture(videoTexture, nullptr, (void **) pixels, pitch)) {
+                    sws_scale(convertContext, (const uint8_t *const *) frame->data, frame->linesize,
+                              0, frame->height, pixels, pitch);
+                    SDL_UnlockTexture(videoTexture);
+                }
+            } else {
+                av_log(nullptr, AV_LOG_FATAL, "Cannot initialize the conversion context\n");
+                ret = -1;
+            }
+            break;
+        case SDL_PIXELFORMAT_IYUV:
+            if (frame->linesize[0] > 0 && frame->linesize[1] > 0 && frame->linesize[2] > 0) {
+                ret = SDL_UpdateYUVTexture(videoTexture, nullptr, frame->data[0], frame->linesize[0],
+                                           frame->data[1], frame->linesize[1],
+                                           frame->data[2], frame->linesize[2]);
+            } else if (frame->linesize[0] < 0 && frame->linesize[1] < 0 && frame->linesize[2] < 0) {
+                ret = SDL_UpdateYUVTexture(videoTexture, nullptr, frame->data[0] + frame->linesize[0] * (frame->height - 1), -frame->linesize[0],
+                                           frame->data[1] + frame->linesize[1] * (AV_CEIL_RSHIFT(frame->height, 1) - 1), -frame->linesize[1],
+                                           frame->data[2] + frame->linesize[2] * (AV_CEIL_RSHIFT(frame->height, 1) - 1), -frame->linesize[2]);
+            } else {
+                av_log(nullptr, AV_LOG_ERROR, "Mixed negative and positive linesizes are not supported.\n");
+                return -1;
+            }
+            break;
+        default:
+            if (frame->linesize[0] < 0) {
+                ret = SDL_UpdateTexture(videoTexture, nullptr, frame->data[0] + frame->linesize[0] * (frame->height - 1), -frame->linesize[0]);
+            } else {
+                ret = SDL_UpdateTexture(videoTexture, nullptr, frame->data[0], frame->linesize[0]);
+            }
+            break;
+    }
+    return ret;
+}
+
+void MacSurface::getSDLPixFmtAndBlendMode(int format, Uint32 *sdlPixFmt, SDL_BlendMode *sdlBlendMode) {
+    int i;
+    *sdlBlendMode = SDL_BLENDMODE_NONE;
+    *sdlPixFmt = SDL_PIXELFORMAT_UNKNOWN;
+    if (format == AV_PIX_FMT_RGB32 ||
+        format == AV_PIX_FMT_RGB32_1 ||
+        format == AV_PIX_FMT_BGR32 ||
+        format == AV_PIX_FMT_BGR32_1)
+        *sdlBlendMode = SDL_BLENDMODE_BLEND;
+    for (i = 0; i < FF_ARRAY_ELEMS(sdl_texture_format_map) - 1; i++) {
+        if (format == sdl_texture_format_map[i].format) {
+            *sdlPixFmt = static_cast<Uint32>(sdl_texture_format_map[i].texture_fmt);
+            return;
+        }
+    }
+}
+
+int MacSurface::reallocTexture(SDL_Texture **texture, Uint32 new_format, int new_width, int new_height, SDL_BlendMode blendmode, int init_texture) {
+    Uint32 format;
+    int access, w, h;
+    if (!*texture || SDL_QueryTexture(*texture, &format, &access, &w, &h) < 0 || new_width != w || new_height != h || new_format != format) {
+        void *pixels;
+        int pitch;
+        if (*texture)
+            SDL_DestroyTexture(*texture);
+        if (!(*texture = SDL_CreateTexture(renderer, new_format, SDL_TEXTUREACCESS_STREAMING, new_width, new_height)))
+            return -1;
+        if (SDL_SetTextureBlendMode(*texture, blendmode) < 0)
+            return -1;
+        if (init_texture) {
+            if (SDL_LockTexture(*texture, nullptr, &pixels, &pitch) < 0)
+                return -1;
+            memset(pixels, 0, static_cast<size_t>(pitch * new_height));
+            SDL_UnlockTexture(*texture);
+        }
+        av_log(nullptr, AV_LOG_VERBOSE, "Created %dx%d texture with %s.\n", new_width, new_height, SDL_GetPixelFormatName(new_format));
+    }
+    return 0;
+}
+
