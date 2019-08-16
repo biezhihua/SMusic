@@ -12,7 +12,7 @@ int MacSurface::create() {
         return NEGATIVE(S_SDL_NOT_INIT);
     }
 
-    Uint32 flags = SDL_WINDOW_HIDDEN;
+    Uint32 flags = SDL_WINDOW_SHOWN;
     if (play->optionBrorderless) {
         flags |= SDL_WINDOW_BORDERLESS;
     } else {
@@ -107,4 +107,83 @@ void MacSurface::calculateDisplayRect(SDL_Rect *rect, int scrXLeft, int scrYTop,
     rect->h = FFMAX(height, 1);
 
     ALOGD(MAC_SURFACE_TAG, "%s x = %d y = %d w = %d h = %d", __func__, rect->x, rect->y, rect->w, rect->h);
+}
+
+int MacSurface::eventLoop() {
+    SDL_Event event;
+    double incr, pos, frac;
+    bool quit = false;
+    SDL_Event e;
+    while (!quit) {
+        double x;
+        SDL_PumpEvents();
+        while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
+            if (play && !play->optionCursorHidden && av_gettime_relative() - play->optionCursorLastShown > CURSOR_HIDE_DELAY) {
+                SDL_ShowCursor(0);
+                play->optionCursorHidden = 1;
+            }
+            SDL_PumpEvents();
+        }
+        switch (event.type) {
+            case SDL_KEYDOWN:
+                if (event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q) {
+                    quit = true;
+                    break;
+                }
+                // If we don't yet have a window, skip all key events, because read_thread might still be initializing...
+                if (play && play->getVideoState() && play->getVideoState()->width) {
+                    continue;
+                }
+                switch (event.key.keysym.sym) {
+                    case SDLK_f:
+                        break;
+                    case SDLK_p:
+                    case SDLK_SPACE:
+                        break;
+                    case SDLK_m:
+                        break;
+                    case SDLK_KP_MULTIPLY:
+                    case SDLK_0:
+                        break;
+                    case SDLK_KP_DIVIDE:
+                    case SDLK_9:
+                        break;
+                    case SDLK_s: // S: Step to next frame
+                        break;
+                    case SDLK_a:
+                        break;
+                    case SDLK_v:
+                        break;
+                    case SDLK_c:
+                        break;
+                    case SDLK_t:
+                        break;
+                    case SDLK_w:
+                        break;
+                    case SDLK_PAGEUP:
+                        break;
+                    case SDLK_PAGEDOWN:
+                        break;
+                    case SDLK_LEFT:
+                    case SDLK_RIGHT:
+                    case SDLK_UP:
+                    case SDLK_DOWN:
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEMOTION:
+                break;
+            case SDL_WINDOWEVENT:
+                break;
+            case SDL_QUIT:
+                quit = true;
+                break;
+            default:
+                break;
+        }
+    }
+    return POSITIVE;
 }

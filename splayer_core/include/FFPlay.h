@@ -122,6 +122,8 @@ public:
     int optionInfiniteBuffer = -1; // don't limit the input buffer size (useful with realtime streams)
     int optionShowStatus = 0; // show status
     int optionFindStreamInfo = 1; // read and decode the streams to fill missing information with heuristics
+    int optionCursorHidden = 0;
+    int optionCursorLastShown = 0;
 
 public:
     FFPlay();
@@ -164,6 +166,8 @@ public:
     int refreshThread();
 
     Audio *getAudio() const;
+
+    VideoState *getVideoState() const;
 
 private:
     void showVersionsAndOptions();

@@ -1507,3 +1507,7 @@ Stream *FFPlay::getStream() const {
 Audio *FFPlay::getAudio() const {
     return audio;
 }
+
+VideoState *FFPlay::getVideoState() const {
+    return videoState;
+}

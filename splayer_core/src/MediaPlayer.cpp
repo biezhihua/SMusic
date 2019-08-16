@@ -77,7 +77,7 @@ int MediaPlayer::start() {
         removeMsg(Message::REQ_PAUSE);
         notifyMsg(Message::REQ_START);
         mutex->mutexUnLock();
-        return 0;
+        return POSITIVE;
     }
     return NEGATIVE(ENOMEM);
 }

@@ -20,6 +20,8 @@ public:
 
     Stream *createStream() override;
 
+    int prepareAsync() override;
+
 };
 
 #endif //SPLAYER_COMMAND_MYMEDIAPLAYER_H

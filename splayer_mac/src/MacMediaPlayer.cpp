@@ -24,3 +24,14 @@ Surface *MacMediaPlayer::createSurface() {
 Stream *MacMediaPlayer::createStream() {
     return new MacStream();
 }
+
+int MacMediaPlayer::prepareAsync() {
+    int result = MediaPlayer::prepareAsync();
+    if (play) {
+        auto *surface = dynamic_cast<MacSurface *>(play->getSurface());
+        if (surface) {
+            return surface->eventLoop();
+        }
+    }
+    return result;
+}

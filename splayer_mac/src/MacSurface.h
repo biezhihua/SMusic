@@ -33,6 +33,8 @@ public:
 
     void setWindowSize(int width, int height, AVRational rational) override;
 
+    int eventLoop();
+
 private:
     void calculateDisplayRect(SDL_Rect *rect, int scrXLeft, int scrYTop, int scrWidth, int scrHeight, int picWidth, int picHeight, AVRational picSar);
 };
