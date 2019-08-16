@@ -39,7 +39,6 @@ public:
     Mutex *continueReadThread;
 
     Thread *readThread;
-    Thread *refreshThread;
 
     AVFormatContext *formatContext;
 

@@ -12,11 +12,11 @@ void Surface::setPlay(FFPlay *play) {
     Surface::play = play;
 }
 
-void Surface::setWindowTitle(char *title) {
+void Surface::setWindowSize(int width, int height, AVRational rational) {
 
 }
 
-void Surface::setWindowSize(int width, int height, AVRational rational) {
+void Surface::openWindow(int width, int height) {
 
 }
 

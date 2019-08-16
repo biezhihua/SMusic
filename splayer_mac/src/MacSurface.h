@@ -29,8 +29,6 @@ public:
 
     int destroy() override;
 
-    void setWindowTitle(char *title) override;
-
     void setWindowSize(int width, int height, AVRational rational) override;
 
     int eventLoop();
@@ -43,6 +41,9 @@ private:
     bool isHaveWindow() const;
 
     bool isQuitKey(const SDL_Event &event) const;
+
+public:
+    void openWindow(int width, int height) override;
 };
 
 

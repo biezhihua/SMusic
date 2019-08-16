@@ -12,7 +12,7 @@ int MacSurface::create() {
         return NEGATIVE(S_SDL_NOT_INIT);
     }
 
-    Uint32 flags = SDL_WINDOW_SHOWN;
+    Uint32 flags = SDL_WINDOW_HIDDEN;
     if (play->optionBrorderless) {
         flags |= SDL_WINDOW_BORDERLESS;
     } else {
@@ -57,10 +57,6 @@ int MacSurface::destroy() {
     }
     SDL_Quit();
     return POSITIVE;
-}
-
-void MacSurface::setWindowTitle(char *title) {
-
 }
 
 void MacSurface::setWindowSize(int width, int height, AVRational rational) {
@@ -112,12 +108,16 @@ void MacSurface::calculateDisplayRect(SDL_Rect *rect, int scrXLeft, int scrYTop,
 int MacSurface::eventLoop() {
     bool quit = false;
     SDL_Event event;
-    while (!quit) {
+    while (!quit && play) {
+        play->remainingTime = 0.0F;
         SDL_PumpEvents();
         while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
             if (play && !play->optionCursorHidden && av_gettime_relative() - play->optionCursorLastShown > CURSOR_HIDE_DELAY) {
                 SDL_ShowCursor(0);
                 play->optionCursorHidden = 1;
+            }
+            if (play) {
+                play->refresh();
             }
             SDL_PumpEvents();
         }
@@ -193,5 +193,17 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
             break;
         default:
             break;
+    }
+}
+
+void MacSurface::openWindow(int width, int height) {
+    if (window && play) {
+        SDL_SetWindowTitle(window, play->optionWindowTitle);
+        SDL_SetWindowSize(window, width, height);
+        SDL_SetWindowPosition(window, play->optionScreenLeft, play->optionScreenTop);
+        if (play->optionIsFullScreen) {
+            SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        }
+        SDL_ShowWindow(window);
     }
 }

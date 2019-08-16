@@ -45,14 +45,6 @@ int FFPlay::waitStop() {
     return NEGATIVE_UNKNOWN;
 }
 
-static int innerRefreshThread(void *arg) {
-    auto *play = static_cast<FFPlay *>(arg);
-    if (play) {
-        return play->refreshThread();
-    }
-    return NEGATIVE(S_ERROR);
-}
-
 int FFPlay::prepareStream(const char *fileName) {
     ALOGD(FFPLAY_TAG, __func__);
 
@@ -68,8 +60,6 @@ int FFPlay::prepareStream(const char *fileName) {
     if (!videoState) {
         return NEGATIVE(S_NOT_MEMORY);
     }
-
-    videoState->refreshThread = new Thread(innerRefreshThread, this, "Refresh");
 
     return POSITIVE;
 }
@@ -393,9 +383,6 @@ int FFPlay::readThread() {
 
     if (!optionWindowTitle && (dictionaryEntry = av_dict_get(formatContext->metadata, TITLE, nullptr, 0))) {
         optionWindowTitle = av_asprintf("%s - %s", dictionaryEntry->value, optionInputFileName);
-        if (surface) {
-            surface->setWindowTitle(optionWindowTitle);
-        }
     }
 
     /* if seeking requested, we execute it */
@@ -1207,21 +1194,17 @@ int FFPlay::queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t
     return POSITIVE;
 }
 
-int FFPlay::refreshThread() {
-    ALOGD(FFPLAY_TAG, "%s abort = %d", __func__, videoState->abortRequest);
-    double remainingTime = 0.0;
-    while (!videoState->abortRequest) {
-        ALOGD(FFPLAY_TAG, "---------------- start");
-        ALOGD(FFPLAY_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime, videoState->paused, videoState->forceRefresh);
-        if (remainingTime > 0.0) {
-            av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
-        }
-        remainingTime = REFRESH_RATE;
-        if (videoState->showMode != SHOW_MODE_NONE && (!videoState->paused || videoState->forceRefresh)) {
-            videoRefresh(&remainingTime);
-        }
-        ALOGD(FFPLAY_TAG, "---------------- end");
+int FFPlay::refresh() {
+    ALOGD(FFPLAY_TAG, "---------------- start");
+    ALOGD(FFPLAY_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime, videoState->paused, videoState->forceRefresh);
+    if (remainingTime > 0.0) {
+        av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
     }
+    remainingTime = REFRESH_RATE;
+    if (videoState->showMode != SHOW_MODE_NONE && (!videoState->paused || videoState->forceRefresh)) {
+        refreshVideo(&remainingTime);
+    }
+    ALOGD(FFPLAY_TAG, "---------------- end");
     return POSITIVE;
 }
 
@@ -1241,7 +1224,7 @@ void FFPlay::checkExternalClockSpeed() {
 }
 
 /* called to display each frame */
-void FFPlay::videoRefresh(double *remainingTime) {
+void FFPlay::refreshVideo(double *remainingTime) {
     ALOGD(FFPLAY_TAG, "%s", __func__);
     double time;
     Frame *sp, *sp2;
@@ -1253,7 +1236,7 @@ void FFPlay::videoRefresh(double *remainingTime) {
     if (videoState->showMode != SHOW_MODE_VIDEO && videoState->audioStream) {
         time = av_gettime_relative() / 1000000.0;
         if (videoState->forceRefresh || (videoState->lastVisTime + optionRdftSpeed) < time) {
-            videoDisplay();
+            displayVideo();
             videoState->lastVisTime = time;
         }
         *remainingTime = FFMIN(*remainingTime, videoState->lastVisTime + optionRdftSpeed - time);
@@ -1341,7 +1324,7 @@ void FFPlay::videoRefresh(double *remainingTime) {
         display:
         /* display picture */
         if (videoState->forceRefresh && videoState->showMode == SHOW_MODE_VIDEO && videoState->videoFrameQueue.readIndexShown) {
-            videoDisplay();
+            displayVideo();
         }
     } else {
         ALOGD(FFPLAY_TAG, "not video streaming");
@@ -1364,11 +1347,11 @@ double FFPlay::frameDuration(Frame *currentFrame, Frame *nextFrame) {
 }
 
 /* display the current picture, if any */
-void FFPlay::videoDisplay() {
+void FFPlay::displayVideo() {
     ALOGD(FFPLAY_TAG, __func__);
 
     if (!videoState->width) {
-        videoOpen();
+        openWindow();
     }
 
 //    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -1431,11 +1414,9 @@ void FFPlay::syncClockToSlave(Clock *c, Clock *slave) {
     }
 }
 
-int FFPlay::videoOpen() {
+int FFPlay::openWindow() {
     ALOGD(FFPLAY_TAG, __func__);
-
     int w, h;
-
     if (optionScreenWidth) {
         w = optionScreenWidth;
         h = optionScreenHeight;
@@ -1443,22 +1424,14 @@ int FFPlay::videoOpen() {
         w = optionDefaultWidth;
         h = optionDefaultHeight;
     }
-
     if (!optionWindowTitle) {
         optionWindowTitle = optionInputFileName;
     }
-
-//    SDL_SetWindowTitle(window, optionWindowTitle);
-//    SDL_SetWindowSize(window, w, h);
-//    SDL_SetWindowPosition(window, optionScreenLeft, optionScreenTop);
-    if (optionIsFullScreen) {
-//        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    }
-//    SDL_ShowWindow(window);
-
     videoState->width = w;
     videoState->height = h;
-
+    if (surface) {
+        surface->openWindow(w, h);
+    }
     return POSITIVE;
 }
 

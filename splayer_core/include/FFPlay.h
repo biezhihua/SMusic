@@ -72,7 +72,10 @@ private:
     VideoState *videoState = nullptr;
     AVPacket flushPacket;
 
+
 public:
+
+    double remainingTime = 0.0f;
 
     /**
      * Format/Codec Options
@@ -163,11 +166,11 @@ public:
 
     int audioThread();
 
-    int refreshThread();
-
     Audio *getAudio() const;
 
     VideoState *getVideoState() const;
+
+    int refresh();
 
 private:
     void showVersionsAndOptions();
@@ -204,11 +207,11 @@ private:
 
     int queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial);
 
-    void videoRefresh(double *remainingTime);
+    void refreshVideo(double *remainingTime);
 
     void checkExternalClockSpeed();
 
-    void videoDisplay();
+    void displayVideo();
 
     double frameDuration(Frame *currentFrame, Frame *nextFrame);
 
@@ -218,11 +221,12 @@ private:
 
     void syncClockToSlave(Clock *c, Clock *slave);
 
-    int videoOpen();
+    int openWindow();
 
     void videoImageDisplay();
 
     int uploadTexture(AVFrame *pFrame);
+
 };
 
 #endif //SPLAYER_PLAY_H

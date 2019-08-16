@@ -30,11 +30,11 @@ public:
 
     virtual int destroy() = 0;
 
-    virtual void setWindowTitle(char *title);
-
     virtual void setWindowSize(int width, int height, AVRational rational);
 
     void setPlay(FFPlay *play);
+
+    virtual void openWindow(int width, int height);
 };
 
 
