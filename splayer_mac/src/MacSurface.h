@@ -21,8 +21,8 @@ extern "C" {
 
 static const struct TextureFormatEntry {
     enum AVPixelFormat format;
-    int texture_fmt;
-} sdl_texture_format_map[] = {
+    int textureFormat;
+} SDL_TEXTURE_FORMAT_MAP[] = {
         {AV_PIX_FMT_RGB8,           SDL_PIXELFORMAT_RGB332},
         {AV_PIX_FMT_RGB444,         SDL_PIXELFORMAT_RGB444},
         {AV_PIX_FMT_RGB555,         SDL_PIXELFORMAT_RGB555},
@@ -85,9 +85,11 @@ public:
 
     int uploadTexture(AVFrame *frame, SwsContext *convertContext);
 
-    void getSDLPixFmtAndBlendMode(int format, Uint32 *sdlPixFmt, SDL_BlendMode *sdlBlendMode);
+    void setSdlBlendMode(int format, SDL_BlendMode *sdlBlendMode);
 
-    int reallocTexture(SDL_Texture **texture, Uint32 new_format, int new_width, int new_height, SDL_BlendMode blendmode, int init_texture);
+    void setSdlPixelFormat(int format, Uint32 *sdlPixelFormat);
+
+    int reallocTexture(SDL_Texture **texture, Uint32 newFormat, int newWidth, int newHeight, SDL_BlendMode blendMode, int initTexture);
 };
 
 

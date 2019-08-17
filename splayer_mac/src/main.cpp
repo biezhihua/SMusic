@@ -8,7 +8,7 @@ Mutex *logMutex = new Mutex();
 int main() {
     MediaPlayer *player = new MacMediaPlayer();
     player->create();
-    player->setDataSource("/Users/biezhihua/Downloads/复仇者联盟.mkv");
+    player->setDataSource("/Users/biezhihua/Downloads/寄生虫.mp4");
     player->prepareAsync();
     return 0;
 }

@@ -225,8 +225,7 @@ private:
 
     void displayVideoImage();
 
-    int uploadTexture(AVFrame *pFrame);
-
+    void displayVideoAudio();
 };
 
 #endif //SPLAYER_PLAY_H

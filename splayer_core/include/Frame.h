@@ -23,7 +23,7 @@ public:
     int height;
     int format;
     int uploaded; // 是否更新到Texture
-    int flip_v;
+    int flipVertical;
 };
 
 

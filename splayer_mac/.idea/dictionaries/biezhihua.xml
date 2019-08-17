@@ -13,6 +13,7 @@
       <w>lowres</w>
       <w>pmts</w>
       <w>pragmas</w>
+      <w>realloc</w>
       <w>refcounted</w>
       <w>wunknown</w>
       <w>wunused</w>

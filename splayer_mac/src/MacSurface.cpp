@@ -224,18 +224,25 @@ void MacSurface::displayVideoImage() {
         if (videoState->subtitleStream) {
             // TODO
         }
-        calculateDisplayRect(&rect, videoState->xLeft, videoState->yTop, videoState->width, videoState->height, lastFrame->width, lastFrame->height, lastFrame->sampleAspectRatio);
+
+        calculateDisplayRect(&rect,
+                             videoState->xLeft, videoState->yTop,
+                             videoState->width, videoState->height,
+                             lastFrame->width, lastFrame->height,
+                             lastFrame->sampleAspectRatio);
+
         if (!lastFrame->uploaded) {
-            if (uploadTexture(lastFrame->frame, videoState->imgConvertCtx) < 0) {
+            if (!uploadTexture(lastFrame->frame, videoState->imgConvertCtx)) {
                 return;
             }
             lastFrame->uploaded = 1;
-            lastFrame->flip_v = lastFrame->frame->linesize[0] < 0;
+            lastFrame->flipVertical = lastFrame->frame->linesize[0] < 0;
         }
         setYuvConversionMode(lastFrame->frame);
-        SDL_RenderCopyEx(renderer, videoTexture, nullptr, &rect, 0, nullptr, lastFrame->flip_v ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
+        SDL_RenderCopyEx(renderer, videoTexture, nullptr, &rect, 0, nullptr, lastFrame->flipVertical ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
         setYuvConversionMode(nullptr);
     }
+
     SDL_RenderPresent(renderer);
 }
 
@@ -256,13 +263,18 @@ void MacSurface::setYuvConversionMode(AVFrame *frame) {
 }
 
 int MacSurface::uploadTexture(AVFrame *frame, SwsContext *convertContext) {
-    int ret = 0;
-    Uint32 sdlPixFmt;
+    Uint32 sdlPixelFormat;
     SDL_BlendMode sdlBlendMode;
-    getSDLPixFmtAndBlendMode(frame->format, &sdlPixFmt, &sdlBlendMode);
-    if (reallocTexture(&videoTexture, sdlPixFmt == SDL_PIXELFORMAT_UNKNOWN ? SDL_PIXELFORMAT_ARGB8888 : sdlPixFmt, frame->width, frame->height, sdlBlendMode, 0) < 0)
-        return -1;
-    switch (sdlPixFmt) {
+
+    setSdlPixelFormat(frame->format, &sdlPixelFormat);
+    setSdlBlendMode(frame->format, &sdlBlendMode);
+
+    Uint32 format = sdlPixelFormat == SDL_PIXELFORMAT_UNKNOWN ? SDL_PIXELFORMAT_ARGB8888 : sdlPixelFormat;
+    if (!reallocTexture(&videoTexture, format, frame->width, frame->height, sdlBlendMode, 0)) {
+        return NEGATIVE(S_NOT_REALLOC_TEXTURE);
+    }
+
+    switch (sdlPixelFormat) {
         case SDL_PIXELFORMAT_UNKNOWN:
             /* This should only happen if we are not using avfilter... */
             convertContext = sws_getCachedContext(convertContext,
@@ -273,77 +285,100 @@ int MacSurface::uploadTexture(AVFrame *frame, SwsContext *convertContext) {
                 uint8_t *pixels[4];
                 int pitch[4];
                 if (!SDL_LockTexture(videoTexture, nullptr, (void **) pixels, pitch)) {
-                    sws_scale(convertContext, (const uint8_t *const *) frame->data, frame->linesize,
-                              0, frame->height, pixels, pitch);
+                    sws_scale(convertContext, (const uint8_t *const *) frame->data, frame->linesize, 0, frame->height, pixels, pitch);
                     SDL_UnlockTexture(videoTexture);
                 }
             } else {
-                av_log(nullptr, AV_LOG_FATAL, "Cannot initialize the conversion context\n");
-                ret = -1;
+                ALOGE(MAC_SURFACE_TAG, "%s Cannot initialize the conversion context", __func__);
+                return NEGATIVE(S_NOT_INIT_CONVERSION_CONTEXT);
             }
             break;
         case SDL_PIXELFORMAT_IYUV:
             if (frame->linesize[0] > 0 && frame->linesize[1] > 0 && frame->linesize[2] > 0) {
-                ret = SDL_UpdateYUVTexture(videoTexture, nullptr, frame->data[0], frame->linesize[0],
-                                           frame->data[1], frame->linesize[1],
-                                           frame->data[2], frame->linesize[2]);
+                if (SDL_UpdateYUVTexture(videoTexture, nullptr,
+                                         frame->data[0], frame->linesize[0],
+                                         frame->data[1], frame->linesize[1],
+                                         frame->data[2], frame->linesize[2])) {
+                    return POSITIVE;
+                } else {
+                    return NEGATIVE(S_NOT_UPDATE_YUV_TEXTURE);
+                }
             } else if (frame->linesize[0] < 0 && frame->linesize[1] < 0 && frame->linesize[2] < 0) {
-                ret = SDL_UpdateYUVTexture(videoTexture, nullptr, frame->data[0] + frame->linesize[0] * (frame->height - 1), -frame->linesize[0],
-                                           frame->data[1] + frame->linesize[1] * (AV_CEIL_RSHIFT(frame->height, 1) - 1), -frame->linesize[1],
-                                           frame->data[2] + frame->linesize[2] * (AV_CEIL_RSHIFT(frame->height, 1) - 1), -frame->linesize[2]);
+                if (SDL_UpdateYUVTexture(videoTexture, nullptr,
+                                         frame->data[0] + frame->linesize[0] * (frame->height - 1), -frame->linesize[0],
+                                         frame->data[1] + frame->linesize[1] * (AV_CEIL_RSHIFT(frame->height, 1) - 1), -frame->linesize[1],
+                                         frame->data[2] + frame->linesize[2] * (AV_CEIL_RSHIFT(frame->height, 1) - 1), -frame->linesize[2])) {
+                    return POSITIVE;
+                } else {
+                    return NEGATIVE(S_NOT_UPDATE_YUV_TEXTURE);
+                }
             } else {
-                av_log(nullptr, AV_LOG_ERROR, "Mixed negative and positive linesizes are not supported.\n");
-                return -1;
+                ALOGE(MAC_SURFACE_TAG, "%s Cannot initialize the conversion context", __func__);
+                return NEGATIVE(S_NOT_SUPPORT_LINESIZES);
             }
             break;
         default:
             if (frame->linesize[0] < 0) {
-                ret = SDL_UpdateTexture(videoTexture, nullptr, frame->data[0] + frame->linesize[0] * (frame->height - 1), -frame->linesize[0]);
+                if (SDL_UpdateTexture(videoTexture, nullptr, frame->data[0] + frame->linesize[0] * (frame->height - 1), -frame->linesize[0])) {
+                    return POSITIVE;
+                } else {
+                    return NEGATIVE(S_NOT_UPDATE_TEXTURE);
+                }
             } else {
-                ret = SDL_UpdateTexture(videoTexture, nullptr, frame->data[0], frame->linesize[0]);
+                if (SDL_UpdateTexture(videoTexture, nullptr, frame->data[0], frame->linesize[0])) {
+                    return POSITIVE;
+                } else {
+                    return NEGATIVE(S_NOT_UPDATE_TEXTURE);
+                }
             }
             break;
     }
-    return ret;
+    return POSITIVE;
 }
 
-void MacSurface::getSDLPixFmtAndBlendMode(int format, Uint32 *sdlPixFmt, SDL_BlendMode *sdlBlendMode) {
-    int i;
+void MacSurface::setSdlBlendMode(int format, SDL_BlendMode *sdlBlendMode) {
     *sdlBlendMode = SDL_BLENDMODE_NONE;
-    *sdlPixFmt = SDL_PIXELFORMAT_UNKNOWN;
-    if (format == AV_PIX_FMT_RGB32 ||
-        format == AV_PIX_FMT_RGB32_1 ||
-        format == AV_PIX_FMT_BGR32 ||
-        format == AV_PIX_FMT_BGR32_1)
+    if (format == AV_PIX_FMT_RGB32 || format == AV_PIX_FMT_RGB32_1 || format == AV_PIX_FMT_BGR32 || format == AV_PIX_FMT_BGR32_1) {
         *sdlBlendMode = SDL_BLENDMODE_BLEND;
-    for (i = 0; i < FF_ARRAY_ELEMS(sdl_texture_format_map) - 1; i++) {
-        if (format == sdl_texture_format_map[i].format) {
-            *sdlPixFmt = static_cast<Uint32>(sdl_texture_format_map[i].texture_fmt);
+    }
+}
+
+void MacSurface::setSdlPixelFormat(int format, Uint32 *sdlPixelFormat) {
+    *sdlPixelFormat = SDL_PIXELFORMAT_UNKNOWN;
+    for (int i = 0; i < FF_ARRAY_ELEMS(SDL_TEXTURE_FORMAT_MAP) - 1; i++) {
+        if (format == SDL_TEXTURE_FORMAT_MAP[i].format) {
+            *sdlPixelFormat = static_cast<Uint32>(SDL_TEXTURE_FORMAT_MAP[i].textureFormat);
             return;
         }
     }
 }
 
-int MacSurface::reallocTexture(SDL_Texture **texture, Uint32 new_format, int new_width, int new_height, SDL_BlendMode blendmode, int init_texture) {
+int MacSurface::reallocTexture(SDL_Texture **texture, Uint32 newFormat, int newWidth, int newHeight, SDL_BlendMode blendMode, int initTexture) {
     Uint32 format;
-    int access, w, h;
-    if (!*texture || SDL_QueryTexture(*texture, &format, &access, &w, &h) < 0 || new_width != w || new_height != h || new_format != format) {
+    int access;
+    int width;
+    int height;
+    if (!*texture || SDL_QueryTexture(*texture, &format, &access, &width, &height) < 0 || newWidth != width || newHeight != height || newFormat != format) {
         void *pixels;
         int pitch;
-        if (*texture)
+        if (*texture) {
             SDL_DestroyTexture(*texture);
-        if (!(*texture = SDL_CreateTexture(renderer, new_format, SDL_TEXTUREACCESS_STREAMING, new_width, new_height)))
-            return -1;
-        if (SDL_SetTextureBlendMode(*texture, blendmode) < 0)
-            return -1;
-        if (init_texture) {
-            if (SDL_LockTexture(*texture, nullptr, &pixels, &pitch) < 0)
-                return -1;
-            memset(pixels, 0, static_cast<size_t>(pitch * new_height));
+        }
+        if (!(*texture = SDL_CreateTexture(renderer, newFormat, SDL_TEXTUREACCESS_STREAMING, newWidth, newHeight))) {
+            return NEGATIVE(S_NOT_CREATE_TEXTURE);
+        }
+        if (SDL_SetTextureBlendMode(*texture, blendMode) < 0) {
+            return NEGATIVE(S_NOT_SET_BLEND_MODE);
+        }
+        if (initTexture) {
+            if (SDL_LockTexture(*texture, nullptr, &pixels, &pitch) < 0) {
+                return NEGATIVE(S_NOT_LOCK_TEXTURE);;
+            }
+            memset(pixels, 0, pitch * newHeight);
             SDL_UnlockTexture(*texture);
         }
-        av_log(nullptr, AV_LOG_VERBOSE, "Created %dx%d texture with %s.\n", new_width, new_height, SDL_GetPixelFormatName(new_format));
+        ALOGD(MAC_SURFACE_TAG, "%s Created %dx%d texture with %s", __func__, newWidth, newHeight, SDL_GetPixelFormatName(newFormat));
     }
-    return 0;
+    return POSITIVE;
 }
 

@@ -31,6 +31,13 @@
 #define S_SDL_NOT_INIT          28
 #define S_SDL_NOT_CREATE_WINDOW          29
 #define S_SDL_NOT_CREATE_RENDERER          30
-
+#define S_NOT_REALLOC_TEXTURE          31
+#define S_NOT_CREATE_TEXTURE        32
+#define S_NOT_SET_BLEND_MODE        33
+#define S_NOT_LOCK_TEXTURE        34
+#define S_NOT_UPDATE_YUV_TEXTURE        35
+#define S_NOT_INIT_CONVERSION_CONTEXT        36
+#define S_NOT_SUPPORT_LINESIZES        37
+#define S_NOT_UPDATE_TEXTURE        38
 
 #endif //SPLAYER_CORE_ERRORNO_H

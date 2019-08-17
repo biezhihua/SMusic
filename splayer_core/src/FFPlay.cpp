@@ -1349,14 +1349,11 @@ double FFPlay::frameDuration(Frame *currentFrame, Frame *nextFrame) {
 /* display the current picture, if any */
 void FFPlay::displayVideo() {
     ALOGD(FFPLAY_TAG, __func__);
-
     if (!videoState->width) {
         displayWindow();
     }
-
-
     if (videoState->audioStream && videoState->showMode != SHOW_MODE_VIDEO) {
-        // video_audio_display(videoState);
+        displayVideoAudio();
     } else if (videoState->videoStream) {
         displayVideoImage();
     }
@@ -1439,11 +1436,6 @@ void FFPlay::displayVideoImage() {
     }
 }
 
-int FFPlay::uploadTexture(AVFrame *pFrame) {
-    ALOGD(FFPLAY_TAG, __func__);
-    return 0;
-}
-
 Surface *FFPlay::getSurface() const {
     return surface;
 }
@@ -1458,4 +1450,8 @@ Audio *FFPlay::getAudio() const {
 
 VideoState *FFPlay::getVideoState() const {
     return videoState;
+}
+
+void FFPlay::displayVideoAudio() {
+
 }
