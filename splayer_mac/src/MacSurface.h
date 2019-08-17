@@ -6,6 +6,7 @@
 #include "Surface.h"
 #include "Error.h"
 #include <SDL.h>
+#include "MacOptions.h"
 
 extern "C" {
 #include <libavutil/rational.h>

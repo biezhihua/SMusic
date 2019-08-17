@@ -115,7 +115,7 @@ TDStretch::~TDStretch()
 
 
 // Sets routine control parameters. These control are certain time constants
-// defining how the sound is stretched to the desired optionDuration.
+// defining how the sound is stretched to the desired duration.
 //
 // 'sampleRate' = sample rate of the sound
 // 'sequenceMS' = one processing sequence length in milliseconds (default = 82 ms)
@@ -317,7 +317,7 @@ int TDStretch::seekBestOverlapPositionFull(const SAMPLETYPE *refPos)
         // Calculates correlation value for the mixing position corresponding to 'i'
 #ifdef _OPENMP
         // in parallel OpenMP mode, can't use norm accumulator version as parallel executor won't
-        // iterate the optionLoop in sequential order
+        // iterate the loop in sequential order
         corr = calcCrossCorr(refPos + channels * i, pMidBuffer, norm);
 #else
         // In non-parallel version call "calcCrossCorrAccumulate" that is otherwise same
@@ -570,7 +570,7 @@ void TDStretch::setTempo(double newTempo)
 
     tempo = newTempo;
 
-    // Calculate new sequence optionDuration
+    // Calculate new sequence duration
     calcSeqParameters();
 
     // Calculate ideal skip length (according to tempo value) 
@@ -890,9 +890,9 @@ double TDStretch::calcCrossCorr(const short *mixingPos, const short *compare, do
     int i;
 
     corr = lnorm = 0;
-    // Same routine for stereo and mono. For stereo, unroll optionLoop for better
+    // Same routine for stereo and mono. For stereo, unroll loop for better
     // efficiency and gives slightly better resolution against rounding. 
-    // For mono it same routine, just  unrolls optionLoop by factor of 4
+    // For mono it same routine, just  unrolls loop by factor of 4
     for (i = 0; i < channels * overlapLength; i += 4) 
     {
         corr += (mixingPos[i] * compare[i] + 
@@ -936,9 +936,9 @@ double TDStretch::calcCrossCorrAccumulate(const short *mixingPos, const short *c
     }
 
     corr = 0;
-    // Same routine for stereo and mono. For stereo, unroll optionLoop for better
+    // Same routine for stereo and mono. For stereo, unroll loop for better
     // efficiency and gives slightly better resolution against rounding. 
-    // For mono it same routine, just  unrolls optionLoop by factor of 4
+    // For mono it same routine, just  unrolls loop by factor of 4
     for (i = 0; i < channels * overlapLength; i += 4) 
     {
         corr += (mixingPos[i] * compare[i] + 
@@ -1060,7 +1060,7 @@ double TDStretch::calcCrossCorr(const float *mixingPos, const float *compare, do
         norm += mixingPos[i] * mixingPos[i] + 
                 mixingPos[i + 1] * mixingPos[i + 1];
 
-        // unroll the optionLoop for better CPU efficiency:
+        // unroll the loop for better CPU efficiency:
         corr += mixingPos[i + 2] * compare[i + 2] +
                 mixingPos[i + 3] * compare[i + 3];
 

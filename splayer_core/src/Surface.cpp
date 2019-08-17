@@ -24,4 +24,12 @@ void Surface::displayVideoImage() {
 
 }
 
+Options *Surface::getOptions() const {
+    return options;
+}
+
+void Surface::setOptions(Options *options) {
+    Surface::options = options;
+}
+
 

@@ -373,7 +373,7 @@ bool SoundTouch::setSetting(int settingId, int value)
             return true;
 
         case SETTING_SEQUENCE_MS:
-            // change time-stretch sequence optionDuration parameter
+            // change time-stretch sequence duration parameter
             pTDStretch->setParameters(sampleRate, value, seekWindowMs, overlapMs);
             return true;
 

@@ -13,13 +13,13 @@ int MacSurface::create() {
     }
 
     Uint32 flags = SDL_WINDOW_HIDDEN;
-    if (play->optionBrorderless) {
+    if (options->borderLess) {
         flags |= SDL_WINDOW_BORDERLESS;
     } else {
         flags |= SDL_WINDOW_RESIZABLE;
     }
 
-    window = SDL_CreateWindow(play->optionWindowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, play->optionDefaultWidth, play->optionDefaultHeight, flags);
+    window = SDL_CreateWindow(options->windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->defaultWidth, options->defaultHeight, flags);
     if (window == nullptr) {
         ALOGE(MAC_SURFACE_TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
         destroy();
@@ -56,15 +56,16 @@ int MacSurface::destroy() {
         SDL_DestroyWindow(window);
     }
     SDL_Quit();
+    options = nullptr;
     return POSITIVE;
 }
 
 void MacSurface::setWindowSize(int width, int height, AVRational rational) {
     SDL_Rect rect;
     calculateDisplayRect(&rect, 0, 0, INT_MAX, height, width, height, rational);
-    if (play) {
-        play->optionDefaultWidth = rect.w;
-        play->optionDefaultHeight = rect.h;
+    if (options) {
+        options->defaultWidth = rect.w;
+        options->defaultHeight = rect.h;
     }
 }
 
@@ -112,9 +113,10 @@ int MacSurface::eventLoop() {
         play->remainingTime = 0.0F;
         SDL_PumpEvents();
         while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
-            if (play && !play->optionCursorHidden && av_gettime_relative() - play->optionCursorLastShown > CURSOR_HIDE_DELAY) {
+            auto *macOptions = (MacOptions *) (options);
+            if (macOptions && !macOptions->cursorHidden && av_gettime_relative() - macOptions->cursorLastShown > CURSOR_HIDE_DELAY) {
                 SDL_ShowCursor(0);
-                play->optionCursorHidden = 1;
+                macOptions->cursorHidden = 1;
             }
             if (play) {
                 play->refresh();
@@ -197,11 +199,11 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
 }
 
 void MacSurface::displayWindow(int width, int height) {
-    if (window && play) {
-        SDL_SetWindowTitle(window, play->optionWindowTitle);
+    if (window && options) {
+        SDL_SetWindowTitle(window, options->windowTitle);
         SDL_SetWindowSize(window, width, height);
-        SDL_SetWindowPosition(window, play->optionScreenLeft, play->optionScreenTop);
-        if (play->optionIsFullScreen) {
+        SDL_SetWindowPosition(window, options->screenLeft, options->screenTop);
+        if (options->isFullScreen) {
             SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         }
         SDL_ShowWindow(window);

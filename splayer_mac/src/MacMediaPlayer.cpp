@@ -35,3 +35,7 @@ int MacMediaPlayer::prepareAsync() {
     }
     return result;
 }
+
+Options *MacMediaPlayer::createOptions() const {
+    return new MacOptions();
+}

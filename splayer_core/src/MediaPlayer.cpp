@@ -92,9 +92,16 @@ int MediaPlayer::destroy() {
             Surface *surface = play->getSurface();
             surface->destroy();
             surface->setPlay(nullptr);
+            surface->setOptions(nullptr);
             play->setSurface(nullptr);
             delete surface;
             surface = nullptr;
+        }
+
+        if (play->getOptions()) {
+            play->setOptions(nullptr);
+            delete options;
+            options = nullptr;
         }
 
         delete play;
@@ -199,7 +206,7 @@ int MediaPlayer::prepareAsync() {
     if (state && mutex && play) {
         mutex->mutexLock();
         state->changeState(State::STATE_ASYNC_PREPARING);
-        if (prepareMsgQueue() && prepareSurface() && prepareAudio() && prepareStream()) {
+        if (prepareMsgQueue() && prepareOptions() && prepareSurface() && prepareAudio() && prepareStream()) {
             state->changeState(State::STATE_ERROR);
             mutex->mutexUnLock();
             return NEGATIVE(S_CONDITION);
@@ -209,6 +216,20 @@ int MediaPlayer::prepareAsync() {
     }
     return NEGATIVE(S_NULL);
 }
+
+int MediaPlayer::prepareOptions() {
+    options = createOptions();
+    if (options && play) {
+        play->setOptions(options);
+        if (play->getSurface()) {
+            play->getSurface()->setOptions(options);
+        }
+        return POSITIVE;
+    }
+    return NEGATIVE(S_NOT_MEMORY);
+}
+
+Options *MediaPlayer::createOptions() const { return new Options(); }
 
 int MediaPlayer::prepareMsgQueue() {
     MessageQueue *msgQueue = play->getMsgQueue();

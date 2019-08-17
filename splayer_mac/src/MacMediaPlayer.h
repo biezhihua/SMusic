@@ -5,6 +5,7 @@
 #include "MacAudio.h"
 #include "MacSurface.h"
 #include "MacStream.h"
+#include "MacOptions.h"
 
 #define MAC_MEDIA_PLAYER_TAG "MacMPlayer"
 
@@ -20,6 +21,8 @@ public:
     Stream *createStream() override;
 
     int prepareAsync() override;
+
+    Options *createOptions() const override;
 
 };
 

@@ -9,6 +9,7 @@
 #include "Stream.h"
 #include "State.h"
 #include "Thread.h"
+#include "Options.h"
 
 #define MEDIA_PLAYER_TAG "MediaPlayer"
 
@@ -21,6 +22,7 @@ protected:
     static RefCount refCount;
     char *dataSource = nullptr;
     Thread *msgThread = nullptr;
+    Options *options = nullptr;
 
 protected:
     void notifyMsg(int what);
@@ -66,9 +68,12 @@ public:
     virtual Stream *createStream() = 0;
 
     virtual int messageLoop() = 0;
-
+    
+    virtual Options *createOptions() const;
 
 private:
+
+    int prepareOptions();
 
     int prepareMsgQueue();
 

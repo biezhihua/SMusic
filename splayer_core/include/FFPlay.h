@@ -18,6 +18,7 @@ class Stream;
 #include "Error.h"
 #include "VideoState.h"
 #include "Thread.h"
+#include "Options.h"
 
 extern "C" {
 #include <libavutil/time.h>
@@ -57,76 +58,16 @@ extern "C" {
 class FFPlay {
 
 private:
-
-    /**
-     * Self Implement
-     */
     MessageQueue *msgQueue = nullptr;
     Audio *audio = nullptr;
     Surface *surface = nullptr;
     Stream *stream = nullptr;
-
-    /**
-     *  Current Context
-     */
     VideoState *videoState = nullptr;
     AVPacket flushPacket;
-
-
+    Options *options = nullptr;
+    
 public:
-
     double remainingTime = 0.0f;
-
-    /**
-     * Format/Codec Options
-     */
-    AVDictionary *optionFormat = nullptr;
-    AVDictionary *optionCodec = nullptr;
-    AVDictionary *optionSws = nullptr;
-    AVDictionary *optionSwr = nullptr;
-    AVDictionary *optionSwrPreset = nullptr;
-    AVDictionary *optionPlayer = nullptr;
-
-    /**
-     * Options specified by the user
-     */
-    AVInputFormat *optionInputFormat = nullptr; // force format
-    char *optionInputFileName = nullptr;
-    char *optionWindowTitle = nullptr; // set window title
-    int optionIsFullScreen = 0; // force full screen
-    int optionDefaultWidth = 640;
-    int optionDefaultHeight = 480;
-    int optionScreenWidth = 0; // force displayed width
-    int optionScreenHeight = 0; // force displayed height
-    int optionScreenLeft = 0; // set the x position for the left of the window
-    int optionScreenTop = 0;  // set the y position for the top of the window
-    char *optionWantedStreamSpec[AVMEDIA_TYPE_NB] = {nullptr}; // "select desired stream"
-    int optionSeekByBytes = -1; // seek by bytes 0=off 1=on -1=auto
-    float optionSeekInterval = 10; // set seek interval for left/right keys, in seconds
-    int optionStartupVolume = 100; // set startup volume 0=min 100=max
-    int optionSyncType = SYNC_TYPE_AUDIO_MASTER; // set audio-video sync. type (type=audio/video/ext)
-    int64_t optionStartTime = AV_NOPTS_VALUE; // seek to a given position in seconds
-    int64_t optionDuration = AV_NOPTS_VALUE; // play  \"duration\" seconds of audio/video
-    int optionBrorderless = 0; // borderless window
-    int optionFast = 0; // non spec compliant optimizations
-    int optionGeneratePts = 0; // generate pts
-    int optionLowres = 0;
-    int optionAutoRotate = 0; // automatically rotate video
-    int optionDecoderReorderPts = -1; // let decoder reorder pts 0=off 1=on -1=auto
-    int optionAutoExit; // exit at the end
-    int optionLoop = 1; // set number of times the playback shall be looped
-    int optionDropFrameWhenSlow = -1; // drop frames when cpu is too slow
-    int optionShowMode = SHOW_MODE_VIDEO; // select show mode (0 = video, 1 = waves, 2 = RDFT)
-    char *optionInputFormatName = nullptr;
-    char *optionAudioCodecName = nullptr; // force decoder
-    char *optionSubtitleCodecName = nullptr; // force decoder
-    char *optionVideoCodecName = nullptr; // force decoder
-    double optionRdftSpeed = 0.02;  // rdft speed
-    int optionInfiniteBuffer = -1; // don't limit the input buffer size (useful with realtime streams)
-    int optionShowStatus = 0; // show status
-    int optionFindStreamInfo = 1; // read and decode the streams to fill missing information with heuristics
-    int optionCursorHidden = 0;
-    int optionCursorLastShown = 0;
 
 public:
     FFPlay();
@@ -171,6 +112,10 @@ public:
     VideoState *getVideoState() const;
 
     int refresh();
+
+    Options *getOptions() const;
+
+    void setOptions(Options *options);
 
 private:
     void showVersionsAndOptions();

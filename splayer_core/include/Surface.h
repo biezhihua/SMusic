@@ -10,6 +10,7 @@ class FFPlay;
 #include "FFPlay.h"
 #include "Mutex.h"
 #include "VOutOverlay.h"
+#include "Options.h"
 
 extern "C" {
 #include <libavutil/rational.h>
@@ -20,6 +21,7 @@ class Surface {
 protected:
     FFPlay *play = nullptr;
     Mutex *mutex = nullptr;
+    Options *options = nullptr;
 
 public:
     Surface();
@@ -37,6 +39,10 @@ public:
     virtual void displayWindow(int width, int height);
 
     virtual void displayVideoImage();
+
+    virtual Options *getOptions() const;
+
+    void setOptions(Options *options);
 };
 
 
