@@ -47,9 +47,6 @@ int FFPlay::waitStop() {
 
 int FFPlay::prepareStream(const char *fileName) {
     ALOGD(FFPLAY_TAG, __func__);
-
-    showVersionsAndOptions();
-
     av_init_packet(&flushPacket);
     flushPacket.data = (uint8_t *) &flushPacket;
 
@@ -62,23 +59,6 @@ int FFPlay::prepareStream(const char *fileName) {
     }
 
     return POSITIVE;
-}
-
-void FFPlay::showVersionsAndOptions() {
-    ALOGD(FFPLAY_TAG, "===== versions =====");
-    ALOGD(FFPLAY_TAG, "%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "FFmpeg", av_version_info());
-    ALOGD(FFPLAY_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavutil", avutil_version());
-    ALOGD(FFPLAY_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavcodec", avcodec_version());
-    ALOGD(FFPLAY_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavformat", avformat_version());
-    ALOGD(FFPLAY_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libswscale", swscale_version());
-    ALOGD(FFPLAY_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libswresample", swresample_version());
-
-    ALOGD(FFPLAY_TAG, "===== options =====");
-    showDict("player-opts", options->playerDict);
-    showDict("format-opts", options->format);
-    showDict("codec-opts ", options->codec);
-    showDict("sws-opts   ", options->swsDict);
-    showDict("swr-opts   ", options->swrDict);
 }
 
 int FFPlay::getMsg(Message *msg, bool block) {
@@ -112,12 +92,6 @@ int FFPlay::getMsg(Message *msg, bool block) {
     }
 }
 
-void FFPlay::showDict(const char *tag, AVDictionary *dict) {
-    AVDictionaryEntry *t = nullptr;
-    while ((t = av_dict_get(dict, "", t, AV_DICT_IGNORE_SUFFIX))) {
-        ALOGD(FFPLAY_TAG, "%-*s: %-*s = %s\n", 12, tag, 28, t->key, t->value);
-    }
-}
 
 static int innerReadThread(void *arg) {
     auto *play = static_cast<FFPlay *>(arg);
@@ -174,8 +148,8 @@ VideoState *FFPlay::streamOpen() {
     }
 
     if (is->videoClock.init(&is->videoPacketQueue.serial) < 0 ||
-            is->audioClock.init(&is->audioPacketQueue.serial) < 0 ||
-            is->exitClock.init(&is->subtitlePacketQueue.serial) < 0) {
+        is->audioClock.init(&is->audioPacketQueue.serial) < 0 ||
+        is->exitClock.init(&is->subtitlePacketQueue.serial) < 0) {
         ALOGE(FFPLAY_TAG, "%s init clock fail", __func__);
         streamClose();
         return nullptr;
@@ -273,6 +247,7 @@ static int decodeInterruptCallback(void *ctx) {
 }
 
 /* this thread gets the stream from the disk or the network */
+/// Work Thread
 int FFPlay::readThread() {
     ALOGD(FFPLAY_TAG, __func__);
 
@@ -282,7 +257,7 @@ int FFPlay::readThread() {
 
     AVFormatContext *formatContext = nullptr;
     AVPacket packet1, *packet = &packet1;
-    auto *waitMutex = new Mutex();
+    Mutex *waitMutex = new Mutex();
     AVDictionaryEntry *dictionaryEntry;
     int streamIndex[AVMEDIA_TYPE_NB] = {-1};
     int packetInPlayRange = 0;
@@ -350,9 +325,6 @@ int FFPlay::readThread() {
     if (options->findStreamInfo) {
         AVDictionary **opts = setupFindStreamInfoOpts(formatContext, options->codec);
         int ret = avformat_find_stream_info(formatContext, opts);
-        if (msgQueue) {
-            msgQueue->notifyMsg(Message::MSG_FIND_STREAM_INFO);
-        }
         for (int i = 0; i < formatContext->nb_streams; i++) {
             av_dict_free(&opts[i]);
         }
@@ -362,6 +334,9 @@ int FFPlay::readThread() {
             closeReadThread(videoState, formatContext);
             return NEGATIVE(S_NOT_FIND_STREAM_INFO);
         }
+        if (msgQueue) {
+            msgQueue->notifyMsg(Message::MSG_FIND_STREAM_INFO);
+        }
     }
 
     if (formatContext->pb) {
@@ -369,8 +344,7 @@ int FFPlay::readThread() {
     }
 
     if (options->seekByBytes < 0) {
-        options->seekByBytes = (formatContext->iformat->flags & AVFMT_TS_DISCONT) &&
-                               strcmp(OGG, formatContext->iformat->name) != 0;
+        options->seekByBytes = (formatContext->iformat->flags & AVFMT_TS_DISCONT) && strcmp(FORMAT_OGG, formatContext->iformat->name) != 0;
     }
 
     videoState->maxFrameDuration = (formatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
@@ -489,6 +463,10 @@ int FFPlay::readThread() {
 
     if (msgQueue) {
         msgQueue->notifyMsg(Message::REQ_START);
+    }
+
+    if (options) {
+        options->showOptions();
     }
 
     for (;;) {
@@ -657,7 +635,6 @@ int FFPlay::readThread() {
 
 void FFPlay::closeReadThread(const VideoState *is, AVFormatContext *&formatContext) const {
     ALOGD(FFPLAY_TAG, __func__);
-
     if (formatContext && !is->formatContext) {
         avformat_close_input(&formatContext);
     }

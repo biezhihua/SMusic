@@ -39,7 +39,7 @@ extern "C" {
 
 #define SCAN_ALL_PMTS  "scan_all_pmts"
 
-#define OGG  "ogg"
+#define FORMAT_OGG  "ogg"
 
 #define TITLE  "title"
 
@@ -65,7 +65,7 @@ private:
     VideoState *videoState = nullptr;
     AVPacket flushPacket;
     Options *options = nullptr;
-    
+
 public:
     double remainingTime = 0.0f;
 
@@ -118,9 +118,6 @@ public:
     void setOptions(Options *options);
 
 private:
-    void showVersionsAndOptions();
-
-    void showDict(const char *tag, AVDictionary *dict);
 
     VideoState *streamOpen();
 

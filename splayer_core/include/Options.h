@@ -3,15 +3,30 @@
 
 
 #include "Define.h"
+#include "Log.h"
+#include "Mutex.h"
 
 extern "C" {
 #include <libavutil/dict.h>
 #include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
 };
+
+#define OPTIONS_TAG "Options"
 
 class Options {
 
+private:
+
+    void showDict(const char *tag, AVDictionary *dict);
+
 public:
+
+    Options();
+
+    virtual ~Options();
+
     /**
     * Format/Codec Options
     */
@@ -60,7 +75,9 @@ public:
     int infiniteBuffer = -1; // don't limit the input buffer size (useful with realtime streams)
     int showStatus = 0; // show status
     int findStreamInfo = 1; // read and decode the streams to fill missing information with heuristics
-};
 
+    void showOptions();
+
+};
 
 #endif //SPLAYER_MAC_OPTIONS_H
