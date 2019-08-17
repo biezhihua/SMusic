@@ -1,8 +1,7 @@
-
 #ifndef SPLAYER_COMMAND_MYMEDIAPLAYER_H
 #define SPLAYER_COMMAND_MYMEDIAPLAYER_H
 
-#include <MediaPlayer.h>
+#include "MediaPlayer.h"
 #include "MacAudio.h"
 #include "MacSurface.h"
 #include "MacStream.h"

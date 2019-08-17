@@ -10,20 +10,21 @@ int MediaPlayer::create() {
     state = new State();
     if (!state) {
         ALOGE(MEDIA_PLAYER_TAG, "create state error");
+        destroy();
         return NEGATIVE(S_NOT_MEMORY);
     }
 
     mutex = new Mutex();
     if (!mutex) {
-        delete state;
         ALOGE(MEDIA_PLAYER_TAG, "create mutex error");
+        destroy();
         return NEGATIVE(S_NOT_MEMORY);
     }
 
     play = new FFPlay();
     if (!play) {
-        delete mutex;
         ALOGE(MEDIA_PLAYER_TAG, "create play error");
+        destroy();
         return NEGATIVE(S_NOT_MEMORY);
     }
 
@@ -32,10 +33,8 @@ int MediaPlayer::create() {
 
     Surface *surface = createSurface();
     if (!surface) {
-        delete state;
-        delete mutex;
-        delete play;
         ALOGE(MEDIA_PLAYER_TAG, "create surface error");
+        destroy();
         return NEGATIVE(S_NOT_MEMORY);
     }
     surface->setPlay(play);
@@ -43,11 +42,8 @@ int MediaPlayer::create() {
 
     Audio *audio = createAudio();
     if (!audio) {
-        delete state;
-        delete mutex;
-        delete surface;
-        delete play;
         ALOGE(MEDIA_PLAYER_TAG, "create audio error");
+        destroy();
         return NEGATIVE(S_NOT_MEMORY);
     }
     audio->setPlay(play);
@@ -55,19 +51,66 @@ int MediaPlayer::create() {
 
     Stream *stream = createStream();
     if (!stream) {
-        delete state;
-        delete mutex;
-        delete play;
-        delete surface;
         ALOGE(MEDIA_PLAYER_TAG, "create stream error");
+        destroy();
         return NEGATIVE(S_NOT_MEMORY);
     }
+
     stream->setPlay(play);
     stream->setSurface(surface);
     play->setStream(stream);
-
     return POSITIVE;
 }
+
+
+int MediaPlayer::destroy() {
+    ALOGD(MEDIA_PLAYER_TAG, __func__);
+    if (mutex && play) {
+
+        play->shutdown();
+
+        if (play->getStream()) {
+            Stream *stream = play->getStream();
+            stream->destroy();
+            stream->setPlay(nullptr);
+            stream->setSurface(nullptr);
+            play->setStream(nullptr);
+            delete stream;
+            stream = nullptr;
+        }
+
+        if (play->getAudio()) {
+            Audio *audio = play->getAudio();
+            audio->destroy();
+            audio->setPlay(nullptr);
+            play->setAudio(nullptr);
+            delete audio;
+            audio = nullptr;
+        }
+
+        if (play->getSurface()) {
+            Surface *surface = play->getSurface();
+            surface->destroy();
+            surface->setPlay(nullptr);
+            play->setSurface(nullptr);
+            delete surface;
+            surface = nullptr;
+        }
+
+        delete play;
+        play = nullptr;
+    }
+    if (mutex) {
+        delete mutex;
+        mutex = nullptr;
+    }
+    if (state) {
+        delete state;
+        state = nullptr;
+    }
+    return NEGATIVE(ENOMEM);
+}
+
 
 int MediaPlayer::start() {
     ALOGD(MEDIA_PLAYER_TAG, __func__);
@@ -91,7 +134,7 @@ int MediaPlayer::stop() {
         if (play->stop()) {
             state->changeState(State::STATE_STOPPED);
             mutex->mutexUnLock();
-            return 0;
+            return POSITIVE;
         }
         mutex->mutexUnLock();
         return NEGATIVE(ENOMEM);
@@ -119,27 +162,11 @@ int MediaPlayer::reset() {
             ALOGD(MEDIA_PLAYER_TAG, "reset - destroy success");
             if (create()) {
                 ALOGD(MEDIA_PLAYER_TAG, "reset - create success");
-                return 0;
+                return POSITIVE;
             }
             return NEGATIVE(ENOMEM);
         }
         return NEGATIVE(ENOMEM);
-    }
-    return NEGATIVE(ENOMEM);
-}
-
-int MediaPlayer::destroy() {
-    ALOGD(MEDIA_PLAYER_TAG, __func__);
-    if (state && mutex && play) {
-        mutex->mutexLock();
-        // TODO set new surface
-        mutex->mutexUnLock();
-        play->shutdown();
-
-        delete play;
-        delete mutex;
-        delete state;
-        return 0;
     }
     return NEGATIVE(ENOMEM);
 }
@@ -172,7 +199,7 @@ int MediaPlayer::prepareAsync() {
     if (state && mutex && play) {
         mutex->mutexLock();
         state->changeState(State::STATE_ASYNC_PREPARING);
-        if (prepareMsgQueue() && prepareSurface() && prepareAudio() && prepareStream() && play->prepareStream(dataSource)) {
+        if (prepareMsgQueue() && prepareSurface() && prepareAudio() && prepareStream()) {
             state->changeState(State::STATE_ERROR);
             mutex->mutexUnLock();
             return NEGATIVE(S_CONDITION);
@@ -200,39 +227,28 @@ int MediaPlayer::prepareMsgQueue() {
 }
 
 int MediaPlayer::prepareSurface() {
-    if (!play) {
-        return NEGATIVE(S_NULL);
+    if (play && play->getSurface()) {
+        Surface *surface = play->getSurface();
+        return surface->create();
     }
-    Surface *surface = play->getSurface();
-    if (!surface) {
-        return NEGATIVE(S_NULL);
-    }
-    return surface->create();
+    return NEGATIVE(S_NULL);
 }
 
-
 int MediaPlayer::prepareStream() {
-    if (!play) {
-        return NEGATIVE(S_NULL);
+    if (play && play->getStream()) {
+        Stream *stream = play->getStream();
+        return stream->create() && play->prepareStream(dataSource);
     }
-    Stream *stream = play->getStream();
-    if (!stream) {
-        return NEGATIVE(S_NULL);
-    }
-    return stream->create();
+    return NEGATIVE(S_NULL);
 }
 
 int MediaPlayer::prepareAudio() {
-    if (!play) {
-        return NEGATIVE(S_NULL);
+    if (play && play->getAudio()) {
+        Audio *audio = play->getAudio();
+        return audio->create();
     }
-    Audio *audio = play->getAudio();
-    if (!audio) {
-        return NEGATIVE(S_NULL);
-    }
-    return audio->create();
+    return NEGATIVE(S_NULL);
 }
-
 
 void MediaPlayer::notifyMsg(int what) {
     if (play && play->getMsgQueue()) {
