@@ -141,7 +141,7 @@ private:
 
     void stepToNextFrame();
 
-    void streamSeek(int64_t pos, int64_t rel, int seek_by_bytes);
+    void streamSeek(int64_t pos, int64_t rel, int seekByBytes);
 
     int getVideoFrame(AVFrame *pFrame);
 
@@ -168,6 +168,12 @@ private:
     void displayVideoImage();
 
     void displayVideoAudio();
+
+    bool isNoReadMore();
+
+    bool isRetryPlay() const;
+
+    int isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const;
 };
 
 #endif //SPLAYER_PLAY_H

@@ -73,7 +73,7 @@ public:
     char *forceVideoCodecName = nullptr; // force decoder
     double rdftSpeed = 0.02;  // rdft speed
     int infiniteBuffer = -1; // don't limit the input buffer size (useful with realtime streams)
-    int showStatus = 0; // show status
+    int showStatus = 1; // show status
     int findStreamInfo = 1; // read and decode the streams to fill missing information with heuristics
 
     void showOptions();

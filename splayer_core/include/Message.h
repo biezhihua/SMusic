@@ -50,6 +50,9 @@ public:
     static const int MSG_ACCURATE_SEEK_COMPLETE = 24; /* arg1 = current position*/
     static const int MSG_GET_IMG_STATE = 25;         /* arg1 = timestamp, arg2 = result code, obj = file name*/
     static const int MSG_VIDEO_DECODER_OPEN = 26;
+    static const int MSG_AUDIO_COMPONENT_OPEN = 27;
+    static const int MSG_VIDEO_COMPONENT_OPEN = 28;
+    static const int MSG_SUBTITLE_COMPONENT_OPEN = 29;
 
     /* REQ 20000 ~ 29999 */
 

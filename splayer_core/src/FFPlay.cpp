@@ -260,11 +260,8 @@ int FFPlay::readThread() {
     Mutex *waitMutex = new Mutex();
     AVDictionaryEntry *dictionaryEntry;
     int streamIndex[AVMEDIA_TYPE_NB] = {-1};
-    int packetInPlayRange = 0;
     int scanAllPmtsSet = 0;
     int ret = 0;
-    int64_t streamStartTime;
-    int64_t packetTimestamp;
 
     if (!waitMutex) {
         ALOGE(FFPLAY_TAG, "%s create wait mutex fail", __func__);
@@ -288,6 +285,10 @@ int FFPlay::readThread() {
     if (!av_dict_get(options->format, SCAN_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE)) {
         av_dict_set(&options->format, SCAN_ALL_PMTS, "1", AV_DICT_DONT_OVERWRITE);
         scanAllPmtsSet = 1;
+    }
+
+    if (formatContext->duration) {
+        options->duration = formatContext->duration;
     }
 
     if (options->inputFormatName) {
@@ -349,6 +350,7 @@ int FFPlay::readThread() {
 
     videoState->maxFrameDuration = (formatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 
+    // get window title from metadata
     if (!options->windowTitle && (dictionaryEntry = av_dict_get(formatContext->metadata, TITLE, nullptr, 0))) {
         options->windowTitle = av_asprintf("%s - %s", dictionaryEntry->value, options->inputFileName);
     }
@@ -361,15 +363,14 @@ int FFPlay::readThread() {
             timestamp += formatContext->start_time;
         }
         if (avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX, 0) < 0) {
-            ALOGD(FFPLAY_TAG, "%s %s: could not seek to position %0.3f", __func__, videoState->fileName,
-                  (double) timestamp / AV_TIME_BASE);
+            ALOGD(FFPLAY_TAG, "%s %s: could not seek to position %0.3f", __func__, videoState->fileName, (double) timestamp / AV_TIME_BASE);
         }
     }
 
     videoState->realTime = isRealTime(formatContext);
 
-    if (options->showStatus) {
-        av_dump_format(formatContext, 0, videoState->fileName, 0);
+    if (options->infiniteBuffer < 0 && videoState->realTime) {
+        options->infiniteBuffer = 1;
     }
 
     for (int i = 0; i < formatContext->nb_streams; i++) {
@@ -416,15 +417,31 @@ int FFPlay::readThread() {
         }
     }
 
-    /* open the streams */
+    if (options->showStatus) {
+        av_dump_format(formatContext, 0, videoState->fileName, 0);
+    }
+
+    if (options) {
+        options->showOptions();
+    }
+
     if (streamIndex[AVMEDIA_TYPE_AUDIO] >= 0) {
-        streamComponentOpen(streamIndex[AVMEDIA_TYPE_AUDIO]);
+        if (streamComponentOpen(streamIndex[AVMEDIA_TYPE_AUDIO])) {
+            if (msgQueue) {
+                msgQueue->notifyMsg(Message::MSG_AUDIO_COMPONENT_OPEN);
+            }
+        }
     } else {
         videoState->syncType = options->syncType = SYNC_TYPE_VIDEO_MASTER;
     }
 
     if (streamIndex[AVMEDIA_TYPE_VIDEO] >= 0) {
         ret = streamComponentOpen(streamIndex[AVMEDIA_TYPE_VIDEO]);
+        if (ret) {
+            if (msgQueue) {
+                msgQueue->notifyMsg(Message::MSG_VIDEO_COMPONENT_OPEN);
+            }
+        }
     }
 
     if (videoState->showMode == SHOW_MODE_NONE) {
@@ -432,7 +449,11 @@ int FFPlay::readThread() {
     }
 
     if (streamIndex[AVMEDIA_TYPE_SUBTITLE] >= 0) {
-        streamComponentOpen(streamIndex[AVMEDIA_TYPE_SUBTITLE]);
+        if (streamComponentOpen(streamIndex[AVMEDIA_TYPE_SUBTITLE])) {
+            if (msgQueue) {
+                msgQueue->notifyMsg(Message::MSG_SUBTITLE_COMPONENT_OPEN);
+            }
+        }
     }
 
     if (msgQueue) {
@@ -443,10 +464,6 @@ int FFPlay::readThread() {
         ALOGD(FFPLAY_TAG, "%s failed to open file '%s' or configure filter graph", __func__, videoState->fileName);
         closeReadThread(videoState, formatContext);
         return NEGATIVE(S_NOT_OPEN_FILE);
-    }
-
-    if (options->infiniteBuffer < 0 && videoState->realTime) {
-        options->infiniteBuffer = 1;
     }
 
     if (videoState->videoStream && videoState->videoStream->codecpar) {
@@ -463,10 +480,6 @@ int FFPlay::readThread() {
 
     if (msgQueue) {
         msgQueue->notifyMsg(Message::REQ_START);
-    }
-
-    if (options) {
-        options->showOptions();
     }
 
     for (;;) {
@@ -531,31 +544,21 @@ int FFPlay::readThread() {
             videoState->queueAttachmentsReq = 0;
         }
 
-        /* if the packetQueue are full, no need to read more */
-        bool cond1 = options->infiniteBuffer < 1;
-        bool cond2 = (videoState->audioPacketQueue.memorySize + videoState->videoPacketQueue.memorySize + videoState->subtitlePacketQueue.memorySize) > MAX_QUEUE_SIZE;
-        int cond31 = streamHasEnoughPackets(videoState->audioStream, videoState->audioStreamIndex, &videoState->audioPacketQueue);
-        int cond32 = streamHasEnoughPackets(videoState->videoStream, videoState->videoStreamIndex, &videoState->videoPacketQueue);
-        int cond33 = streamHasEnoughPackets(videoState->subtitleStream, videoState->subtitleStreamIndex, &videoState->subtitlePacketQueue);
-        bool cond3 = cond31 && cond32 && cond33;
-        if (cond1 && (cond2 || cond3)) {
-            /* wait 10 ms */
+        if (isNoReadMore()) {
             waitMutex->mutexLock();
+            /* wait 10 ms */
             videoState->continueReadThread->condWaitTimeout(waitMutex, 10);
             waitMutex->mutexUnLock();
             continue;
         }
 
-        // 未暂停
-        bool notPaused = !videoState->paused;
-        // 未初始化音频流 或者 解码结束 同时 无可用帧
-        bool audioSeekCond = !videoState->audioStream || (videoState->audioDecoder.finished == videoState->audioPacketQueue.serial && videoState->audioFrameQueue.numberRemaining() == 0);
-        // 未初始化视频流 或者 解码结束 同时 无可用帧
-        bool videoSeekCond = !videoState->videoStream || (videoState->videoDecoder.finished == videoState->videoPacketQueue.serial && videoState->videoFrameQueue.numberRemaining() == 0);
-        if (notPaused && audioSeekCond && videoSeekCond) {
-            if (options->loop != 1 && (!options->loop || --options->loop)) {
+        if (isRetryPlay()) {
+            bool isShouldLoop = options->loop != 1 && (!options->loop || --options->loop);
+            if (isShouldLoop) {
+                // Seek To Start Position
                 streamSeek(options->startTime != AV_NOPTS_VALUE ? options->startTime : 0, 0, 0);
             } else if (options->autoExit) {
+                closeReadThread(videoState, formatContext);
                 return NEGATIVE(NEGATIVE_EOF);
             }
         }
@@ -589,48 +592,61 @@ int FFPlay::readThread() {
             videoState->eof = 0;
         }
 
-        /* check if packet videoState in play range specified by user, then packetQueue, otherwise discard */
-        streamStartTime = formatContext->streams[packet->stream_index]->start_time;
-        // https://baike.baidu.com/item/PTS/13977433
-        packetTimestamp = (packet->pts == AV_NOPTS_VALUE) ? packet->dts : packet->pts;
-        int64_t diffTimestamp = packetTimestamp - (streamStartTime != AV_NOPTS_VALUE ? streamStartTime : 0);
-
-        double _diffTime = diffTimestamp * av_q2d(formatContext->streams[packet->stream_index]->time_base);
-        double _startTime = (double) (options->startTime != AV_NOPTS_VALUE ? options->startTime : 0) / 1000000;
-        double _duration = (double) options->duration / 1000000;
-
-        packetInPlayRange = (options->duration == AV_NOPTS_VALUE) || (_diffTime - _startTime <= _duration);
-
+        int packetInPlayRange = isPacketInPlayRange(formatContext, packet);
         if (packet->stream_index == videoState->audioStreamIndex && packetInPlayRange) {
             videoState->audioPacketQueue.put(packet);
-//            ALOGD(FFPLAY_TAG,"%s audio memorySize=%d serial=%d packetSize=%d duration=%lld abortRequest=%d", __func__,
-//                  videoState->audioPacketQueue.memorySize,
-//                  videoState->audioPacketQueue.serial,
-//                  videoState->audioPacketQueue.packetSize,
-//                  duration,
-//                  videoState->audioPacketQueue.abortRequest);
-        } else if (packet->stream_index == videoState->videoStreamIndex && packetInPlayRange &&
-                   !(videoState->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
+        } else if (packet->stream_index == videoState->videoStreamIndex && packetInPlayRange && !(videoState->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
             videoState->videoPacketQueue.put(packet);
-//            ALOGD(FFPLAY_TAG,"%s video memorySize=%d serial=%d packetSize=%d duration=%lld abortRequest=%d", __func__,
-//                  videoState->videoPacketQueue.memorySize,
-//                  videoState->videoPacketQueue.serial,
-//                  videoState->videoPacketQueue.packetSize,
-//                  duration,
-//                  videoState->videoPacketQueue.abortRequest);
         } else if (packet->stream_index == videoState->subtitleStreamIndex && packetInPlayRange) {
             videoState->subtitlePacketQueue.put(packet);
-//            ALOGD(FFPLAY_TAG,"%s subtitle memorySize=%d serial=%d packetSize=%d duration=%lld abortRequest=%d", __func__,
-//                  videoState->subtitlePacketQueue.memorySize,
-//                  videoState->subtitlePacketQueue.serial,
-//                  videoState->subtitlePacketQueue.packetSize,
-//                  duration,
-//                  videoState->subtitlePacketQueue.abortRequest);
         } else {
             av_packet_unref(packet);
         }
     } // for end
     return POSITIVE;
+}
+
+int FFPlay::isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const {
+
+    if (options->duration == AV_NOPTS_VALUE) {
+        return POSITIVE;
+    }
+
+    /* check if packet videoState in play range specified by user, then packetQueue, otherwise discard */
+    int64_t streamStartTime = formatContext->streams[packet->stream_index]->start_time;
+    // https://baike.baidu.com/item/PTS/13977433
+    int64_t packetTimestamp = (packet->pts == AV_NOPTS_VALUE) ? packet->dts : packet->pts;
+    int64_t diffTimestamp = packetTimestamp - (streamStartTime != AV_NOPTS_VALUE ? streamStartTime : 0);
+
+    double diffTime = diffTimestamp * av_q2d(formatContext->streams[packet->stream_index]->time_base);
+    double startTime = (double) (options->startTime != AV_NOPTS_VALUE ? options->startTime : 0) / 1000000;
+    double duration = (double) options->duration / 1000000;
+
+    // isPacketInPlayRange diffTime = 5123.535083 startTime = 0.000000 duration = -9223372036854.775391
+    // ALOGD(FFPLAY_TAG, "%s diffTime = %lf startTime = %lf duration = %lf", __func__, diffTime, startTime, duration);
+
+    return (options->duration == AV_NOPTS_VALUE) || ((diffTime - startTime) <= duration);
+}
+
+bool FFPlay::isRetryPlay() const {
+    // 未暂停
+    bool notPaused = !videoState->paused;
+    // 未初始化音频流 或者 解码结束 同时 无可用帧
+    bool audioSeekCond = !videoState->audioStream || (videoState->audioDecoder.finished == videoState->audioPacketQueue.serial && videoState->audioFrameQueue.numberRemaining() == 0);
+    // 未初始化视频流 或者 解码结束 同时 无可用帧
+    bool videoSeekCond = !videoState->videoStream || (videoState->videoDecoder.finished == videoState->videoPacketQueue.serial && videoState->videoFrameQueue.numberRemaining() == 0);
+    return notPaused && audioSeekCond && videoSeekCond;
+}
+
+bool FFPlay::isNoReadMore() {
+    /* if the packetQueue are full, no need to read more */
+    bool cond1 = options->infiniteBuffer < 1;
+    bool cond2 = (videoState->audioPacketQueue.memorySize + videoState->videoPacketQueue.memorySize + videoState->subtitlePacketQueue.memorySize) > MAX_QUEUE_SIZE;
+    int cond31 = streamHasEnoughPackets(videoState->audioStream, videoState->audioStreamIndex, &videoState->audioPacketQueue);
+    int cond32 = streamHasEnoughPackets(videoState->videoStream, videoState->videoStreamIndex, &videoState->videoPacketQueue);
+    int cond33 = streamHasEnoughPackets(videoState->subtitleStream, videoState->subtitleStreamIndex, &videoState->subtitlePacketQueue);
+    bool cond3 = cond31 && cond32 && cond33;
+    return cond1 && (cond2 || cond3);
 }
 
 void FFPlay::closeReadThread(const VideoState *is, AVFormatContext *&formatContext) const {
@@ -641,15 +657,10 @@ void FFPlay::closeReadThread(const VideoState *is, AVFormatContext *&formatConte
 }
 
 int FFPlay::isRealTime(AVFormatContext *s) {
-    ALOGD(FFPLAY_TAG, __func__);
-
-    if (!strcmp(s->iformat->name, FORMAT_RTP) ||
-        !strcmp(s->iformat->name, FORMAT_RTSP) ||
-        !strcmp(s->iformat->name, FORMAT_SDP)) {
+    if (!strcmp(s->iformat->name, FORMAT_RTP) || !strcmp(s->iformat->name, FORMAT_RTSP) || !strcmp(s->iformat->name, FORMAT_SDP)) {
         return POSITIVE;
     }
-    if (s->pb &&
-        (!strncmp(s->url, URL_FORMAT_RTP, 4) || !strncmp(s->url, URL_FORMAT_UDP, 4))) {
+    if (s->pb && (!strncmp(s->url, URL_FORMAT_RTP, 4) || !strncmp(s->url, URL_FORMAT_UDP, 4))) {
         return POSITIVE;
     }
     return NEGATIVE(S_ERROR);
@@ -928,13 +939,13 @@ void FFPlay::stepToNextFrame() {
     // TODO
 }
 
-void FFPlay::streamSeek(int64_t pos, int64_t rel, int seek_by_bytes) {
+void FFPlay::streamSeek(int64_t pos, int64_t rel, int seekByBytes) {
     /* seek in the stream */
     if (!videoState->seekReq) {
         videoState->seekPos = pos;
         videoState->seekRel = rel;
         videoState->seekFlags &= ~AVSEEK_FLAG_BYTE;
-        if (seek_by_bytes) {
+        if (seekByBytes) {
             videoState->seekFlags |= AVSEEK_FLAG_BYTE;
         }
         videoState->seekReq = 1;
@@ -1166,7 +1177,7 @@ int FFPlay::queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t
 }
 
 int FFPlay::refresh() {
-    ALOGD(FFPLAY_TAG, "---------------- start");
+    ALOGD(OPTIONS_TAG, "===== refresh =====");
     ALOGD(FFPLAY_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime, videoState->paused, videoState->forceRefresh);
     if (remainingTime > 0.0) {
         av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
@@ -1175,7 +1186,7 @@ int FFPlay::refresh() {
     if (videoState->showMode != SHOW_MODE_NONE && (!videoState->paused || videoState->forceRefresh)) {
         refreshVideo(&remainingTime);
     }
-    ALOGD(FFPLAY_TAG, "---------------- end");
+    ALOGD(OPTIONS_TAG, "===== end =====");
     return POSITIVE;
 }
 

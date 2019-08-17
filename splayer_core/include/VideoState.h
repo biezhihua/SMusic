@@ -45,11 +45,12 @@ public:
     SwsContext *imgConvertCtx;
     SwsContext *subConvertCtx;
 
-
     int abortRequest;
     int forceRefresh;
     int paused;
     int lastPaused;
+
+    // https://segmentfault.com/a/1190000018373504?utm_source=tag-newest
     int queueAttachmentsReq;
 
     int realTime;
