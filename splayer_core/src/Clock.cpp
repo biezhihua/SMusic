@@ -1,10 +1,12 @@
 #include "Clock.h"
 
-int Clock::initClock(int *queueSerial) {
+int Clock::init(int *queueSerial) {
     Clock::speed = 1.0F;
     Clock::paused = 0;
     Clock::queueSerial = queueSerial;
     setClock(NAN, -1);
+
+    ALOGD(CLOCK_TAG, "%s speed = %f speed = %d queueSerial = %d pts = %lf ptsDrift = %lf lastUpdated = %lf", __func__, speed, paused, *queueSerial, pts, ptsDrift, lastUpdated);
     return POSITIVE;
 }
 

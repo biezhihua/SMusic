@@ -58,7 +58,7 @@ int FFPlay::prepareStream(const char *fileName) {
     videoState = streamOpen();
 
     if (!videoState) {
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NOT_CREATE_VIDEO_STATE);
     }
 
     return POSITIVE;
@@ -90,22 +90,16 @@ int FFPlay::getMsg(Message *msg, bool block) {
         }
         switch (msg->what) {
             case Message::MSG_PREPARED:
-                // ALOGD(FFPLAY_TAG, "%s MSG_PREPARED", __func__);
                 break;
             case Message::MSG_COMPLETED:
-                // ALOGD(FFPLAY_TAG, "%s MSG_COMPLETED", __func__);
                 break;
             case Message::MSG_SEEK_COMPLETE:
-                // ALOGD(FFPLAY_TAG, "%s MSG_SEEK_COMPLETE", __func__);
                 break;
             case Message::REQ_START:
-                // ALOGD(FFPLAY_TAG, "%s REQ_START", __func__);
                 break;
             case Message::REQ_PAUSE:
-                // ALOGD(FFPLAY_TAG, "%s REQ_PAUSE", __func__);
                 break;
             case Message::REQ_SEEK:
-                // ALOGD(FFPLAY_TAG, "%s REQ_SEEK", __func__);
                 break;
             default:
                 break;
@@ -179,9 +173,9 @@ VideoState *FFPlay::streamOpen() {
         return nullptr;
     }
 
-    if (is->videoClock.initClock(&is->videoPacketQueue.serial) < 0 ||
-        is->audioClock.initClock(&is->audioPacketQueue.serial) < 0 ||
-        is->exitClock.initClock(&is->subtitlePacketQueue.serial) < 0) {
+    if (is->videoClock.init(&is->videoPacketQueue.serial) < 0 ||
+            is->audioClock.init(&is->audioPacketQueue.serial) < 0 ||
+            is->exitClock.init(&is->subtitlePacketQueue.serial) < 0) {
         ALOGE(FFPLAY_TAG, "%s init clock fail", __func__);
         streamClose();
         return nullptr;
@@ -194,7 +188,7 @@ VideoState *FFPlay::streamOpen() {
     is->xLeft = 0;
     is->audioVolume = getStartupVolume();
     is->muted = 0;
-    is->avSyncType = options->syncType;
+    is->syncType = options->syncType;
     is->readThread = new Thread(innerReadThread, this, "Read   ");
 
     if (!is->readThread) {
@@ -376,7 +370,7 @@ int FFPlay::readThread() {
 
     if (options->seekByBytes < 0) {
         options->seekByBytes = (formatContext->iformat->flags & AVFMT_TS_DISCONT) &&
-                                     strcmp(OGG, formatContext->iformat->name) != 0;
+                               strcmp(OGG, formatContext->iformat->name) != 0;
     }
 
     videoState->maxFrameDuration = (formatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
@@ -452,7 +446,7 @@ int FFPlay::readThread() {
     if (streamIndex[AVMEDIA_TYPE_AUDIO] >= 0) {
         streamComponentOpen(streamIndex[AVMEDIA_TYPE_AUDIO]);
     } else {
-        videoState->avSyncType = options->syncType = SYNC_TYPE_VIDEO_MASTER;
+        videoState->syncType = options->syncType = SYNC_TYPE_VIDEO_MASTER;
     }
 
     if (streamIndex[AVMEDIA_TYPE_VIDEO] >= 0) {
@@ -936,13 +930,13 @@ double FFPlay::getMasterClock() {
 }
 
 int FFPlay::getMasterSyncType() {
-    if (videoState && videoState->avSyncType == SYNC_TYPE_VIDEO_MASTER) {
+    if (videoState && videoState->syncType == SYNC_TYPE_VIDEO_MASTER) {
         if (videoState->videoStream) {
             return SYNC_TYPE_VIDEO_MASTER;
         } else {
             return SYNC_TYPE_AUDIO_MASTER;
         }
-    } else if (videoState && videoState->avSyncType == SYNC_TYPE_AUDIO_MASTER) {
+    } else if (videoState && videoState->syncType == SYNC_TYPE_AUDIO_MASTER) {
         if (videoState->audioStream) {
             return SYNC_TYPE_AUDIO_MASTER;
         } else {

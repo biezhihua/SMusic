@@ -1,8 +1,9 @@
 #include "PacketQueue.h"
 
-int PacketQueue::init(AVPacket *pFlushPacket) {
 
-    flushPacket = pFlushPacket;
+int PacketQueue::init(AVPacket *packet) {
+
+    PacketQueue::flushPacket = packet;
 
     mutex = new Mutex();
 
@@ -71,6 +72,7 @@ int PacketQueue::abort() {
 }
 
 int PacketQueue::get(AVPacket *packet, int block, int *serial) {
+    // 获取队列首个包数据
     int ret = 0;
     if (mutex) {
         PacketData *packetData;
@@ -126,6 +128,7 @@ int PacketQueue::put(AVPacket *packet) {
 }
 
 int PacketQueue::putNullPacket(int streamIndex) {
+    // 入队一个空数据
     AVPacket pkt1, *pkt = &pkt1;
     av_init_packet(pkt);
     pkt->data = nullptr;
@@ -141,10 +144,7 @@ int PacketQueue::putPrivate(AVPacket *packet) {
     if (abortRequest) {
         return NEGATIVE(S_ABORT_REQUEST);
     }
-    auto *packetList = new PacketData();
-    if (!packetList) {
-        return NEGATIVE(S_NOT_MEMORY);
-    }
+    PacketData *packetList = new PacketData();
     packetList->packet = *packet;
     packetList->next = nullptr;
     if (packet == flushPacket) {
@@ -160,7 +160,6 @@ int PacketQueue::putPrivate(AVPacket *packet) {
     packetSize++;
     memorySize += packetList->packet.size + sizeof(*packetList);
     duration += packetList->packet.duration;
-    /* XXX: should duplicate packet data in DV case */
     mutex->condSignal();
     return POSITIVE;
 }

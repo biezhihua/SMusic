@@ -62,7 +62,7 @@ public:
     int audioVolume;
     int muted;
 
-    int avSyncType;
+    int syncType;
     int pauseReq;
 
     int lastVideoStreamIndex;

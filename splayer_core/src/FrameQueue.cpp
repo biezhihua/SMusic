@@ -21,9 +21,10 @@ int FrameQueue::init(PacketQueue *packetQueue, int queueSize, int keepLast) {
         }
     }
 
-    ALOGD(FRAME_QUEUE_TAG, "%s packetQueue = %p maxSize = %d keepLast = %d",
+    ALOGD(FRAME_QUEUE_TAG, "%s packetQueue = %p maxSize[%d] = %d keepLast = %d",
           __func__,
           FrameQueue::packetQueue,
+          FRAME_QUEUE_SIZE,
           maxSize,
           FrameQueue::keepLast);
 
@@ -75,9 +76,7 @@ Frame *FrameQueue::peekLast() {
 }
 
 Frame *FrameQueue::peekWritable() {
-
     if (mutex && packetQueue) {
-
         // wait until we have space to put a new frame
         mutex->mutexLock();
         while (size >= maxSize && !packetQueue->abortRequest) {
@@ -147,9 +146,7 @@ int FrameQueue::push() {
 
 int FrameQueue::next() {
     if (mutex) {
-
         // 将读索引(队头)后移一位， 还有将这个队列中的Frame的数量减一
-
         if (keepLast && !readIndexShown) {
             readIndexShown = 1;
             return POSITIVE;

@@ -27,7 +27,7 @@ public:
 
 public:
 
-    int init(AVPacket *pPacket);
+    int init(AVPacket *packet);
 
     int start();
 
@@ -46,6 +46,5 @@ public:
     int get(AVPacket *packet, int block, int *serial);
 
 };
-
 
 #endif //SPLAYER_MAC_PACKETQUEUE_H

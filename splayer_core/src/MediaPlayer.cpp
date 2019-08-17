@@ -229,7 +229,9 @@ int MediaPlayer::prepareOptions() {
     return NEGATIVE(S_NOT_MEMORY);
 }
 
-Options *MediaPlayer::createOptions() const { return new Options(); }
+Options *MediaPlayer::createOptions() const {
+    return new Options();
+}
 
 int MediaPlayer::prepareMsgQueue() {
     MessageQueue *msgQueue = play->getMsgQueue();

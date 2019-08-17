@@ -2,12 +2,14 @@
 #define SPLAYER_MAC1_CLOCK_H
 
 #include "Error.h"
+#include "Log.h"
 
 extern "C" {
 #include <libavutil/time.h>
 #include <libavutil/mathematics.h>
 };
 
+#define CLOCK_TAG  "Clock"
 
 class Clock {
 public:
@@ -39,7 +41,7 @@ public:
     int *queueSerial;
 
 public:
-    int initClock(int *queueSerial);
+    int init(int *queueSerial);
 
     int setClock(double pts, int serial);
 
