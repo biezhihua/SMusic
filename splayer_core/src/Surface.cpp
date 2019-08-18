@@ -14,12 +14,12 @@ void Surface::setPlay(FFPlay *play) {
 
 void Surface::setWindowSize(int width, int height, AVRational rational) {
     if (options) {
-        options->defaultWidth = width;
-        options->defaultHeight = height;
+        options->screenWidth = width;
+        options->screenHeight = height;
     }
 }
 
-void Surface::displayWindow(int width, int height) {
+void Surface::displayWindow() {
 
 }
 

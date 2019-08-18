@@ -14,8 +14,6 @@ void Options::showOptions() {
     ALOGD(OPTIONS_TAG, "%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "inputFileName", inputFileName);
     ALOGD(OPTIONS_TAG, "%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "windowTitle", windowTitle);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "isFullScreen", isFullScreen);
-    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "defaultWidth", defaultWidth);
-    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "defaultHeight", defaultHeight);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "screenWidth", screenWidth);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "screenHeight", screenHeight);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "screenLeft", screenLeft);

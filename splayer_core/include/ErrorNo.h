@@ -40,5 +40,6 @@
 #define S_NOT_SUPPORT_LINESIZES        37
 #define S_NOT_UPDATE_TEXTURE        38
 #define S_NOT_CREATE_VIDEO_STATE        39
+#define S_NOT_ALLOC_CODEC_CONTEXT        40
 
 #endif //SPLAYER_CORE_ERRORNO_H

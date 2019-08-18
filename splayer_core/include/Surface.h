@@ -36,7 +36,7 @@ public:
 
     void setPlay(FFPlay *play);
 
-    virtual void displayWindow(int width, int height);
+    virtual void displayWindow();
 
     virtual void displayVideoImage();
 

@@ -44,10 +44,8 @@ public:
     char *inputFileName = nullptr;
     char *windowTitle = nullptr; // set window title
     int isFullScreen = 0; // force full screen
-    int defaultWidth = 640;
-    int defaultHeight = 480;
-    int screenWidth = 0; // force displayed width
-    int screenHeight = 0; // force displayed height
+    int screenWidth = 640;
+    int screenHeight = 480;
     int screenLeft = 0; // set the x position for the left of the window
     int screenTop = 0;  // set the y position for the top of the window
     char *wantedStreamSpec[AVMEDIA_TYPE_NB] = {nullptr}; // "select desired stream"

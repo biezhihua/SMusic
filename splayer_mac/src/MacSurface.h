@@ -78,7 +78,7 @@ private:
     bool isQuitKey(const SDL_Event &event) const;
 
 public:
-    void displayWindow(int width, int height) override;
+    void displayWindow() override;
 
     void displayVideoImage() override;
 

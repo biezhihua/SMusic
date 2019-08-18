@@ -710,7 +710,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
 
     codecContext = avcodec_alloc_context3(nullptr);
     if (!codecContext) {
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NOT_ALLOC_CODEC_CONTEXT);
     }
 
     if (avcodec_parameters_to_context(codecContext, formatContext->streams[streamIndex]->codecpar) < 0) {
@@ -762,8 +762,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
     codecContext->codec_id = codec->id;
 
     if (streamLowres > codec->max_lowres) {
-        ALOGD(FFPLAY_TAG, "%s The maximum value for lowres supported by the decoder is %d", __func__,
-              codec->max_lowres);
+        ALOGD(FFPLAY_TAG, "%s The maximum value for lowres supported by the decoder is %d", __func__, codec->max_lowres);
         streamLowres = codec->max_lowres;
     }
     codecContext->lowres = streamLowres;
@@ -807,7 +806,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
                 videoState->audioDecoder.startPts = videoState->audioStream->start_time;
                 videoState->audioDecoder.startPtsTb = videoState->audioStream->time_base;
             }
-            if (videoState->audioDecoder.decoderStart("ADecode", innerAudioThread, this) < 0) {
+            if (!videoState->audioDecoder.decoderStart("ADecode", innerAudioThread, this)) {
                 av_dict_free(&opts);
                 return NEGATIVE(S_NOT_AUDIO_DECODE_START);
             }
@@ -816,7 +815,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
             videoState->videoStreamIndex = streamIndex;
             videoState->videoStream = formatContext->streams[streamIndex];
             videoState->videoDecoder.decoderInit(codecContext, &videoState->videoPacketQueue, videoState->continueReadThread);
-            if (videoState->videoDecoder.decoderStart("VDecode", innerVideoThread, this) < 0) {
+            if (!videoState->videoDecoder.decoderStart("VDecode", innerVideoThread, this)) {
                 av_dict_free(&opts);
                 return NEGATIVE(S_NOT_VIDEO_DECODE_START);
             }
@@ -826,7 +825,7 @@ int FFPlay::streamComponentOpen(int streamIndex) {
             videoState->subtitleStreamIndex = streamIndex;
             videoState->subtitleStream = formatContext->streams[streamIndex];
             videoState->subtitleDecoder.decoderInit(codecContext, &videoState->subtitlePacketQueue, videoState->continueReadThread);
-            if (videoState->subtitleDecoder.decoderStart("SDecode", innerSubtitleThread, this) < 0) {
+            if (!videoState->subtitleDecoder.decoderStart("SDecode", innerSubtitleThread, this)) {
                 av_dict_free(&opts);
                 return NEGATIVE(S_NOT_SUBTITLE_DECODE_START);
             }
@@ -971,7 +970,7 @@ int FFPlay::videoThread() {
     for (;;) {
         ALOGI(FFPLAY_TAG, "%s prepare get video frame", __func__);
         ret = getVideoFrame(frame);
-        if (ret < 0) {
+        if (ret <= 0) {
             av_frame_free(&frame);
             ALOGE(FFPLAY_TAG, "%s not get video frame", __func__);
             return NEGATIVE(S_NOT_GET_VIDEO_FRAME);
@@ -1024,6 +1023,7 @@ int FFPlay::getVideoFrame(AVFrame *frame) {
 
         frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(videoState->formatContext, videoState->videoStream, frame);
 
+        // TODO?
         if (options->dropFrameWhenSlow > 0 || (options->dropFrameWhenSlow && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) {
             if (frame->pts != AV_NOPTS_VALUE) {
                 double diff = dpts - getMasterClock();
@@ -1033,7 +1033,7 @@ int FFPlay::getVideoFrame(AVFrame *frame) {
                     videoState->videoPacketQueue.packetSize) {
                     videoState->frameDropsEarly++;
                     av_frame_unref(frame);
-                    gotPicture = 0;
+                    gotPicture = POSITIVE;
                 }
             }
         }
@@ -1112,7 +1112,7 @@ int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                 av_packet_move_ref(&packet, &decoder->packet);
                 decoder->packetPending = 0;
             } else {
-                if (decoder->packetQueue->get(&packet, 1, &decoder->packetSerial) < 0) {
+                if (IS_POSITIVE(decoder->packetQueue->get(&packet, 1, &decoder->packetSerial))) {
                     return NEGATIVE(S_NOT_GET_PACKET_QUEUE);
                 }
             }
@@ -1390,23 +1390,14 @@ void FFPlay::syncClockToSlave(Clock *c, Clock *slave) {
 }
 
 int FFPlay::displayWindow() {
-    ALOGD(FFPLAY_TAG, __func__);
-    int w, h;
-    if (options->screenWidth) {
-        w = options->screenWidth;
-        h = options->screenHeight;
-    } else {
-        w = options->defaultWidth;
-        h = options->defaultHeight;
-    }
     if (!options->windowTitle) {
         options->windowTitle = options->inputFileName;
     }
-    videoState->width = w;
-    videoState->height = h;
     if (surface) {
-        surface->displayWindow(w, h);
+        surface->displayWindow();
     }
+    videoState->width = options->screenWidth;
+    videoState->height = options->screenHeight;
     return POSITIVE;
 }
 

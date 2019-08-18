@@ -19,7 +19,7 @@ int MacSurface::create() {
         flags |= SDL_WINDOW_RESIZABLE;
     }
 
-    window = SDL_CreateWindow(options->windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->defaultWidth, options->defaultHeight, flags);
+    window = SDL_CreateWindow(options->windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->screenWidth, options->screenHeight, flags);
     if (window == nullptr) {
         ALOGE(MAC_SURFACE_TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
         destroy();
@@ -64,9 +64,10 @@ void MacSurface::setWindowSize(int width, int height, AVRational rational) {
     SDL_Rect rect;
     calculateDisplayRect(&rect, 0, 0, INT_MAX, height, width, height, rational);
     if (options) {
-        options->defaultWidth = rect.w;
-        options->defaultHeight = rect.h;
+        options->screenWidth = rect.w;
+        options->screenHeight = rect.h;
     }
+    ALOGD(MAC_SURFACE_TAG, "%s x = %d y = %d w = %d h = %d", __func__, rect.x, rect.y, rect.w, rect.h);
 }
 
 void MacSurface::calculateDisplayRect(SDL_Rect *rect, int scrXLeft, int scrYTop,
@@ -198,15 +199,22 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
     }
 }
 
-void MacSurface::displayWindow(int width, int height) {
+void MacSurface::displayWindow() {
     if (window && options) {
         SDL_SetWindowTitle(window, options->windowTitle);
-        SDL_SetWindowSize(window, width, height);
+        SDL_SetWindowSize(window, options->screenWidth, options->screenHeight);
         SDL_SetWindowPosition(window, options->screenLeft, options->screenTop);
         if (options->isFullScreen) {
             SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         }
         SDL_ShowWindow(window);
+        // Query Real Window Size And Update
+        SDL_GetWindowSize(window, &options->screenWidth, &options->screenHeight);
+        ALOGD(MAC_SURFACE_TAG, "%s windowTitle = %s screenWidth = %d screenHeight = %d screenLeft = %d screenTop = %d", __func__,
+              options->windowTitle,
+              options->screenWidth, options->screenHeight,
+              options->screenLeft, options->screenTop
+        );
     }
 }
 
@@ -254,10 +262,13 @@ void MacSurface::setYuvConversionMode(AVFrame *frame) {
     if (frame && (frame->format == AV_PIX_FMT_YUV420P || frame->format == AV_PIX_FMT_YUYV422 || frame->format == AV_PIX_FMT_UYVY422)) {
         if (frame->color_range == AVCOL_RANGE_JPEG) {
             mode = SDL_YUV_CONVERSION_JPEG;
+            ALOGD(MAC_SURFACE_TAG, "%s mode = %s", __func__, "SDL_YUV_CONVERSION_JPEG");
         } else if (frame->colorspace == AVCOL_SPC_BT709) {
             mode = SDL_YUV_CONVERSION_BT709;
+            ALOGD(MAC_SURFACE_TAG, "%s mode = %s", __func__, "SDL_YUV_CONVERSION_BT709");
         } else if (frame->colorspace == AVCOL_SPC_BT470BG || frame->colorspace == AVCOL_SPC_SMPTE170M || frame->colorspace == AVCOL_SPC_SMPTE240M) {
             mode = SDL_YUV_CONVERSION_BT601;
+            ALOGD(MAC_SURFACE_TAG, "%s mode = %s", __func__, "SDL_YUV_CONVERSION_BT601");
         }
     }
     SDL_SetYUVConversionMode(mode);
@@ -300,7 +311,7 @@ int MacSurface::uploadTexture(AVFrame *frame, SwsContext *convertContext) {
                 if (SDL_UpdateYUVTexture(videoTexture, nullptr,
                                          frame->data[0], frame->linesize[0],
                                          frame->data[1], frame->linesize[1],
-                                         frame->data[2], frame->linesize[2])) {
+                                         frame->data[2], frame->linesize[2]) >= 0) {
                     return POSITIVE;
                 } else {
                     return NEGATIVE(S_NOT_UPDATE_YUV_TEXTURE);
@@ -309,7 +320,7 @@ int MacSurface::uploadTexture(AVFrame *frame, SwsContext *convertContext) {
                 if (SDL_UpdateYUVTexture(videoTexture, nullptr,
                                          frame->data[0] + frame->linesize[0] * (frame->height - 1), -frame->linesize[0],
                                          frame->data[1] + frame->linesize[1] * (AV_CEIL_RSHIFT(frame->height, 1) - 1), -frame->linesize[1],
-                                         frame->data[2] + frame->linesize[2] * (AV_CEIL_RSHIFT(frame->height, 1) - 1), -frame->linesize[2])) {
+                                         frame->data[2] + frame->linesize[2] * (AV_CEIL_RSHIFT(frame->height, 1) - 1), -frame->linesize[2]) >= 0) {
                     return POSITIVE;
                 } else {
                     return NEGATIVE(S_NOT_UPDATE_YUV_TEXTURE);
@@ -321,13 +332,13 @@ int MacSurface::uploadTexture(AVFrame *frame, SwsContext *convertContext) {
             break;
         default:
             if (frame->linesize[0] < 0) {
-                if (SDL_UpdateTexture(videoTexture, nullptr, frame->data[0] + frame->linesize[0] * (frame->height - 1), -frame->linesize[0])) {
+                if (SDL_UpdateTexture(videoTexture, nullptr, frame->data[0] + frame->linesize[0] * (frame->height - 1), -frame->linesize[0]) >= 0) {
                     return POSITIVE;
                 } else {
                     return NEGATIVE(S_NOT_UPDATE_TEXTURE);
                 }
             } else {
-                if (SDL_UpdateTexture(videoTexture, nullptr, frame->data[0], frame->linesize[0])) {
+                if (SDL_UpdateTexture(videoTexture, nullptr, frame->data[0], frame->linesize[0]) >= 0) {
                     return POSITIVE;
                 } else {
                     return NEGATIVE(S_NOT_UPDATE_TEXTURE);

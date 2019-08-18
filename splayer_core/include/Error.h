@@ -9,6 +9,8 @@
 #define POSITIVE   1
 #define NEGATIVE(e) (-(e)) /// Returns a negative error code from a POSIX error code, to return from library functions.
 
+#define IS_POSITIVE(e) (e <= 0)
+
 #define FFERRTAG(a, b, c, d) (-(int)MKTAG(a, b, c, d))
 
 #define NEGATIVE_BSF_NOT_FOUND      FFERRTAG(0xF8,'B','S','F') ///< Bitstream filter not found

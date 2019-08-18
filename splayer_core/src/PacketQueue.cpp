@@ -1,3 +1,6 @@
+
+#include <PacketQueue.h>
+
 #include "PacketQueue.h"
 
 
@@ -73,7 +76,7 @@ int PacketQueue::abort() {
 
 int PacketQueue::get(AVPacket *packet, int block, int *serial) {
     // 获取队列首个包数据
-    int ret = 0;
+    int ret = POSITIVE;
     if (mutex) {
         PacketData *packetData;
         mutex->mutexLock();
@@ -163,4 +166,3 @@ int PacketQueue::putPrivate(AVPacket *packet) {
     mutex->condSignal();
     return POSITIVE;
 }
-
