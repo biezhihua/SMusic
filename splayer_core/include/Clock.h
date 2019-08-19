@@ -24,7 +24,7 @@ public:
      */
     double ptsDrift;
 
-    double lastUpdated;
+    double lastUpdatedTime;
 
     double speed;
 

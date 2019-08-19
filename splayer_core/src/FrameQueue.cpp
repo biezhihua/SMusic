@@ -60,17 +60,17 @@ int FrameQueue::signal() {
     return NEGATIVE(S_ERROR);
 }
 
-Frame *FrameQueue::peek() {
+Frame *FrameQueue::peekFirstPrepareShowFrame() {
     // 获取待显示的第一个帧
     return &queue[(readIndex + readIndexShown) % maxSize];
 }
 
-Frame *FrameQueue::peekNext() {
+Frame *FrameQueue::peekNextPrepareShowFrame() {
     // 获取待显示的第二个帧
     return &queue[(readIndex + readIndexShown + 1) % maxSize];
 }
 
-Frame *FrameQueue::peekLast() {
+Frame *FrameQueue::peekCurrentShownFrame() {
     // 获取当前播放器显示的帧
     return &queue[readIndex];
 }

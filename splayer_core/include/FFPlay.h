@@ -157,9 +157,9 @@ private:
 
     void displayVideo();
 
-    double frameDuration(Frame *currentFrame, Frame *nextFrame);
+    double getFrameDuration(Frame *current, Frame *next);
 
-    double computeTargetDelay(double delay);
+    double getComputeTargetDelay(double duration);
 
     void updateVideoClockPts(double pts, int64_t pos, int serial);
 

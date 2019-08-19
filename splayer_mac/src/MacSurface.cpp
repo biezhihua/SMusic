@@ -233,7 +233,7 @@ void MacSurface::displayVideoImage() {
     if (play && play->getVideoState()) {
         VideoState *videoState = play->getVideoState();
 
-        lastFrame = videoState->videoFrameQueue.peekLast();
+        lastFrame = videoState->videoFrameQueue.peekCurrentShownFrame();
 
         if (videoState->subtitleStream) {
             // TODO
