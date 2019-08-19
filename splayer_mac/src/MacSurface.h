@@ -94,6 +94,7 @@ public:
 
     void doExit() override;
 
+    void toggleFullScreen() const;
 };
 
 

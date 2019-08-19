@@ -71,6 +71,8 @@ public:
 
     void togglePause();
 
+    void forceRefresh();
+
 public:
     FFPlay();
 

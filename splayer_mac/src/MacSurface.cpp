@@ -162,6 +162,10 @@ bool MacSurface::isNotHaveWindow() const {
 void MacSurface::doKeySystem(const SDL_Event &event) const {
     switch (event.key.keysym.sym) {
         case SDLK_f:
+            if (play) {
+                toggleFullScreen();
+                play->forceRefresh();
+            }
             break;
         case SDLK_p:
         case SDLK_SPACE:
@@ -402,4 +406,13 @@ int MacSurface::reallocTexture(SDL_Texture **texture, Uint32 newFormat, int newW
 void MacSurface::doExit() {
     Surface::doExit();
     exit(0);
+}
+
+void MacSurface::toggleFullScreen() const {
+    if (options && window) {
+        options->isFullScreen = !options->isFullScreen;
+        SDL_SetWindowFullscreen(window, options->isFullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+        SDL_GetWindowSize(window, &options->screenWidth, &options->screenHeight);
+        ALOGD(MAC_SURFACE_TAG, "%s screenWidth = %d  screenHeight = %d", __func__, options->screenWidth, options->screenHeight);
+    }
 }

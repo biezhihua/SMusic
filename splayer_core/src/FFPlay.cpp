@@ -1455,3 +1455,9 @@ void FFPlay::streamTogglePause() {
         videoState->paused = videoState->audioClock.paused = videoState->videoClock.paused = videoState->exitClock.paused = !videoState->paused;
     }
 }
+
+void FFPlay::forceRefresh() {
+    if (videoState) {
+        videoState->forceRefresh = 1;
+    }
+}
