@@ -62,8 +62,6 @@ const char *Message::getMsgSimpleName(int what) {
             return "MSG_ACCURATE_SEEK_COMPLETE";
         case MSG_GET_IMG_STATE :
             return "MSG_GET_IMG_STATE";
-        case MSG_VIDEO_DECODER_OPEN :
-            return "MSG_VIDEO_DECODER_OPEN";
         case REQ_START :
             return "REQ_START";
         case REQ_PAUSE :
@@ -142,6 +140,14 @@ const char *Message::getMsgSimpleName(int what) {
             return "PROP_INT64_SHARE_CACHE_DATA";
         case PROP_INT64_IMMEDIATE_RECONNECT :
             return "PROP_INT64_IMMEDIATE_RECONNECT";
+        case MSG_VIDEO_DECODER_OPEN:
+            return "MSG_VIDEO_DECODER_OPEN";
+        case MSG_AUDIO_COMPONENT_OPEN:
+            return "MSG_AUDIO_COMPONENT_OPEN";
+        case MSG_VIDEO_COMPONENT_OPEN:
+            return "MSG_VIDEO_COMPONENT_OPEN";
+        case MSG_SUBTITLE_COMPONENT_OPEN:
+            return "MSG_SUBTITLE_COMPONENT_OPEN";
         default:
             return "NONE";
     }

@@ -209,12 +209,12 @@ int MediaPlayer::prepareAsync() {
         mutex->mutexLock();
         state->changeState(State::STATE_ASYNC_PREPARING);
         if (prepareMsgQueue() && prepareOptions() && prepareSurface() && prepareAudio() && prepareStream()) {
-            state->changeState(State::STATE_ERROR);
             mutex->mutexUnLock();
-            return NEGATIVE(S_CONDITION);
+            return POSITIVE;
         }
+        state->changeState(State::STATE_ERROR);
         mutex->mutexUnLock();
-        return POSITIVE;
+        return NEGATIVE(S_CONDITION);
     }
     return NEGATIVE(S_NULL);
 }

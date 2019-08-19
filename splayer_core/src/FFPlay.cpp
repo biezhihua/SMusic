@@ -968,7 +968,6 @@ int FFPlay::videoThread() {
     }
 
     for (;;) {
-        ALOGI(FFPLAY_TAG, "%s prepare get video frame", __func__);
         ret = getVideoFrame(frame);
         if (ret <= 0) {
             av_frame_free(&frame);
@@ -981,10 +980,10 @@ int FFPlay::videoThread() {
 
         duration = (frameRate.num && frameRate.den ? av_q2d((AVRational) {frameRate.den, frameRate.num}) : 0);
         pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(timeBase);
-        ret = queuePicture(frame, pts, duration, frame->pkt_pos, is->videoDecoder.packetSerial);
+        ret = queueFrameToFrameQueue(frame, pts, duration, frame->pkt_pos, is->videoDecoder.packetSerial);
         av_frame_unref(frame);
 
-        if (ret < 0) {
+        if (IS_POSITIVE(ret)) {
             av_frame_free(&frame);
             ALOGE(FFPLAY_TAG, "%s not queue picture", __func__);
             return NEGATIVE(S_NOT_QUEUE_PICTURE);
@@ -1150,7 +1149,7 @@ int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
     return ret;
 }
 
-int FFPlay::queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
+int FFPlay::queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
     ALOGD(FFPLAY_TAG, "%s pts=%lf duration=%lf pos=%lld serial=%d", __func__, pts, duration, pos, serial);
 
     Frame *vp;
@@ -1271,7 +1270,7 @@ void FFPlay::refreshVideo(double *remainingTime) {
             ALOGD(FFPLAY_TAG, "frameTimer = %f ", videoState->frameTimer);
             if (delay > 0 && (time - videoState->frameTimer) > SYNC_THRESHOLD_MAX) {
                 videoState->frameTimer = time;
-                ALOGD(FFPLAY_TAG, "force frameTimer = %f ", videoState->frameTimer);
+                ALOGD(FFPLAY_TAG, "force set frameTimer = %f ", videoState->frameTimer);
             }
 
             videoState->videoFrameQueue.mutex->mutexLock();
@@ -1342,7 +1341,7 @@ void FFPlay::displayVideo() {
 }
 
 double FFPlay::computeTargetDelay(double delay) {
-    ALOGD(FFPLAY_TAG, "%s delay = %0.3f ", __func__, delay);
+    ALOGD(FFPLAY_TAG, "%s delay = %f ", __func__, delay);
     double syncThreshold, diff = 0;
     /* update delay to follow master synchronisation source */
     if (getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER) {
@@ -1371,7 +1370,7 @@ double FFPlay::computeTargetDelay(double delay) {
             }
         }
     }
-    ALOGD(FFPLAY_TAG, "%s result delay = %0.3f ", __func__, delay);
+    ALOGD(FFPLAY_TAG, "%s result delay = %f ", __func__, delay);
     return delay;
 }
 

@@ -70,9 +70,9 @@ void MacSurface::setWindowSize(int width, int height, AVRational rational) {
     ALOGD(MAC_SURFACE_TAG, "%s x = %d y = %d w = %d h = %d", __func__, rect.x, rect.y, rect.w, rect.h);
 }
 
-void MacSurface::calculateDisplayRect(SDL_Rect *rect, int scrXLeft, int scrYTop,
-                                      int scrWidth, int scrHeight,
-                                      int picWidth, int picHeight,
+void MacSurface::calculateDisplayRect(SDL_Rect *rect, int screenXLeft, int screenYTop,
+                                      int screenWidth, int screenHeight,
+                                      int pictureWidth, int pictureHeight,
                                       AVRational picSar
 ) {
     double aspectRatio;
@@ -88,19 +88,19 @@ void MacSurface::calculateDisplayRect(SDL_Rect *rect, int scrXLeft, int scrYTop,
         aspectRatio = 1.0;
     }
 
-    aspectRatio *= (float) picWidth / (float) picHeight;
+    aspectRatio *= (float) pictureWidth / (float) pictureHeight;
 
     /* XXX: we suppose the screen has a 1.0 pixel ratio */
-    height = scrHeight;
+    height = screenHeight;
     width = static_cast<int>(lrint(height * aspectRatio) & ~1);
-    if (width > scrWidth) {
-        width = scrWidth;
+    if (width > screenWidth) {
+        width = screenWidth;
         height = static_cast<int>(lrint(width / aspectRatio) & ~1);
     }
-    x = (scrWidth - width) / 2;
-    y = (scrHeight - height) / 2;
-    rect->x = scrXLeft + x;
-    rect->y = scrYTop + y;
+    x = (screenWidth - width) / 2;
+    y = (screenHeight - height) / 2;
+    rect->x = screenXLeft + x;
+    rect->y = screenYTop + y;
     rect->w = FFMAX(width, 1);
     rect->h = FFMAX(height, 1);
 

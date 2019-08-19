@@ -149,7 +149,7 @@ private:
 
     int decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *subtitle);
 
-    int queuePicture(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial);
+    int queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial);
 
     void refreshVideo(double *remainingTime);
 

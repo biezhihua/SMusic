@@ -69,7 +69,7 @@ public:
     int eventLoop();
 
 private:
-    void calculateDisplayRect(SDL_Rect *rect, int scrXLeft, int scrYTop, int scrWidth, int scrHeight, int picWidth, int picHeight, AVRational picSar);
+    void calculateDisplayRect(SDL_Rect *rect, int screenXLeft, int screenYTop, int screenWidth, int screenHeight, int pictureWidth, int pictureHeight, AVRational picSar);
 
     void doKeySystem(const SDL_Event &event) const;
 
