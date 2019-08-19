@@ -97,6 +97,10 @@ public:
     void toggleFullScreen() const;
 
     void doWindowEvent(const SDL_Event &event);
+
+    void showCursor() const;
+
+    void hideCursor() const;
 };
 
 

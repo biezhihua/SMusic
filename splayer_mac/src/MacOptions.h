@@ -7,7 +7,7 @@ class MacOptions : public Options {
 
 public:
     int cursorHidden = 0;
-    int cursorLastShown = 0;
+    int64_t cursorLastShown = 0;
 };
 
 

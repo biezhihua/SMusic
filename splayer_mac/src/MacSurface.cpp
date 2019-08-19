@@ -114,11 +114,7 @@ int MacSurface::eventLoop() {
         play->remainingTime = 0.0F;
         SDL_PumpEvents();
         while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
-            auto *macOptions = (MacOptions *) (options);
-            if (macOptions && !macOptions->cursorHidden && av_gettime_relative() - macOptions->cursorLastShown > CURSOR_HIDE_DELAY) {
-                SDL_ShowCursor(0);
-                macOptions->cursorHidden = 1;
-            }
+            hideCursor();
             if (play) {
                 play->refresh();
             }
@@ -138,10 +134,47 @@ int MacSurface::eventLoop() {
                 break;
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEMOTION:
+                showCursor();
+
+//                if (event.type == SDL_MOUSEBUTTONDOWN) {
+//                    if (event.button.button != SDL_BUTTON_RIGHT)
+//                        break;
+//                    x = event.button.x;
+//                } else {
+//                    if (!(event.motion.state & SDL_BUTTON_RMASK))
+//                        break;
+//                    x = event.motion.x;
+//                }
+//                if (seek_by_bytes || cur_stream->ic->duration <= 0) {
+//                    uint64_t size = avio_size(cur_stream->ic->pb);
+//                    stream_seek(cur_stream, size * x / cur_stream->width, 0, 1);
+//                } else {
+//                    int64_t ts;
+//                    int ns, hh, mm, ss;
+//                    int tns, thh, tmm, tss;
+//                    tns = cur_stream->ic->duration / 1000000LL;
+//                    thh = tns / 3600;
+//                    tmm = (tns % 3600) / 60;
+//                    tss = (tns % 60);
+//                    frac = x / cur_stream->width;
+//                    ns = frac * tns;
+//                    hh = ns / 3600;
+//                    mm = (ns % 3600) / 60;
+//                    ss = (ns % 60);
+//                    av_log(NULL, AV_LOG_INFO,
+//                           "Seek to %2.0f%% (%2d:%02d:%02d) of total duration (%2d:%02d:%02d)       \n", frac * 100,
+//                           hh, mm, ss, thh, tmm, tss);
+//                    ts = frac * cur_stream->ic->duration;
+//                    if (cur_stream->ic->start_time != AV_NOPTS_VALUE)
+//                        ts += cur_stream->ic->start_time;
+//                    stream_seek(cur_stream, ts, 0, 0);
+//                }
+                break;
             case SDL_WINDOWEVENT:
                 doWindowEvent(event);
                 break;
             case SDL_QUIT:
+                doExit();
                 quit = true;
                 break;
             default:
@@ -149,6 +182,27 @@ int MacSurface::eventLoop() {
         }
     }
     return POSITIVE;
+}
+
+void MacSurface::hideCursor() const {
+    if (options) {
+        auto *macOptions = (MacOptions *) (options);
+        if (!macOptions->cursorHidden && (av_gettime_relative() - macOptions->cursorLastShown) > CURSOR_HIDE_DELAY) {
+            SDL_ShowCursor(0);
+            macOptions->cursorHidden = 1;
+        }
+    }
+}
+
+void MacSurface::showCursor() const {
+    if (options) {
+        auto *macOptions = (MacOptions *) (options);
+        if (macOptions->cursorHidden) {
+            SDL_ShowCursor(1);
+            macOptions->cursorHidden = 0;
+        }
+        macOptions->cursorLastShown = av_gettime_relative();
+    }
 }
 
 void MacSurface::doWindowEvent(const SDL_Event &event) {
