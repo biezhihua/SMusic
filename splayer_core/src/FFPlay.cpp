@@ -1176,7 +1176,7 @@ int FFPlay::queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duratio
 }
 
 int FFPlay::refresh() {
-    ALOGD(OPTIONS_TAG, "===== refresh =====");
+    ALOGD(FFPLAY_TAG, "===== refresh =====");
     ALOGD(FFPLAY_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime, videoState->paused, videoState->forceRefresh);
     if (remainingTime > 0.0) {
         av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
@@ -1185,7 +1185,7 @@ int FFPlay::refresh() {
     if (videoState->showMode != SHOW_MODE_NONE && (!videoState->paused || videoState->forceRefresh)) {
         refreshVideo(&remainingTime);
     }
-    ALOGD(OPTIONS_TAG, "===== end =====");
+    ALOGD(FFPLAY_TAG, "===== end =====");
     return POSITIVE;
 }
 

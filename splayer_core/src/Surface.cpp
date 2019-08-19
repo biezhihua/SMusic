@@ -16,10 +16,6 @@ void Surface::setPlay(FFPlay *play) {
 }
 
 void Surface::setWindowSize(int width, int height, AVRational rational) {
-    if (options) {
-        options->screenWidth = width;
-        options->screenHeight = height;
-    }
 }
 
 void Surface::displayWindow() {

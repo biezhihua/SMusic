@@ -62,7 +62,7 @@ int MacSurface::destroy() {
 
 void MacSurface::setWindowSize(int width, int height, AVRational rational) {
     SDL_Rect rect;
-    calculateDisplayRect(&rect, 0, 0, INT_MAX, height, width, height, rational);
+    calculateDisplayRect(&rect, 0, 0, width, height, width, height, rational);
     if (options) {
         options->screenWidth = rect.w;
         options->screenHeight = rect.h;
@@ -139,6 +139,23 @@ int MacSurface::eventLoop() {
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEMOTION:
             case SDL_WINDOWEVENT:
+                switch (event.window.event) {
+                    case SDL_WINDOWEVENT_RESIZED:
+                        if (options && play) {
+                            options->screenWidth = play->getVideoState()->width = event.window.data1;
+                            options->screenHeight = play->getVideoState()->height = event.window.data2;
+                            if (videoTexture) {
+                                SDL_DestroyTexture(videoTexture);
+                                videoTexture = nullptr;
+                            }
+                        }
+                    case SDL_WINDOWEVENT_EXPOSED:
+                        if (play) {
+                            play->forceRefresh();
+                        }
+                    default:
+                        break;
+                }
                 break;
             case SDL_QUIT:
                 quit = true;
@@ -412,7 +429,5 @@ void MacSurface::toggleFullScreen() const {
     if (options && window) {
         options->isFullScreen = !options->isFullScreen;
         SDL_SetWindowFullscreen(window, options->isFullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
-        SDL_GetWindowSize(window, &options->screenWidth, &options->screenHeight);
-        ALOGD(MAC_SURFACE_TAG, "%s screenWidth = %d  screenHeight = %d", __func__, options->screenWidth, options->screenHeight);
     }
 }
