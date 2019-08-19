@@ -1,3 +1,6 @@
+
+#include <Surface.h>
+
 #include "Surface.h"
 
 Surface::Surface() {
@@ -33,6 +36,24 @@ Options *Surface::getOptions() const {
 
 void Surface::setOptions(Options *options) {
     Surface::options = options;
+}
+
+Stream *Surface::getStream() const {
+    return stream;
+}
+
+void Surface::setStream(Stream *stream) {
+    Surface::stream = stream;
+}
+
+void Surface::doExit() {
+    if (play) {
+        play->streamClose();
+    }
+    if (stream) {
+        stream->destroy();
+    }
+    destroy();
 }
 
 

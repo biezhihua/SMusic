@@ -73,7 +73,7 @@ private:
 
     void doKeySystem(const SDL_Event &event) const;
 
-    bool isHaveWindow() const;
+    bool isNotHaveWindow() const;
 
     bool isQuitKey(const SDL_Event &event) const;
 
@@ -91,6 +91,9 @@ public:
     void setSdlPixelFormat(int format, Uint32 *sdlPixelFormat);
 
     int reallocTexture(SDL_Texture **texture, Uint32 newFormat, int newWidth, int newHeight, SDL_BlendMode blendMode, int initTexture);
+
+    void doExit() override;
+
 };
 
 

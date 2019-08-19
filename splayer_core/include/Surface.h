@@ -22,7 +22,7 @@ protected:
     FFPlay *play = nullptr;
     Mutex *mutex = nullptr;
     Options *options = nullptr;
-
+    Stream *stream = nullptr;
 public:
     Surface();
 
@@ -43,6 +43,12 @@ public:
     virtual Options *getOptions() const;
 
     void setOptions(Options *options);
+
+    Stream *getStream() const;
+
+    void setStream(Stream *stream);
+
+    virtual void doExit();
 };
 
 

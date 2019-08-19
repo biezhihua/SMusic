@@ -58,6 +58,7 @@ int MediaPlayer::create() {
 
     stream->setPlay(play);
     stream->setSurface(surface);
+    surface->setStream(stream);
     play->setStream(stream);
     return POSITIVE;
 }
@@ -92,6 +93,7 @@ int MediaPlayer::destroy() {
             Surface *surface = play->getSurface();
             surface->destroy();
             surface->setPlay(nullptr);
+            surface->setStream(nullptr);
             surface->setOptions(nullptr);
             play->setSurface(nullptr);
             delete surface;

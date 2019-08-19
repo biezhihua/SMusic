@@ -127,10 +127,11 @@ int MacSurface::eventLoop() {
         switch (event.type) {
             case SDL_KEYDOWN:
                 if (isQuitKey(event)) {
+                    doExit();
                     quit = true;
                     break;
                 }
-                if (isHaveWindow()) {
+                if (isNotHaveWindow()) {
                     continue;
                 }
                 doKeySystem(event);
@@ -153,9 +154,9 @@ bool MacSurface::isQuitKey(const SDL_Event &event) const {
     return event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q;
 }
 
-bool MacSurface::isHaveWindow() const {
+bool MacSurface::isNotHaveWindow() const {
     // If we don't yet have a window, skip all key events, because read_thread might still be initializing...
-    return play && play->getVideoState() && play->getVideoState()->width;
+    return !(play && play->getVideoState() && play->getVideoState()->width);
 }
 
 void MacSurface::doKeySystem(const SDL_Event &event) const {
@@ -164,6 +165,9 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
             break;
         case SDLK_p:
         case SDLK_SPACE:
+            if (play) {
+                play->togglePause();
+            }
             break;
         case SDLK_m:
             break;
@@ -395,3 +399,7 @@ int MacSurface::reallocTexture(SDL_Texture **texture, Uint32 newFormat, int newW
     return POSITIVE;
 }
 
+void MacSurface::doExit() {
+    Surface::doExit();
+    exit(0);
+}

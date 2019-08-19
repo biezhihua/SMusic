@@ -69,6 +69,8 @@ private:
 public:
     double remainingTime = 0.0f;
 
+    void togglePause();
+
 public:
     FFPlay();
 
@@ -117,11 +119,11 @@ public:
 
     void setOptions(Options *options);
 
+    void streamClose();
+
 private:
 
     VideoState *streamOpen();
-
-    void streamClose();
 
     int getStartupVolume();
 
@@ -174,6 +176,8 @@ private:
     bool isRetryPlay() const;
 
     int isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const;
+
+    void streamTogglePause();
 };
 
 #endif //SPLAYER_PLAY_H

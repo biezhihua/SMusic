@@ -1436,3 +1436,25 @@ Options *FFPlay::getOptions() const {
 void FFPlay::setOptions(Options *options) {
     FFPlay::options = options;
 }
+
+void FFPlay::togglePause() {
+    ALOGD(FFPLAY_TAG, "%s", __func__);
+    if (videoState) {
+        streamTogglePause();
+        videoState->step = 0;
+    }
+}
+
+void FFPlay::streamTogglePause() {
+    if (videoState) {
+        if (videoState->paused) {
+            videoState->frameTimer += (av_gettime_relative() / 1000000.0 - videoState->videoClock.lastUpdated);
+            if (videoState->readPauseReturn != AVERROR(ENOSYS)) {
+                videoState->videoClock.paused = 0;
+            }
+            videoState->videoClock.setClock(videoState->videoClock.getClock(), videoState->videoClock.serial);
+        }
+        videoState->exitClock.setClock(videoState->exitClock.getClock(), videoState->exitClock.serial);
+        videoState->paused = videoState->audioClock.paused = videoState->videoClock.paused = videoState->exitClock.paused = !videoState->paused;
+    }
+}
