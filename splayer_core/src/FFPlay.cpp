@@ -1434,6 +1434,18 @@ void FFPlay::setOptions(Options *options) {
     FFPlay::options = options;
 }
 
+
+void FFPlay::setupToNextFrame() {
+    ALOGD(FFPLAY_TAG, "%s", __func__);
+    /* if the stream is paused unpause it, then step */
+    if (videoState) {
+        if (videoState->paused) {
+            streamTogglePause();
+        }
+        videoState->step = 1;
+    }
+}
+
 void FFPlay::togglePause() {
     ALOGD(FFPLAY_TAG, "%s", __func__);
     if (videoState) {

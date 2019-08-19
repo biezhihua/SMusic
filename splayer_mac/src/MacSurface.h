@@ -95,6 +95,8 @@ public:
     void doExit() override;
 
     void toggleFullScreen() const;
+
+    void doWindowEvent(const SDL_Event &event);
 };
 
 

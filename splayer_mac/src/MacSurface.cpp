@@ -139,23 +139,7 @@ int MacSurface::eventLoop() {
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEMOTION:
             case SDL_WINDOWEVENT:
-                switch (event.window.event) {
-                    case SDL_WINDOWEVENT_RESIZED:
-                        if (options && play) {
-                            options->screenWidth = play->getVideoState()->width = event.window.data1;
-                            options->screenHeight = play->getVideoState()->height = event.window.data2;
-                            if (videoTexture) {
-                                SDL_DestroyTexture(videoTexture);
-                                videoTexture = nullptr;
-                            }
-                        }
-                    case SDL_WINDOWEVENT_EXPOSED:
-                        if (play) {
-                            play->forceRefresh();
-                        }
-                    default:
-                        break;
-                }
+                doWindowEvent(event);
                 break;
             case SDL_QUIT:
                 quit = true;
@@ -165,6 +149,27 @@ int MacSurface::eventLoop() {
         }
     }
     return POSITIVE;
+}
+
+void MacSurface::doWindowEvent(const SDL_Event &event) {
+    ALOGD(MAC_SURFACE_TAG, "%s width = %d height = %d ", __func__, event.window.data1, event.window.data2);
+    switch (event.window.event) {
+        case SDL_WINDOWEVENT_RESIZED:
+            if (options && play) {
+                options->screenWidth = play->getVideoState()->width = event.window.data1;
+                options->screenHeight = play->getVideoState()->height = event.window.data2;
+                if (videoTexture) {
+                    SDL_DestroyTexture(videoTexture);
+                    videoTexture = nullptr;
+                }
+            }
+        case SDL_WINDOWEVENT_EXPOSED:
+            if (play) {
+                play->forceRefresh();
+            }
+        default:
+            break;
+    }
 }
 
 bool MacSurface::isQuitKey(const SDL_Event &event) const {
@@ -199,6 +204,9 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
         case SDLK_9:
             break;
         case SDLK_s: // S: Step to next frame
+            if (play) {
+                play->setupToNextFrame();
+            }
             break;
         case SDLK_a:
             break;

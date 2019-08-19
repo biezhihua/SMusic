@@ -73,6 +73,8 @@ public:
 
     void forceRefresh();
 
+    void setupToNextFrame();
+
 public:
     FFPlay();
 
