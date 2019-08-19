@@ -133,6 +133,10 @@ int MacSurface::eventLoop() {
                 doKeySystem(event);
                 break;
             case SDL_MOUSEBUTTONDOWN:
+                if (play && event.button.button == SDL_BUTTON_LEFT && !IS_NEGATIVE(isFullScreenClick())) {
+                    toggleFullScreen();
+                    play->forceRefresh();
+                }
             case SDL_MOUSEMOTION:
                 showCursor();
 
@@ -492,4 +496,15 @@ void MacSurface::toggleFullScreen() const {
         options->isFullScreen = !options->isFullScreen;
         SDL_SetWindowFullscreen(window, options->isFullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
     }
+}
+
+int MacSurface::isFullScreenClick() {
+    int ret = NEGATIVE(S_ERROR);
+    if ((av_gettime_relative() - lastMouseLeftClick) <= 5 * 100000) {
+        lastMouseLeftClick = 0;
+        ret = POSITIVE;
+    } else {
+        lastMouseLeftClick = av_gettime_relative();
+    }
+    return ret;
 }

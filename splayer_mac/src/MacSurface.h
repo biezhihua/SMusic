@@ -59,6 +59,8 @@ private:
     SDL_Texture *subtitleTexture;
     SDL_Texture *visTexture;
 
+    int64_t lastMouseLeftClick = 0;
+
 public:
     int create() override;
 
@@ -101,6 +103,8 @@ public:
     void showCursor() const;
 
     void hideCursor() const;
+
+    int isFullScreenClick();
 };
 
 

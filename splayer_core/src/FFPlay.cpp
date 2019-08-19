@@ -983,7 +983,7 @@ int FFPlay::videoThread() {
         ret = queueFrameToFrameQueue(frame, pts, duration, frame->pkt_pos, is->videoDecoder.packetSerial);
         av_frame_unref(frame);
 
-        if (IS_POSITIVE(ret)) {
+        if (IS_NEGATIVE(ret)) {
             av_frame_free(&frame);
             ALOGE(FFPLAY_TAG, "%s not queue picture", __func__);
             return NEGATIVE(S_NOT_QUEUE_PICTURE);
@@ -1111,7 +1111,7 @@ int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                 av_packet_move_ref(&packet, &decoder->packet);
                 decoder->packetPending = 0;
             } else {
-                if (IS_POSITIVE(decoder->packetQueue->get(&packet, 1, &decoder->packetSerial))) {
+                if (IS_NEGATIVE(decoder->packetQueue->get(&packet, 1, &decoder->packetSerial))) {
                     return NEGATIVE(S_NOT_GET_PACKET_QUEUE);
                 }
             }
