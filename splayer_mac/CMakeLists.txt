@@ -27,6 +27,7 @@ find_package(SDL2 REQUIRED)
 add_library(splayer_mac ${src_source})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${DISTRIBUTION_DIR}/ffmpeg/include
         ${SPLAYER_CORE_DIR}/include
         ${SDL2_INCLUDE_DIRS}
