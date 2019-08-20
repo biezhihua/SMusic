@@ -6,32 +6,6 @@
 
 #IncludeRegexTransform: 
 
-../../distribution/macos/ffmpeg/include/libavutil/attributes.h
-
-../../distribution/macos/ffmpeg/include/libavutil/rational.h
-stdint.h
--
-limits.h
--
-attributes.h
-../../distribution/macos/ffmpeg/include/libavutil/attributes.h
-
-../../distribution/macos/ffmpeg/include/libswscale/swscale.h
-stdint.h
--
-libavutil/avutil.h
-../../distribution/macos/ffmpeg/include/libswscale/libavutil/avutil.h
-libavutil/log.h
-../../distribution/macos/ffmpeg/include/libswscale/libavutil/log.h
-libavutil/pixfmt.h
-../../distribution/macos/ffmpeg/include/libswscale/libavutil/pixfmt.h
-version.h
-../../distribution/macos/ffmpeg/include/libswscale/version.h
-
-../../distribution/macos/ffmpeg/include/libswscale/version.h
-libavutil/version.h
-../../distribution/macos/ffmpeg/include/libswscale/libavutil/version.h
-
 ../../splayer_core/include/Audio.h
 Log.h
 ../../splayer_core/include/Log.h
@@ -415,20 +389,16 @@ SDL.h
 -
 MacOptions.h
 ../../splayer_mac/include/MacOptions.h
-../../distribution/macos/ffmpeg/include/libavutil/rational.h
-../../distribution/macos/ffmpeg/include/libavutil/rational.h
-../../distribution/macos/ffmpeg/include/libswscale/swscale.h
-../../distribution/macos/ffmpeg/include/libswscale/swscale.h
+libavutil/rational.h
+-
+libswscale/swscale.h
+-
 
 /Users/biezhihua/StudySpace/splayer/splayer_mac_demo/main.cpp
 iostream
 -
 string
 -
-Mutex.h
-/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/Mutex.h
-MediaPlayer.h
-/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/MediaPlayer.h
 MacMediaPlayer.h
-/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/MacMediaPlayer.h
+-
 

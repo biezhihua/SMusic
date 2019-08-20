@@ -22,6 +22,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
+  "/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

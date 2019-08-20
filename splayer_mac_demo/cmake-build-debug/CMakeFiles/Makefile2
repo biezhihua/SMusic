@@ -68,7 +68,8 @@ CMAKE_BINARY_DIR = /Users/biezhihua/StudySpace/splayer/splayer_mac_demo/cmake-bu
 # Target rules for target CMakeFiles/splayer_mac_demo.dir
 
 # All Build rule for target.
-CMakeFiles/splayer_mac_demo.dir/all:
+CMakeFiles/splayer_mac_demo.dir/all: splayer_mac/CMakeFiles/splayer_mac.dir/all
+CMakeFiles/splayer_mac_demo.dir/all: splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/all
 	$(MAKE) -f CMakeFiles/splayer_mac_demo.dir/build.make CMakeFiles/splayer_mac_demo.dir/depend
 	$(MAKE) -f CMakeFiles/splayer_mac_demo.dir/build.make CMakeFiles/splayer_mac_demo.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/cmake-build-debug/CMakeFiles --progress-num=27,28 "Built target splayer_mac_demo"
@@ -81,7 +82,7 @@ all: CMakeFiles/splayer_mac_demo.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/splayer_mac_demo.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/biezhihua/StudySpace/splayer/splayer_mac_demo/cmake-build-debug/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/biezhihua/StudySpace/splayer/splayer_mac_demo/cmake-build-debug/CMakeFiles 28
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/splayer_mac_demo.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/biezhihua/StudySpace/splayer/splayer_mac_demo/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/splayer_mac_demo.dir/rule
@@ -125,7 +126,7 @@ splayer_mac/preinstall: splayer_mac/splayer_core/preinstall
 # Target rules for target splayer_mac/CMakeFiles/splayer_mac.dir
 
 # All Build rule for target.
-splayer_mac/CMakeFiles/splayer_mac.dir/all:
+splayer_mac/CMakeFiles/splayer_mac.dir/all: splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/all
 	$(MAKE) -f splayer_mac/CMakeFiles/splayer_mac.dir/build.make splayer_mac/CMakeFiles/splayer_mac.dir/depend
 	$(MAKE) -f splayer_mac/CMakeFiles/splayer_mac.dir/build.make splayer_mac/CMakeFiles/splayer_mac.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/cmake-build-debug/CMakeFiles --progress-num=21,22,23,24,25,26 "Built target splayer_mac"
@@ -138,7 +139,7 @@ all: splayer_mac/CMakeFiles/splayer_mac.dir/all
 
 # Build rule for subdir invocation for target.
 splayer_mac/CMakeFiles/splayer_mac.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/biezhihua/StudySpace/splayer/splayer_mac_demo/cmake-build-debug/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/biezhihua/StudySpace/splayer/splayer_mac_demo/cmake-build-debug/CMakeFiles 26
 	$(MAKE) -f CMakeFiles/Makefile2 splayer_mac/CMakeFiles/splayer_mac.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/biezhihua/StudySpace/splayer/splayer_mac_demo/cmake-build-debug/CMakeFiles 0
 .PHONY : splayer_mac/CMakeFiles/splayer_mac.dir/rule

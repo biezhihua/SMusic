@@ -1,7 +1,6 @@
 #ifndef SPLAYER_MAC_OPTIONS_H
 #define SPLAYER_MAC_OPTIONS_H
 
-
 #include "Define.h"
 #include "Log.h"
 #include "Mutex.h"

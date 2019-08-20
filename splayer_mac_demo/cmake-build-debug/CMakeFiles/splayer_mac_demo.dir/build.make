@@ -79,6 +79,26 @@ splayer_mac_demo_EXTERNAL_OBJECTS =
 
 splayer_mac_demo: CMakeFiles/splayer_mac_demo.dir/main.cpp.o
 splayer_mac_demo: CMakeFiles/splayer_mac_demo.dir/build.make
+splayer_mac_demo: splayer_mac/libsplayer_mac.a
+splayer_mac_demo: splayer_mac/splayer_core/libsplayer_core.a
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libavcodec.58.54.100.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libavcodec.58.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libavcodec.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libavfilter.7.57.100.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libavfilter.7.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libavfilter.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libavformat.58.29.100.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libavformat.58.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libavformat.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libavutil.56.31.100.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libavutil.56.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libavutil.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libswresample.3.5.100.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libswresample.3.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libswresample.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libswscale.5.5.100.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libswscale.5.dylib
+splayer_mac_demo: /Users/biezhihua/StudySpace/splayer/splayer_mac/../distribution/macos/ffmpeg/lib/libswscale.dylib
 splayer_mac_demo: CMakeFiles/splayer_mac_demo.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable splayer_mac_demo"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/splayer_mac_demo.dir/link.txt --verbose=$(VERBOSE)
