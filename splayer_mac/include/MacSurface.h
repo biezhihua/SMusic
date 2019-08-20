@@ -64,12 +64,9 @@ public:
 
     int destroy() override;
 
-    void setWindowSize(int width, int height, AVRational rational) override;
-
     int eventLoop();
 
 private:
-    void calculateDisplayRect(SDL_Rect *rect, int screenXLeft, int screenYTop, int screenWidth, int screenHeight, int pictureWidth, int pictureHeight, AVRational picSar);
 
     void doKeySystem(const SDL_Event &event) const;
 
@@ -80,11 +77,7 @@ private:
 public:
     void displayWindow() override;
 
-    void displayVideoImage() override;
-
     void setYuvConversionMode(AVFrame *pFrame);
-
-    int uploadTexture(AVFrame *frame, SwsContext *convertContext);
 
     void setSdlBlendMode(int format, SDL_BlendMode *sdlBlendMode);
 
@@ -105,6 +98,12 @@ public:
     int isFullScreenClick();
 
     void doSeek(double increment) const;
+
+    void displayVideoImageBefore() override;
+
+    void displayVideoImageAfter(Frame *lastFrame, Rect *rect) override;
+
+    int uploadTexture(AVFrame *frame, SwsContext *convertContext) override;
 };
 
 

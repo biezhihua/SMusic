@@ -60,53 +60,6 @@ int MacSurface::destroy() {
     return POSITIVE;
 }
 
-void MacSurface::setWindowSize(int width, int height, AVRational rational) {
-    SDL_Rect rect;
-    calculateDisplayRect(&rect, 0, 0, width, height, width, height, rational);
-    if (options) {
-        options->screenWidth = rect.w;
-        options->screenHeight = rect.h;
-    }
-    ALOGD(MAC_SURFACE_TAG, "%s x = %d y = %d w = %d h = %d", __func__, rect.x, rect.y, rect.w, rect.h);
-}
-
-void MacSurface::calculateDisplayRect(SDL_Rect *rect, int screenXLeft, int screenYTop,
-                                      int screenWidth, int screenHeight,
-                                      int pictureWidth, int pictureHeight,
-                                      AVRational picSar
-) {
-    double aspectRatio;
-    int width, height, x, y;
-
-    if (picSar.num == 0) {
-        aspectRatio = 0;
-    } else {
-        aspectRatio = av_q2d(picSar);
-    }
-
-    if (aspectRatio <= 0.0) {
-        aspectRatio = 1.0;
-    }
-
-    aspectRatio *= (float) pictureWidth / (float) pictureHeight;
-
-    /* XXX: we suppose the screen has a 1.0 pixel ratio */
-    height = screenHeight;
-    width = static_cast<int>(lrint(height * aspectRatio) & ~1);
-    if (width > screenWidth) {
-        width = screenWidth;
-        height = static_cast<int>(lrint(width / aspectRatio) & ~1);
-    }
-    x = (screenWidth - width) / 2;
-    y = (screenHeight - height) / 2;
-    rect->x = screenXLeft + x;
-    rect->y = screenYTop + y;
-    rect->w = FFMAX(width, 1);
-    rect->h = FFMAX(height, 1);
-
-    ALOGD(MAC_SURFACE_TAG, "%s x = %d y = %d w = %d h = %d", __func__, rect->x, rect->y, rect->w, rect->h);
-}
-
 int MacSurface::eventLoop() {
     bool quit = false;
     SDL_Event event;
@@ -139,40 +92,6 @@ int MacSurface::eventLoop() {
                 }
             case SDL_MOUSEMOTION:
                 showCursor();
-
-//                if (event.type == SDL_MOUSEBUTTONDOWN) {
-//                    if (event.button.button != SDL_BUTTON_RIGHT)
-//                        break;
-//                    x = event.button.x;
-//                } else {
-//                    if (!(event.motion.state & SDL_BUTTON_RMASK))
-//                        break;
-//                    x = event.motion.x;
-//                }
-//                if (seek_by_bytes || cur_stream->ic->duration <= 0) {
-//                    uint64_t size = avio_size(cur_stream->ic->pb);
-//                    stream_seek(cur_stream, size * x / cur_stream->width, 0, 1);
-//                } else {
-//                    int64_t ts;
-//                    int ns, hh, mm, ss;
-//                    int tns, thh, tmm, tss;
-//                    tns = cur_stream->ic->duration / 1000000LL;
-//                    thh = tns / 3600;
-//                    tmm = (tns % 3600) / 60;
-//                    tss = (tns % 60);
-//                    frac = x / cur_stream->width;
-//                    ns = frac * tns;
-//                    hh = ns / 3600;
-//                    mm = (ns % 3600) / 60;
-//                    ss = (ns % 60);
-//                    av_log(NULL, AV_LOG_INFO,
-//                           "Seek to %2.0f%% (%2d:%02d:%02d) of total duration (%2d:%02d:%02d)       \n", frac * 100,
-//                           hh, mm, ss, thh, tmm, tss);
-//                    ts = frac * cur_stream->ic->duration;
-//                    if (cur_stream->ic->start_time != AV_NOPTS_VALUE)
-//                        ts += cur_stream->ic->start_time;
-//                    stream_seek(cur_stream, ts, 0, 0);
-//                }
                 break;
             case SDL_WINDOWEVENT:
                 doWindowEvent(event);
@@ -320,63 +239,6 @@ void MacSurface::displayWindow() {
     }
 }
 
-void MacSurface::displayVideoImage() {
-    Frame *lastFrame;
-    Frame *sp = nullptr;
-    SDL_Rect rect;
-
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    if (play && play->getVideoState()) {
-        VideoState *videoState = play->getVideoState();
-
-        lastFrame = videoState->videoFrameQueue.peekCurrentShownFrame();
-
-        if (videoState->subtitleStream) {
-            // TODO
-        }
-
-        calculateDisplayRect(&rect,
-                             videoState->xLeft, videoState->yTop,
-                             videoState->width, videoState->height,
-                             lastFrame->width, lastFrame->height,
-                             lastFrame->sampleAspectRatio);
-
-        if (!lastFrame->uploaded) {
-            if (!uploadTexture(lastFrame->frame, videoState->imgConvertCtx)) {
-                return;
-            }
-            lastFrame->uploaded = 1;
-            lastFrame->flipVertical = lastFrame->frame->linesize[0] < 0;
-        }
-        setYuvConversionMode(lastFrame->frame);
-        SDL_RenderCopyEx(renderer, videoTexture, nullptr, &rect, 0, nullptr, lastFrame->flipVertical ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
-        setYuvConversionMode(nullptr);
-    }
-
-    SDL_RenderPresent(renderer);
-}
-
-void MacSurface::setYuvConversionMode(AVFrame *frame) {
-#if SDL_VERSION_ATLEAST(2, 0, 8)
-    SDL_YUV_CONVERSION_MODE mode = SDL_YUV_CONVERSION_AUTOMATIC;
-    if (frame && (frame->format == AV_PIX_FMT_YUV420P || frame->format == AV_PIX_FMT_YUYV422 || frame->format == AV_PIX_FMT_UYVY422)) {
-        if (frame->color_range == AVCOL_RANGE_JPEG) {
-            mode = SDL_YUV_CONVERSION_JPEG;
-            ALOGD(MAC_SURFACE_TAG, "%s mode = %s", __func__, "SDL_YUV_CONVERSION_JPEG");
-        } else if (frame->colorspace == AVCOL_SPC_BT709) {
-            mode = SDL_YUV_CONVERSION_BT709;
-            ALOGD(MAC_SURFACE_TAG, "%s mode = %s", __func__, "SDL_YUV_CONVERSION_BT709");
-        } else if (frame->colorspace == AVCOL_SPC_BT470BG || frame->colorspace == AVCOL_SPC_SMPTE170M || frame->colorspace == AVCOL_SPC_SMPTE240M) {
-            mode = SDL_YUV_CONVERSION_BT601;
-            ALOGD(MAC_SURFACE_TAG, "%s mode = %s", __func__, "SDL_YUV_CONVERSION_BT601");
-        }
-    }
-    SDL_SetYUVConversionMode(mode);
-#endif
-}
-
 int MacSurface::uploadTexture(AVFrame *frame, SwsContext *convertContext) {
     Uint32 sdlPixelFormat;
     SDL_BlendMode sdlBlendMode;
@@ -450,6 +312,47 @@ int MacSurface::uploadTexture(AVFrame *frame, SwsContext *convertContext) {
     }
     return POSITIVE;
 }
+
+void MacSurface::displayVideoImageBefore() {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+}
+
+void MacSurface::displayVideoImageAfter(Frame *lastFrame, Rect *rect) {
+    if (play && play->getVideoState() && lastFrame) {
+        setYuvConversionMode(lastFrame->frame);
+        SDL_Rect sdlRect;
+        if (rect) {
+            sdlRect.x = rect->x;
+            sdlRect.y = rect->y;
+            sdlRect.w = rect->w;
+            sdlRect.h = rect->h;
+        }
+        SDL_RenderCopyEx(renderer, videoTexture, nullptr, &sdlRect, 0, nullptr, lastFrame->flipVertical ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
+        setYuvConversionMode(nullptr);
+    }
+    SDL_RenderPresent(renderer);
+}
+
+void MacSurface::setYuvConversionMode(AVFrame *frame) {
+#if SDL_VERSION_ATLEAST(2, 0, 8)
+    SDL_YUV_CONVERSION_MODE mode = SDL_YUV_CONVERSION_AUTOMATIC;
+    if (frame && (frame->format == AV_PIX_FMT_YUV420P || frame->format == AV_PIX_FMT_YUYV422 || frame->format == AV_PIX_FMT_UYVY422)) {
+        if (frame->color_range == AVCOL_RANGE_JPEG) {
+            mode = SDL_YUV_CONVERSION_JPEG;
+            ALOGD(MAC_SURFACE_TAG, "%s mode = %s", __func__, "SDL_YUV_CONVERSION_JPEG");
+        } else if (frame->colorspace == AVCOL_SPC_BT709) {
+            mode = SDL_YUV_CONVERSION_BT709;
+            ALOGD(MAC_SURFACE_TAG, "%s mode = %s", __func__, "SDL_YUV_CONVERSION_BT709");
+        } else if (frame->colorspace == AVCOL_SPC_BT470BG || frame->colorspace == AVCOL_SPC_SMPTE170M || frame->colorspace == AVCOL_SPC_SMPTE240M) {
+            mode = SDL_YUV_CONVERSION_BT601;
+            ALOGD(MAC_SURFACE_TAG, "%s mode = %s", __func__, "SDL_YUV_CONVERSION_BT601");
+        }
+    }
+    SDL_SetYUVConversionMode(mode);
+#endif
+}
+
 
 void MacSurface::setSdlBlendMode(int format, SDL_BlendMode *sdlBlendMode) {
     *sdlBlendMode = SDL_BLENDMODE_NONE;

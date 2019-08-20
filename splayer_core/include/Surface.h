@@ -10,10 +10,14 @@ class FFPlay;
 #include "FFPlay.h"
 #include "Mutex.h"
 #include "Options.h"
+#include "Rect.h"
+#include "Frame.h"
 
 extern "C" {
 #include <libavutil/rational.h>
 }
+
+#define SURFACE_TAG "Surface"
 
 class Surface {
 
@@ -48,6 +52,14 @@ public:
     void setStream(Stream *stream);
 
     virtual void doExit();
+
+    void calculateDisplayRect(Rect *rect, int screenXLeft, int screenYTop, int screenWidth, int screenHeight, int pictureWidth, int pictureHeight, AVRational picSar);
+
+    virtual void displayVideoImageBefore();
+
+    virtual void displayVideoImageAfter(Frame *lastFrame, Rect *rect);
+
+    virtual int uploadTexture(AVFrame *frame, SwsContext *convertContext) = 0;
 };
 
 
