@@ -105,6 +105,8 @@ public:
     void hideCursor() const;
 
     int isFullScreenClick();
+
+    void doSeek(double increment) const;
 };
 
 

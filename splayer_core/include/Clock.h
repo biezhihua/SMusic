@@ -7,6 +7,7 @@
 extern "C" {
 #include <libavutil/time.h>
 #include <libavutil/mathematics.h>
+#include <libavutil/avutil.h>
 };
 
 #define CLOCK_TAG  "Clock"

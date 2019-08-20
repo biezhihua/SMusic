@@ -240,6 +240,7 @@ bool MacSurface::isNotHaveWindow() const {
 }
 
 void MacSurface::doKeySystem(const SDL_Event &event) const {
+    double incr, pos, frac;
     switch (event.key.keysym.sym) {
         case SDLK_f:
             if (play) {
@@ -281,7 +282,17 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
         case SDLK_PAGEDOWN:
             break;
         case SDLK_LEFT:
+            if (options) {
+                incr = options->seekInterval != 0 ? -options->seekInterval : -10.0;
+                doSeek(incr);
+            }
+            break;
         case SDLK_RIGHT:
+            if (options) {
+                incr = options->seekInterval != 0 ? options->seekInterval : 10.0;
+                doSeek(incr);
+            }
+            break;
         case SDLK_UP:
         case SDLK_DOWN:
             break;
@@ -507,4 +518,40 @@ int MacSurface::isFullScreenClick() {
         lastMouseLeftClick = av_gettime_relative();
     }
     return ret;
+}
+
+void MacSurface::doSeek(double increment) const {
+    double pos;
+    if (options && play && play->getVideoState()) {
+        VideoState *videoState = play->getVideoState();
+        if (options->seekByBytes) {
+            pos = -1;
+            if (pos < 0 && videoState->videoStreamIndex >= 0) {
+                pos = videoState->videoFrameQueue.lastPos();
+            }
+            if (pos < 0 && videoState->audioStreamIndex >= 0) {
+                pos = videoState->audioFrameQueue.lastPos();
+            }
+            if (pos < 0) {
+                pos = avio_tell(videoState->formatContext->pb);
+            }
+            if (videoState->formatContext->bit_rate) {
+                increment *= videoState->formatContext->bit_rate / 8.0;
+            } else {
+                increment *= 180000.0;
+            }
+            pos += increment;
+            play->streamSeek((int64_t) pos, (int64_t) increment, 1);
+        } else {
+            pos = play->getMasterClock();
+            if (isnan(pos)) {
+                pos = (double) videoState->seekPos / AV_TIME_BASE;
+            }
+            pos += increment;
+            if (videoState->formatContext->start_time != AV_NOPTS_VALUE && pos < videoState->formatContext->start_time / (double) AV_TIME_BASE) {
+                pos = videoState->formatContext->start_time / (double) AV_TIME_BASE;
+            }
+            play->streamSeek((int64_t) (pos * AV_TIME_BASE), (int64_t) (increment * AV_TIME_BASE), 0);
+        }
+    }
 }

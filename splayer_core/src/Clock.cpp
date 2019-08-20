@@ -11,7 +11,7 @@ int Clock::init(int *queueSerial) {
 }
 
 int Clock::setClock(double pts, int serial) {
-    double time = av_gettime_relative() / 1000000.0;
+    double time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
     setClockAt(pts, serial, time);
     return POSITIVE;
 }
@@ -31,7 +31,7 @@ double Clock::getClock() {
     if (paused) {
         return pts;
     } else {
-        double time = av_gettime_relative() / 1000000.0;
+        double time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
         return ptsDrift + time - (time - lastUpdatedTime) * (1.0 - speed);
     }
 }

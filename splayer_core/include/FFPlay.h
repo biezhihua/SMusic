@@ -75,6 +75,8 @@ public:
 
     void setupToNextFrame();
 
+    void streamSeek(int64_t pos, int64_t rel, int seekByBytes);
+
 public:
     FFPlay();
 
@@ -125,6 +127,8 @@ public:
 
     void streamClose();
 
+    double getMasterClock();
+
 private:
 
     VideoState *streamOpen();
@@ -139,15 +143,13 @@ private:
 
     int streamComponentClose(AVStream *stream, int streamIndex);
 
-    double getMasterClock();
+
 
     int getMasterSyncType();
 
     void closeReadThread(const VideoState *is, AVFormatContext *&formatContext) const;
 
     void stepToNextFrame();
-
-    void streamSeek(int64_t pos, int64_t rel, int seekByBytes);
 
     int getVideoFrame(AVFrame *pFrame);
 

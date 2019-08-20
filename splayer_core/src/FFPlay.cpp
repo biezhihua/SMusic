@@ -345,7 +345,8 @@ int FFPlay::readThread() {
     }
 
     if (options->seekByBytes < 0) {
-        options->seekByBytes = (formatContext->iformat->flags & AVFMT_TS_DISCONT) && strcmp(FORMAT_OGG, formatContext->iformat->name) != 0;
+        // AVFMT_NO_BYTE_SEEK
+        options->seekByBytes = formatContext->iformat->flags & AVFMT_TS_DISCONT && strcmp(FORMAT_OGG, formatContext->iformat->name) != 0;
     }
 
     videoState->maxFrameDuration = (formatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
@@ -619,8 +620,8 @@ int FFPlay::isPacketInPlayRange(const AVFormatContext *formatContext, const AVPa
     int64_t diffTimestamp = packetTimestamp - (streamStartTime != AV_NOPTS_VALUE ? streamStartTime : 0);
 
     double diffTime = diffTimestamp * av_q2d(formatContext->streams[packet->stream_index]->time_base);
-    double startTime = (double) (options->startTime != AV_NOPTS_VALUE ? options->startTime : 0) / 1000000;
-    double duration = (double) options->duration / 1000000;
+    double startTime = (double) (options->startTime != AV_NOPTS_VALUE ? options->startTime : 0) / AV_TIME_BASE;
+    double duration = (double) options->duration / AV_TIME_BASE;
 
     // isPacketInPlayRange diffTime = 5123.535083 startTime = 0.000000 duration = -9223372036854.775391
     // ALOGD(FFPLAY_TAG, "%s diffTime = %lf startTime = %lf duration = %lf", __func__, diffTime, startTime, duration);
@@ -1179,7 +1180,7 @@ int FFPlay::refresh() {
     ALOGD(FFPLAY_TAG, "===== refresh =====");
     ALOGD(FFPLAY_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime, videoState->paused, videoState->forceRefresh);
     if (remainingTime > 0.0) {
-        av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
+        av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * AV_TIME_BASE)));
     }
     remainingTime = REFRESH_RATE;
     if (videoState->showMode != SHOW_MODE_NONE && (!videoState->paused || videoState->forceRefresh)) {
@@ -1215,7 +1216,7 @@ void FFPlay::refreshVideo(double *remainingTime) {
     }
 
     if (videoState->showMode != SHOW_MODE_VIDEO && videoState->audioStream) {
-        time = av_gettime_relative() / 1000000.0;
+        time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
         if (videoState->forceRefresh || (videoState->lastVisTime + options->rdftSpeed) < time) {
             displayVideo();
             videoState->lastVisTime = time;
@@ -1243,7 +1244,7 @@ void FFPlay::refreshVideo(double *remainingTime) {
 
             ALOGD(FFPLAY_TAG, "currentFrame serial = %d nextFrame serial = %d ", currentFrame->serial, nextFrame->serial);
             if (currentFrame->serial != nextFrame->serial) {
-                videoState->frameTimer = av_gettime_relative() / 1000000.0;
+                videoState->frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
                 ALOGD(FFPLAY_TAG, "update frameTimer = %fd ", videoState->frameTimer);
             }
 
@@ -1256,7 +1257,7 @@ void FFPlay::refreshVideo(double *remainingTime) {
             lastDuration = getFrameDuration(currentFrame, nextFrame);
             delay = getComputeTargetDelay(lastDuration);
 
-            time = av_gettime_relative() / 1000000.0;
+            time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
             double frameTimerDelay = videoState->frameTimer + delay;
             ALOGD(FFPLAY_TAG, "time = %f frameTimer = %f frameTimerDelay = %f", time, videoState->frameTimer, frameTimerDelay);
             if (time < frameTimerDelay) {
@@ -1457,7 +1458,7 @@ void FFPlay::togglePause() {
 void FFPlay::streamTogglePause() {
     if (videoState) {
         if (videoState->paused) {
-            videoState->frameTimer += (av_gettime_relative() / 1000000.0 - videoState->videoClock.lastUpdatedTime);
+            videoState->frameTimer += (av_gettime_relative() * 1.0F / AV_TIME_BASE - videoState->videoClock.lastUpdatedTime);
             if (videoState->readPauseReturn != AVERROR(ENOSYS)) {
                 videoState->videoClock.paused = 0;
             }
