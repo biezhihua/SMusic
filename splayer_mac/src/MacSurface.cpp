@@ -240,7 +240,6 @@ bool MacSurface::isNotHaveWindow() const {
 }
 
 void MacSurface::doKeySystem(const SDL_Event &event) const {
-    double incr, pos, frac;
     switch (event.key.keysym.sym) {
         case SDLK_f:
             if (play) {
@@ -283,18 +282,19 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
             break;
         case SDLK_LEFT:
             if (options) {
-                incr = options->seekInterval != 0 ? -options->seekInterval : -10.0;
-                doSeek(incr);
+                doSeek(options->seekInterval != 0 ? -options->seekInterval : -10.0);
             }
             break;
         case SDLK_RIGHT:
             if (options) {
-                incr = options->seekInterval != 0 ? options->seekInterval : 10.0;
-                doSeek(incr);
+                doSeek(options->seekInterval != 0 ? options->seekInterval : 10.0);
             }
             break;
         case SDLK_UP:
+            doSeek(-60.0f);
+            break;
         case SDLK_DOWN:
+            doSeek(60.0f);
             break;
         default:
             break;
