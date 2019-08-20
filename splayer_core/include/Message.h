@@ -1,8 +1,6 @@
 #ifndef SPLAYER_MESSAGE_H
 #define SPLAYER_MESSAGE_H
 
-#define MESSAGE_TAG "Message"
-
 class MessageObject {
 public:
     virtual int destroy() = 0;
@@ -53,6 +51,10 @@ public:
     static const int MSG_AUDIO_COMPONENT_OPEN = 27;
     static const int MSG_VIDEO_COMPONENT_OPEN = 28;
     static const int MSG_SUBTITLE_COMPONENT_OPEN = 29;
+    static const int MSG_OPTIONS_CREATED = 30;
+    static const int MSG_SURFACE_CREATED = 31;
+    static const int MSG_AUDIO_CREATED = 32;
+    static const int MSG_STREAM_CREATED = 33;
 
     /* REQ 20000 ~ 29999 */
 

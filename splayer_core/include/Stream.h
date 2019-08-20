@@ -9,7 +9,6 @@ class FFPlay;
 #include "Audio.h"
 #include "Surface.h"
 #include "FFPlay.h"
-#include "PipelineNode.h"
 #include "Error.h"
 
 extern "C" {

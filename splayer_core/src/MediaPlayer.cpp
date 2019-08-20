@@ -221,11 +221,10 @@ int MediaPlayer::prepareAsync() {
 
 int MediaPlayer::prepareOptions() {
     options = createOptions();
-    if (options && play) {
+    if (options && play && play->getSurface()) {
         play->setOptions(options);
-        if (play->getSurface()) {
-            play->getSurface()->setOptions(options);
-        }
+        play->getSurface()->setOptions(options);
+        notifyMsg(Message::MSG_OPTIONS_CREATED);
         return POSITIVE;
     }
     return NEGATIVE(S_NOT_MEMORY);
@@ -254,7 +253,10 @@ int MediaPlayer::prepareMsgQueue() {
 int MediaPlayer::prepareSurface() {
     if (play && play->getSurface()) {
         Surface *surface = play->getSurface();
-        return surface->create();
+        if (surface->create()) {
+            notifyMsg(Message::MSG_SURFACE_CREATED);
+            return POSITIVE;
+        }
     }
     return NEGATIVE(S_NULL);
 }
@@ -262,7 +264,12 @@ int MediaPlayer::prepareSurface() {
 int MediaPlayer::prepareStream() {
     if (play && play->getStream()) {
         Stream *stream = play->getStream();
-        return stream->create() && play->prepareStream(dataSource);
+        if (stream->create()) {
+            notifyMsg(Message::MSG_STREAM_CREATED);
+            if (play->prepareStream(dataSource)) {
+                return POSITIVE;
+            }
+        }
     }
     return NEGATIVE(S_NULL);
 }
@@ -270,7 +277,10 @@ int MediaPlayer::prepareStream() {
 int MediaPlayer::prepareAudio() {
     if (play && play->getAudio()) {
         Audio *audio = play->getAudio();
-        return audio->create();
+        if (audio->create()) {
+            notifyMsg(Message::MSG_AUDIO_CREATED);
+            return POSITIVE;
+        }
     }
     return NEGATIVE(S_NULL);
 }

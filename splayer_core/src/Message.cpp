@@ -148,6 +148,14 @@ const char *Message::getMsgSimpleName(int what) {
             return "MSG_VIDEO_COMPONENT_OPEN";
         case MSG_SUBTITLE_COMPONENT_OPEN:
             return "MSG_SUBTITLE_COMPONENT_OPEN";
+        case MSG_OPTIONS_CREATED:
+            return "MSG_OPTIONS_CREATED";
+        case MSG_SURFACE_CREATED:
+            return "MSG_SURFACE_CREATED";
+        case MSG_AUDIO_CREATED:
+            return "MSG_AUDIO_CREATED";
+        case MSG_STREAM_CREATED:
+            return "MSG_STREAM_CREATED";
         default:
             return "NONE";
     }

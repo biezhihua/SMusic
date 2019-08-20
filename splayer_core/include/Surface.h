@@ -9,7 +9,6 @@ class FFPlay;
 #include "Log.h"
 #include "FFPlay.h"
 #include "Mutex.h"
-#include "VOutOverlay.h"
 #include "Options.h"
 
 extern "C" {
