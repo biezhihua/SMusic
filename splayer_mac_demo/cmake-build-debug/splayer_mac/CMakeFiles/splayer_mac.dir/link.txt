@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc libsplayer_mac.a  CMakeFiles/splayer_mac.dir/src/MacAudio.cpp.o CMakeFiles/splayer_mac.dir/src/MacMediaPlayer.cpp.o CMakeFiles/splayer_mac.dir/src/MacOptions.cpp.o CMakeFiles/splayer_mac.dir/src/MacStream.cpp.o CMakeFiles/splayer_mac.dir/src/MacSurface.cpp.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib libsplayer_mac.a

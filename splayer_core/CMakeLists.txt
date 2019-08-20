@@ -5,30 +5,21 @@ project(splayer_core)
 set(CMAKE_CXX_STANDARD 14)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/macos)
+    set(DISTRIBUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/macos)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/windows)
+    set(DISTRIBUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/windows)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/linux)
+    set(DISTRIBUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/linux)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Android")
-    set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/android)
+    set(DISTRIBUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/android)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "iOS")
-    set(DISTRIBUTION ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/ios)
+    set(DISTRIBUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/ios)
 endif ()
 
 
 aux_source_directory(src src)
-aux_source_directory(extra/soundtouch extra_soundtouch)
 
-add_library(${PROJECT_NAME}
-        ${include}
-        ${src}
-        ${extra_soundtouch}
-        )
+add_library(${PROJECT_NAME} ${include} ${src})
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${DISTRIBUTION}/ffmpeg/include
-        src
-        extra_soundtouch
-        )
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${DISTRIBUTION_DIR}/ffmpeg/include)
