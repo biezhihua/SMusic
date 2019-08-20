@@ -46,6 +46,8 @@
 				<Compiler>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../splayer_core/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../splayer_mac/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../distribution/macos/ffmpeg/include"/>
+					<Add directory="/usr/local/Cellar/sdl2/2.0.9_1/include/SDL2"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
 					<Add directory="/usr/local/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
@@ -69,6 +71,8 @@
 				<Compiler>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../splayer_core/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../splayer_mac/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../distribution/macos/ffmpeg/include"/>
+					<Add directory="/usr/local/Cellar/sdl2/2.0.9_1/include/SDL2"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
 					<Add directory="/usr/local/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>

@@ -12,6 +12,8 @@ set(CMAKE_CXX_COMPILER_ID "AppleClang")
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../../splayer_core/include"
   "../../splayer_mac/include"
+  "../../distribution/macos/ffmpeg/include"
+  "/usr/local/Cellar/sdl2/2.0.9_1/include/SDL2"
   )
 
 # Targets to which this target links.

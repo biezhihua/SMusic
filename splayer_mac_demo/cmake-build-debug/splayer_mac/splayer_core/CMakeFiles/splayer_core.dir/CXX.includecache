@@ -38,6 +38,10 @@ version.h
 
 /Users/biezhihua/StudySpace/splayer/splayer_core/../distribution/macos/ffmpeg/include/libavcodec/avfft.h
 
+/Users/biezhihua/StudySpace/splayer/splayer_core/../distribution/macos/ffmpeg/include/libavcodec/version.h
+libavutil/version.h
+/Users/biezhihua/StudySpace/splayer/splayer_core/../distribution/macos/ffmpeg/include/libavcodec/libavutil/version.h
+
 /Users/biezhihua/StudySpace/splayer/splayer_core/../distribution/macos/ffmpeg/include/libavformat/avformat.h
 time.h
 -
@@ -674,17 +678,51 @@ Thread.h
 Audio.h
 /Users/biezhihua/StudySpace/splayer/splayer_core/src/Audio.h
 
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/Clock.cpp
+Clock.h
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/Clock.h
+
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/Decoder.cpp
+Decoder.h
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/Decoder.h
+
 /Users/biezhihua/StudySpace/splayer/splayer_core/src/FFPlay.cpp
 FFPlay.h
 /Users/biezhihua/StudySpace/splayer/splayer_core/src/FFPlay.h
+
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/FrameQueue.cpp
+FrameQueue.h
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/FrameQueue.h
 
 /Users/biezhihua/StudySpace/splayer/splayer_core/src/MediaPlayer.cpp
 MediaPlayer.h
 /Users/biezhihua/StudySpace/splayer/splayer_core/src/MediaPlayer.h
 
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/MessageQueue.cpp
+MessageQueue.h
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/MessageQueue.h
+
 /Users/biezhihua/StudySpace/splayer/splayer_core/src/Options.cpp
 Options.h
 /Users/biezhihua/StudySpace/splayer/splayer_core/src/Options.h
+
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/PacketQueue.cpp
+PacketQueue.h
+-
+PacketQueue.h
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/PacketQueue.h
+
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/PipelineNode.cpp
+PipelineNode.h
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/PipelineNode.h
+
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/RefCount.cpp
+RefCount.h
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/RefCount.h
+
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/State.cpp
+State.h
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/State.h
 
 /Users/biezhihua/StudySpace/splayer/splayer_core/src/Stream.cpp
 Stream.h
@@ -695,4 +733,12 @@ Surface.h
 -
 Surface.h
 /Users/biezhihua/StudySpace/splayer/splayer_core/src/Surface.h
+
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/Thread.cpp
+Thread.h
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/Thread.h
+
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/VOutOverlay.cpp
+VOutOverlay.h
+/Users/biezhihua/StudySpace/splayer/splayer_core/src/VOutOverlay.h
 

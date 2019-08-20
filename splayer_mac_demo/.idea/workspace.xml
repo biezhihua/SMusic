@@ -14,50 +14,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ff998315-1880-455c-a7eb-b3af51141e0c" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../splayer_core/include/Options.h" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/include/Options.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../splayer_mac/.vscode/c_cpp_properties.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../splayer_mac/.vscode/launch.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../splayer_mac/.vscode/settings.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../splayer_mac/.vscode/tasks.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer_core/include/Log.h" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_core/include/Log.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../splayer_mac/include/MacSurface.h" beforeDir="false" afterPath="$PROJECT_DIR$/../splayer_mac/include/MacSurface.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile2" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile2" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Progress/27" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Progress/count.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/CXX.includecache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/DependInfo.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/DependInfo.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/build.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/build.make" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/depend.internal" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/depend.internal" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/depend.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/depend.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/link.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/link.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/CMakeFiles/splayer_mac.dir/DependInfo.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/CMakeFiles/splayer_mac.dir/DependInfo.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/CMakeFiles/splayer_mac.dir/depend.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/CMakeFiles/splayer_mac.dir/depend.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/CXX.includecache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/depend.internal" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/depend.internal" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/depend.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/depend.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/AAFilter.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/BPMDetect.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/FIFOSampleBuffer.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/FIRFilter.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/InterpolateCubic.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/InterpolateLinear.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/InterpolateShannon.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/PeakFinder.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/RateTransposer.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/SoundTouch.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/TDStretch.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/cpu_detect_x86.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/mmx_optimized.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/extra/soundtouch/sse_optimized.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/src/Audio.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/src/Audio.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/src/FFPlay.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/src/FFPlay.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/src/MediaPlayer.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/src/MediaPlayer.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/src/Options.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/src/Options.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/src/Stream.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/src/Stream.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/src/Surface.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/CMakeFiles/splayer_core.dir/src/Surface.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/flags.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/splayer_mac_demo.dir/flags.make" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/libsplayer_core.a" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac/splayer_core/libsplayer_core.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/splayer_mac_demo.cbp" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/splayer_mac_demo.cbp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -77,25 +49,27 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cpp" value="5" />
-          <entry key="h" value="1" />
-          <entry key="txt" value="24" />
+          <entry key="cpp" value="17" />
+          <entry key="h" value="40" />
+          <entry key="txt" value="30" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="CMakeLists.txt" value="24" />
-          <entry key="ObjectiveC" value="6" />
+          <entry key="CMakeLists.txt" value="30" />
+          <entry key="ObjectiveC" value="57" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="h" value="2" />
+          <entry key="h" value="4" />
+          <entry key="txt" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="ObjectiveC" value="2" />
+          <entry key="CMakeLists.txt" value="2" />
+          <entry key="ObjectiveC" value="4" />
         </counts>
       </usages-collector>
     </session>
@@ -103,10 +77,19 @@
   <component name="FileEditorManager">
     <leaf>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../splayer_mac/CMakeLists.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="12">
+              <caret line="30" column="17" selection-start-line="30" selection-start-column="17" selection-end-line="30" selection-end-column="17" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="5" column="65" selection-start-line="5" selection-start-column="65" selection-end-line="5" selection-end-column="65" />
+            <state relative-caret-position="306">
+              <caret line="34" column="22" selection-start-line="34" selection-start-column="22" selection-end-line="34" selection-end-column="22" />
             </state>
           </provider>
         </entry>
@@ -114,8 +97,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="42">
-              <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
+            <state>
+              <caret column="19" lean-forward="true" selection-start-column="19" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -123,8 +106,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../splayer_mac/include/MacMediaPlayer.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="3" column="9" selection-start-line="3" selection-start-column="9" selection-end-line="3" selection-end-column="9" />
+            <state relative-caret-position="61">
+              <caret line="9" column="41" selection-start-line="9" selection-start-column="41" selection-end-line="9" selection-end-column="41" />
               <folding>
                 <element signature="e#81#105#0" expanded="true" />
               </folding>
@@ -132,19 +115,51 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../splayer_core/include/Options.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="3" column="19" lean-forward="true" selection-start-line="3" selection-start-column="19" selection-end-line="3" selection-end-column="19" />
+            <state relative-caret-position="126">
+              <caret line="6" selection-start-line="6" selection-end-line="6" />
               <folding>
-                <element signature="e#132#159#0" expanded="true" />
+                <element signature="e#61#80#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../splayer_core/CMakeLists.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="84">
+              <caret line="6" selection-start-line="6" selection-end-line="17" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../splayer_mac/include/MacSurface.h">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/../splayer_core/include/Log.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="186">
+              <caret line="108" column="9" selection-start-line="108" selection-start-column="9" selection-end-line="108" selection-end-column="9" />
+            </state>
+          </provider>
+        </entry>
+      </file>
     </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>LOG_MUTEX</find>
+      <find>logMutex</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>LOG_MUTEX</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -152,9 +167,13 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/../splayer_core/include/Options.h" />
+        <option value="$PROJECT_DIR$/../splayer_mac/include/MacSurface.h" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/../splayer_mac/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/../splayer_mac/include/MacMediaPlayer.h" />
         <option value="$PROJECT_DIR$/main.cpp" />
+        <option value="$PROJECT_DIR$/../splayer_core/include/Log.h" />
       </list>
     </option>
   </component>
@@ -176,6 +195,16 @@
             <path>
               <item name="splayer_mac_demo" type="b2602c69:ProjectViewProjectNode" />
               <item name="splayer_mac_demo" type="47feb1d3:ProjectViewModuleNode" />
+            </path>
+            <path>
+              <item name="splayer_mac_demo" type="b2602c69:ProjectViewProjectNode" />
+              <item name="splayer_mac_demo" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="splayer_core" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="splayer_mac_demo" type="b2602c69:ProjectViewProjectNode" />
+              <item name="splayer_mac_demo" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="splayer_mac" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="splayer_mac_demo" type="b2602c69:ProjectViewProjectNode" />
@@ -242,29 +271,29 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1566307842102</updated>
-      <workItem from="1566307843297" duration="500000" />
+      <workItem from="1566307843297" duration="1151000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="500000" />
+    <option name="totallyTimeSpent" value="1151000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="827" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Favorites" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Messages" visible="true" weight="0.32896653" />
+      <window_info anchor="bottom" id="Messages" weight="0.32896653" />
       <window_info anchor="bottom" id="Terminal" />
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
-      <window_info anchor="bottom" id="CMake" />
+      <window_info anchor="bottom" id="CMake" weight="0.32896653" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32896653" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32896653" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -279,17 +308,44 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/../splayer_core/include/Options.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="6" selection-start-line="6" selection-end-line="6" />
+          <folding>
+            <element signature="e#61#80#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer_core/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="6" selection-start-line="6" selection-end-line="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer_mac/include/MacSurface.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../splayer_mac/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="12">
+          <caret line="30" column="17" selection-start-line="30" selection-start-column="17" selection-end-line="30" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="5" column="65" selection-start-line="5" selection-start-column="65" selection-end-line="5" selection-end-column="65" />
+        <state relative-caret-position="306">
+          <caret line="34" column="22" selection-start-line="34" selection-start-column="22" selection-end-line="34" selection-end-column="22" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../splayer_mac/include/MacMediaPlayer.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="3" column="9" selection-start-line="3" selection-start-column="9" selection-end-line="3" selection-end-column="9" />
+        <state relative-caret-position="61">
+          <caret line="9" column="41" selection-start-line="9" selection-start-column="41" selection-end-line="9" selection-end-column="41" />
           <folding>
             <element signature="e#81#105#0" expanded="true" />
           </folding>
@@ -298,18 +354,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="42">
-          <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
+        <state>
+          <caret column="19" lean-forward="true" selection-start-column="19" selection-end-column="19" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../splayer_core/include/Options.h">
+    <entry file="file://$PROJECT_DIR$/../splayer_core/include/Log.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="3" column="19" lean-forward="true" selection-start-line="3" selection-start-column="19" selection-end-line="3" selection-end-column="19" />
-          <folding>
-            <element signature="e#132#159#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="186">
+          <caret line="108" column="9" selection-start-line="108" selection-start-column="9" selection-end-line="108" selection-end-column="9" />
         </state>
       </provider>
     </entry>

@@ -6,5 +6,5 @@ CXX_FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sd
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../splayer_core/include -I/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../splayer_mac/include 
+CXX_INCLUDES = -I/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../splayer_core/include -I/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../splayer_mac/include -I/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../distribution/macos/ffmpeg/include -I/usr/local/Cellar/sdl2/2.0.9_1/include/SDL2 
 

@@ -41,12 +41,12 @@ class Thread;
 #define LOG_FATAL       7
 #define LOG_SILENT      8
 
-extern Mutex *logMutex;
+extern Mutex *LOG_MUTEX;
 
 // http://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
 
 #define _ALOGD(TAG, ...) do { \
-logMutex->mutexLock();\
+LOG_MUTEX->mutexLock();\
 (void)printf("\x1B[37m"); \
 (void)printf("%s ",LOG_TAG); \
 (void)printf("\x1B[35;1m"); \
@@ -58,11 +58,11 @@ logMutex->mutexLock();\
 (void)printf("\033[0m: "); \
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
-logMutex->mutexUnLock(); \
+LOG_MUTEX->mutexUnLock(); \
 } while (0)
 
 #define _ALOGI(TAG, ...) do { \
-logMutex->mutexLock();\
+LOG_MUTEX->mutexLock();\
 (void)printf("\x1B[37m"); \
 (void)printf("%s ",LOG_TAG); \
 (void)printf("\x1B[35;1m"); \
@@ -74,11 +74,11 @@ logMutex->mutexLock();\
 (void)printf("\033[0m: "); \
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
-logMutex->mutexUnLock(); \
+LOG_MUTEX->mutexUnLock(); \
 } while (0)
 
 #define _ALOGE(TAG, ...) do { \
-logMutex->mutexLock();\
+LOG_MUTEX->mutexLock();\
 (void)printf("\x1B[37m"); \
 (void)printf("%s ",LOG_TAG); \
 (void)printf("\x1B[35;1m"); \
@@ -90,11 +90,11 @@ logMutex->mutexLock();\
 (void)printf("\033[0m: "); \
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
-logMutex->mutexUnLock(); \
+LOG_MUTEX->mutexUnLock(); \
 } while (0)
 
 #define _ALOGW(TAG, ...) do { \
-logMutex->mutexLock();\
+LOG_MUTEX->mutexLock();\
 (void)printf("\x1B[37m"); \
 (void)printf("%s ",LOG_TAG); \
 (void)printf("\x1B[35;1m"); \
@@ -106,7 +106,7 @@ logMutex->mutexLock();\
 (void)printf("\033[0m: "); \
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
-logMutex->mutexUnLock(); \
+LOG_MUTEX->mutexUnLock(); \
 } while (0)
 
 
