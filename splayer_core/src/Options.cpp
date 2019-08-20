@@ -22,8 +22,8 @@ void Options::showOptions() {
     ALOGD(OPTIONS_TAG, "%-*s: %f", VERSION_MODULE_FILE_NAME_LENGTH, "seekInterval", seekInterval);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "startupVolume", startupVolume);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "syncType", syncType);
-    ALOGD(OPTIONS_TAG, "%-*s: %ld", VERSION_MODULE_FILE_NAME_LENGTH, "startTime", startTime);
-    ALOGD(OPTIONS_TAG, "%-*s: %ld", VERSION_MODULE_FILE_NAME_LENGTH, "duration", duration);
+    ALOGD(OPTIONS_TAG, "%-*s: %lld", VERSION_MODULE_FILE_NAME_LENGTH, "startTime", startTime);
+    ALOGD(OPTIONS_TAG, "%-*s: %lld", VERSION_MODULE_FILE_NAME_LENGTH, "duration", duration);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "borderLess", borderLess);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "fast", fast);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "generatePts", generatePts);
