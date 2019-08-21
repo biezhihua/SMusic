@@ -15,6 +15,44 @@
 #include <libswresample/swresample.h>
 #include <libavutil/display.h>
 #include <libavutil/eval.h>
+#include <libavutil/ffversion.h>
+#include <config.h>
+
+#define INDENT        1
+#define SHOW_VERSION  2
+#define SHOW_CONFIG   4
+#define SHOW_COPYRIGHT 8
+
+static int warned_cfg = 0;
+
+#define PRINT_LIB_INFO(libname, LIBNAME, flags, level)                  \
+    if (CONFIG_##LIBNAME) {                                             \
+        const char *indent = flags & INDENT? "  " : "";                 \
+        if (flags & SHOW_VERSION) {                                     \
+            unsigned int version = libname##_version();                 \
+            av_log(NULL, level,                                         \
+                   "%slib%-11s %2d.%3d.%3d / %2d.%3d.%3d\n",            \
+                   indent, #libname,                                    \
+                   LIB##LIBNAME##_VERSION_MAJOR,                        \
+                   LIB##LIBNAME##_VERSION_MINOR,                        \
+                   LIB##LIBNAME##_VERSION_MICRO,                        \
+                   AV_VERSION_MAJOR(version), AV_VERSION_MINOR(version),\
+                   AV_VERSION_MICRO(version));                          \
+        }                                                               \
+        if (flags & SHOW_CONFIG) {                                      \
+            const char *cfg = libname##_configuration();                \
+            if (strcmp(FFMPEG_CONFIGURATION, cfg)) {                    \
+                if (!warned_cfg) {                                      \
+                    av_log(NULL, level,                                 \
+                            "%sWARNING: library configuration mismatch\n", \
+                            indent);                                    \
+                    warned_cfg = 1;                                     \
+                }                                                       \
+                av_log(NULL, level, "%s%-11s configuration: %s\n",      \
+                        indent, #libname, cfg);                         \
+            }                                                           \
+        }                                                               \
+    }                                                                   \
 
 void print_error(const char *filename, int err);
 
@@ -38,5 +76,7 @@ void *grow_array(void *array, int elem_size, int *size, int new_size);
 #define GROW_ARRAY(array, nb_elems) array = grow_array(array, sizeof(*array), &nb_elems, nb_elems + 1)
 
 double get_rotation(AVStream *st);
+
+void show_ffmpeg_banner();
 
 #endif //SPLAYER_MAC_CMDUTILS_H

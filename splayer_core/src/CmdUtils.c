@@ -139,3 +139,28 @@ double get_rotation(AVStream *st) {
 
     return theta;
 }
+
+static void print_all_libs_info(int flags, int level) {
+    PRINT_LIB_INFO(avutil, AVUTIL, flags, level);
+    PRINT_LIB_INFO(avcodec, AVCODEC, flags, level);
+    PRINT_LIB_INFO(avformat, AVFORMAT, flags, level);
+    PRINT_LIB_INFO(swscale, SWSCALE, flags, level);
+    PRINT_LIB_INFO(swresample, SWRESAMPLE, flags, level);
+}
+
+static void print_program_info(int flags, int level) {
+    const char *indent = flags & INDENT ? "  " : "";
+    av_log(NULL, level, "%s version " FFMPEG_VERSION, "SPlayer");
+    if (flags & SHOW_COPYRIGHT)
+        av_log(NULL, level, " Copyright (c) %d-%d the SPlayer developers", 2019, CONFIG_THIS_YEAR);
+    av_log(NULL, level, "\n");
+    av_log(NULL, level, "%sbuilt with %s\n", indent, CC_IDENT);
+    av_log(NULL, level, "%sconfiguration: " FFMPEG_CONFIGURATION "\n", indent);
+}
+
+void show_ffmpeg_banner() {
+    print_program_info(INDENT | SHOW_COPYRIGHT, AV_LOG_INFO);
+    print_all_libs_info(INDENT | SHOW_CONFIG, AV_LOG_INFO);
+    print_all_libs_info(INDENT | SHOW_VERSION, AV_LOG_INFO);
+}
+
