@@ -5,7 +5,7 @@ MediaPlayer::MediaPlayer() = default;
 MediaPlayer::~MediaPlayer() = default;
 
 int MediaPlayer::create() {
-    
+
     show_ffmpeg_banner();
 
     ALOGD(MEDIA_PLAYER_TAG, __func__);

@@ -43,8 +43,10 @@ public:
     char *inputFileName = nullptr;
     char *windowTitle = nullptr; // set window title
     int isFullScreen = 0; // force full screen
-    int screenWidth = 640;
-    int screenHeight = 480;
+    int defaultWidth = 640;
+    int defaultHeight = 480;
+    int screenWidth = 0;
+    int screenHeight = 0;
     int screenLeft = 0; // set the x position for the left of the window
     int screenTop = 0;  // set the y position for the top of the window
     char *wantedStreamSpec[AVMEDIA_TYPE_NB] = {nullptr}; // "select desired stream"
@@ -54,7 +56,7 @@ public:
     int syncType = SYNC_TYPE_AUDIO_MASTER; // set audio-video sync. type (type=audio/video/ext)
     int64_t startTime = AV_NOPTS_VALUE; // seek to a given position in seconds
     int64_t duration = AV_NOPTS_VALUE; // play  \"duration\" seconds of audio/video
-    int borderLess = 0; // borderLess window
+
     int fast = 0; // non spec compliant optimizations
     int generatePts = 0; // generate pts
     int lowres = 0;

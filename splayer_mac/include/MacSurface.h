@@ -75,7 +75,7 @@ private:
     bool isQuitKey(const SDL_Event &event) const;
 
 public:
-    void displayWindow() override;
+    void displayWindow(int width, int height) override;
 
     void setYuvConversionMode(AVFrame *pFrame);
 

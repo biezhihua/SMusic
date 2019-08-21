@@ -13,13 +13,18 @@ int MacSurface::create() {
     }
 
     Uint32 flags = SDL_WINDOW_HIDDEN;
-    if (options->borderLess) {
+    auto *mapOptions = dynamic_cast<MacOptions *>(options);
+    if (mapOptions->borderLess) {
         flags |= SDL_WINDOW_BORDERLESS;
     } else {
         flags |= SDL_WINDOW_RESIZABLE;
     }
 
-    window = SDL_CreateWindow(options->windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->screenWidth, options->screenHeight, flags);
+    if (!SDL_getenv("SDL_AUDIO_ALSA_SET_BUFFER_SIZE")) {
+        SDL_setenv("SDL_AUDIO_ALSA_SET_BUFFER_SIZE", "1", 1);
+    }
+
+    window = SDL_CreateWindow(options->windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->defaultWidth, options->defaultHeight, flags);
     if (window == nullptr) {
         ALOGE(MAC_SURFACE_TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
         destroy();
@@ -44,7 +49,9 @@ int MacSurface::create() {
     if (!window || !renderer || !rendererInfo.num_texture_formats) {
         ALOGD(MAC_SURFACE_TAG, "%s failed to create window or renderer: %s", __func__, SDL_GetError());
         destroy();
+        return NEGATIVE(S_SDL_NOT_INIT);
     }
+
     return POSITIVE;
 }
 
@@ -220,20 +227,18 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
     }
 }
 
-void MacSurface::displayWindow() {
+void MacSurface::displayWindow(int width, int height) {
     if (window && options) {
         SDL_SetWindowTitle(window, options->windowTitle);
-        SDL_SetWindowSize(window, options->screenWidth, options->screenHeight);
+        SDL_SetWindowSize(window, width, height);
         SDL_SetWindowPosition(window, options->screenLeft, options->screenTop);
         if (options->isFullScreen) {
             SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         }
         SDL_ShowWindow(window);
-        // Query Real Window Size And Update
-        SDL_GetWindowSize(window, &options->screenWidth, &options->screenHeight);
-        ALOGD(MAC_SURFACE_TAG, "%s windowTitle = %s screenWidth = %d screenHeight = %d screenLeft = %d screenTop = %d", __func__,
+        ALOGD(MAC_SURFACE_TAG, "%s windowTitle = %s defaultWidth = %d defaultHeight = %d screenLeft = %d screenTop = %d", __func__,
               options->windowTitle,
-              options->screenWidth, options->screenHeight,
+              width, height,
               options->screenLeft, options->screenTop
         );
     }
@@ -320,7 +325,6 @@ void MacSurface::displayVideoImageBefore() {
 
 void MacSurface::displayVideoImageAfter(Frame *lastFrame, Rect *rect) {
     if (play && play->getVideoState() && lastFrame) {
-        setYuvConversionMode(lastFrame->frame);
         SDL_Rect sdlRect;
         if (rect) {
             sdlRect.x = rect->x;
@@ -328,6 +332,7 @@ void MacSurface::displayVideoImageAfter(Frame *lastFrame, Rect *rect) {
             sdlRect.w = rect->w;
             sdlRect.h = rect->h;
         }
+        setYuvConversionMode(lastFrame->frame);
         SDL_RenderCopyEx(renderer, videoTexture, nullptr, &sdlRect, 0, nullptr, lastFrame->flipVertical ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
         setYuvConversionMode(nullptr);
     }

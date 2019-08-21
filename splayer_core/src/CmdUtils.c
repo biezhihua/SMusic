@@ -160,7 +160,7 @@ static void print_program_info(int flags, int level) {
 
 void show_ffmpeg_banner() {
     print_program_info(INDENT | SHOW_COPYRIGHT, AV_LOG_INFO);
-    print_all_libs_info(INDENT | SHOW_CONFIG, AV_LOG_INFO);
+//    print_all_libs_info(INDENT | SHOW_CONFIG, AV_LOG_INFO);
     print_all_libs_info(INDENT | SHOW_VERSION, AV_LOG_INFO);
 }
 

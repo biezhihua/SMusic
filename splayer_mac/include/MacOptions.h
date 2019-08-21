@@ -6,6 +6,7 @@
 class MacOptions : public Options {
 
 public:
+    int borderLess = 0; // borderLess window
     int cursorHidden = 0;
     int64_t cursorLastShown = 0;
 };

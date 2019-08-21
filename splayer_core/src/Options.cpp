@@ -14,8 +14,8 @@ void Options::showOptions() {
     ALOGD(OPTIONS_TAG, "%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "inputFileName", inputFileName);
     ALOGD(OPTIONS_TAG, "%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "windowTitle", windowTitle);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "isFullScreen", isFullScreen);
-    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "screenWidth", screenWidth);
-    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "screenHeight", screenHeight);
+    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "defaultWidth", defaultWidth);
+    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "defaultHeight", defaultHeight);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "screenLeft", screenLeft);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "screenTop", screenTop);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "seekByBytes", seekByBytes);
@@ -24,7 +24,7 @@ void Options::showOptions() {
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "syncType", syncType);
     ALOGD(OPTIONS_TAG, "%-*s: %lld", VERSION_MODULE_FILE_NAME_LENGTH, "startTime", startTime);
     ALOGD(OPTIONS_TAG, "%-*s: %lld", VERSION_MODULE_FILE_NAME_LENGTH, "duration", duration);
-    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "borderLess", borderLess);
+    // ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "borderLess", borderLess);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "fast", fast);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "generatePts", generatePts);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "lowres", lowres);

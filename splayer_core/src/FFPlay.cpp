@@ -259,9 +259,11 @@ int FFPlay::readThread() {
     AVPacket packet1, *packet = &packet1;
     Mutex *waitMutex = new Mutex();
     AVDictionaryEntry *dictionaryEntry;
-    int streamIndex[AVMEDIA_TYPE_NB] = {-1};
+    int streamIndex[AVMEDIA_TYPE_NB];
     int scanAllPmtsSet = 0;
     int ret = 0;
+
+    memset(streamIndex, -1, sizeof(streamIndex));
 
     if (!waitMutex) {
         ALOGE(FFPLAY_TAG, "%s create wait mutex fail", __func__);
@@ -1153,25 +1155,29 @@ int FFPlay::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
 int FFPlay::queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
     ALOGD(FFPLAY_TAG, "%s pts=%lf duration=%lf pos=%lld serial=%d", __func__, pts, duration, pos, serial);
 
-    Frame *vp;
+    Frame *frame;
 
-    if (!(vp = videoState->videoFrameQueue.peekWritable())) {
+    if (!(frame = videoState->videoFrameQueue.peekWritable())) {
         return NEGATIVE(S_NOT_FRAME_WRITEABLE);
     }
 
-    vp->sampleAspectRatio = srcFrame->sample_aspect_ratio;
-    vp->uploaded = 0;
+    frame->sampleAspectRatio = srcFrame->sample_aspect_ratio;
+    frame->uploaded = 0;
 
-    vp->width = srcFrame->width;
-    vp->height = srcFrame->height;
-    vp->format = srcFrame->format;
+    frame->width = srcFrame->width;
+    frame->height = srcFrame->height;
+    frame->format = srcFrame->format;
 
-    vp->pts = pts;
-    vp->duration = duration;
-    vp->pos = pos;
-    vp->serial = serial;
+    frame->pts = pts;
+    frame->duration = duration;
+    frame->pos = pos;
+    frame->serial = serial;
 
-    av_frame_move_ref(vp->frame, srcFrame);
+    if (surface) {
+        surface->setWindowSize(frame->width, frame->height, frame->sampleAspectRatio);
+    }
+
+    av_frame_move_ref(frame->frame, srcFrame);
     videoState->videoFrameQueue.push();
     return POSITIVE;
 }
@@ -1388,14 +1394,19 @@ void FFPlay::syncClockToSlave(Clock *c, Clock *slave) {
 }
 
 int FFPlay::displayWindow() {
-    if (!options->windowTitle) {
-        options->windowTitle = options->inputFileName;
+    if (options) {
+        int w, h;
+        w = options->screenWidth ? options->screenWidth : options->defaultWidth;
+        h = options->screenHeight ? options->screenHeight : options->defaultHeight;
+        if (!options->windowTitle) {
+            options->windowTitle = options->inputFileName;
+        }
+        if (surface) {
+            surface->displayWindow(w, h);
+        }
+        videoState->width = w;
+        videoState->height = h;
     }
-    if (surface) {
-        surface->displayWindow();
-    }
-    videoState->width = options->screenWidth;
-    videoState->height = options->screenHeight;
     return POSITIVE;
 }
 
