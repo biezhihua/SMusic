@@ -353,7 +353,6 @@ void MacSurface::setYuvConversionMode(AVFrame *frame) {
 #endif
 }
 
-
 void MacSurface::setSdlBlendMode(int format, SDL_BlendMode *sdlBlendMode) {
     *sdlBlendMode = SDL_BLENDMODE_NONE;
     if (format == AV_PIX_FMT_RGB32 || format == AV_PIX_FMT_RGB32_1 || format == AV_PIX_FMT_BGR32 || format == AV_PIX_FMT_BGR32_1) {
@@ -363,7 +362,8 @@ void MacSurface::setSdlBlendMode(int format, SDL_BlendMode *sdlBlendMode) {
 
 void MacSurface::setSdlPixelFormat(int format, Uint32 *sdlPixelFormat) {
     *sdlPixelFormat = SDL_PIXELFORMAT_UNKNOWN;
-    for (int i = 0; i < FF_ARRAY_ELEMS(SDL_TEXTURE_FORMAT_MAP) - 1; i++) {
+    int size = FF_ARRAY_ELEMS(SDL_TEXTURE_FORMAT_MAP) - 1;
+    for (int i = 0; i < size; i++) {
         if (format == SDL_TEXTURE_FORMAT_MAP[i].format) {
             *sdlPixelFormat = static_cast<Uint32>(SDL_TEXTURE_FORMAT_MAP[i].textureFormat);
             return;

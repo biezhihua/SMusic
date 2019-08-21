@@ -55,11 +55,11 @@ public:
 
     int signal();
 
-    Frame *peekFirstPrepareShowFrame();
+    Frame *peekFirstPreToShowFrame();
 
-    Frame *peekNextPrepareShowFrame();
+    Frame *peekNextPreToShowFrame();
 
-    Frame *peekCurrentShownFrame();
+    Frame *peekCurrentToShowFrame();
 
     Frame *peekWritable();
 

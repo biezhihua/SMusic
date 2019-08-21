@@ -1230,20 +1230,20 @@ void FFPlay::refreshVideo(double *remainingTime) {
             ALOGD(FFPLAY_TAG, "nothing to do, no picture to display in the queue");
         } else {
             double lastDuration, duration, delay;
-            Frame *currentFrame, *nextFrame;
+            Frame *currentToShowFrame, *firstPreToShowFrame;
 
-            currentFrame = videoState->videoFrameQueue.peekCurrentShownFrame();
-            nextFrame = videoState->videoFrameQueue.peekFirstPrepareShowFrame();
+            currentToShowFrame = videoState->videoFrameQueue.peekCurrentToShowFrame();
+            firstPreToShowFrame = videoState->videoFrameQueue.peekFirstPreToShowFrame();
 
-            ALOGD(FFPLAY_TAG, "nextFrame serial = %d list serial = %d ", nextFrame->serial, videoState->videoPacketQueue.serial);
-            if (nextFrame->serial != videoState->videoPacketQueue.serial) {
+            ALOGD(FFPLAY_TAG, "firstPreToShowFrame serial = %d list serial = %d ", firstPreToShowFrame->serial, videoState->videoPacketQueue.serial);
+            if (firstPreToShowFrame->serial != videoState->videoPacketQueue.serial) {
                 videoState->videoFrameQueue.next();
                 ALOGD(FFPLAY_TAG, "goto retry");
                 goto retry;
             }
 
-            ALOGD(FFPLAY_TAG, "currentFrame serial = %d nextFrame serial = %d ", currentFrame->serial, nextFrame->serial);
-            if (currentFrame->serial != nextFrame->serial) {
+            ALOGD(FFPLAY_TAG, "currentToShowFrame serial = %d firstPreToShowFrame serial = %d ", currentToShowFrame->serial, firstPreToShowFrame->serial);
+            if (currentToShowFrame->serial != firstPreToShowFrame->serial) {
                 videoState->frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
                 ALOGD(FFPLAY_TAG, "update frameTimer = %fd ", videoState->frameTimer);
             }
@@ -1254,7 +1254,7 @@ void FFPlay::refreshVideo(double *remainingTime) {
             }
 
             /* compute nominal lastDuration */
-            lastDuration = getFrameDuration(currentFrame, nextFrame);
+            lastDuration = getFrameDuration(currentToShowFrame, firstPreToShowFrame);
             delay = getComputeTargetDelay(lastDuration);
 
             time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
@@ -1274,14 +1274,14 @@ void FFPlay::refreshVideo(double *remainingTime) {
             }
 
             videoState->videoFrameQueue.mutex->mutexLock();
-            if (!isnan(nextFrame->pts)) {
-                updateVideoClockPts(nextFrame->pts, nextFrame->pos, nextFrame->serial);
+            if (!isnan(firstPreToShowFrame->pts)) {
+                updateVideoClockPts(firstPreToShowFrame->pts, firstPreToShowFrame->pos, firstPreToShowFrame->serial);
             }
             videoState->videoFrameQueue.mutex->mutexUnLock();
 
             if (videoState->videoFrameQueue.numberRemaining() > 1) {
-                Frame *nextPrepareShowFrame = videoState->videoFrameQueue.peekNextPrepareShowFrame();
-                duration = getFrameDuration(nextFrame, nextPrepareShowFrame);
+                Frame *nextPrepareShowFrame = videoState->videoFrameQueue.peekNextPreToShowFrame();
+                duration = getFrameDuration(firstPreToShowFrame, nextPrepareShowFrame);
                 ALOGD(FFPLAY_TAG, "next frame duration = %lf ", duration);
                 if (!videoState->step && (options->dropFrameWhenSlow > 0 || (options->dropFrameWhenSlow && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) && time > (videoState->frameTimer + duration)) {
                     videoState->frameDropsLate++;
