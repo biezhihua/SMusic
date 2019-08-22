@@ -40,26 +40,25 @@ void Surface::displayVideoImage() {
         displayVideoImageBefore();
 
         VideoState *videoState = play->getVideoState();
-        Frame *currentToShowFrame = nullptr;
         Frame *sp = nullptr;
         Rect *rect = new Rect();
-        currentToShowFrame = videoState->videoFrameQueue.peekCurrentToShowFrame();
+        Frame *willToShowFrame = videoState->videoFrameQueue.peekWillToShowFrame();
 
         if (videoState->subtitleStream) {
             // TODO
         }
 
-        calculateDisplayRect(rect, videoState->xLeft, videoState->yTop, videoState->width, videoState->height, currentToShowFrame->width, currentToShowFrame->height, currentToShowFrame->sampleAspectRatio);
+        calculateDisplayRect(rect, videoState->xLeft, videoState->yTop, videoState->width, videoState->height, willToShowFrame->width, willToShowFrame->height, willToShowFrame->sampleAspectRatio);
 
-        if (!currentToShowFrame->uploaded) {
-            if (!uploadTexture(currentToShowFrame->frame, videoState->imgConvertCtx)) {
+        if (!willToShowFrame->uploaded) {
+            if (!uploadTexture(willToShowFrame->frame, videoState->imgConvertCtx)) {
                 return;
             }
-            currentToShowFrame->uploaded = 1;
-            currentToShowFrame->flipVertical = currentToShowFrame->frame->linesize[0] < 0;
+            willToShowFrame->uploaded = 1;
+            willToShowFrame->flipVertical = willToShowFrame->frame->linesize[0] < 0;
         }
 
-        displayVideoImageAfter(currentToShowFrame, rect);
+        displayVideoImageAfter(willToShowFrame, rect);
         delete rect;
     }
 }

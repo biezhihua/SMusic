@@ -25,6 +25,9 @@ int MacSurface::create() {
     }
 
     window = SDL_CreateWindow(options->windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->defaultWidth, options->defaultHeight, flags);
+
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
+
     if (window == nullptr) {
         ALOGE(MAC_SURFACE_TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
         destroy();
