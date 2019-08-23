@@ -5,8 +5,6 @@ class Surface;
 
 class Audio;
 
-class Stream;
-
 #include "Log.h"
 #include "Define.h"
 #include "Mutex.h"
@@ -53,19 +51,30 @@ extern "C" {
 
 #define URL_FORMAT_UDP  "udp:"
 
-#define FFPLAY_TAG "FFPlay"
+#define STREAM_TAG "Stream"
 
 class Stream {
 
 private:
-    Audio *audio = nullptr;
-    Surface *surface = nullptr;
-    VideoState *videoState = nullptr;
     AVPacket flushPacket;
+
+    Audio *audio = nullptr;
+
+    Surface *surface = nullptr;
+
+    VideoState *videoState = nullptr;
+
     Options *options = nullptr;
+
     MessageQueue *msgQueue = nullptr;
 
+
 public:
+    double remainingTime = 0.0f;
+
+    Stream();
+
+    ~Stream();
 
     virtual int create();
 
@@ -73,24 +82,19 @@ public:
 
     void setMsgQueue(MessageQueue *msgQueue);
 
-    double remainingTime = 0.0f;
+    void setAudio(Audio *audio);
 
-    void togglePause();
+    void setSurface(Surface *surface);
 
-    void forceRefresh();
+    void setOptions(Options *options);
+
+    int togglePause();
+
+    int forceRefresh();
 
     void setupToNextFrame();
 
     void streamSeek(int64_t pos, int64_t rel, int seekByBytes);
-
-public:
-    Stream();
-
-    ~Stream();
-
-    void setAudio(Audio *audio);
-
-    void setSurface(Surface *surface);
 
     int stop();
 
@@ -100,9 +104,6 @@ public:
 
     int prepareStream(const char *fileName);
 
-    /**
-     * this thread gets the stream from the disk or the network
-     */
     int readThread();
 
     int videoThread();
@@ -111,13 +112,11 @@ public:
 
     int audioThread();
 
-    VideoState *getVideoState() const;
-
     int refresh();
 
-    void setOptions(Options *options);
-
     void streamClose();
+
+    VideoState *getVideoState() const;
 
     double getMasterClock();
 
@@ -173,7 +172,7 @@ private:
 
     int isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const;
 
-    void streamTogglePause();
+    int streamTogglePause();
 };
 
 #endif //SPLAYER_PLAY_H

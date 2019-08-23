@@ -1,19 +1,60 @@
 #include "Stream.h"
 
-Stream::Stream() {
+static int innerReadThread(void *arg) {
+    auto *play = static_cast<Stream *>(arg);
+    if (play) {
+        return play->readThread();
+    }
+    return POSITIVE;
 }
 
-Stream::~Stream() {
+static int innerVideoThread(void *arg) {
+    Stream *play = static_cast<Stream *>(arg);
+    if (play) {
+        return play->videoThread();
+    }
+    return NEGATIVE(S_ERROR);
 }
 
-void Stream::setAudio(Audio *audio) {
-    ALOGD(FFPLAY_TAG, __func__);
-    Stream::audio = audio;
+static int innerAudioThread(void *arg) {
+    Stream *play = static_cast<Stream *>(arg);
+    if (play) {
+        return play->audioThread();
+    }
+    return NEGATIVE(S_ERROR);
 }
 
-void Stream::setSurface(Surface *surface) {
-    ALOGD(FFPLAY_TAG, __func__);
-    Stream::surface = surface;
+static int innerSubtitleThread(void *arg) {
+    Stream *play = static_cast<Stream *>(arg);
+    if (play) {
+        return play->subtitleThread();
+    }
+    return NEGATIVE(S_ERROR);
+}
+
+static int decodeInterruptCallback(void *ctx) {
+    auto *is = static_cast<VideoState *>(ctx);
+    return is->abortRequest;
+}
+
+Stream::Stream() = default;
+
+Stream::~Stream() = default;
+
+int Stream::create() {
+    avformat_network_init();
+    av_init_packet(&flushPacket);
+    flushPacket.data = (uint8_t *) &flushPacket;
+    return POSITIVE;
+}
+
+int Stream::destroy() {
+    remainingTime = 0.0f;
+    flushPacket.data = nullptr;
+    av_packet_unref(&flushPacket);
+    msgQueue = nullptr;
+    avformat_network_deinit();
+    return POSITIVE;
 }
 
 int Stream::stop() {
@@ -32,7 +73,7 @@ int Stream::waitStop() {
 }
 
 int Stream::prepareStream(const char *fileName) {
-    ALOGD(FFPLAY_TAG, __func__);
+    ALOGD(STREAM_TAG, __func__);
 
     options->inputFileName = fileName != nullptr ? av_strdup(fileName) : nullptr;
 
@@ -45,43 +86,34 @@ int Stream::prepareStream(const char *fileName) {
     return POSITIVE;
 }
 
-
-static int innerReadThread(void *arg) {
-    auto *play = static_cast<Stream *>(arg);
-    if (play) {
-        return play->readThread();
-    }
-    return POSITIVE;
-}
-
 VideoState *Stream::streamOpen() {
-    ALOGD(FFPLAY_TAG, __func__);
+    ALOGD(STREAM_TAG, __func__);
 
     if (!options->inputFileName) {
-        ALOGE(FFPLAY_TAG, "%s input file name is null", __func__);
+        ALOGE(STREAM_TAG, "%s input file name is null", __func__);
         return nullptr;
     }
 
     auto *is = new VideoState();
     if (!is) {
-        ALOGD(FFPLAY_TAG, "%s create video state oom", __func__);
+        ALOGD(STREAM_TAG, "%s create video state oom", __func__);
         return nullptr;
     }
 
     if (is->videoFrameQueue.init(&is->videoPacketQueue, VIDEO_QUEUE_SIZE, 1) < 0) {
-        ALOGE(FFPLAY_TAG, "%s video frame packetQueue init fail", __func__);
+        ALOGE(STREAM_TAG, "%s video frame packetQueue init fail", __func__);
         streamClose();
         return nullptr;
     }
 
     if (is->audioFrameQueue.init(&is->audioPacketQueue, AUDIO_QUEUE_SIZE, 0) < 0) {
-        ALOGE(FFPLAY_TAG, "%s audio frame packetQueue init fail", __func__);
+        ALOGE(STREAM_TAG, "%s audio frame packetQueue init fail", __func__);
         streamClose();
         return nullptr;
     }
 
     if (is->subtitleFrameQueue.init(&is->subtitlePacketQueue, SUBTITLE_QUEUE_SIZE, 0) < 0) {
-        ALOGE(FFPLAY_TAG, "%s subtitle frame packetQueue init fail", __func__);
+        ALOGE(STREAM_TAG, "%s subtitle frame packetQueue init fail", __func__);
         streamClose();
         return nullptr;
     }
@@ -89,13 +121,13 @@ VideoState *Stream::streamOpen() {
     if (is->videoPacketQueue.init(&flushPacket) < 0 ||
         is->audioPacketQueue.init(&flushPacket) < 0 ||
         is->subtitlePacketQueue.init(&flushPacket) < 0) {
-        ALOGE(FFPLAY_TAG, "%s packet packetQueue init fail", __func__);
+        ALOGE(STREAM_TAG, "%s packet packetQueue init fail", __func__);
         streamClose();
         return nullptr;
     }
 
     if (!(is->continueReadThread = new Mutex())) {
-        ALOGE(FFPLAY_TAG, "%s create continue read thread mutex fail", __func__);
+        ALOGE(STREAM_TAG, "%s create continue read thread mutex fail", __func__);
         streamClose();
         return nullptr;
     }
@@ -103,7 +135,7 @@ VideoState *Stream::streamOpen() {
     if (is->videoClock.init(&is->videoPacketQueue.serial) < 0 ||
         is->audioClock.init(&is->audioPacketQueue.serial) < 0 ||
         is->exitClock.init(&is->subtitlePacketQueue.serial) < 0) {
-        ALOGE(FFPLAY_TAG, "%s init clock fail", __func__);
+        ALOGE(STREAM_TAG, "%s init clock fail", __func__);
         streamClose();
         return nullptr;
     }
@@ -119,7 +151,7 @@ VideoState *Stream::streamOpen() {
     is->readThread = new Thread(innerReadThread, this, "Read   ");
 
     if (!is->readThread) {
-        ALOGE(FFPLAY_TAG, "%s create read thread fail", __func__);
+        ALOGE(STREAM_TAG, "%s create read thread fail", __func__);
         streamClose();
         return nullptr;
     }
@@ -127,20 +159,8 @@ VideoState *Stream::streamOpen() {
     return is;
 }
 
-int Stream::getStartupVolume() {
-    if (options->startupVolume < 0) {
-        ALOGD(FFPLAY_TAG, "%s -volume=%d < 0, setting to 0", __func__, options->startupVolume);
-    }
-    if (options->startupVolume > 100) {
-        ALOGD(FFPLAY_TAG, "%s -volume=%d > 100 0, setting to 100", __func__, options->startupVolume);
-    }
-    options->startupVolume = av_clip(options->startupVolume, 0, 100);
-    options->startupVolume = av_clip(MIX_MAX_VOLUME * options->startupVolume / 100, 0, MIX_MAX_VOLUME);
-    return options->startupVolume;
-}
-
 void Stream::streamClose() {
-    ALOGD(FFPLAY_TAG, __func__);
+    ALOGD(STREAM_TAG, __func__);
 
     if (videoState) {
 
@@ -191,16 +211,10 @@ void Stream::streamClose() {
     }
 }
 
-
-static int decodeInterruptCallback(void *ctx) {
-    auto *is = static_cast<VideoState *>(ctx);
-    return is->abortRequest;
-}
-
 /* this thread gets the stream from the disk or the network */
 /// Work Thread
 int Stream::readThread() {
-    ALOGD(FFPLAY_TAG, __func__);
+    ALOGD(STREAM_TAG, __func__);
 
     if (!videoState) {
         return NEGATIVE(S_NULL);
@@ -217,7 +231,7 @@ int Stream::readThread() {
     memset(streamIndex, -1, sizeof(streamIndex));
 
     if (!waitMutex) {
-        ALOGE(FFPLAY_TAG, "%s create wait mutex fail", __func__);
+        ALOGE(STREAM_TAG, "%s create wait mutex fail", __func__);
         return NEGATIVE(S_NOT_MEMORY);
     }
 
@@ -228,7 +242,7 @@ int Stream::readThread() {
 
     formatContext = avformat_alloc_context();
     if (!formatContext) {
-        ALOGE(FFPLAY_TAG, "%s avformat could not allocate context", __func__);
+        ALOGE(STREAM_TAG, "%s avformat could not allocate context", __func__);
         return NEGATIVE(S_NOT_MEMORY);
     }
 
@@ -249,7 +263,7 @@ int Stream::readThread() {
     }
 
     if (avformat_open_input(&formatContext, videoState->fileName, videoState->inputFormat, &options->format) < 0) {
-        ALOGE(FFPLAY_TAG, "%s avformat could not open input", __func__);
+        ALOGE(STREAM_TAG, "%s avformat could not open input", __func__);
         closeReadThread(videoState, formatContext);
         return NEGATIVE(S_NOT_OPEN_INPUT);
     }
@@ -263,7 +277,7 @@ int Stream::readThread() {
     }
 
     if ((dictionaryEntry = av_dict_get(options->format, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
-        ALOGE(FFPLAY_TAG, "%s option %s not found.", __func__, dictionaryEntry->key);
+        ALOGE(STREAM_TAG, "%s option %s not found.", __func__, dictionaryEntry->key);
         closeReadThread(videoState, formatContext);
         return NEGATIVE_OPTION_NOT_FOUND;
     }
@@ -284,7 +298,7 @@ int Stream::readThread() {
         }
         av_freep(&opts);
         if (ret < 0) {
-            ALOGD(FFPLAY_TAG, "%s %s: could not find codec parameters", __func__, videoState->fileName);
+            ALOGD(STREAM_TAG, "%s %s: could not find codec parameters", __func__, videoState->fileName);
             closeReadThread(videoState, formatContext);
             return NEGATIVE(S_NOT_FIND_STREAM_INFO);
         }
@@ -317,7 +331,7 @@ int Stream::readThread() {
             timestamp += formatContext->start_time;
         }
         if (avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX, 0) < 0) {
-            ALOGD(FFPLAY_TAG, "%s %s: could not seek to position %0.3f", __func__, videoState->fileName, (double) timestamp / AV_TIME_BASE);
+            ALOGD(STREAM_TAG, "%s %s: could not seek to position %0.3f", __func__, videoState->fileName, (double) timestamp / AV_TIME_BASE);
         }
     }
 
@@ -340,7 +354,7 @@ int Stream::readThread() {
 
     for (int i = 0; i < AVMEDIA_TYPE_NB; i++) {
         if (options->wantedStreamSpec[i] && streamIndex[i] == -1) {
-            ALOGD(FFPLAY_TAG, "%s Stream specifier %s does not match any stream", __func__, options->wantedStreamSpec[i]);
+            ALOGD(STREAM_TAG, "%s Stream specifier %s does not match any stream", __func__, options->wantedStreamSpec[i]);
             streamIndex[i] = INT_MAX;
         }
     }
@@ -415,7 +429,7 @@ int Stream::readThread() {
     }
 
     if (videoState->videoStreamIndex < 0 && videoState->audioStreamIndex < 0) {
-        ALOGD(FFPLAY_TAG, "%s failed to open file '%s' or configure filter graph", __func__, videoState->fileName);
+        ALOGD(STREAM_TAG, "%s failed to open file '%s' or configure filter graph", __func__, videoState->fileName);
         closeReadThread(videoState, formatContext);
         return NEGATIVE(S_NOT_OPEN_FILE);
     }
@@ -456,7 +470,7 @@ int Stream::readThread() {
             int64_t seekMin = videoState->seekRel > 0 ? (seekTarget - videoState->seekRel + 2) : INT64_MIN;
             int64_t seekMax = videoState->seekRel < 0 ? (seekTarget - videoState->seekRel - 2) : INT64_MAX;
             if (avformat_seek_file(videoState->formatContext, -1, seekMin, seekTarget, seekMax, videoState->seekFlags) < 0) {
-                ALOGD(FFPLAY_TAG, "%s %s: error while seeking", __func__, videoState->formatContext->url);
+                ALOGD(STREAM_TAG, "%s %s: error while seeking", __func__, videoState->formatContext->url);
             } else {
                 if (videoState->audioStreamIndex >= 0) {
                     videoState->audioPacketQueue.flush();
@@ -560,6 +574,61 @@ int Stream::readThread() {
     return POSITIVE;
 }
 
+int Stream::videoThread() {
+    ALOGD(STREAM_TAG, __func__);
+
+    VideoState *is = videoState;
+    AVFrame *frame = av_frame_alloc();
+    double pts;
+    double duration;
+    int ret;
+    AVRational timeBase = is->videoStream->time_base;
+    AVRational frameRate = av_guess_frame_rate(is->formatContext, is->videoStream, nullptr);
+
+    if (!frame) {
+        return NEGATIVE(S_NOT_MEMORY);
+    }
+
+    for (;;) {
+
+        ret = getVideoFrame(frame);
+
+        if (IS_NEGATIVE(ret)) {
+            av_frame_free(&frame);
+            ALOGE(STREAM_TAG, "%s not get video frame", __func__);
+            return NEGATIVE(S_NOT_GET_VIDEO_FRAME);
+        }
+
+        if (ret == NEGATIVE_EOF) {
+            continue;
+        }
+
+        duration = (frameRate.num && frameRate.den ? av_q2d((AVRational) {frameRate.den, frameRate.num}) : 0);
+        pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(timeBase);
+        ret = queueFrameToFrameQueue(frame, pts, duration, frame->pkt_pos, is->videoDecoder.packetSerial);
+        av_frame_unref(frame);
+
+        if (IS_NEGATIVE(ret)) {
+            av_frame_free(&frame);
+            ALOGE(STREAM_TAG, "%s not queue picture", __func__);
+            return NEGATIVE(S_NOT_QUEUE_PICTURE);
+        }
+    }
+
+    ALOGD(STREAM_TAG, "%s end", __func__);
+    return POSITIVE;
+}
+
+int Stream::subtitleThread() {
+    ALOGD(STREAM_TAG, __func__);
+    return POSITIVE;
+}
+
+int Stream::audioThread() {
+    ALOGD(STREAM_TAG, __func__);
+    return POSITIVE;
+}
+
 int Stream::isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const {
 
     if (options->duration == AV_NOPTS_VALUE) {
@@ -577,7 +646,7 @@ int Stream::isPacketInPlayRange(const AVFormatContext *formatContext, const AVPa
     double duration = (double) options->duration / AV_TIME_BASE;
 
     // isPacketInPlayRange diffTime = 5123.535083 startTime = 0.000000 duration = -9223372036854.775391
-    // ALOGD(FFPLAY_TAG, "%s diffTime = %lf startTime = %lf duration = %lf", __func__, diffTime, startTime, duration);
+    // ALOGD(STREAM_TAG, "%s diffTime = %lf startTime = %lf duration = %lf", __func__, diffTime, startTime, duration);
 
     return (options->duration == AV_NOPTS_VALUE) || ((diffTime - startTime) <= duration);
 }
@@ -604,7 +673,7 @@ bool Stream::isNoReadMore() {
 }
 
 void Stream::closeReadThread(const VideoState *is, AVFormatContext *&formatContext) const {
-    ALOGD(FFPLAY_TAG, __func__);
+    ALOGD(STREAM_TAG, __func__);
     if (formatContext && !is->formatContext) {
         avformat_close_input(&formatContext);
     }
@@ -620,33 +689,9 @@ int Stream::isRealTime(AVFormatContext *s) {
     return NEGATIVE(S_ERROR);
 }
 
-static int innerVideoThread(void *arg) {
-    Stream *play = static_cast<Stream *>(arg);
-    if (play) {
-        return play->videoThread();
-    }
-    return NEGATIVE(S_ERROR);
-}
-
-static int innerSubtitleThread(void *arg) {
-    Stream *play = static_cast<Stream *>(arg);
-    if (play) {
-        return play->subtitleThread();
-    }
-    return NEGATIVE(S_ERROR);
-}
-
-static int innerAudioThread(void *arg) {
-    Stream *play = static_cast<Stream *>(arg);
-    if (play) {
-        return play->audioThread();
-    }
-    return NEGATIVE(S_ERROR);
-}
-
 /* open a given stream. Return 0 if OK */
 int Stream::streamComponentOpen(int streamIndex) {
-    ALOGD(FFPLAY_TAG, "%s streamIndex=%d", __func__, streamIndex);
+    ALOGD(STREAM_TAG, "%s streamIndex=%d", __func__, streamIndex);
 
     AVFormatContext *formatContext = videoState->formatContext;
     AVCodecContext *codecContext;
@@ -705,9 +750,9 @@ int Stream::streamComponentOpen(int streamIndex) {
 
     if (!codec) {
         if (forcedCodecName) {
-            ALOGD(FFPLAY_TAG, "%s No codec could be found with name '%s'", __func__, forcedCodecName);
+            ALOGD(STREAM_TAG, "%s No codec could be found with name '%s'", __func__, forcedCodecName);
         } else {
-            ALOGD(FFPLAY_TAG, "%sNo decoder could be found for codec %s", __func__, avcodec_get_name(codecContext->codec_id));
+            ALOGD(STREAM_TAG, "%sNo decoder could be found for codec %s", __func__, avcodec_get_name(codecContext->codec_id));
         }
         avcodec_free_context(&codecContext);
         return NEGATIVE(S_NOT_FOUND_CODER);
@@ -716,7 +761,7 @@ int Stream::streamComponentOpen(int streamIndex) {
     codecContext->codec_id = codec->id;
 
     if (streamLowres > codec->max_lowres) {
-        ALOGD(FFPLAY_TAG, "%s The maximum value for lowres supported by the decoder is %d", __func__, codec->max_lowres);
+        ALOGD(STREAM_TAG, "%s The maximum value for lowres supported by the decoder is %d", __func__, codec->max_lowres);
         streamLowres = codec->max_lowres;
     }
     codecContext->lowres = streamLowres;
@@ -743,7 +788,7 @@ int Stream::streamComponentOpen(int streamIndex) {
     }
 
     if ((t = av_dict_get(opts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
-        ALOGE(FFPLAY_TAG, "%s Option %s not found.", __func__, t->key);
+        ALOGE(STREAM_TAG, "%s Option %s not found.", __func__, t->key);
         return NEGATIVE(S_NOT_FOUND_OPTION);
     }
 
@@ -906,63 +951,8 @@ void Stream::streamSeek(int64_t pos, int64_t rel, int seekByBytes) {
     }
 }
 
-int Stream::videoThread() {
-    ALOGD(FFPLAY_TAG, __func__);
-
-    VideoState *is = videoState;
-    AVFrame *frame = av_frame_alloc();
-    double pts;
-    double duration;
-    int ret;
-    AVRational timeBase = is->videoStream->time_base;
-    AVRational frameRate = av_guess_frame_rate(is->formatContext, is->videoStream, nullptr);
-
-    if (!frame) {
-        return NEGATIVE(S_NOT_MEMORY);
-    }
-
-    for (;;) {
-
-        ret = getVideoFrame(frame);
-
-        if (IS_NEGATIVE(ret)) {
-            av_frame_free(&frame);
-            ALOGE(FFPLAY_TAG, "%s not get video frame", __func__);
-            return NEGATIVE(S_NOT_GET_VIDEO_FRAME);
-        }
-
-        if (ret == NEGATIVE_EOF) {
-            continue;
-        }
-
-        duration = (frameRate.num && frameRate.den ? av_q2d((AVRational) {frameRate.den, frameRate.num}) : 0);
-        pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(timeBase);
-        ret = queueFrameToFrameQueue(frame, pts, duration, frame->pkt_pos, is->videoDecoder.packetSerial);
-        av_frame_unref(frame);
-
-        if (IS_NEGATIVE(ret)) {
-            av_frame_free(&frame);
-            ALOGE(FFPLAY_TAG, "%s not queue picture", __func__);
-            return NEGATIVE(S_NOT_QUEUE_PICTURE);
-        }
-    }
-
-    ALOGD(FFPLAY_TAG, "%s end", __func__);
-    return POSITIVE;
-}
-
-int Stream::subtitleThread() {
-    ALOGD(FFPLAY_TAG, __func__);
-    return POSITIVE;
-}
-
-int Stream::audioThread() {
-    ALOGD(FFPLAY_TAG, __func__);
-    return POSITIVE;
-}
-
 int Stream::getVideoFrame(AVFrame *frame) {
-    ALOGD(FFPLAY_TAG, __func__);
+    ALOGD(STREAM_TAG, __func__);
 
     int gotPicture;
 
@@ -999,7 +989,7 @@ int Stream::getVideoFrame(AVFrame *frame) {
 }
 
 int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *subtitle) {
-    ALOGD(FFPLAY_TAG, __func__);
+    ALOGD(STREAM_TAG, __func__);
 
     int ret = AVERROR(EAGAIN);
 
@@ -1094,7 +1084,7 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                 }
             } else {
                 if (avcodec_send_packet(decoder->codecContext, &packet) == AVERROR(EAGAIN)) {
-                    ALOGE(FFPLAY_TAG, "%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.", __func__);
+                    ALOGE(STREAM_TAG, "%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.", __func__);
                     decoder->packetPending = 1;
                     av_packet_move_ref(&decoder->packet, &packet);
                 }
@@ -1107,7 +1097,7 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
 }
 
 int Stream::queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
-    ALOGD(FFPLAY_TAG, "%s pts=%lf duration=%lf pos=%lld serial=%d", __func__, pts, duration, pos, serial);
+    ALOGD(STREAM_TAG, "%s pts=%lf duration=%lf pos=%lld serial=%d", __func__, pts, duration, pos, serial);
 
     Frame *frame;
 
@@ -1137,8 +1127,8 @@ int Stream::queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duratio
 }
 
 int Stream::refresh() {
-    ALOGD(FFPLAY_TAG, "===== refresh =====");
-    ALOGD(FFPLAY_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime, videoState->paused, videoState->forceRefresh);
+    ALOGD(STREAM_TAG, "===== refresh =====");
+    ALOGD(STREAM_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime, videoState->paused, videoState->forceRefresh);
     if (remainingTime > 0.0) {
         av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * AV_TIME_BASE)));
     }
@@ -1146,7 +1136,7 @@ int Stream::refresh() {
     if (videoState->showMode != SHOW_MODE_NONE && (!videoState->paused || videoState->forceRefresh)) {
         refreshVideo(&remainingTime);
     }
-    ALOGD(FFPLAY_TAG, "===== end =====");
+    ALOGD(STREAM_TAG, "===== end =====");
     return POSITIVE;
 }
 
@@ -1167,7 +1157,7 @@ void Stream::checkExternalClockSpeed() {
 
 /* called to display each frame */
 void Stream::refreshVideo(double *remainingTime) {
-    ALOGD(FFPLAY_TAG, "%s", __func__);
+    ALOGD(STREAM_TAG, "%s", __func__);
     double time;
     Frame *sp, *sp2;
 
@@ -1187,7 +1177,7 @@ void Stream::refreshVideo(double *remainingTime) {
     if (videoState->videoStream) {
         retry:
         if (videoState->videoFrameQueue.numberRemaining() == 0) {
-            ALOGD(FFPLAY_TAG, "nothing to do, no picture to display in the queue");
+            ALOGD(STREAM_TAG, "nothing to do, no picture to display in the queue");
         } else {
             double lastDuration, duration, delay;
             Frame *willToShowFrame, *firstReadyToShowFrame;
@@ -1195,21 +1185,21 @@ void Stream::refreshVideo(double *remainingTime) {
             willToShowFrame = videoState->videoFrameQueue.peekWillToShowFrame();
             firstReadyToShowFrame = videoState->videoFrameQueue.peekFirstReadyToShowFrame();
 
-            ALOGD(FFPLAY_TAG, "firstReadyToShowFrame serial = %d list serial = %d ", firstReadyToShowFrame->serial, videoState->videoPacketQueue.serial);
+            ALOGD(STREAM_TAG, "firstReadyToShowFrame serial = %d list serial = %d ", firstReadyToShowFrame->serial, videoState->videoPacketQueue.serial);
             if (firstReadyToShowFrame->serial != videoState->videoPacketQueue.serial) {
                 videoState->videoFrameQueue.next();
-                ALOGD(FFPLAY_TAG, "goto retry");
+                ALOGD(STREAM_TAG, "goto retry");
                 goto retry;
             }
 
-            ALOGD(FFPLAY_TAG, "willToShowFrame serial = %d firstReadyToShowFrame serial = %d ", willToShowFrame->serial, firstReadyToShowFrame->serial);
+            ALOGD(STREAM_TAG, "willToShowFrame serial = %d firstReadyToShowFrame serial = %d ", willToShowFrame->serial, firstReadyToShowFrame->serial);
             if (willToShowFrame->serial != firstReadyToShowFrame->serial) {
                 videoState->frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
-                ALOGD(FFPLAY_TAG, "update frameTimer = %fd ", videoState->frameTimer);
+                ALOGD(STREAM_TAG, "update frameTimer = %fd ", videoState->frameTimer);
             }
 
             if (videoState->paused) {
-                ALOGD(FFPLAY_TAG, "goto display");
+                ALOGD(STREAM_TAG, "goto display");
                 goto display;
             }
 
@@ -1219,18 +1209,18 @@ void Stream::refreshVideo(double *remainingTime) {
 
             time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
             double frameTimerDelay = videoState->frameTimer + delay;
-            ALOGD(FFPLAY_TAG, "time = %f frameTimer = %f frameTimerDelay = %f", time, videoState->frameTimer, frameTimerDelay);
+            ALOGD(STREAM_TAG, "time = %f frameTimer = %f frameTimerDelay = %f", time, videoState->frameTimer, frameTimerDelay);
             if (time < frameTimerDelay) {
                 *remainingTime = FFMIN(frameTimerDelay - time, *remainingTime);
-                ALOGD(FFPLAY_TAG, "goto display diff time = %lf remainingTime = %lf", (frameTimerDelay - time), *remainingTime);
+                ALOGD(STREAM_TAG, "goto display diff time = %lf remainingTime = %lf", (frameTimerDelay - time), *remainingTime);
                 goto display;
             }
 
             videoState->frameTimer += delay;
-            ALOGD(FFPLAY_TAG, "frameTimer = %f ", videoState->frameTimer);
+            ALOGD(STREAM_TAG, "frameTimer = %f ", videoState->frameTimer);
             if (delay > 0 && (time - videoState->frameTimer) > SYNC_THRESHOLD_MAX) {
                 videoState->frameTimer = time;
-                ALOGD(FFPLAY_TAG, "force set frameTimer = %f ", videoState->frameTimer);
+                ALOGD(STREAM_TAG, "force set frameTimer = %f ", videoState->frameTimer);
             }
 
             videoState->videoFrameQueue.mutex->mutexLock();
@@ -1242,11 +1232,11 @@ void Stream::refreshVideo(double *remainingTime) {
             if (videoState->videoFrameQueue.numberRemaining() > 1) {
                 Frame *nextPrepareShowFrame = videoState->videoFrameQueue.peekNextReadyToShowFrame();
                 duration = getFrameDuration(firstReadyToShowFrame, nextPrepareShowFrame);
-                ALOGD(FFPLAY_TAG, "next frame duration = %lf ", duration);
+                ALOGD(STREAM_TAG, "next frame duration = %lf ", duration);
                 if (!videoState->step && (options->dropFrameWhenSlow > 0 || (options->dropFrameWhenSlow && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) && time > (videoState->frameTimer + duration)) {
                     videoState->frameDropsLate++;
                     videoState->videoFrameQueue.next();
-                    ALOGD(FFPLAY_TAG, "goto retry");
+                    ALOGD(STREAM_TAG, "goto retry");
                     goto retry;
                 }
             }
@@ -1267,7 +1257,7 @@ void Stream::refreshVideo(double *remainingTime) {
             displayVideo();
         }
     } else {
-        ALOGD(FFPLAY_TAG, "not video streaming");
+        ALOGD(STREAM_TAG, "not video streaming");
     }
     videoState->forceRefresh = 0;
 }
@@ -1275,7 +1265,7 @@ void Stream::refreshVideo(double *remainingTime) {
 double Stream::getFrameDuration(Frame *current, Frame *next) {
     if (current->serial == next->serial) {
         double duration = next->pts - current->pts;
-        ALOGD(FFPLAY_TAG, "%s current->pts = %f next->pts = %f duration = %f maxFrameDuration = %f", __func__, current->pts, next->pts, duration, videoState->maxFrameDuration);
+        ALOGD(STREAM_TAG, "%s current->pts = %f next->pts = %f duration = %f maxFrameDuration = %f", __func__, current->pts, next->pts, duration, videoState->maxFrameDuration);
         if (isnan(duration) || duration <= 0 || duration > videoState->maxFrameDuration) {
             return current->duration;
         } else {
@@ -1288,7 +1278,7 @@ double Stream::getFrameDuration(Frame *current, Frame *next) {
 
 /* display the current picture, if any */
 void Stream::displayVideo() {
-    ALOGD(FFPLAY_TAG, __func__);
+    ALOGD(STREAM_TAG, __func__);
     if (!videoState->width) {
         displayWindow();
     }
@@ -1309,14 +1299,14 @@ double Stream::getComputeTargetDelay(double duration) {
 
         diff = videoClock - masterClock;
 
-        ALOGD(FFPLAY_TAG, "videoClock = %lf masterClock = %lf ", videoClock, masterClock);
+        ALOGD(STREAM_TAG, "videoClock = %lf masterClock = %lf ", videoClock, masterClock);
 
         // skip or repeat frame. We take into account the duration to compute the threshold. I still don't know
         // if it is the best guess */
         // 0.04 ~ 0.1
         syncThreshold = FFMAX(SYNC_THRESHOLD_MIN, FFMIN(SYNC_THRESHOLD_MAX, duration));
 
-        ALOGD(FFPLAY_TAG, "diff = %lf syncThreshold[0.04,0.1] = %lf ", diff, syncThreshold);
+        ALOGD(STREAM_TAG, "diff = %lf syncThreshold[0.04,0.1] = %lf ", diff, syncThreshold);
 
         if (!isnan(diff) && fabs(diff) < videoState->maxFrameDuration) {
             if (diff <= -syncThreshold) {
@@ -1328,13 +1318,13 @@ double Stream::getComputeTargetDelay(double duration) {
             }
         }
     }
-    ALOGD(FFPLAY_TAG, "%s duration = %f ", __func__, duration);
+    ALOGD(STREAM_TAG, "%s duration = %f ", __func__, duration);
     return duration;
 }
 
 /* update current video pts */
 void Stream::updateVideoClockPts(double pts, int64_t pos, int serial) {
-    ALOGD(FFPLAY_TAG, "%s pts = %lf pos = %lld serial = %d", __func__, pts, pos, serial);
+    ALOGD(STREAM_TAG, "%s pts = %lf pos = %lld serial = %d", __func__, pts, pos, serial);
     videoState->videoClock.setClock(pts, serial);
     syncClockToSlave(&videoState->exitClock, &videoState->videoClock);
 }
@@ -1364,9 +1354,8 @@ int Stream::displayWindow() {
     return POSITIVE;
 }
 
-
 void Stream::displayVideoImage() {
-    ALOGD(FFPLAY_TAG, __func__);
+    ALOGD(STREAM_TAG, __func__);
     if (surface) {
         surface->displayVideoImage();
     }
@@ -1380,12 +1369,8 @@ void Stream::displayVideoAudio() {
 
 }
 
-void Stream::setOptions(Options *options) {
-    Stream::options = options;
-}
-
 void Stream::setupToNextFrame() {
-    ALOGD(FFPLAY_TAG, "%s", __func__);
+    ALOGD(STREAM_TAG, "%s", __func__);
     /* if the stream is paused unpause it, then step */
     if (videoState) {
         if (videoState->paused) {
@@ -1395,15 +1380,17 @@ void Stream::setupToNextFrame() {
     }
 }
 
-void Stream::togglePause() {
-    ALOGD(FFPLAY_TAG, "%s", __func__);
+int Stream::togglePause() {
+    ALOGD(STREAM_TAG, "%s", __func__);
     if (videoState) {
         streamTogglePause();
         videoState->step = 0;
+        return POSITIVE;
     }
+    return NEGATIVE(S_NULL);
 }
 
-void Stream::streamTogglePause() {
+int Stream::streamTogglePause() {
     if (videoState) {
         if (videoState->paused) {
             videoState->frameTimer += (av_gettime_relative() * 1.0F / AV_TIME_BASE - videoState->videoClock.lastUpdatedTime);
@@ -1414,31 +1401,45 @@ void Stream::streamTogglePause() {
         }
         videoState->exitClock.setClock(videoState->exitClock.getClock(), videoState->exitClock.serial);
         videoState->paused = videoState->audioClock.paused = videoState->videoClock.paused = videoState->exitClock.paused = !videoState->paused;
+        return POSITIVE;
     }
+    return NEGATIVE(S_NULL);
 }
 
-void Stream::forceRefresh() {
+int Stream::forceRefresh() {
     if (videoState) {
         videoState->forceRefresh = 1;
+        return POSITIVE;
     }
+    return NEGATIVE(S_NULL);
+}
+
+void Stream::setOptions(Options *options) {
+    Stream::options = options;
 }
 
 void Stream::setMsgQueue(MessageQueue *msgQueue) {
     Stream::msgQueue = msgQueue;
 }
 
-int Stream::create() {
-    avformat_network_init();
-    av_init_packet(&flushPacket);
-    flushPacket.data = (uint8_t *) &flushPacket;
-    return POSITIVE;
+void Stream::setAudio(Audio *audio) {
+    ALOGD(STREAM_TAG, __func__);
+    Stream::audio = audio;
 }
 
-int Stream::destroy() {
-    remainingTime = 0.0f;
-    flushPacket.data = nullptr;
-    av_packet_unref(&flushPacket);
-    msgQueue = nullptr;
-    avformat_network_deinit();
-    return POSITIVE;
+void Stream::setSurface(Surface *surface) {
+    ALOGD(STREAM_TAG, __func__);
+    Stream::surface = surface;
+}
+
+int Stream::getStartupVolume() {
+    if (options->startupVolume < 0) {
+        ALOGD(STREAM_TAG, "%s -volume=%d < 0, setting to 0", __func__, options->startupVolume);
+    }
+    if (options->startupVolume > 100) {
+        ALOGD(STREAM_TAG, "%s -volume=%d > 100 0, setting to 100", __func__, options->startupVolume);
+    }
+    options->startupVolume = av_clip(options->startupVolume, 0, 100);
+    options->startupVolume = av_clip(MIX_MAX_VOLUME * options->startupVolume / 100, 0, MIX_MAX_VOLUME);
+    return options->startupVolume;
 }

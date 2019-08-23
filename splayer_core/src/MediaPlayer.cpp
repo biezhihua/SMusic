@@ -1,7 +1,12 @@
-
-#include <MediaPlayer.h>
-
 #include "MediaPlayer.h"
+
+static int staticMsgLoop(void *arg) {
+    if (arg) {
+        auto *mediaPlayer = static_cast<MediaPlayer *>(arg);
+        return mediaPlayer->messageLoop();
+    }
+    return NEGATIVE(S_NULL);
+}
 
 MediaPlayer::MediaPlayer() = default;
 
@@ -53,10 +58,10 @@ int MediaPlayer::create() {
     audio->setStream(stream);
     stream->setAudio(audio);
     stream->setSurface(surface);
+    stream->setMsgQueue(msgQueue);
 
     return POSITIVE;
 }
-
 
 int MediaPlayer::destroy() {
     ALOGD(MEDIA_PLAYER_TAG, __func__);
@@ -199,12 +204,8 @@ int MediaPlayer::setDataSource(const char *url) {
     return NEGATIVE(S_NULL);
 }
 
-static int staticMsgLoop(void *arg) {
-    if (arg) {
-        auto *mediaPlayer = static_cast<MediaPlayer *>(arg);
-        return mediaPlayer->messageLoop();
-    }
-    return NEGATIVE(S_NULL);
+Options *MediaPlayer::createOptions() const {
+    return new Options();
 }
 
 int MediaPlayer::prepareAsync() {
@@ -230,10 +231,6 @@ int MediaPlayer::prepareOptions() {
         return notifyMsg(Message::MSG_OPTIONS_CREATED);
     }
     return NEGATIVE(S_NOT_MEMORY);
-}
-
-Options *MediaPlayer::createOptions() const {
-    return new Options();
 }
 
 int MediaPlayer::prepareMsgQueue() {

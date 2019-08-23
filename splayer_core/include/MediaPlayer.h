@@ -7,7 +7,6 @@ class MessageQueue;
 #include "Error.h"
 #include "Mutex.h"
 #include "Stream.h"
-#include "RefCount.h"
 #include "Stream.h"
 #include "State.h"
 #include "Thread.h"
