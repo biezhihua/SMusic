@@ -40,6 +40,7 @@ int MediaPlayer::create() {
         destroy();
         return NEGATIVE(S_NOT_MEMORY);
     }
+    surface->setMediaPlayer(this);
     surface->setPlay(play);
     play->setSurface(surface);
 
@@ -73,14 +74,16 @@ int MediaPlayer::destroy() {
 
         play->shutdown();
 
-        if (play->getStream()) {
-            Stream *stream = play->getStream();
-            stream->destroy();
-            stream->setPlay(nullptr);
-            stream->setSurface(nullptr);
-            play->setStream(nullptr);
-            delete stream;
-            stream = nullptr;
+        if (play->getSurface()) {
+            Surface *surface = play->getSurface();
+            surface->destroy();
+            surface->setMediaPlayer(nullptr);
+            surface->setPlay(nullptr);
+            surface->setStream(nullptr);
+            surface->setOptions(nullptr);
+            play->setSurface(nullptr);
+            delete surface;
+            surface = nullptr;
         }
 
         if (play->getAudio()) {
@@ -92,15 +95,14 @@ int MediaPlayer::destroy() {
             audio = nullptr;
         }
 
-        if (play->getSurface()) {
-            Surface *surface = play->getSurface();
-            surface->destroy();
-            surface->setPlay(nullptr);
-            surface->setStream(nullptr);
-            surface->setOptions(nullptr);
-            play->setSurface(nullptr);
-            delete surface;
-            surface = nullptr;
+        if (play->getStream()) {
+            Stream *stream = play->getStream();
+            stream->destroy();
+            stream->setPlay(nullptr);
+            stream->setSurface(nullptr);
+            play->setStream(nullptr);
+            delete stream;
+            stream = nullptr;
         }
 
         if (play->getOptions()) {
@@ -108,6 +110,8 @@ int MediaPlayer::destroy() {
             delete options;
             options = nullptr;
         }
+
+        play->destroy();
 
         delete play;
         play = nullptr;
@@ -120,7 +124,7 @@ int MediaPlayer::destroy() {
         delete state;
         state = nullptr;
     }
-    return NEGATIVE(ENOMEM);
+    return POSITIVE;
 }
 
 

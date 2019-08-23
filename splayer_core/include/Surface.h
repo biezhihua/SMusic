@@ -2,6 +2,7 @@
 #define SPLAYER_VOUT_H
 
 class FFPlay;
+class MediaPlayer;
 
 #include <stddef.h>
 #include <stdint.h>
@@ -12,6 +13,7 @@ class FFPlay;
 #include "Options.h"
 #include "Rect.h"
 #include "Frame.h"
+#include "MediaPlayer.h"
 
 extern "C" {
 #include <libavutil/rational.h>
@@ -22,6 +24,7 @@ extern "C" {
 class Surface {
 
 protected:
+    MediaPlayer *mediaPlayer = nullptr;
     FFPlay *play = nullptr;
     Mutex *mutex = nullptr;
     Options *options = nullptr;
@@ -51,8 +54,6 @@ public:
 
     void setStream(Stream *stream);
 
-    virtual void doExit();
-
     void calculateDisplayRect(Rect *rect, int screenXLeft, int screenYTop, int screenWidth, int screenHeight, int pictureWidth, int pictureHeight, AVRational picSar);
 
     virtual void displayVideoImageBefore();
@@ -60,6 +61,10 @@ public:
     virtual void displayVideoImageAfter(Frame *lastFrame, Rect *rect);
 
     virtual int uploadTexture(AVFrame *frame, SwsContext *convertContext) = 0;
+
+    MediaPlayer *getMediaPlayer() const;
+
+    void setMediaPlayer(MediaPlayer *mediaPlayer);
 };
 
 

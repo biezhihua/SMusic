@@ -19,7 +19,6 @@ protected:
     State *state = nullptr;
     Mutex *mutex = nullptr;
     FFPlay *play = nullptr;
-    static RefCount refCount;
     char *dataSource = nullptr;
     Thread *msgThread = nullptr;
     Options *options = nullptr;
@@ -68,7 +67,7 @@ public:
     virtual Stream *createStream() = 0;
 
     virtual int messageLoop() = 0;
-    
+
     virtual Options *createOptions() const;
 
 private:

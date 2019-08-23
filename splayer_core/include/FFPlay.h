@@ -77,6 +77,8 @@ public:
 
     void streamSeek(int64_t pos, int64_t rel, int seekByBytes);
 
+    void destroy();
+
 public:
     FFPlay();
 
@@ -142,8 +144,6 @@ private:
     int streamHasEnoughPackets(AVStream *stream, int index, PacketQueue *packetQueue);
 
     int streamComponentClose(AVStream *stream, int streamIndex);
-
-
 
     int getMasterSyncType();
 

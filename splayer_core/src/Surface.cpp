@@ -79,16 +79,6 @@ void Surface::setStream(Stream *stream) {
     Surface::stream = stream;
 }
 
-void Surface::doExit() {
-    if (play) {
-        play->streamClose();
-    }
-    if (stream) {
-        stream->destroy();
-    }
-    destroy();
-}
-
 void Surface::calculateDisplayRect(Rect *rect, int screenXLeft, int screenYTop, int screenWidth, int screenHeight, int pictureWidth, int pictureHeight, AVRational picSar) {
 
     AVRational aspect_ratio = picSar;
@@ -122,6 +112,14 @@ void Surface::displayVideoImageBefore() {
 
 void Surface::displayVideoImageAfter(Frame *lastFrame, Rect *rect) {
 
+}
+
+MediaPlayer *Surface::getMediaPlayer() const {
+    return mediaPlayer;
+}
+
+void Surface::setMediaPlayer(MediaPlayer *mediaPlayer) {
+    Surface::mediaPlayer = mediaPlayer;
 }
 
 

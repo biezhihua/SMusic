@@ -85,7 +85,7 @@ public:
 
     int reallocTexture(SDL_Texture **texture, Uint32 newFormat, int newWidth, int newHeight, SDL_BlendMode blendMode, int initTexture);
 
-    void doExit() override;
+    void doExit();
 
     void toggleFullScreen() const;
 

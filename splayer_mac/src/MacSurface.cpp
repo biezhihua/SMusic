@@ -59,13 +59,29 @@ int MacSurface::create() {
 }
 
 int MacSurface::destroy() {
+    if (videoTexture) {
+        SDL_DestroyTexture(videoTexture);
+        videoTexture = nullptr;
+    }
+    if (subtitleTexture) {
+        SDL_DestroyTexture(subtitleTexture);
+        subtitleTexture = nullptr;
+    }
+    if (visTexture) {
+        SDL_DestroyTexture(visTexture);
+        visTexture = nullptr;
+    }
     if (renderer) {
         SDL_DestroyRenderer(renderer);
+        renderer = nullptr;
     }
     if (window) {
         SDL_DestroyWindow(window);
+        window = nullptr;
     }
     SDL_Quit();
+    rendererInfo = {nullptr};
+    lastMouseLeftClick = 0;
     options = nullptr;
     return POSITIVE;
 }
@@ -409,7 +425,9 @@ int MacSurface::reallocTexture(SDL_Texture **texture, Uint32 newFormat, int newW
 }
 
 void MacSurface::doExit() {
-    Surface::doExit();
+    if (mediaPlayer) {
+        mediaPlayer->destroy();
+    }
     exit(0);
 }
 

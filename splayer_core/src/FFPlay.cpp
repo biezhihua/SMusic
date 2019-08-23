@@ -35,9 +35,8 @@ int FFPlay::stop() {
 }
 
 int FFPlay::shutdown() {
-    // TODO
-    waitStop();
-    return NEGATIVE_UNKNOWN;
+    streamClose();
+    return POSITIVE;
 }
 
 int FFPlay::waitStop() {
@@ -232,8 +231,6 @@ void FFPlay::streamClose() {
         sws_freeContext(videoState->subConvertCtx);
 
         av_free(videoState->fileName);
-
-        // TODO Texture
 
         delete videoState;
         videoState = nullptr;
@@ -1484,4 +1481,13 @@ void FFPlay::forceRefresh() {
     if (videoState) {
         videoState->forceRefresh = 1;
     }
+}
+
+void FFPlay::destroy() {
+    remainingTime = 0.0f;
+    flushPacket.data = nullptr;
+    av_packet_unref(&flushPacket);
+    msgQueue->setAbortRequest(true);
+    delete msgQueue;
+    msgQueue = nullptr;
 }
