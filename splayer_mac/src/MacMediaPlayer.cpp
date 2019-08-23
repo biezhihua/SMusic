@@ -1,3 +1,6 @@
+
+#include <MacMediaPlayer.h>
+
 #include "MacMediaPlayer.h"
 
 ///WorkThread
@@ -25,7 +28,11 @@ Stream *MacMediaPlayer::createStream() {
     return new MacStream();
 }
 
-int MacMediaPlayer::prepareAsync() {
+Options *MacMediaPlayer::createOptions() const {
+    return new MacOptions();
+}
+
+int MacMediaPlayer::prepareBlock() {
     int result = MediaPlayer::prepareAsync();
     if (play) {
         auto *surface = dynamic_cast<MacSurface *>(play->getSurface());
@@ -34,8 +41,4 @@ int MacMediaPlayer::prepareAsync() {
         }
     }
     return result;
-}
-
-Options *MacMediaPlayer::createOptions() const {
-    return new MacOptions();
 }

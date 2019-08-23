@@ -20,7 +20,7 @@ public:
 
     Stream *createStream() override;
 
-    int prepareAsync() override;
+    int prepareBlock();
 
     Options *createOptions() const override;
 
