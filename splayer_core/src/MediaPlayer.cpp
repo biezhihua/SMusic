@@ -126,13 +126,16 @@ int MediaPlayer::destroy() {
 
         if (msgQueue) {
             msgQueue->setAbortRequest(true);
-            delete msgQueue;
-            msgQueue = nullptr;
         }
 
         if (msgThread) {
             msgThread->waitThread();
             msgThread = nullptr;
+        }
+
+        if (msgQueue) {
+            delete msgQueue;
+            msgQueue = nullptr;
         }
 
         if (state) {
@@ -338,34 +341,37 @@ void MediaPlayer::removeMsg(int what) {
 }
 
 int MediaPlayer::getMsg(Message *msg, bool block) {
-    while (true) {
-        bool continueWaitNextMsg = false;
-        int ret = msgQueue->getMsg(msg, block);
-        if (ret != POSITIVE) {
-            return ret;
-        }
-        switch (msg->what) {
-            case Message::MSG_PREPARED:
-                break;
-            case Message::MSG_COMPLETED:
-                break;
-            case Message::MSG_SEEK_COMPLETE:
-                break;
-            case Message::REQ_START:
-                break;
-            case Message::REQ_PAUSE:
-                break;
-            case Message::REQ_SEEK:
-                break;
-            default:
-                break;
-        }
-        if (continueWaitNextMsg) {
-            msg->free();
-            continue;
-        }
-        return ret;
+//    while (true) {
+//        bool continueWaitNextMsg = false;
+    if (msgQueue) {
+        return msgQueue->getMsg(msg, block);
     }
+    return NEGATIVE_EXIT;
+//        if (ret != POSITIVE) {
+//            return ret;
+//        }
+//        switch (msg->what) {
+//            case Message::MSG_PREPARED:
+//                break;
+//            case Message::MSG_COMPLETED:
+//                break;
+//            case Message::MSG_SEEK_COMPLETE:
+//                break;
+//            case Message::REQ_START:
+//                break;
+//            case Message::REQ_PAUSE:
+//                break;
+//            case Message::REQ_SEEK:
+//                break;
+//            default:
+//                break;
+//        }
+//        if (continueWaitNextMsg) {
+//            msg->free();
+//            continue;
+//        }
+//        return ret;
+//    }
 }
 
 

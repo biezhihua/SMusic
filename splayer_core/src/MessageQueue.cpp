@@ -73,17 +73,22 @@ int MessageQueue::getMsg(Message *msg, bool block) {
                 ret = NEGATIVE(S_ABORT_REQUEST);
                 break;
             }
-            Message *message = queue->front();
-            if (message) {
-                queue->pop_front();
-                *msg = *message;
-                ret = POSITIVE;
-                break;
-            } else if (!block) {
-                ret = NEGATIVE(S_NOT_BLOACK_GET_MSG);
-                break;
+            if (queue) {
+                Message *message = queue->front();
+                if (message) {
+                    queue->pop_front();
+                    *msg = *message;
+                    ret = POSITIVE;
+                    break;
+                } else if (!block) {
+                    ret = NEGATIVE(S_NOT_BLOACK_GET_MSG);
+                    break;
+                } else {
+                    mutex->condWait();
+                }
             } else {
-                mutex->condWait();
+                ALOGE(MESSAGE_QUEUE_TAG, "%s queue is null", __func__);
+                break;
             }
         }
         mutex->mutexUnLock();
