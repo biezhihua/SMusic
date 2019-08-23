@@ -1,6 +1,3 @@
-
-#include <MacMediaPlayer.h>
-
 #include "MacMediaPlayer.h"
 
 ///WorkThread
@@ -32,13 +29,12 @@ Options *MacMediaPlayer::createOptions() const {
     return new MacOptions();
 }
 
-int MacMediaPlayer::prepareBlock() {
-    int result = MediaPlayer::prepareAsync();
+int MacMediaPlayer::eventLoop() {
     if (play) {
         auto *surface = dynamic_cast<MacSurface *>(play->getSurface());
         if (surface) {
             return surface->eventLoop();
         }
     }
-    return result;
+    return NEGATIVE(S_ERROR);
 }

@@ -20,7 +20,7 @@ public:
 
     Stream *createStream() override;
 
-    int prepareBlock();
+    int eventLoop();
 
     Options *createOptions() const override;
 
