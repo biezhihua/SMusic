@@ -150,4 +150,8 @@ int MessageQueue::notifyMsg(int what, int arg1, int arg2) {
     return POSITIVE;
 }
 
+bool MessageQueue::isAbortRequest() const {
+    return abortRequest;
+}
+
 

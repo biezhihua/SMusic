@@ -58,15 +58,18 @@ extern "C" {
 class FFPlay {
 
 private:
-    MessageQueue *msgQueue = nullptr;
     Audio *audio = nullptr;
     Surface *surface = nullptr;
     Stream *stream = nullptr;
     VideoState *videoState = nullptr;
     AVPacket flushPacket;
     Options *options = nullptr;
+    MessageQueue *msgQueue = nullptr;
 
 public:
+
+    void setMsgQueue(MessageQueue *msgQueue);
+
     double remainingTime = 0.0f;
 
     void togglePause();
@@ -94,8 +97,6 @@ public:
 
     void setStream(Stream *stream);
 
-    MessageQueue *getMsgQueue() const;
-
     int stop();
 
     int shutdown();
@@ -103,8 +104,6 @@ public:
     int waitStop();
 
     int prepareStream(const char *fileName);
-
-    int getMsg(Message *pMessage, bool block);
 
     /**
      * this thread gets the stream from the disk or the network

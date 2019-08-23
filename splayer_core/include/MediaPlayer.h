@@ -1,6 +1,8 @@
 #ifndef SPLAYER_MEDIASPLAYER_H
 #define SPLAYER_MEDIASPLAYER_H
 
+class MessageQueue;
+
 #include "Log.h"
 #include "Error.h"
 #include "Mutex.h"
@@ -10,6 +12,7 @@
 #include "State.h"
 #include "Thread.h"
 #include "Options.h"
+#include "MessageQueue.h"
 
 #define MEDIA_PLAYER_TAG "MediaPlayer"
 
@@ -18,12 +21,14 @@ class MediaPlayer {
 protected:
     State *state = nullptr;
     Mutex *mutex = nullptr;
+    MessageQueue *msgQueue = nullptr;
     FFPlay *play = nullptr;
     char *dataSource = nullptr;
     Thread *msgThread = nullptr;
     Options *options = nullptr;
 
 protected:
+
     void notifyMsg(int what);
 
     void notifyMsg(int what, int arg1);
@@ -32,9 +37,7 @@ protected:
 
     void removeMsg(int what);
 
-protected:
-
-    MessageQueue *getMsgQueue();
+    int getMsg(Message *pMessage, bool block);
 
 public:
 

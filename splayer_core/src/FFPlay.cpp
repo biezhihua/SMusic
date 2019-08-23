@@ -1,13 +1,11 @@
 #include "FFPlay.h"
 
 FFPlay::FFPlay() {
-    msgQueue = new MessageQueue();
 }
 
 FFPlay::~FFPlay() {
     delete stream;
     delete audio;
-    delete msgQueue;
 }
 
 void FFPlay::setAudio(Audio *audio) {
@@ -23,10 +21,6 @@ void FFPlay::setSurface(Surface *surface) {
 void FFPlay::setStream(Stream *stream) {
     ALOGD(FFPLAY_TAG, __func__);
     FFPlay::stream = stream;
-}
-
-MessageQueue *FFPlay::getMsgQueue() const {
-    return msgQueue;
 }
 
 int FFPlay::stop() {
@@ -58,37 +52,6 @@ int FFPlay::prepareStream(const char *fileName) {
     }
 
     return POSITIVE;
-}
-
-int FFPlay::getMsg(Message *msg, bool block) {
-    while (true) {
-        bool continueWaitNextMsg = false;
-        int ret = msgQueue->getMsg(msg, block);
-        if (ret != POSITIVE) {
-            return ret;
-        }
-        switch (msg->what) {
-            case Message::MSG_PREPARED:
-                break;
-            case Message::MSG_COMPLETED:
-                break;
-            case Message::MSG_SEEK_COMPLETE:
-                break;
-            case Message::REQ_START:
-                break;
-            case Message::REQ_PAUSE:
-                break;
-            case Message::REQ_SEEK:
-                break;
-            default:
-                break;
-        }
-        if (continueWaitNextMsg) {
-            msg->free();
-            continue;
-        }
-        return ret;
-    }
 }
 
 
@@ -968,12 +931,15 @@ int FFPlay::videoThread() {
     }
 
     for (;;) {
+
         ret = getVideoFrame(frame);
-        if (ret <= 0) {
+
+        if (IS_NEGATIVE(ret)) {
             av_frame_free(&frame);
             ALOGE(FFPLAY_TAG, "%s not get video frame", __func__);
             return NEGATIVE(S_NOT_GET_VIDEO_FRAME);
         }
+
         if (ret == NEGATIVE_EOF) {
             continue;
         }
@@ -1487,7 +1453,10 @@ void FFPlay::destroy() {
     remainingTime = 0.0f;
     flushPacket.data = nullptr;
     av_packet_unref(&flushPacket);
-    msgQueue->setAbortRequest(true);
-    delete msgQueue;
     msgQueue = nullptr;
+}
+
+
+void FFPlay::setMsgQueue(MessageQueue *msgQueue) {
+    FFPlay::msgQueue = msgQueue;
 }

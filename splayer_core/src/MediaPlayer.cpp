@@ -1,3 +1,6 @@
+
+#include <MediaPlayer.h>
+
 #include "MediaPlayer.h"
 
 MediaPlayer::MediaPlayer() = default;
@@ -5,17 +8,7 @@ MediaPlayer::MediaPlayer() = default;
 MediaPlayer::~MediaPlayer() = default;
 
 int MediaPlayer::create() {
-
-    show_ffmpeg_banner();
-
     ALOGD(MEDIA_PLAYER_TAG, __func__);
-
-    state = new State();
-    if (!state) {
-        ALOGE(MEDIA_PLAYER_TAG, "create state error");
-        destroy();
-        return NEGATIVE(S_NOT_MEMORY);
-    }
 
     mutex = new Mutex();
     if (!mutex) {
@@ -24,15 +17,23 @@ int MediaPlayer::create() {
         return NEGATIVE(S_NOT_MEMORY);
     }
 
+    state = new State();
+    if (!state) {
+        ALOGE(MEDIA_PLAYER_TAG, "create state error");
+        destroy();
+        return NEGATIVE(S_NOT_MEMORY);
+    }
+
+    msgQueue = new MessageQueue();
+    state->setMsgQueue(msgQueue);
+
     play = new FFPlay();
     if (!play) {
         ALOGE(MEDIA_PLAYER_TAG, "create play error");
         destroy();
         return NEGATIVE(S_NOT_MEMORY);
     }
-
-    // 设置消息
-    state->setMsgQueue(play->getMsgQueue());
+    play->setMsgQueue(msgQueue);
 
     Surface *surface = createSurface();
     if (!surface) {
@@ -70,60 +71,81 @@ int MediaPlayer::create() {
 
 int MediaPlayer::destroy() {
     ALOGD(MEDIA_PLAYER_TAG, __func__);
-    if (mutex && play) {
-
-        play->shutdown();
-
-        if (play->getSurface()) {
-            Surface *surface = play->getSurface();
-            surface->destroy();
-            surface->setMediaPlayer(nullptr);
-            surface->setPlay(nullptr);
-            surface->setStream(nullptr);
-            surface->setOptions(nullptr);
-            play->setSurface(nullptr);
-            delete surface;
-            surface = nullptr;
-        }
-
-        if (play->getAudio()) {
-            Audio *audio = play->getAudio();
-            audio->destroy();
-            audio->setPlay(nullptr);
-            play->setAudio(nullptr);
-            delete audio;
-            audio = nullptr;
-        }
-
-        if (play->getStream()) {
-            Stream *stream = play->getStream();
-            stream->destroy();
-            stream->setPlay(nullptr);
-            stream->setSurface(nullptr);
-            play->setStream(nullptr);
-            delete stream;
-            stream = nullptr;
-        }
-
-        if (play->getOptions()) {
-            play->setOptions(nullptr);
-            delete options;
-            options = nullptr;
-        }
-
-        play->destroy();
-
-        delete play;
-        play = nullptr;
-    }
     if (mutex) {
+        mutex->mutexLock();
+
+        if (play) {
+            play->shutdown();
+
+            if (play->getSurface()) {
+                Surface *surface = play->getSurface();
+                surface->destroy();
+                surface->setMediaPlayer(nullptr);
+                surface->setPlay(nullptr);
+                surface->setStream(nullptr);
+                surface->setOptions(nullptr);
+                play->setSurface(nullptr);
+                delete surface;
+                surface = nullptr;
+            }
+
+            if (play->getAudio()) {
+                Audio *audio = play->getAudio();
+                audio->destroy();
+                audio->setPlay(nullptr);
+                play->setAudio(nullptr);
+                delete audio;
+                audio = nullptr;
+            }
+
+            if (play->getStream()) {
+                Stream *stream = play->getStream();
+                stream->destroy();
+                stream->setPlay(nullptr);
+                stream->setSurface(nullptr);
+                play->setStream(nullptr);
+                delete stream;
+                stream = nullptr;
+            }
+
+            if (play->getOptions()) {
+                play->setOptions(nullptr);
+                delete options;
+                options = nullptr;
+            }
+
+            play->destroy();
+            delete play;
+            play = nullptr;
+        }
+
+        if (dataSource) {
+            free(dataSource);
+            dataSource = nullptr;
+        }
+
+        if (msgQueue) {
+            msgQueue->setAbortRequest(true);
+            delete msgQueue;
+            msgQueue = nullptr;
+        }
+
+        if (msgThread) {
+            msgThread->waitThread();
+            msgThread = nullptr;
+        }
+
+        if (state) {
+            state->setMsgQueue(nullptr);
+            delete state;
+            state = nullptr;
+        }
+
+        mutex->mutexUnLock();
         delete mutex;
         mutex = nullptr;
     }
-    if (state) {
-        delete state;
-        state = nullptr;
-    }
+    ALOGD(MEDIA_PLAYER_TAG, "%s end", __func__);
     return POSITIVE;
 }
 
@@ -242,7 +264,6 @@ Options *MediaPlayer::createOptions() const {
 }
 
 int MediaPlayer::prepareMsgQueue() {
-    MessageQueue *msgQueue = play->getMsgQueue();
     if (!msgQueue) {
         return NEGATIVE(S_NULL);
     }
@@ -293,38 +314,58 @@ int MediaPlayer::prepareAudio() {
 }
 
 void MediaPlayer::notifyMsg(int what) {
-    if (play && play->getMsgQueue()) {
-        MessageQueue *msg = play->getMsgQueue();
-        msg->notifyMsg(what);
+    if (msgQueue) {
+        msgQueue->notifyMsg(what);
     }
 }
 
 void MediaPlayer::notifyMsg(int what, int arg1) {
-    if (play && play->getMsgQueue()) {
-        MessageQueue *msg = play->getMsgQueue();
-        msg->notifyMsg(what, arg1);
+    if (msgQueue) {
+        msgQueue->notifyMsg(what, arg1);
     }
 }
 
 void MediaPlayer::notifyMsg(int what, int arg1, int arg2) {
-    if (play && play->getMsgQueue()) {
-        MessageQueue *msg = play->getMsgQueue();
-        msg->notifyMsg(what, arg1, arg2);
+    if (msgQueue) {
+        msgQueue->notifyMsg(what, arg1, arg2);
     }
 }
 
 void MediaPlayer::removeMsg(int what) {
-    if (play && play->getMsgQueue()) {
-        MessageQueue *msg = play->getMsgQueue();
-        msg->removeMsg(what);
+    if (msgQueue) {
+        msgQueue->removeMsg(what);
     }
 }
 
-MessageQueue *MediaPlayer::getMsgQueue() {
-    if (play) {
-        return play->getMsgQueue();
+int MediaPlayer::getMsg(Message *msg, bool block) {
+    while (true) {
+        bool continueWaitNextMsg = false;
+        int ret = msgQueue->getMsg(msg, block);
+        if (ret != POSITIVE) {
+            return ret;
+        }
+        switch (msg->what) {
+            case Message::MSG_PREPARED:
+                break;
+            case Message::MSG_COMPLETED:
+                break;
+            case Message::MSG_SEEK_COMPLETE:
+                break;
+            case Message::REQ_START:
+                break;
+            case Message::REQ_PAUSE:
+                break;
+            case Message::REQ_SEEK:
+                break;
+            default:
+                break;
+        }
+        if (continueWaitNextMsg) {
+            msg->free();
+            continue;
+        }
+        return ret;
     }
-    return nullptr;
 }
 
 

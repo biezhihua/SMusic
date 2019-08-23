@@ -428,7 +428,7 @@ void MacSurface::doExit() {
     if (mediaPlayer) {
         mediaPlayer->destroy();
     }
-    exit(0);
+    // exit(0);
 }
 
 void MacSurface::toggleFullScreen() const {

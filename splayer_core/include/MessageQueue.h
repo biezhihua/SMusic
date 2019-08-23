@@ -22,9 +22,10 @@ private:
     bool abortRequest = true;
 
 private:
-    int _putMsg(Message *msg);
 
+    int _putMsg(Message *msg);
 public:
+    bool isAbortRequest() const;
 
     MessageQueue();
 
