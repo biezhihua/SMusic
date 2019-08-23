@@ -1,14 +1,15 @@
 #ifndef SPLAYER_VOUT_H
 #define SPLAYER_VOUT_H
 
-class FFPlay;
+class Stream;
+
 class MediaPlayer;
 
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "Log.h"
-#include "FFPlay.h"
+#include "Stream.h"
 #include "Mutex.h"
 #include "Options.h"
 #include "Rect.h"
@@ -25,10 +26,9 @@ class Surface {
 
 protected:
     MediaPlayer *mediaPlayer = nullptr;
-    FFPlay *play = nullptr;
+    Stream *stream = nullptr;
     Mutex *mutex = nullptr;
     Options *options = nullptr;
-    Stream *stream = nullptr;
 public:
     Surface();
 
@@ -40,7 +40,7 @@ public:
 
     virtual void setWindowSize(int width, int height, AVRational rational);
 
-    void setPlay(FFPlay *play);
+    void setStream(Stream *stream);
 
     virtual void displayWindow(int width, int height);
 
@@ -49,10 +49,6 @@ public:
     virtual Options *getOptions() const;
 
     void setOptions(Options *options);
-
-    Stream *getStream() const;
-
-    void setStream(Stream *stream);
 
     void calculateDisplayRect(Rect *rect, int screenXLeft, int screenYTop, int screenWidth, int screenHeight, int pictureWidth, int pictureHeight, AVRational picSar);
 

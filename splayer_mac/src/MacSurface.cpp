@@ -3,7 +3,7 @@
 int MacSurface::create() {
     ALOGD(MAC_SURFACE_TAG, __func__);
 
-    if (!play) {
+    if (!stream) {
         return NEGATIVE(S_NULL);
     }
 
@@ -89,13 +89,13 @@ int MacSurface::destroy() {
 int MacSurface::eventLoop() {
     bool quit = false;
     SDL_Event event;
-    while (!quit && play) {
-        play->remainingTime = 0.0F;
+    while (!quit && stream) {
+        stream->remainingTime = 0.0F;
         SDL_PumpEvents();
         while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
             hideCursor();
-            if (play) {
-                play->refresh();
+            if (stream) {
+                stream->refresh();
             }
             SDL_PumpEvents();
         }
@@ -112,9 +112,9 @@ int MacSurface::eventLoop() {
                 doKeySystem(event);
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                if (play && event.button.button == SDL_BUTTON_LEFT && !IS_NEGATIVE(isFullScreenClick())) {
+                if (stream && event.button.button == SDL_BUTTON_LEFT && !IS_NEGATIVE(isFullScreenClick())) {
                     toggleFullScreen();
-                    play->forceRefresh();
+                    stream->forceRefresh();
                 }
             case SDL_MOUSEMOTION:
                 showCursor();
@@ -158,17 +158,17 @@ void MacSurface::doWindowEvent(const SDL_Event &event) {
     ALOGD(MAC_SURFACE_TAG, "%s width = %d height = %d ", __func__, event.window.data1, event.window.data2);
     switch (event.window.event) {
         case SDL_WINDOWEVENT_RESIZED:
-            if (options && play) {
-                options->screenWidth = play->getVideoState()->width = event.window.data1;
-                options->screenHeight = play->getVideoState()->height = event.window.data2;
+            if (options && stream) {
+                options->screenWidth = stream->getVideoState()->width = event.window.data1;
+                options->screenHeight = stream->getVideoState()->height = event.window.data2;
                 if (videoTexture) {
                     SDL_DestroyTexture(videoTexture);
                     videoTexture = nullptr;
                 }
             }
         case SDL_WINDOWEVENT_EXPOSED:
-            if (play) {
-                play->forceRefresh();
+            if (stream) {
+                stream->forceRefresh();
             }
         default:
             break;
@@ -181,21 +181,21 @@ bool MacSurface::isQuitKey(const SDL_Event &event) const {
 
 bool MacSurface::isNotHaveWindow() const {
     // If we don't yet have a window, skip all key events, because read_thread might still be initializing...
-    return !(play && play->getVideoState() && play->getVideoState()->width);
+    return !(stream && stream->getVideoState() && stream->getVideoState()->width);
 }
 
 void MacSurface::doKeySystem(const SDL_Event &event) const {
     switch (event.key.keysym.sym) {
         case SDLK_f:
-            if (play) {
+            if (stream) {
                 toggleFullScreen();
-                play->forceRefresh();
+                stream->forceRefresh();
             }
             break;
         case SDLK_p:
         case SDLK_SPACE:
-            if (play) {
-                play->togglePause();
+            if (stream) {
+                stream->togglePause();
             }
             break;
         case SDLK_m:
@@ -207,8 +207,8 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
         case SDLK_9:
             break;
         case SDLK_s: // S: Step to next frame
-            if (play) {
-                play->setupToNextFrame();
+            if (stream) {
+                stream->setupToNextFrame();
             }
             break;
         case SDLK_a:
@@ -343,7 +343,7 @@ void MacSurface::displayVideoImageBefore() {
 }
 
 void MacSurface::displayVideoImageAfter(Frame *lastFrame, Rect *rect) {
-    if (play && play->getVideoState() && lastFrame) {
+    if (stream && stream->getVideoState() && lastFrame) {
         SDL_Rect sdlRect;
         if (rect) {
             sdlRect.x = rect->x;
@@ -451,8 +451,8 @@ int MacSurface::isFullScreenClick() {
 
 void MacSurface::doSeek(double increment) const {
     double pos;
-    if (options && play && play->getVideoState()) {
-        VideoState *videoState = play->getVideoState();
+    if (options && stream && stream->getVideoState()) {
+        VideoState *videoState = stream->getVideoState();
         if (options->seekByBytes) {
             pos = -1;
             if (pos < 0 && videoState->videoStreamIndex >= 0) {
@@ -470,9 +470,9 @@ void MacSurface::doSeek(double increment) const {
                 increment *= 180000.0;
             }
             pos += increment;
-            play->streamSeek((int64_t) pos, (int64_t) increment, 1);
+            stream->streamSeek((int64_t) pos, (int64_t) increment, 1);
         } else {
-            pos = play->getMasterClock();
+            pos = stream->getMasterClock();
             if (isnan(pos)) {
                 pos = (double) videoState->seekPos / AV_TIME_BASE;
             }
@@ -480,7 +480,7 @@ void MacSurface::doSeek(double increment) const {
             if (videoState->formatContext->start_time != AV_NOPTS_VALUE && pos < videoState->formatContext->start_time / (double) AV_TIME_BASE) {
                 pos = videoState->formatContext->start_time / (double) AV_TIME_BASE;
             }
-            play->streamSeek((int64_t) (pos * AV_TIME_BASE), (int64_t) (increment * AV_TIME_BASE), 0);
+            stream->streamSeek((int64_t) (pos * AV_TIME_BASE), (int64_t) (increment * AV_TIME_BASE), 0);
         }
     }
 }

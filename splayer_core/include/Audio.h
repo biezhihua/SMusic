@@ -1,16 +1,16 @@
 #ifndef SPLAYER_AOUT_H
 #define SPLAYER_AOUT_H
 
-class FFPlay;
+class Stream;
 
 #include "Log.h"
 #include "Mutex.h"
-#include "FFPlay.h"
+#include "Stream.h"
 
 class Audio {
 
 private:
-    FFPlay *play = nullptr;
+    Stream *stream = nullptr;
     Mutex *mutex = nullptr;
 
 public:
@@ -22,7 +22,7 @@ public:
 
     virtual int destroy() = 0;
 
-    void setPlay(FFPlay *play);
+    void setStream(Stream *stream);
 };
 
 

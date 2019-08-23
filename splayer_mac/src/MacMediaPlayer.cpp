@@ -30,10 +30,10 @@ Options *MacMediaPlayer::createOptions() const {
 }
 
 int MacMediaPlayer::eventLoop() {
-    if (play) {
-        auto *surface = dynamic_cast<MacSurface *>(play->getSurface());
-        if (surface) {
-            return surface->eventLoop();
+    if (stream) {
+        auto *macSurface = dynamic_cast<MacSurface *>(surface);
+        if (macSurface) {
+            return macSurface->eventLoop();
         }
     }
     return NEGATIVE(S_ERROR);

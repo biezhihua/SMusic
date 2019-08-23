@@ -6,13 +6,15 @@ class MessageQueue;
 #include "Log.h"
 #include "Error.h"
 #include "Mutex.h"
-#include "FFPlay.h"
+#include "Stream.h"
 #include "RefCount.h"
 #include "Stream.h"
 #include "State.h"
 #include "Thread.h"
 #include "Options.h"
 #include "MessageQueue.h"
+#include "Audio.h"
+#include "Surface.h"
 
 #define MEDIA_PLAYER_TAG "MediaPlayer"
 
@@ -22,20 +24,22 @@ protected:
     State *state = nullptr;
     Mutex *mutex = nullptr;
     MessageQueue *msgQueue = nullptr;
-    FFPlay *play = nullptr;
+    Stream *stream = nullptr;
+    Audio *audio = nullptr;
+    Surface *surface = nullptr;
     char *dataSource = nullptr;
     Thread *msgThread = nullptr;
     Options *options = nullptr;
 
 protected:
 
-    void notifyMsg(int what);
+    int notifyMsg(int what);
 
-    void notifyMsg(int what, int arg1);
+    int notifyMsg(int what, int arg1);
 
-    void notifyMsg(int what, int arg1, int arg2);
+    int notifyMsg(int what, int arg1, int arg2);
 
-    void removeMsg(int what);
+    int removeMsg(int what);
 
     int getMsg(Message *pMessage, bool block);
 

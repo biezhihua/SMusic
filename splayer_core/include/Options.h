@@ -55,7 +55,7 @@ public:
     int startupVolume = 100; // set startup volume 0=min 100=max
     int syncType = SYNC_TYPE_AUDIO_MASTER; // set audio-video sync. type (type=audio/video/ext)
     int64_t startTime = AV_NOPTS_VALUE; // seek to a given position in seconds
-    int64_t duration = AV_NOPTS_VALUE; // play  \"duration\" seconds of audio/video
+    int64_t duration = AV_NOPTS_VALUE; // stream  \"duration\" seconds of audio/video
 
     int fast = 0; // non spec compliant optimizations
     int generatePts = 0; // generate pts
