@@ -49,7 +49,6 @@ int Stream::create() {
 }
 
 int Stream::destroy() {
-    remainingTime = 0.0f;
     flushPacket.data = nullptr;
     av_packet_unref(&flushPacket);
     msgQueue = nullptr;
@@ -1126,20 +1125,6 @@ int Stream::queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duratio
     return POSITIVE;
 }
 
-int Stream::refresh() {
-    ALOGD(STREAM_TAG, "===== refresh =====");
-    ALOGD(STREAM_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime, videoState->paused, videoState->forceRefresh);
-    if (remainingTime > 0.0) {
-        av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * AV_TIME_BASE)));
-    }
-    remainingTime = REFRESH_RATE;
-    if (videoState->showMode != SHOW_MODE_NONE && (!videoState->paused || videoState->forceRefresh)) {
-        refreshVideo(&remainingTime);
-    }
-    ALOGD(STREAM_TAG, "===== end =====");
-    return POSITIVE;
-}
-
 void Stream::checkExternalClockSpeed() {
     if ((videoState->videoStreamIndex >= 0 && videoState->videoPacketQueue.packetSize <= EXTERNAL_CLOCK_MIN_FRAMES) ||
         (videoState->audioStreamIndex >= 0 && videoState->audioPacketQueue.packetSize <= EXTERNAL_CLOCK_MIN_FRAMES)) {
@@ -1155,113 +1140,6 @@ void Stream::checkExternalClockSpeed() {
     }
 }
 
-/* called to display each frame */
-void Stream::refreshVideo(double *remainingTime) {
-    ALOGD(STREAM_TAG, "%s", __func__);
-    double time;
-    Frame *sp, *sp2;
-
-    if (!videoState->paused && getMasterSyncType() == SYNC_TYPE_EXTERNAL_CLOCK && videoState->realTime) {
-        checkExternalClockSpeed();
-    }
-
-    if (videoState->showMode != SHOW_MODE_VIDEO && videoState->audioStream) {
-        time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
-        if (videoState->forceRefresh || (videoState->lastVisTime + options->rdftSpeed) < time) {
-            displayVideo();
-            videoState->lastVisTime = time;
-        }
-        *remainingTime = FFMIN(*remainingTime, videoState->lastVisTime + options->rdftSpeed - time);
-    }
-
-    if (videoState->videoStream) {
-        retry:
-        if (videoState->videoFrameQueue.numberRemaining() == 0) {
-            ALOGD(STREAM_TAG, "nothing to do, no picture to display in the queue");
-        } else {
-            double lastDuration, duration, delay;
-            Frame *willToShowFrame, *firstReadyToShowFrame;
-
-            willToShowFrame = videoState->videoFrameQueue.peekWillToShowFrame();
-            firstReadyToShowFrame = videoState->videoFrameQueue.peekFirstReadyToShowFrame();
-
-            ALOGD(STREAM_TAG, "firstReadyToShowFrame serial = %d list serial = %d ", firstReadyToShowFrame->serial, videoState->videoPacketQueue.serial);
-            if (firstReadyToShowFrame->serial != videoState->videoPacketQueue.serial) {
-                videoState->videoFrameQueue.next();
-                ALOGD(STREAM_TAG, "goto retry");
-                goto retry;
-            }
-
-            ALOGD(STREAM_TAG, "willToShowFrame serial = %d firstReadyToShowFrame serial = %d ", willToShowFrame->serial, firstReadyToShowFrame->serial);
-            if (willToShowFrame->serial != firstReadyToShowFrame->serial) {
-                videoState->frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
-                ALOGD(STREAM_TAG, "update frameTimer = %fd ", videoState->frameTimer);
-            }
-
-            if (videoState->paused) {
-                ALOGD(STREAM_TAG, "goto display");
-                goto display;
-            }
-
-            /* compute nominal lastDuration */
-            lastDuration = getFrameDuration(willToShowFrame, firstReadyToShowFrame);
-            delay = getComputeTargetDelay(lastDuration);
-
-            time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
-            double frameTimerDelay = videoState->frameTimer + delay;
-            ALOGD(STREAM_TAG, "time = %f frameTimer = %f frameTimerDelay = %f", time, videoState->frameTimer, frameTimerDelay);
-            if (time < frameTimerDelay) {
-                *remainingTime = FFMIN(frameTimerDelay - time, *remainingTime);
-                ALOGD(STREAM_TAG, "goto display diff time = %lf remainingTime = %lf", (frameTimerDelay - time), *remainingTime);
-                goto display;
-            }
-
-            videoState->frameTimer += delay;
-            ALOGD(STREAM_TAG, "frameTimer = %f ", videoState->frameTimer);
-            if (delay > 0 && (time - videoState->frameTimer) > SYNC_THRESHOLD_MAX) {
-                videoState->frameTimer = time;
-                ALOGD(STREAM_TAG, "force set frameTimer = %f ", videoState->frameTimer);
-            }
-
-            videoState->videoFrameQueue.mutex->mutexLock();
-            if (!isnan(firstReadyToShowFrame->pts)) {
-                updateVideoClockPts(firstReadyToShowFrame->pts, firstReadyToShowFrame->pos, firstReadyToShowFrame->serial);
-            }
-            videoState->videoFrameQueue.mutex->mutexUnLock();
-
-            if (videoState->videoFrameQueue.numberRemaining() > 1) {
-                Frame *nextPrepareShowFrame = videoState->videoFrameQueue.peekNextReadyToShowFrame();
-                duration = getFrameDuration(firstReadyToShowFrame, nextPrepareShowFrame);
-                ALOGD(STREAM_TAG, "next frame duration = %lf ", duration);
-                if (!videoState->step && (options->dropFrameWhenSlow > 0 || (options->dropFrameWhenSlow && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) && time > (videoState->frameTimer + duration)) {
-                    videoState->frameDropsLate++;
-                    videoState->videoFrameQueue.next();
-                    ALOGD(STREAM_TAG, "goto retry");
-                    goto retry;
-                }
-            }
-
-            // TODO subtitle
-
-            videoState->videoFrameQueue.next();
-            videoState->forceRefresh = 1;
-
-            if (videoState->step && !videoState->paused) {
-                streamTogglePause();
-            }
-        }
-
-        display:
-        /* display picture */
-        if (videoState->forceRefresh && videoState->showMode == SHOW_MODE_VIDEO && videoState->videoFrameQueue.readIndexShown) {
-            displayVideo();
-        }
-    } else {
-        ALOGD(STREAM_TAG, "not video streaming");
-    }
-    videoState->forceRefresh = 0;
-}
-
 double Stream::getFrameDuration(Frame *current, Frame *next) {
     if (current->serial == next->serial) {
         double duration = next->pts - current->pts;
@@ -1273,19 +1151,6 @@ double Stream::getFrameDuration(Frame *current, Frame *next) {
         }
     } else {
         return 0.0;
-    }
-}
-
-/* display the current picture, if any */
-void Stream::displayVideo() {
-    ALOGD(STREAM_TAG, __func__);
-    if (!videoState->width) {
-        displayWindow();
-    }
-    if (videoState->audioStream && videoState->showMode != SHOW_MODE_VIDEO) {
-        displayVideoAudio();
-    } else if (videoState->videoStream) {
-        displayVideoImage();
     }
 }
 
@@ -1337,36 +1202,8 @@ void Stream::syncClockToSlave(Clock *c, Clock *slave) {
     }
 }
 
-int Stream::displayWindow() {
-    if (options) {
-        int w, h;
-        w = options->screenWidth ? options->screenWidth : options->defaultWidth;
-        h = options->screenHeight ? options->screenHeight : options->defaultHeight;
-        if (!options->windowTitle) {
-            options->windowTitle = options->inputFileName;
-        }
-        if (surface) {
-            surface->displayWindow(w, h);
-        }
-        videoState->width = w;
-        videoState->height = h;
-    }
-    return POSITIVE;
-}
-
-void Stream::displayVideoImage() {
-    ALOGD(STREAM_TAG, __func__);
-    if (surface) {
-        surface->displayVideoImage();
-    }
-}
-
 VideoState *Stream::getVideoState() const {
     return videoState;
-}
-
-void Stream::displayVideoAudio() {
-
 }
 
 void Stream::setupToNextFrame() {

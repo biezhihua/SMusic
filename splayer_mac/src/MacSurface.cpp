@@ -59,6 +59,7 @@ int MacSurface::create() {
 }
 
 int MacSurface::destroy() {
+    Surface::destroy();
     if (videoTexture) {
         SDL_DestroyTexture(videoTexture);
         videoTexture = nullptr;
@@ -90,13 +91,11 @@ int MacSurface::eventLoop() {
     bool quit = false;
     SDL_Event event;
     while (!quit && stream) {
-        stream->remainingTime = 0.0F;
+        remainingTime = 0.0F;
         SDL_PumpEvents();
         while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
             hideCursor();
-            if (stream) {
-                stream->refresh();
-            }
+            refreshVideo();
             SDL_PumpEvents();
         }
         switch (event.type) {
@@ -246,10 +245,14 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
     }
 }
 
-void MacSurface::displayWindow(int width, int height) {
-    if (window && options) {
+int MacSurface::displayWindow() {
+    if (!Surface::displayWindow()) {
+        return NEGATIVE(S_ERROR);
+    }
+    if (window && options && stream && stream->getVideoState()) {
+        VideoState *videoState = stream->getVideoState();
         SDL_SetWindowTitle(window, options->windowTitle);
-        SDL_SetWindowSize(window, width, height);
+        SDL_SetWindowSize(window, videoState->width, videoState->height);
         SDL_SetWindowPosition(window, options->screenLeft, options->screenTop);
         if (options->isFullScreen) {
             SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
@@ -257,10 +260,12 @@ void MacSurface::displayWindow(int width, int height) {
         SDL_ShowWindow(window);
         ALOGD(MAC_SURFACE_TAG, "%s windowTitle = %s defaultWidth = %d defaultHeight = %d screenLeft = %d screenTop = %d", __func__,
               options->windowTitle,
-              width, height,
+              videoState->width, videoState->height,
               options->screenLeft, options->screenTop
         );
+        return POSITIVE;
     }
+    return NEGATIVE(S_NULL);
 }
 
 int MacSurface::uploadTexture(AVFrame *frame, SwsContext *convertContext) {

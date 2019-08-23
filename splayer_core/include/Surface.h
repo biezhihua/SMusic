@@ -29,28 +29,39 @@ protected:
     Stream *stream = nullptr;
     Mutex *mutex = nullptr;
     Options *options = nullptr;
+
+    double remainingTime = 0.0f;
+
 public:
     Surface();
 
     virtual ~Surface();
 
-    virtual int create() = 0;
+    virtual int create();
 
-    virtual int destroy() = 0;
+    virtual int destroy();
 
-    virtual void setWindowSize(int width, int height, AVRational rational);
+    void setWindowSize(int width, int height, AVRational rational);
 
     void setStream(Stream *stream);
 
-    virtual void displayWindow(int width, int height);
-
-    virtual void displayVideoImage();
-
-    virtual Options *getOptions() const;
-
     void setOptions(Options *options);
 
+    void setMediaPlayer(MediaPlayer *mediaPlayer);
+
+protected:
+
     void calculateDisplayRect(Rect *rect, int screenXLeft, int screenYTop, int screenWidth, int screenHeight, int pictureWidth, int pictureHeight, AVRational picSar);
+
+    int refreshVideo();
+
+    void _refreshVideo(double *remainingTime);
+
+    void displayVideo();
+
+    virtual int displayWindow();
+
+    void displayVideoImage();
 
     virtual void displayVideoImageBefore();
 
@@ -58,9 +69,8 @@ public:
 
     virtual int uploadTexture(AVFrame *frame, SwsContext *convertContext) = 0;
 
-    MediaPlayer *getMediaPlayer() const;
+    virtual void displayVideoAudio();
 
-    void setMediaPlayer(MediaPlayer *mediaPlayer);
 };
 
 

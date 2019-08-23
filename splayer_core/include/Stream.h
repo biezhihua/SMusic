@@ -70,7 +70,6 @@ private:
 
 
 public:
-    double remainingTime = 0.0f;
 
     Stream();
 
@@ -112,13 +111,23 @@ public:
 
     int audioThread();
 
-    int refresh();
-
     void streamClose();
 
     VideoState *getVideoState() const;
 
     double getMasterClock();
+
+    int getMasterSyncType();
+
+    void checkExternalClockSpeed();
+
+    double getFrameDuration(Frame *current, Frame *next);
+
+    double getComputeTargetDelay(double duration);
+
+    void updateVideoClockPts(double pts, int64_t pos, int serial);
+
+    int streamTogglePause();
 
 private:
 
@@ -134,7 +143,7 @@ private:
 
     int streamComponentClose(AVStream *stream, int streamIndex);
 
-    int getMasterSyncType();
+
 
     void closeReadThread(const VideoState *is, AVFormatContext *&formatContext) const;
 
@@ -146,25 +155,7 @@ private:
 
     int queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial);
 
-    void refreshVideo(double *remainingTime);
-
-    void checkExternalClockSpeed();
-
-    void displayVideo();
-
-    double getFrameDuration(Frame *current, Frame *next);
-
-    double getComputeTargetDelay(double duration);
-
-    void updateVideoClockPts(double pts, int64_t pos, int serial);
-
     void syncClockToSlave(Clock *c, Clock *slave);
-
-    int displayWindow();
-
-    void displayVideoImage();
-
-    void displayVideoAudio();
 
     bool isNoReadMore();
 
@@ -172,7 +163,6 @@ private:
 
     int isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const;
 
-    int streamTogglePause();
 };
 
 #endif //SPLAYER_PLAY_H

@@ -39,7 +39,7 @@
 /* no AV correction is done if too big error */
 #define NOSYNC_THRESHOLD 10.0
 
-/* polls for possible required screen refresh at least this often, should be less than 1/fps */
+/* polls for possible required screen refreshVideo at least this often, should be less than 1/fps */
 #define REFRESH_RATE 0.01
 
 /* external clock speed adjustment constants for realtime sources based on buffer fullness */
