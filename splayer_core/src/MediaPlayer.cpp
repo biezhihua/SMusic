@@ -228,6 +228,7 @@ int MediaPlayer::prepareOptions() {
     if (options && stream && surface) {
         stream->setOptions(options);
         surface->setOptions(options);
+        audio->setOptions(options);
         return notifyMsg(Message::MSG_OPTIONS_CREATED);
     }
     return NEGATIVE(S_NOT_MEMORY);

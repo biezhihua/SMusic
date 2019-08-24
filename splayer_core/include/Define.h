@@ -61,4 +61,7 @@
 /* Step size for volume control in dB */
 #define SDL_VOLUME_STEP (0.75)
 
+/* maximum audio speed change to get correct sync */
+#define SAMPLE_CORRECTION_PERCENT_MAX 10
+
 #endif //SPLAYER_MAC_DEFINE_H

@@ -75,12 +75,13 @@ public:
     int infiniteBuffer = -1; // don't limit the input buffer size (useful with realtime streams)
     int showStatus = 1; // show status
     int findStreamInfo = 1; // read and decode the streams to fill missing information with heuristics
-    int filter_nbthreads = 0;
+    int filterNBThreads = 0;
 #if CONFIG_AVFILTER
-    const char **vfilters_list = NULL;
+    const char **vfiltersList = nullptr;
     int nb_vfilters = 0;
-    char *afilters = NULL;
+    char *afilters = nullptr;
 #endif
+    int64_t audio_callback_time;
 
     void showOptions();
 

@@ -3,6 +3,7 @@
 
 #include "Error.h"
 #include "Log.h"
+#include "Define.h"
 
 extern "C" {
 #include <libavutil/time.h>
@@ -52,6 +53,7 @@ public:
 
     void setClockSpeed(double speed);
 
+    void syncClockToSlave(Clock *slave);
 
 };
 

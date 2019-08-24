@@ -5,6 +5,10 @@
 #include "Error.h"
 #include <SDL_audio.h>
 
+extern "C" {
+#include <libavutil/samplefmt.h>
+}
+
 #define MAC_AUDIO_TAG "MacAudio"
 
 class MacAudio : public Audio {
@@ -17,9 +21,13 @@ public:
 
     int destroy() override;
 
-    int openAudio(int64_t wanted_channel_layout, int wanted_nb_channels, int wanted_sample_rate, AudioParams *audio_hw_params) override;
+    int openAudio(int64_t wantedChannelLayout, int wantedNbChannels, int wantedSampleRate, AudioParams *audioHwParams) override;
 
     void audioCallback(Uint8 *stream, int len);
+
+    void pauseAudio() override;
+
+    void update_sample_display(short *samples, int samples_size);
 };
 
 

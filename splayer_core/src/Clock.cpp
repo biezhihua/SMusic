@@ -40,3 +40,11 @@ void Clock::setClockSpeed(double speed) {
     setClock(getClock(), serial);
     Clock::speed = speed;
 }
+
+void Clock::syncClockToSlave(Clock *slave) {
+    double clock = getClock();
+    double slaveClock = slave->getClock();
+    if (!isnan(slaveClock) && (isnan(clock) || fabs(clock - slaveClock) > NOSYNC_THRESHOLD)) {
+        setClock(slaveClock, slave->serial);
+    }
+}

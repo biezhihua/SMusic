@@ -95,6 +95,8 @@ public:
     PacketQueue audioPacketQueue;
     Decoder audioDecoder;
     Clock audioClock;
+    double audioClockTime;
+    double lastAudioclockTime;
     int audioLastStreamIndex;
     int audioStreamIndex;
     int audioClockSerial;
@@ -108,10 +110,11 @@ public:
     int audioBufIndex; /* in bytes */
     unsigned int audioBufSize; /* in bytes */
     unsigned int audioBuf1Size;
-    double audio_diff_cum; /* used for AV difference average computation */
+    double audioDiffCum; /* used for AV difference average computation */
     double audioDiffAvgCoef;
     double audioDiffThreshold;
     int audioDiffAvgCount;
+    int audio_write_buf_size;
 
     AudioParams audioSrc;
 #if CONFIG_AVFILTER

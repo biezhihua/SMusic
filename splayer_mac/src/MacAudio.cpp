@@ -1,3 +1,6 @@
+
+#include <MacAudio.h>
+
 #include "MacAudio.h"
 
 int MacAudio::create() {
@@ -16,60 +19,59 @@ static void sdlAudioCallback(void *opaque, Uint8 *stream, int len) {
     }
 }
 
-int MacAudio::openAudio(int64_t wanted_channel_layout, int wanted_nb_channels, int wanted_sample_rate, AudioParams *audio_hw_params) {
-    Audio::openAudio(wanted_channel_layout, wanted_nb_channels, wanted_sample_rate, audio_hw_params);
+int MacAudio::openAudio(int64_t wantedChannelLayout, int wantedNbChannels, int wantedSampleRate, AudioParams *audioHwParams) {
 
     static const int next_nb_channels[] = {0, 0, 1, 6, 2, 6, 4, 6};
     static const int next_sample_rates[] = {0, 44100, 48000, 96000, 192000};
 
-    SDL_AudioSpec wanted_spec, spec;
+    SDL_AudioSpec wantedSpec, spec;
     const char *env;
 
-    int next_sample_rate_idx = FF_ARRAY_ELEMS(next_sample_rates) - 1;
+    int nextSampleRateIdx = FF_ARRAY_ELEMS(next_sample_rates) - 1;
 
     env = SDL_getenv("SDL_AUDIO_CHANNELS");
 
     if (env) {
-        wanted_nb_channels = atoi(env);
-        wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
+        wantedNbChannels = atoi(env);
+        wantedChannelLayout = av_get_default_channel_layout(wantedNbChannels);
     }
-    if (!wanted_channel_layout || wanted_nb_channels != av_get_channel_layout_nb_channels(wanted_channel_layout)) {
-        wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
-        wanted_channel_layout &= ~AV_CH_LAYOUT_STEREO_DOWNMIX;
+    if (!wantedChannelLayout || wantedNbChannels != av_get_channel_layout_nb_channels(wantedChannelLayout)) {
+        wantedChannelLayout = av_get_default_channel_layout(wantedNbChannels);
+        wantedChannelLayout &= ~AV_CH_LAYOUT_STEREO_DOWNMIX;
     }
 
-    wanted_nb_channels = av_get_channel_layout_nb_channels(wanted_channel_layout);
-    wanted_spec.channels = wanted_nb_channels;
-    wanted_spec.freq = wanted_sample_rate;
+    wantedNbChannels = av_get_channel_layout_nb_channels(wantedChannelLayout);
+    wantedSpec.channels = wantedNbChannels;
+    wantedSpec.freq = wantedSampleRate;
 
-    if (wanted_spec.freq <= 0 || wanted_spec.channels <= 0) {
+    if (wantedSpec.freq <= 0 || wantedSpec.channels <= 0) {
         ALOGE(MAC_AUDIO_TAG, "%s Invalid sample rate or channel count!", __func__);
         return NEGATIVE(S_INVALID_SAMPLE_RATE_OR_CHANNEL_COUNT);
     }
 
-    while (next_sample_rate_idx && next_sample_rates[next_sample_rate_idx] >= wanted_spec.freq) {
-        next_sample_rate_idx--;
+    while (nextSampleRateIdx && next_sample_rates[nextSampleRateIdx] >= wantedSpec.freq) {
+        nextSampleRateIdx--;
     }
 
-    wanted_spec.format = AUDIO_S16SYS;
-    wanted_spec.silence = 0;
-    wanted_spec.samples = FFMAX(SDL_AUDIO_MIN_BUFFER_SIZE, 2 << av_log2(wanted_spec.freq / SDL_AUDIO_MAX_CALLBACKS_PER_SEC));
-    wanted_spec.callback = sdlAudioCallback;
-    wanted_spec.userdata = this;
+    wantedSpec.format = AUDIO_S16SYS;
+    wantedSpec.silence = 0;
+    wantedSpec.samples = FFMAX(SDL_AUDIO_MIN_BUFFER_SIZE, 2 << av_log2(wantedSpec.freq / SDL_AUDIO_MAX_CALLBACKS_PER_SEC));
+    wantedSpec.callback = sdlAudioCallback;
+    wantedSpec.userdata = this;
 
-    while (!(audioDev = SDL_OpenAudioDevice(nullptr, 0, &wanted_spec, &spec, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE))) {
-        ALOGD(MAC_AUDIO_TAG, "%s SDL_OpenAudio (%d channels, %d Hz): %s", __func__, wanted_spec.channels, wanted_spec.freq, SDL_GetError());
+    while (!(audioDev = SDL_OpenAudioDevice(nullptr, 0, &wantedSpec, &spec, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE))) {
+        ALOGD(MAC_AUDIO_TAG, "%s SDL_OpenAudio (%d channels, %d Hz): %s", __func__, wantedSpec.channels, wantedSpec.freq, SDL_GetError());
 
-        wanted_spec.channels = next_nb_channels[FFMIN(7, wanted_spec.channels)];
-        if (!wanted_spec.channels) {
-            wanted_spec.freq = next_sample_rates[next_sample_rate_idx--];
-            wanted_spec.channels = wanted_nb_channels;
-            if (!wanted_spec.freq) {
+        wantedSpec.channels = next_nb_channels[FFMIN(7, wantedSpec.channels)];
+        if (!wantedSpec.channels) {
+            wantedSpec.freq = next_sample_rates[nextSampleRateIdx--];
+            wantedSpec.channels = wantedNbChannels;
+            if (!wantedSpec.freq) {
                 ALOGD(MAC_AUDIO_TAG, "%s No more combinations to try, audio open failed", __func__);
                 return NEGATIVE(S_NOT_OPEN_AUDIO);
             }
         }
-        wanted_channel_layout = av_get_default_channel_layout(wanted_spec.channels);
+        wantedChannelLayout = av_get_default_channel_layout(wantedSpec.channels);
     }
 
     if (spec.format != AUDIO_S16SYS) {
@@ -77,22 +79,22 @@ int MacAudio::openAudio(int64_t wanted_channel_layout, int wanted_nb_channels, i
         return NEGATIVE(S_NOT_SUPPORT_AUDIO_FORMAT);
     }
 
-    if (spec.channels != wanted_spec.channels) {
-        wanted_channel_layout = av_get_default_channel_layout(spec.channels);
-        if (!wanted_channel_layout) {
+    if (spec.channels != wantedSpec.channels) {
+        wantedChannelLayout = av_get_default_channel_layout(spec.channels);
+        if (!wantedChannelLayout) {
             ALOGE(MAC_AUDIO_TAG, "%s SDL advised channel count %d is not supported!", __func__, spec.channels);
             return NEGATIVE(S_NOT_SUPPORT_AUDIO_CHANNEL_COUNT);
         }
     }
 
-    audio_hw_params->fmt = AV_SAMPLE_FMT_S16;
-    audio_hw_params->freq = spec.freq;
-    audio_hw_params->channel_layout = wanted_channel_layout;
-    audio_hw_params->channels = spec.channels;
-    audio_hw_params->frame_size = av_samples_get_buffer_size(nullptr, audio_hw_params->channels, 1, audio_hw_params->fmt, 1);
-    audio_hw_params->bytes_per_sec = av_samples_get_buffer_size(nullptr, audio_hw_params->channels, audio_hw_params->freq, audio_hw_params->fmt, 1);
+    audioHwParams->fmt = AV_SAMPLE_FMT_S16;
+    audioHwParams->freq = spec.freq;
+    audioHwParams->channel_layout = wantedChannelLayout;
+    audioHwParams->channels = spec.channels;
+    audioHwParams->frame_size = av_samples_get_buffer_size(nullptr, audioHwParams->channels, 1, audioHwParams->fmt, 1);
+    audioHwParams->bytes_per_sec = av_samples_get_buffer_size(nullptr, audioHwParams->channels, audioHwParams->freq, audioHwParams->fmt, 1);
 
-    if (audio_hw_params->bytes_per_sec <= 0 || audio_hw_params->frame_size <= 0) {
+    if (audioHwParams->bytes_per_sec <= 0 || audioHwParams->frame_size <= 0) {
         ALOGE(MAC_AUDIO_TAG, "%s av_samples_get_buffer_size failed", __func__);
         return NEGATIVE(S_NOT_SUPPORT_AUDIO_GET_BUFFER_SIZE);
     }
@@ -102,4 +104,59 @@ int MacAudio::openAudio(int64_t wanted_channel_layout, int wanted_nb_channels, i
 
 void MacAudio::audioCallback(Uint8 *stream, int len) {
     ALOGD(MAC_AUDIO_TAG, "%s stream = %p len = %d ", __func__, stream, len);
+    VideoState *is = Audio::stream->getVideoState();
+    int audioSize, len1;
+
+    options->audio_callback_time = av_gettime_relative();
+
+    while (len > 0) {
+        if (is->audioBufIndex >= is->audioBufSize) {
+            audioSize = audioDecodeFrame();
+            if (audioSize < 0) {
+                /* if error, just output silence */
+                is->audioBuf = nullptr;
+                is->audioBufSize = SDL_AUDIO_MIN_BUFFER_SIZE / is->audioTarget.frame_size * is->audioTarget.frame_size;
+            } else {
+                if (is->showMode != SHOW_MODE_VIDEO) {
+                    update_sample_display((int16_t *) is->audioBuf, audioSize);
+                }
+                is->audioBufSize = audioSize;
+            }
+            is->audioBufIndex = 0;
+        }
+        len1 = is->audioBufSize - is->audioBufIndex;
+        if (len1 > len)
+            len1 = len;
+        if (!is->audioMuted && is->audioBuf && is->audioVolume == SDL_MIX_MAXVOLUME) {
+            memcpy(stream, (uint8_t *) is->audioBuf + is->audioBufIndex, len1);
+        } else {
+            memset(stream, 0, len1);
+            if (!is->audioMuted && is->audioBuf) {
+                SDL_MixAudioFormat(stream, (uint8_t *) is->audioBuf + is->audioBufIndex, AUDIO_S16SYS, len1, is->audioVolume);
+            }
+        }
+        len -= len1;
+        stream += len1;
+        is->audioBufIndex += len1;
+    }
+    is->audio_write_buf_size = is->audioBufSize - is->audioBufIndex;
+    /* Let's assume the audio driver that is used by SDL has two periods. */
+    if (!isnan(is->audioClockTime)) {
+        double pts = is->audioClockTime - (double) (2 * is->audioHwBufSize + is->audio_write_buf_size) / is->audioTarget.bytes_per_sec;
+        int serial = is->audioClockSerial;
+        double time = options->audio_callback_time / 1000000.0;
+        is->audioClock.setClockAt(pts, serial, time);
+        is->exitClock.syncClockToSlave(&is->audioClock);
+    }
 }
+
+void MacAudio::pauseAudio() {
+    SDL_PauseAudioDevice(audioDev, 0);
+}
+
+void MacAudio::update_sample_display(short *samples, int samples_size) {
+
+}
+
+
+

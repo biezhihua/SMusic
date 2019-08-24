@@ -163,8 +163,6 @@ private:
 
     int queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial);
 
-    void syncClockToSlave(Clock *c, Clock *slave);
-
     bool isNoReadMore();
 
     bool isRetryPlay() const;
@@ -175,9 +173,12 @@ private:
 
     int64_t getValidChannelLayout(uint64_t channelLayout, int channels);
 
+    int cmpAudioFormats(AVSampleFormat fmt1, int64_t channel_count1,
+                        AVSampleFormat fmt2, int64_t channel_count2);
+
 #if CONFIG_AVFILTER
 
-    int configure_audio_filters(const char *afilters, int force_output_format);
+    int configureAudioFilters(const char *afilters, int forceOutputFormat);
 
     int configureFilterGraph(AVFilterGraph *graph, const char *filterGraph,
                              AVFilterContext *srcFilterContext, AVFilterContext *sinkFilterContext);
