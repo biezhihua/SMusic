@@ -143,7 +143,7 @@ int Audio::synchronizeAudio(int nbSamples) {
 
         diff = is->audioClock.getClock() - stream->getMasterClock();
 
-        if (!isnan(diff) && fabs(diff) < NOSYNC_THRESHOLD) {
+        if (!isnan(diff) && fabs(diff) < NO_SYNC_THRESHOLD) {
             is->audioDiffCum = diff + is->audioDiffAvgCoef * is->audioDiffCum;
             if (is->audioDiffAvgCount < AUDIO_DIFF_AVG_NB) {
                 /* not enough measures to have a correct estimate */

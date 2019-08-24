@@ -660,7 +660,9 @@ int Stream::videoThread() {
         }
 
         while (ret >= 0) {
-            is->frameLastReturnedTime = av_gettime_relative() / 1000000.0;
+            is->frameSinkFilterStartTime = av_gettime_relative() / 1000000.0;
+            // 没有输入端的滤镜称为“源(source)”，没有输出端的滤镜称为“槽(sink)”
+            // https://blog.csdn.net/joee33/article/details/51946712
             ret = av_buffersink_get_frame_flags(filterOut, frame, 0);
             if (ret < 0) {
                 if (ret == AVERROR_EOF) {
@@ -669,10 +671,9 @@ int Stream::videoThread() {
                 ret = 0;
                 break;
             }
-
-            is->frameLastFilterDelay = av_gettime_relative() / 1000000.0 - is->frameLastReturnedTime;
-            if (fabs(is->frameLastFilterDelay) > NOSYNC_THRESHOLD / 10.0) {
-                is->frameLastFilterDelay = 0;
+            is->frameSinkFilterConsumeTime = av_gettime_relative() / 1000000.0 - is->frameSinkFilterStartTime;
+            if (fabs(is->frameSinkFilterConsumeTime) > NO_SYNC_THRESHOLD / 10.0) {
+                is->frameSinkFilterConsumeTime = 0;
             }
             timeBase = av_buffersink_get_time_base(filterOut);
 #endif
@@ -1227,14 +1228,21 @@ int Stream::getVideoFrame(AVFrame *frame) {
 
         frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(videoState->formatContext, videoState->videoStream, frame);
 
-        // TODO?
         if (options->dropFrameWhenSlow > 0 || (options->dropFrameWhenSlow && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) {
             if (frame->pts != AV_NOPTS_VALUE) {
+
+                // diff > 0 当前帧显示时间略超于出主时钟
+                // diff < 0 当前帧显示时间慢于主时钟
                 double diff = dpts - getMasterClock();
-                if (!isnan(diff) && fabs(diff) < NOSYNC_THRESHOLD &&
-                    diff - videoState->frameLastFilterDelay < 0 &&
-                    videoState->videoDecoder.packetSerial == videoState->videoClock.serial &&
-                    videoState->videoPacketQueue.packetSize) {
+
+                bool isNoNan = !isnan(diff);
+                bool isNoSync = fabs(diff) < NO_SYNC_THRESHOLD;
+                bool isNeedCorrection = diff - videoState->frameSinkFilterConsumeTime < 0;
+                bool isSameSerial = videoState->videoDecoder.packetSerial == videoState->videoClock.serial;
+                bool isLegalSize = videoState->videoPacketQueue.packetSize > 0;
+
+                if (isNoNan && isNoSync && isNeedCorrection && isSameSerial && isLegalSize) {
+                    // 显示过慢，丢掉当前帧
                     videoState->frameDropsEarly++;
                     av_frame_unref(frame);
                     gotPicture = NEGATIVE(S_ERROR);

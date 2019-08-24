@@ -54,12 +54,16 @@ public:
     RDFTContext *rdft;
     int rdft_bits;
     FFTSample *rdft_data;
-    int frameDropsEarly;
-    int frameDropsLate;
+
     double lastVisTime;
     double frameTimer;
-    double frameLastFilterDelay;
-    double frameLastReturnedTime;
+
+    double frameSinkFilterStartTime; // 调用av_buffersink_get_frame_flags的开始时间
+    double frameSinkFilterConsumeTime; // 调用av_buffersink_get_frame_flags方法的耗时
+
+    int frameDropsEarly; // 早期丢帧数
+    int frameDropsLate; // 晚期丢帧数
+
     int step;
 
 #if CONFIG_AVFILTER

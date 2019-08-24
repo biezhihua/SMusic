@@ -44,7 +44,7 @@ void Clock::setClockSpeed(double speed) {
 void Clock::syncClockToSlave(Clock *slave) {
     double clock = getClock();
     double slaveClock = slave->getClock();
-    if (!isnan(slaveClock) && (isnan(clock) || fabs(clock - slaveClock) > NOSYNC_THRESHOLD)) {
+    if (!isnan(slaveClock) && (isnan(clock) || fabs(clock - slaveClock) > NO_SYNC_THRESHOLD)) {
         setClock(slaveClock, slave->serial);
     }
 }

@@ -12,3 +12,5 @@ https://blog.csdn.net/leixiaohua1020/article/details/40680907
 lipo -info ./libavcodec.58.dylib
 
 nm libavcodec.58.54.100.dylib| grep sleep
+
+https://blog.csdn.net/joee33/article/details/51946712
