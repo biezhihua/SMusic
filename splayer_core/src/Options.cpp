@@ -27,7 +27,7 @@ void Options::showOptions() {
     // ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "borderLess", borderLess);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "fast", fast);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "generatePts", generatePts);
-    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "lowres", lowres);
+    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "lowResolution", lowResolution);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "autoRotate", autoRotate);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "decoderReorderPts", decoderReorderPts);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "autoExit", autoExit);

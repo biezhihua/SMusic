@@ -32,6 +32,10 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
+#include <libavfilter/avfilter.h>
+#include <libavfilter/buffersink.h>
+#include <libavfilter/buffersrc.h>
+#include <libavutil/pixdesc.h>
 #include "CmdUtils.h"
 };
 
@@ -50,6 +54,12 @@ extern "C" {
 #define URL_FORMAT_RTP  "rtp:"
 
 #define URL_FORMAT_UDP  "udp:"
+
+#define KEY_LOW_RESOLUTION "lowres"
+
+#define KEY_REF_COUNTED_FRAMES "refcounted_frames"
+
+#define KEY_THREADS "threads"
 
 #define STREAM_TAG "Stream"
 
@@ -143,8 +153,6 @@ private:
 
     int streamComponentClose(AVStream *stream, int streamIndex);
 
-
-
     void closeReadThread(const VideoState *is, AVFormatContext *&formatContext) const;
 
     void stepToNextFrame();
@@ -163,6 +171,20 @@ private:
 
     int isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const;
 
+    const char *getForcedCodecName(int streamIndex, const AVCodecContext *codecContext) const;
+
+    int64_t getValidChannelLayout(uint64_t channelLayout, int channels);
+
+#if CONFIG_AVFILTER
+
+    int configure_audio_filters(const char *afilters, int force_output_format);
+
+    int configureFilterGraph(AVFilterGraph *graph, const char *filterGraph,
+                             AVFilterContext *srcFilterContext, AVFilterContext *sinkFilterContext);
+
+    int configureVideoFilters(AVFilterGraph *graph, VideoState *is, const char *vfilters, AVFrame *frame);
+
+#endif
 };
 
 #endif //SPLAYER_PLAY_H

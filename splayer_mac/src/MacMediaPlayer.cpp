@@ -9,6 +9,12 @@ int MacMediaPlayer::messageLoop() {
         if (ret == NEGATIVE_EXIT) {
             break;
         }
+        if (ret == Message::REQ_QUIT) {
+            auto *macSurface = dynamic_cast<MacSurface *>(surface);
+            if (macSurface) {
+                macSurface->doExit();
+            }
+        }
     }
     return POSITIVE;
 }

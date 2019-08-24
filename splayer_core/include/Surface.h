@@ -49,6 +49,8 @@ public:
 
     void setMediaPlayer(MediaPlayer *mediaPlayer);
 
+    virtual AVPixelFormat *getPixelFormatsArray();
+
 protected:
 
     void calculateDisplayRect(Rect *rect, int screenXLeft, int screenYTop, int screenWidth, int screenHeight, int pictureWidth, int pictureHeight, AVRational picSar);

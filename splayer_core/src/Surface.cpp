@@ -283,6 +283,6 @@ void Surface::displayVideoImageAfter(Frame *lastFrame, Rect *rect) {
 
 }
 
-
-
-
+AVPixelFormat *Surface::getPixelFormatsArray() {
+    return nullptr;
+}

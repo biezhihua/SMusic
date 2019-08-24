@@ -10,6 +10,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
+#include <config.h>
 };
 
 #define OPTIONS_TAG "Options"
@@ -59,8 +60,8 @@ public:
 
     int fast = 0; // non spec compliant optimizations
     int generatePts = 0; // generate pts
-    int lowres = 0;
-    int autoRotate = 0; // automatically rotate video
+    int lowResolution = 0;
+    int autoRotate = 1; // automatically rotate video
     int decoderReorderPts = -1; // let decoder reorder pts 0=off 1=on -1=auto
     int autoExit = 0; // exit at the end
     int loop = 1; // set number of times the playback shall be looped
@@ -74,6 +75,12 @@ public:
     int infiniteBuffer = -1; // don't limit the input buffer size (useful with realtime streams)
     int showStatus = 1; // show status
     int findStreamInfo = 1; // read and decode the streams to fill missing information with heuristics
+    int filter_nbthreads = 0;
+#if CONFIG_AVFILTER
+    const char **vfilters_list = NULL;
+    int nb_vfilters = 0;
+    char *afilters = NULL;
+#endif
 
     void showOptions();
 

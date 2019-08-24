@@ -263,7 +263,9 @@ int MediaPlayer::prepareAudio() {
 int MediaPlayer::prepareStream() {
     if (stream && stream->create()) {
         notifyMsg(Message::MSG_STREAM_CREATED);
-        return stream->prepareStream(dataSource);
+        if (stream->prepareStream(dataSource)) {
+            return POSITIVE;
+        }
     }
     return NEGATIVE(S_NULL);
 }

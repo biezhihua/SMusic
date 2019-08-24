@@ -2,7 +2,6 @@
 
 int MacSurface::create() {
     ALOGD(MAC_SURFACE_TAG, __func__);
-
     if (!stream) {
         return NEGATIVE(S_NULL);
     }
@@ -179,7 +178,7 @@ bool MacSurface::isQuitKey(const SDL_Event &event) const {
 }
 
 bool MacSurface::isNotHaveWindow() const {
-    // If we don't yet have a window, skip all key events, because read_thread might still be initializing...
+    // If we don't yet have a window, skip all lowres events, because read_thread might still be initializing...
     return !(stream && stream->getVideoState() && stream->getVideoState()->width);
 }
 
@@ -205,7 +204,7 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
         case SDLK_KP_DIVIDE:
         case SDLK_9:
             break;
-        case SDLK_s: // S: Step to next frame
+        case SDLK_s:
             if (stream) {
                 stream->setupToNextFrame();
             }
@@ -488,4 +487,19 @@ void MacSurface::doSeek(double increment) const {
             stream->streamSeek((int64_t) (pos * AV_TIME_BASE), (int64_t) (increment * AV_TIME_BASE), 0);
         }
     }
+}
+
+AVPixelFormat *MacSurface::getPixelFormatsArray() {
+    int nb_pix_fmts = 0;
+    int i, j;
+    for (i = 0; i < rendererInfo.num_texture_formats; i++) {
+        for (j = 0; j < FF_ARRAY_ELEMS(SDL_TEXTURE_FORMAT_MAP) - 1; j++) {
+            if (rendererInfo.texture_formats[i] == SDL_TEXTURE_FORMAT_MAP[j].textureFormat) {
+                pix_fmts[nb_pix_fmts++] = SDL_TEXTURE_FORMAT_MAP[j].format;
+                break;
+            }
+        }
+    }
+    pix_fmts[nb_pix_fmts] = AV_PIX_FMT_NONE;
+    return pix_fmts;
 }

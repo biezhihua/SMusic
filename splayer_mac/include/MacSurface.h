@@ -18,6 +18,7 @@ extern "C" {
  * https://blog.csdn.net/leixiaohua1020/article/details/40680907
  */
 
+
 static const struct TextureFormatEntry {
     enum AVPixelFormat format;
     int textureFormat;
@@ -47,6 +48,8 @@ static const struct TextureFormatEntry {
 class MacSurface : public Surface {
 
 private:
+    AVPixelFormat pix_fmts[FF_ARRAY_ELEMS(SDL_TEXTURE_FORMAT_MAP)];
+
     unsigned swsFlags = SWS_BICUBIC;
 
     SDL_Window *window;
@@ -104,6 +107,9 @@ public:
     void displayVideoImageAfter(Frame *lastFrame, Rect *rect) override;
 
     int uploadTexture(AVFrame *frame, SwsContext *convertContext) override;
+
+protected:
+    AVPixelFormat *getPixelFormatsArray() override;
 };
 
 

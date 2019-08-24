@@ -61,6 +61,7 @@ public:
     static const int REQ_START = 20001;
     static const int REQ_PAUSE = 20002;
     static const int REQ_SEEK = 20003;
+    static const int REQ_QUIT = 20004;
 
     /* PROP 30000~39999 */
 

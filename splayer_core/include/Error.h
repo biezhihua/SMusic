@@ -9,7 +9,7 @@
 #define POSITIVE   1
 #define NEGATIVE(e) (-(e)) /// Returns a negative error code from a POSIX error code, to return from library functions.
 
-#define IS_NEGATIVE(e) (e <= 0)
+#define IS_NEGATIVE(e) (e < 0)
 
 #define FFERRTAG(a, b, c, d) (-(int)MKTAG(a, b, c, d))
 
