@@ -27,7 +27,7 @@ int MacSurface::create() {
         windowFlags |= SDL_WINDOW_RESIZABLE;
     }
 
-    window = SDL_CreateWindow(options->windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->videoWidth, options->videoHeight, windowFlags);
+    window = SDL_CreateWindow(options->videoTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->videoWidth, options->videoHeight, windowFlags);
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
@@ -161,8 +161,8 @@ void MacSurface::doWindowEvent(const SDL_Event &event) {
     switch (event.window.event) {
         case SDL_WINDOWEVENT_RESIZED:
             if (options && stream) {
-                options->screenWidth = stream->getVideoState()->width = event.window.data1;
-                options->screenHeight = stream->getVideoState()->height = event.window.data2;
+                options->surfaceWidth = stream->getVideoState()->width = event.window.data1;
+                options->surfaceHeight = stream->getVideoState()->height = event.window.data2;
                 if (videoTexture) {
                     SDL_DestroyTexture(videoTexture);
                     videoTexture = nullptr;
@@ -256,17 +256,17 @@ int MacSurface::displayWindow() {
         auto *macOptions = (MacOptions *) options;
         auto *videoState = stream->getVideoState();
 
-        SDL_SetWindowTitle(window, options->windowTitle);
+        SDL_SetWindowTitle(window, options->videoTitle);
         SDL_SetWindowSize(window, videoState->width, videoState->height);
-        SDL_SetWindowPosition(window, options->screenLeft, options->screenTop);
+        SDL_SetWindowPosition(window, options->surfaceLeftOffset, options->surfaceTopOffset);
         if (macOptions->isFullScreen) {
             SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         }
         SDL_ShowWindow(window);
-        ALOGD(MAC_SURFACE_TAG, "%s windowTitle = %s videoWidth = %d videoHeight = %d screenLeft = %d screenTop = %d", __func__,
-              options->windowTitle,
+        ALOGD(MAC_SURFACE_TAG, "%s videoTitle = %s videoWidth = %d videoHeight = %d surfaceLeftOffset = %d surfaceTopOffset = %d", __func__,
+              options->videoTitle,
               videoState->width, videoState->height,
-              options->screenLeft, options->screenTop
+              options->surfaceLeftOffset, options->surfaceTopOffset
         );
         return POSITIVE;
     }

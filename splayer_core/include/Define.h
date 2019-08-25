@@ -15,15 +15,15 @@
 #define EXTERNAL_CLOCK_MIN_FRAMES 2
 #define EXTERNAL_CLOCK_MAX_FRAMES 10
 
-// Volume
+/// 音量 Volume
 #define MIX_MAX_VOLUME      128
 
-// Sync Type
+/// 同步类型 Sync Type
 #define SYNC_TYPE_AUDIO_MASTER        0 /* default choice */
 #define SYNC_TYPE_VIDEO_MASTER        1
 #define SYNC_TYPE_EXTERNAL_CLOCK      2 /* synchronize to an external clock */
 
-// Show Mode
+/// 显示模式 Show Mode
 #define SHOW_MODE_NONE      -1
 #define SHOW_MODE_VIDEO     0
 #define SHOW_MODE_WAVES     1

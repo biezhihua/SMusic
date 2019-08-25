@@ -27,8 +27,8 @@ void Surface::setStream(Stream *stream) {
 void Surface::setVideoSize(int width, int height, AVRational rational) {
     if (options) {
         Rect *rect = new Rect();
-        int maxWidth = options->screenWidth ? options->screenWidth : INT_MAX;
-        int maxHeight = options->screenHeight ? options->screenHeight : INT_MAX;
+        int maxWidth = options->surfaceWidth ? options->surfaceWidth : INT_MAX;
+        int maxHeight = options->surfaceHeight ? options->surfaceHeight : INT_MAX;
         if (maxWidth == INT_MAX && maxHeight == INT_MAX) {
             maxHeight = height;
         }
@@ -230,10 +230,10 @@ int Surface::displayWindow() {
     if (options) {
         VideoState *videoState = stream->getVideoState();
         if (videoState) {
-            int width = options->screenWidth ? options->screenWidth : options->videoWidth;
-            int height = options->screenHeight ? options->screenHeight : options->videoHeight;
-            if (!options->windowTitle) {
-                options->windowTitle = options->inputFileName;
+            int width = options->surfaceWidth ? options->surfaceWidth : options->videoWidth;
+            int height = options->surfaceHeight ? options->surfaceHeight : options->videoHeight;
+            if (!options->videoTitle) {
+                options->videoTitle = options->inputFileName;
             }
             videoState->width = width;
             videoState->height = height;

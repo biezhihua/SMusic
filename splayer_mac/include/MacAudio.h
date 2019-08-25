@@ -14,6 +14,7 @@ extern "C" {
 class MacAudio : public Audio {
 
 private:
+    int64_t audioCallbackTime;
     SDL_AudioDeviceID audioDev;
 
 public:

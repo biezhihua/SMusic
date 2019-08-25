@@ -322,8 +322,8 @@ int Stream::readThread() {
     videoState->maxFrameDuration = (formatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 
     // get window title from metadata
-    if (!options->windowTitle && (dictionaryEntry = av_dict_get(formatContext->metadata, TITLE, nullptr, 0))) {
-        options->windowTitle = av_asprintf("%s - %s", dictionaryEntry->value, options->inputFileName);
+    if (!options->videoTitle && (dictionaryEntry = av_dict_get(formatContext->metadata, TITLE, nullptr, 0))) {
+        options->videoTitle = av_asprintf("%s - %s", dictionaryEntry->value, options->inputFileName);
     }
 
     /* if seeking requested, we execute it */
@@ -1554,15 +1554,15 @@ void Stream::setSurface(Surface *surface) {
 }
 
 int Stream::getStartupVolume() {
-    if (options->startupVolume < 0) {
-        ALOGD(STREAM_TAG, "%s -volume=%d < 0, setting to 0", __func__, options->startupVolume);
+    if (options->audioStartupVolume < 0) {
+        ALOGD(STREAM_TAG, "%s -volume=%d < 0, setting to 0", __func__, options->audioStartupVolume);
     }
-    if (options->startupVolume > 100) {
-        ALOGD(STREAM_TAG, "%s -volume=%d > 100 0, setting to 100", __func__, options->startupVolume);
+    if (options->audioStartupVolume > 100) {
+        ALOGD(STREAM_TAG, "%s -volume=%d > 100 0, setting to 100", __func__, options->audioStartupVolume);
     }
-    options->startupVolume = av_clip(options->startupVolume, 0, 100);
-    options->startupVolume = av_clip(MIX_MAX_VOLUME * options->startupVolume / 100, 0, MIX_MAX_VOLUME);
-    return options->startupVolume;
+    options->audioStartupVolume = av_clip(options->audioStartupVolume, 0, 100);
+    options->audioStartupVolume = av_clip(MIX_MAX_VOLUME * options->audioStartupVolume / 100, 0, MIX_MAX_VOLUME);
+    return options->audioStartupVolume;
 }
 
 int64_t Stream::getValidChannelLayout(uint64_t channelLayout, int channels) {

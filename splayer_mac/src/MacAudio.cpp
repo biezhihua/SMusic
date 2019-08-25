@@ -1,6 +1,4 @@
 
-#include <MacAudio.h>
-
 #include "MacAudio.h"
 
 int MacAudio::create() {
@@ -107,7 +105,7 @@ void MacAudio::audioCallback(Uint8 *stream, int len) {
     VideoState *is = Audio::stream->getVideoState();
     int audioSize, len1;
 
-    options->audio_callback_time = av_gettime_relative();
+    audioCallbackTime = av_gettime_relative();
 
     while (len > 0) {
         if (is->audioBufIndex >= is->audioBufSize) {
@@ -144,7 +142,7 @@ void MacAudio::audioCallback(Uint8 *stream, int len) {
     if (!isnan(is->audioClockTime)) {
         double pts = is->audioClockTime - (double) (2 * is->audioHwBufSize + is->audio_write_buf_size) / is->audioTarget.bytes_per_sec;
         int serial = is->audioClockSerial;
-        double time = options->audio_callback_time / 1000000.0;
+        double time = audioCallbackTime / 1000000.0;
         is->audioClock.setClockAt(pts, serial, time);
         is->exitClock.syncClockToSlave(&is->audioClock);
     }

@@ -12,14 +12,14 @@ void Options::showOptions() {
 
     ALOGD(OPTIONS_TAG, "===== options =====");
     ALOGD(OPTIONS_TAG, "%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "inputFileName", inputFileName);
-    ALOGD(OPTIONS_TAG, "%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "windowTitle", windowTitle);
+    ALOGD(OPTIONS_TAG, "%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "videoTitle", videoTitle);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "videoWidth", videoWidth);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "videoHeight", videoHeight);
-    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "screenLeft", screenLeft);
-    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "screenTop", screenTop);
+    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "surfaceLeftOffset", surfaceLeftOffset);
+    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "surfaceTopOffset", surfaceTopOffset);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "seekByBytes", seekByBytes);
     ALOGD(OPTIONS_TAG, "%-*s: %f", VERSION_MODULE_FILE_NAME_LENGTH, "seekInterval", seekInterval);
-    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "startupVolume", startupVolume);
+    ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "audioStartupVolume", audioStartupVolume);
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "syncType", syncType);
     ALOGD(OPTIONS_TAG, "%-*s: %lld", VERSION_MODULE_FILE_NAME_LENGTH, "startTime", startTime);
     ALOGD(OPTIONS_TAG, "%-*s: %lld", VERSION_MODULE_FILE_NAME_LENGTH, "duration", duration);
