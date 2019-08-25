@@ -5,7 +5,7 @@ int FrameQueue::init(PacketQueue *packetQueue, int queueSize, int keepLast) {
     // 创建互斥量
     if (!(mutex = new Mutex())) {
         ALOGE(FRAME_QUEUE_TAG, "%s create mutex fail", __func__);
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NO_MEMORY);
     }
 
     FrameQueue::packetQueue = packetQueue;

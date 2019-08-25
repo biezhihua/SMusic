@@ -145,15 +145,15 @@ private:
 
     int getStartupVolume();
 
-    int isRealTime(AVFormatContext *pContext);
+    int isRealTime(AVFormatContext *formatContext);
 
     int streamComponentOpen(int streamIndex);
 
-    int streamHasEnoughPackets(AVStream *stream, int index, PacketQueue *packetQueue);
+    bool streamHasEnoughPackets(AVStream *stream, int index, PacketQueue *packetQueue);
 
     int streamComponentClose(AVStream *stream, int streamIndex);
 
-    void closeReadThread(const VideoState *is, AVFormatContext *&formatContext) const;
+    void closeReadThread(const VideoState *is, AVFormatContext *formatContext) const;
 
     void stepToNextFrame();
 

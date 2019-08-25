@@ -34,7 +34,7 @@ public:
     static const int MSG_VIDEO_DECODED_START = 10;
     static const int MSG_OPEN_INPUT = 11;
     static const int MSG_FIND_STREAM_INFO = 12;
-    static const int MSG_COMPONENT_OPEN = 13;
+    static const int MSG_COMPONENTS_OPEN = 13;
     static const int MSG_VIDEO_SEEK_RENDERING_START = 14;
     static const int MSG_AUDIO_SEEK_RENDERING_START = 15;
     static const int MSG_BUFFERING_START = 16;

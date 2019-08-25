@@ -25,9 +25,32 @@ public:
     Clock exitClock;
 
     int showMode = SHOW_MODE_VIDEO;
+    int abortRequest;
+    int forceRefresh;
+    int syncType;
+    int step;
 
     SwsContext *imgConvertCtx;
     SwsContext *subConvertCtx;
+
+    double maxFrameDuration;
+
+    int eof;
+
+    int queueAttachmentsReq;
+    int realTime;
+    char *fileName;
+
+    // 暂停逻辑
+    int paused;
+    int lastPaused;
+    int readPauseReturn;
+
+    // 宽高与XY轴偏移量
+    int width;
+    int height;
+    int yTop;
+    int xLeft;
 
     // seek
     int seekReq;
@@ -35,22 +58,6 @@ public:
     int64_t seekPos;
     int64_t seekRel;
 
-    double maxFrameDuration;
-    int abortRequest;
-    int forceRefresh;
-    int paused;
-    int lastPaused;
-    // https://segmentfault.com/a/1190000018373504?utm_source=tag-newest
-    int queueAttachmentsReq;
-    int realTime;
-    char *fileName;
-    int width;
-    int height;
-    int yTop;
-    int xLeft;
-    int syncType;
-    int eof;
-    int readPauseReturn;
     RDFTContext *rdft;
     int rdft_bits;
     FFTSample *rdft_data;
@@ -64,7 +71,7 @@ public:
     int frameDropsEarly; // 早期丢帧数
     int frameDropsLate; // 晚期丢帧数
 
-    int step;
+
 
 #if CONFIG_AVFILTER
     int vfilterIdx;

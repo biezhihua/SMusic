@@ -40,31 +40,55 @@ public:
     /**
      * Options specified by the user
      */
-    AVInputFormat *inputFormat = nullptr; // force format
+
+    /// force format
+    AVInputFormat *inputFormat = nullptr;
+
+    /// 文件名称
     char *inputFileName = nullptr;
-    char *windowTitle = nullptr; // set window title
-    int isFullScreen = 0; // force full screen
-    int defaultWidth = 640;
-    int defaultHeight = 480;
+
+    /// 窗口名称
+    char *windowTitle = nullptr;
+
+    /// 视频宽度
+    int videoWidth = 640;
+
+    /// 视频高度
+    int videoHeight = 480;
+
+    /// 窗口宽度
     int screenWidth = 0;
+
+    /// 窗口高度
     int screenHeight = 0;
-    int screenLeft = 0; // set the x position for the left of the window
-    int screenTop = 0;  // set the y position for the top of the window
+
+    /// 窗口X轴偏移位置
+    int screenLeft = 0;
+
+    /// 窗口Y轴偏移位置
+    int screenTop = 0;
+
     char *wantedStreamSpec[AVMEDIA_TYPE_NB] = {nullptr}; // "select desired stream"
+
+    int videoDisable;
+    int audioDisable = 1;
+    int subtitleDisable = 1;
+
     int seekByBytes = -1; // seek by bytes 0=off 1=on -1=auto
     float seekInterval = 10; // set seek interval for left/right keys, in seconds
+
     int startupVolume = 100; // set startup volume 0=min 100=max
     int syncType = SYNC_TYPE_AUDIO_MASTER; // set audio-video sync. type (type=audio/video/ext)
     int64_t startTime = AV_NOPTS_VALUE; // seek to a given position in seconds
     int64_t duration = AV_NOPTS_VALUE; // stream  \"duration\" seconds of audio/video
 
     int fast = 0; // non spec compliant optimizations
-    int generatePts = 0; // generate pts
+    int generateMissingPts = 0; // generate missing pts
     int lowResolution = 0;
     int autoRotate = 1; // automatically rotate video
     int decoderReorderPts = -1; // let decoder reorder pts 0=off 1=on -1=auto
     int autoExit = 0; // exit at the end
-    int loop = 1; // set number of times the playback shall be looped
+    int loopTimes = 1; // set number of times the playback shall be looped
     int dropFrameWhenSlow = -1; // drop frames when cpu is too slow
     int showMode = SHOW_MODE_NONE; // select show mode (0 = video, 1 = waves, 2 = RDFT)
     char *inputFormatName = nullptr;
@@ -74,7 +98,7 @@ public:
     double rdftSpeed = 0.02;  // rdft speed
     int infiniteBuffer = -1; // don't limit the input buffer size (useful with realtime streams)
     int showStatus = 1; // show status
-    int findStreamInfo = 1; // read and decode the streams to fill missing information with heuristics
+    int findStreamInfoFillMissingInformation = 1; // read and decode the streams to fill missing information with heuristics
     int filterNBThreads = 0;
 #if CONFIG_AVFILTER
     const char **vfiltersList = nullptr;
@@ -83,7 +107,7 @@ public:
 #endif
     int64_t audio_callback_time;
 
-    void showOptions();
+    virtual void showOptions();
 
 };
 

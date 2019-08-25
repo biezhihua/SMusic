@@ -19,14 +19,14 @@ int MediaPlayer::create() {
     if (!mutex) {
         ALOGE(MEDIA_PLAYER_TAG, "create mutex error");
         destroy();
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NO_MEMORY);
     }
 
     state = new State();
     if (!state) {
         ALOGE(MEDIA_PLAYER_TAG, "create state error");
         destroy();
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NO_MEMORY);
     }
 
     msgQueue = new MessageQueue();
@@ -36,7 +36,7 @@ int MediaPlayer::create() {
     if (!surface) {
         ALOGE(MEDIA_PLAYER_TAG, "create surface error");
         destroy();
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NO_MEMORY);
     }
     surface->setMediaPlayer(this);
 
@@ -44,18 +44,20 @@ int MediaPlayer::create() {
     if (!audio) {
         ALOGE(MEDIA_PLAYER_TAG, "create audio error");
         destroy();
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NO_MEMORY);
     }
 
     stream = createStream();
     if (!stream) {
         ALOGE(MEDIA_PLAYER_TAG, "create stream error");
         destroy();
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NO_MEMORY);
     }
 
     surface->setStream(stream);
+    surface->setMsgQueue(msgQueue);
     audio->setStream(stream);
+    audio->setMsgQueue(msgQueue);
     stream->setAudio(audio);
     stream->setSurface(surface);
     stream->setMsgQueue(msgQueue);
@@ -76,12 +78,14 @@ int MediaPlayer::destroy() {
             surface->setMediaPlayer(nullptr);
             surface->setStream(nullptr);
             surface->setOptions(nullptr);
+            surface->setMsgQueue(nullptr);
             stream->setSurface(nullptr);
             delete surface;
             surface = nullptr;
 
             audio->destroy();
             audio->setStream(nullptr);
+            audio->setMsgQueue(nullptr);
             stream->setAudio(nullptr);
             delete audio;
             audio = nullptr;
@@ -89,6 +93,7 @@ int MediaPlayer::destroy() {
             stream->destroy();
             stream->setSurface(nullptr);
             stream->setOptions(nullptr);
+            stream->setMsgQueue(nullptr);
             delete stream;
             stream = nullptr;
 
@@ -199,7 +204,7 @@ int MediaPlayer::setDataSource(const char *url) {
             return POSITIVE;
         }
         mutex->mutexUnLock();
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NO_MEMORY);
     }
     return NEGATIVE(S_NULL);
 }
@@ -224,23 +229,25 @@ int MediaPlayer::prepareAsync() {
 }
 
 int MediaPlayer::prepareOptions() {
-    options = createOptions();
+    if (!options) {
+        options = createOptions();
+    }
     if (options && stream && surface) {
         stream->setOptions(options);
         surface->setOptions(options);
         audio->setOptions(options);
         return notifyMsg(Message::MSG_OPTIONS_CREATED);
     }
-    return NEGATIVE(S_NOT_MEMORY);
+    return NEGATIVE(S_NO_MEMORY);
 }
 
 int MediaPlayer::prepareMsgQueue() {
     if (msgQueue) {
         if (!msgQueue->startMsgQueue()) {
-            return NEGATIVE(S_NOT_START_MSG_QUEUE);
+            return NEGATIVE(S_NO_START_MSG_QUEUE);
         }
         if (!(msgThread = new Thread(staticMsgLoop, this, "Message"))) {
-            return NEGATIVE(S_NOT_MEMORY);
+            return NEGATIVE(S_NO_MEMORY);
         }
         return POSITIVE;
     }

@@ -23,6 +23,7 @@ protected:
     Stream *stream = nullptr;
     Mutex *mutex = nullptr;
     Options *options = nullptr;
+    MessageQueue *msgQueue = nullptr;
 
 public:
     Audio();
@@ -44,6 +45,8 @@ public:
     int synchronizeAudio(int nbSamples);
 
     void setOptions(Options *options);
+
+    void setMsgQueue(MessageQueue *msgQueue);
 };
 
 

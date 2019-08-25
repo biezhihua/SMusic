@@ -12,7 +12,7 @@ int PacketQueue::init(AVPacket *packet) {
 
     if (!mutex) {
         ALOGE(PACKET_QUEUE_TAG, "%s create mutex fail", __func__);
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NO_MEMORY);
     }
 
     abortRequest = 1;

@@ -29,7 +29,7 @@ protected:
     Stream *stream = nullptr;
     Mutex *mutex = nullptr;
     Options *options = nullptr;
-
+    MessageQueue *msgQueue = nullptr;
     double remainingTime = 0.0f;
 
 public:
@@ -41,7 +41,7 @@ public:
 
     virtual int destroy();
 
-    void setWindowSize(int width, int height, AVRational rational);
+    void setVideoSize(int width, int height, AVRational rational);
 
     void setStream(Stream *stream);
 
@@ -50,6 +50,8 @@ public:
     void setMediaPlayer(MediaPlayer *mediaPlayer);
 
     virtual AVPixelFormat *getPixelFormatsArray();
+
+    void setMsgQueue(MessageQueue *msgQueue);
 
 protected:
 

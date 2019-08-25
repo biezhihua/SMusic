@@ -25,7 +25,7 @@
 #define NEGATIVE_FILTER_NOT_FOUND   FFERRTAG(0xF8,'F','I','L') ///< Filter not found
 #define NEGATIVE_INVALIDDATA        FFERRTAG( 'I','N','D','A') ///< Invalid data found when processing input
 #define NEGATIVE_MUXER_NOT_FOUND    FFERRTAG(0xF8,'M','U','X') ///< Muxer not found
-#define NEGATIVE_OPTION_NOT_FOUND   FFERRTAG(0xF8,'O','P','T') ///< Option not found
+#define NEGATIVE_OPTION_NO_FOUND   FFERRTAG(0xF8,'O','P','T') ///< Option not found
 #define NEGATIVE_PATCHWELCOME       FFERRTAG( 'P','A','W','E') ///< Not yet implemented in FFmpeg, patches welcome
 #define NEGATIVE_PROTOCOL_NOT_FOUND FFERRTAG(0xF8,'P','R','O') ///< Protocol not found
 #define NEGATIVE_UNKNOWN            FFERRTAG( 'U','N','K','N')

@@ -10,7 +10,7 @@ static int innerReadThread(void *arg) {
 }
 
 static int innerVideoThread(void *arg) {
-    Stream *play = static_cast<Stream *>(arg);
+    auto *play = static_cast<Stream *>(arg);
     if (play) {
         return play->videoThread();
     }
@@ -80,7 +80,7 @@ int Stream::prepareStream(const char *fileName) {
     videoState = streamOpen();
 
     if (!videoState) {
-        return NEGATIVE(S_NOT_CREATE_VIDEO_STATE);
+        return NEGATIVE(S_NO_CREATE_VIDEO_STATE);
     }
 
     return POSITIVE;
@@ -211,8 +211,8 @@ void Stream::streamClose() {
     }
 }
 
-/* this thread gets the stream from the disk or the network */
-/// Work Thread
+/// this thread gets the stream from the disk or the network
+/// work thread
 int Stream::readThread() {
     ALOGD(STREAM_TAG, __func__);
 
@@ -221,7 +221,8 @@ int Stream::readThread() {
     }
 
     AVFormatContext *formatContext = nullptr;
-    AVPacket packet1, *packet = &packet1;
+    AVPacket packet1;
+    AVPacket *packet = &packet1;
     auto *waitMutex = new Mutex();
     AVDictionaryEntry *dictionaryEntry;
     int streamIndex[AVMEDIA_TYPE_NB];
@@ -229,11 +230,6 @@ int Stream::readThread() {
     int ret = 0;
 
     memset(streamIndex, -1, sizeof(streamIndex));
-
-    if (!waitMutex) {
-        ALOGE(STREAM_TAG, "%s create wait mutex fail", __func__);
-        return NEGATIVE(S_NOT_MEMORY);
-    }
 
     videoState->videoLastStreamIndex = videoState->videoStreamIndex = -1;
     videoState->audioLastStreamIndex = videoState->audioStreamIndex = -1;
@@ -243,16 +239,11 @@ int Stream::readThread() {
     formatContext = avformat_alloc_context();
     if (!formatContext) {
         ALOGE(STREAM_TAG, "%s avformat could not allocate context", __func__);
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NO_MEMORY);
     }
 
     formatContext->interrupt_callback.callback = decodeInterruptCallback;
     formatContext->interrupt_callback.opaque = videoState;
-
-    if (!av_dict_get(options->format, SCAN_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE)) {
-        av_dict_set(&options->format, SCAN_ALL_PMTS, "1", AV_DICT_DONT_OVERWRITE);
-        scanAllPmtsSet = 1;
-    }
 
     if (formatContext->duration) {
         options->duration = formatContext->duration;
@@ -262,35 +253,45 @@ int Stream::readThread() {
         videoState->inputFormat = av_find_input_format(options->inputFormatName);
     }
 
+    // https://zhuanlan.zhihu.com/p/43672062
+    // scan_all_pmts, 是mpegts的一个选项，这里在没有设定该选项的时候，强制设为1
+    // scan_all_pmts, 扫描全部的ts流的"Program Map Table"表。
+    // TODO: 针对MPEGTS的特殊处理
+    if (!av_dict_get(options->format, SCAN_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE)) {
+        av_dict_set(&options->format, SCAN_ALL_PMTS, "1", AV_DICT_DONT_OVERWRITE);
+        scanAllPmtsSet = 1;
+    }
+
     if (avformat_open_input(&formatContext, videoState->fileName, videoState->inputFormat, &options->format) < 0) {
-        ALOGE(STREAM_TAG, "%s avformat could not openAudio input", __func__);
+        ALOGE(STREAM_TAG, "%s avformat could not open input", __func__);
         closeReadThread(videoState, formatContext);
-        return NEGATIVE(S_NOT_OPEN_INPUT);
+        return NEGATIVE(S_NO_OPEN_INPUT);
+    }
+
+    // TODO: 还原MPEGTS的特殊处理标记
+    if (scanAllPmtsSet) {
+        av_dict_set(&options->format, SCAN_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE);
     }
 
     if (msgQueue) {
         msgQueue->notifyMsg(Message::MSG_OPEN_INPUT);
     }
 
-    if (scanAllPmtsSet) {
-        av_dict_set(&options->format, SCAN_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE);
-    }
-
     if ((dictionaryEntry = av_dict_get(options->format, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
         ALOGE(STREAM_TAG, "%s option %s not found.", __func__, dictionaryEntry->key);
         closeReadThread(videoState, formatContext);
-        return NEGATIVE_OPTION_NOT_FOUND;
+        return NEGATIVE_OPTION_NO_FOUND;
     }
 
     videoState->formatContext = formatContext;
 
-    if (options->generatePts) {
+    if (options->generateMissingPts) {
         formatContext->flags |= AVFMT_FLAG_GENPTS;
     }
 
     av_format_inject_global_side_data(formatContext);
 
-    if (options->findStreamInfo) {
+    if (options->findStreamInfoFillMissingInformation) {
         AVDictionary **opts = setupFindStreamInfoOpts(formatContext, options->codec);
         int ret = avformat_find_stream_info(formatContext, opts);
         for (int i = 0; i < formatContext->nb_streams; i++) {
@@ -300,19 +301,21 @@ int Stream::readThread() {
         if (ret < 0) {
             ALOGD(STREAM_TAG, "%s %s: could not find codec parameters", __func__, videoState->fileName);
             closeReadThread(videoState, formatContext);
-            return NEGATIVE(S_NOT_FIND_STREAM_INFO);
+            return NEGATIVE(S_NO_FIND_STREAM_INFO);
         }
         if (msgQueue) {
             msgQueue->notifyMsg(Message::MSG_FIND_STREAM_INFO);
         }
     }
 
+    // I/O context.
     if (formatContext->pb) {
         formatContext->pb->eof_reached = 0;
     }
 
     if (options->seekByBytes < 0) {
         // AVFMT_NO_BYTE_SEEK
+        // Format allows timestamp discontinuities
         options->seekByBytes = formatContext->iformat->flags & AVFMT_TS_DISCONT && strcmp(FORMAT_OGG, formatContext->iformat->name) != 0;
     }
 
@@ -331,7 +334,7 @@ int Stream::readThread() {
             timestamp += formatContext->start_time;
         }
         if (avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX, 0) < 0) {
-            ALOGD(STREAM_TAG, "%s %s: could not seek to position %0.3f", __func__, videoState->fileName, (double) timestamp / AV_TIME_BASE);
+            ALOGE(STREAM_TAG, "%s %s: could not seek to position %0.3f", __func__, videoState->fileName, (double) timestamp / AV_TIME_BASE);
         }
     }
 
@@ -359,20 +362,17 @@ int Stream::readThread() {
         }
     }
 
-    streamIndex[AVMEDIA_TYPE_VIDEO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_VIDEO,
-                                                          streamIndex[AVMEDIA_TYPE_VIDEO], -1, nullptr, 0);
+    if (options && !options->videoDisable) {
+        streamIndex[AVMEDIA_TYPE_VIDEO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_VIDEO, streamIndex[AVMEDIA_TYPE_VIDEO], -1, nullptr, 0);
+    }
 
-    streamIndex[AVMEDIA_TYPE_AUDIO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO,
-                                                          streamIndex[AVMEDIA_TYPE_AUDIO],
-                                                          streamIndex[AVMEDIA_TYPE_VIDEO],
-                                                          nullptr, 0);
+    if (options && !options->audioDisable) {
+        streamIndex[AVMEDIA_TYPE_AUDIO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO, streamIndex[AVMEDIA_TYPE_AUDIO], streamIndex[AVMEDIA_TYPE_VIDEO], nullptr, 0);
+    }
 
-    streamIndex[AVMEDIA_TYPE_SUBTITLE] = av_find_best_stream(formatContext, AVMEDIA_TYPE_SUBTITLE,
-                                                             streamIndex[AVMEDIA_TYPE_SUBTITLE],
-                                                             (streamIndex[AVMEDIA_TYPE_AUDIO] >= 0 ?
-                                                              streamIndex[AVMEDIA_TYPE_AUDIO] :
-                                                              streamIndex[AVMEDIA_TYPE_VIDEO]),
-                                                             nullptr, 0);
+    if (options && !options->videoDisable && !options->subtitleDisable) {
+        streamIndex[AVMEDIA_TYPE_SUBTITLE] = av_find_best_stream(formatContext, AVMEDIA_TYPE_SUBTITLE, streamIndex[AVMEDIA_TYPE_SUBTITLE], (streamIndex[AVMEDIA_TYPE_AUDIO] >= 0 ? streamIndex[AVMEDIA_TYPE_AUDIO] : streamIndex[AVMEDIA_TYPE_VIDEO]), nullptr, 0);
+    }
 
     videoState->showMode = options->showMode;
 
@@ -381,11 +381,11 @@ int Stream::readThread() {
         AVCodecParameters *codecParameters = stream->codecpar;
         AVRational sampleAspectRatio = av_guess_sample_aspect_ratio(formatContext, stream, nullptr);
         if (codecParameters->width && surface) {
-            surface->setWindowSize(codecParameters->width, codecParameters->height, sampleAspectRatio);
+            surface->setVideoSize(codecParameters->width, codecParameters->height, sampleAspectRatio);
         }
     }
 
-    if (options->showStatus) {
+    if (options && options->showStatus) {
         av_dump_format(formatContext, 0, videoState->fileName, 0);
     }
 
@@ -403,6 +403,7 @@ int Stream::readThread() {
         videoState->syncType = options->syncType = SYNC_TYPE_VIDEO_MASTER;
     }
 
+    ret = -1;
     if (streamIndex[AVMEDIA_TYPE_VIDEO] >= 0) {
         ret = streamComponentOpen(streamIndex[AVMEDIA_TYPE_VIDEO]);
         if (ret) {
@@ -425,13 +426,13 @@ int Stream::readThread() {
     }
 
     if (msgQueue) {
-        msgQueue->notifyMsg(Message::MSG_COMPONENT_OPEN);
+        msgQueue->notifyMsg(Message::MSG_COMPONENTS_OPEN);
     }
 
     if (videoState->videoStreamIndex < 0 && videoState->audioStreamIndex < 0) {
-        ALOGD(STREAM_TAG, "%s failed to openAudio file '%s' or configure filter graph", __func__, videoState->fileName);
+        ALOGD(STREAM_TAG, "%s failed to open file '%s' or configure filter graph", __func__, videoState->fileName);
         closeReadThread(videoState, formatContext);
-        return NEGATIVE(S_NOT_OPEN_FILE);
+        return NEGATIVE(S_NO_OPEN_FILE);
     }
 
     if (videoState->videoStream && videoState->videoStream->codecpar) {
@@ -465,6 +466,17 @@ int Stream::readThread() {
             }
         }
 
+#if CONFIG_RTSP_DEMUXER || CONFIG_MMSH_PROTOCOL
+        if (videoState->paused && (!strcmp(formatContext->iformat->name, "rtsp") || (formatContext->pb && !strncmp(options->inputFileName, "mmsh:", 5)))) {
+            /* wait 10 ms to avoid trying to get another packet */
+            /* XXX: horrible */
+            waitMutex->mutexLock();
+            videoState->continueReadThread->condWaitTimeout(waitMutex, 10);
+            waitMutex->mutexUnLock();
+            continue;
+        }
+#endif
+
         if (videoState->seekReq) {
             int64_t seekTarget = videoState->seekPos;
             int64_t seekMin = videoState->seekRel > 0 ? (seekTarget - videoState->seekRel + 2) : INT64_MIN;
@@ -476,13 +488,13 @@ int Stream::readThread() {
                     videoState->audioPacketQueue.flush();
                     videoState->audioPacketQueue.put(&flushPacket);
                 }
-                if (videoState->subtitleStreamIndex >= 0) {
-                    videoState->subtitlePacketQueue.flush();
-                    videoState->subtitlePacketQueue.put(&flushPacket);
-                }
                 if (videoState->videoStreamIndex >= 0) {
                     videoState->videoPacketQueue.flush();
                     videoState->videoPacketQueue.put(&flushPacket);
+                }
+                if (videoState->subtitleStreamIndex >= 0) {
+                    videoState->subtitlePacketQueue.flush();
+                    videoState->subtitlePacketQueue.put(&flushPacket);
                 }
                 if (videoState->seekFlags & AVSEEK_FLAG_BYTE) {
                     videoState->exitClock.setClock(NAN, 0);
@@ -498,13 +510,14 @@ int Stream::readThread() {
             }
         }
 
-        // https://segmentfault.com/a/1190000018373504?utm_source=tag-newest
         if (videoState->queueAttachmentsReq) {
+            // https://segmentfault.com/a/1190000018373504?utm_source=tag-newest
+            // 它和mp3文件有关，是一个流的标志
             if (videoState->videoStream && videoState->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC) {
                 AVPacket copy = {nullptr};
                 if ((av_packet_ref(&copy, &videoState->videoStream->attached_pic)) < 0) {
                     closeReadThread(videoState, formatContext);
-                    return NEGATIVE(S_NOT_ATTACHED_PIC);
+                    return NEGATIVE(S_NO_ATTACHED_PIC);
                 }
                 videoState->videoPacketQueue.put(&copy);
                 videoState->videoPacketQueue.putNullPacket(videoState->videoStreamIndex);
@@ -512,6 +525,7 @@ int Stream::readThread() {
             videoState->queueAttachmentsReq = 0;
         }
 
+        // if the queue are full, no need to read more
         if (isNoReadMore()) {
             waitMutex->mutexLock();
             /* wait 10 ms */
@@ -521,7 +535,7 @@ int Stream::readThread() {
         }
 
         if (isRetryPlay()) {
-            bool isShouldLoop = options->loop != 1 && (!options->loop || --options->loop);
+            bool isShouldLoop = options->loopTimes != 1 && (!options->loopTimes || --options->loopTimes);
             if (isShouldLoop) {
                 // Seek To Start Position
                 streamSeek(options->startTime != AV_NOPTS_VALUE ? options->startTime : 0, 0, 0);
@@ -579,38 +593,39 @@ int Stream::videoThread() {
 
     VideoState *is = videoState;
     AVFrame *frame = av_frame_alloc();
+    AVRational timeBase = is->videoStream->time_base;
+    AVRational frameRate = av_guess_frame_rate(is->formatContext, is->videoStream, nullptr);
     double pts;
     double duration;
     int ret;
-    AVRational timeBase = is->videoStream->time_base;
-    AVRational frameRate = av_guess_frame_rate(is->formatContext, is->videoStream, nullptr);
 
 #if CONFIG_AVFILTER
     AVFilterGraph *graph = nullptr;
     AVFilterContext *filterOut = nullptr, *filterIn = nullptr;
     int lastWidth = 0;
     int lastHeight = 0;
+    // AVPixelFormat
     int lastFormat = -2;
     int lastPacketSerial = -1;
     int lastVFilterIdx = 0;
 #endif
 
     if (!frame) {
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NO_MEMORY);
     }
 
     for (;;) {
 
         ret = getVideoFrame(frame);
 
+        if (ret == S_FRAME_DROP) {
+            continue;
+        }
+
         if (IS_NEGATIVE(ret)) {
             av_frame_free(&frame);
             ALOGE(STREAM_TAG, "%s not get video frame", __func__);
-            return NEGATIVE(S_NOT_GET_VIDEO_FRAME);
-        }
-
-        if (ret == NEGATIVE_EOF) {
-            continue;
+            return NEGATIVE(S_NO_GET_VIDEO_FRAME);
         }
 
 #if CONFIG_AVFILTER
@@ -758,7 +773,7 @@ int Stream::audioThread() {
 #endif
 
     if (!avFrame) {
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NO_MEMORY);
     }
 
     do {
@@ -845,6 +860,7 @@ int Stream::isPacketInPlayRange(const AVFormatContext *formatContext, const AVPa
 
     /* check if packet videoState in stream range specified by user, then packetQueue, otherwise discard */
     int64_t streamStartTime = formatContext->streams[packet->stream_index]->start_time;
+
     // https://baike.baidu.com/item/PTS/13977433
     int64_t packetTimestamp = (packet->pts == AV_NOPTS_VALUE) ? packet->dts : packet->pts;
     int64_t diffTimestamp = packetTimestamp - (streamStartTime != AV_NOPTS_VALUE ? streamStartTime : 0);
@@ -871,34 +887,35 @@ bool Stream::isRetryPlay() const {
 
 bool Stream::isNoReadMore() {
     /* if the packetQueue are full, no need to read more */
-    bool cond1 = options->infiniteBuffer < 1;
-    bool cond2 = (videoState->audioPacketQueue.memorySize + videoState->videoPacketQueue.memorySize + videoState->subtitlePacketQueue.memorySize) > MAX_QUEUE_SIZE;
-    int cond31 = streamHasEnoughPackets(videoState->audioStream, videoState->audioStreamIndex, &videoState->audioPacketQueue);
-    int cond32 = streamHasEnoughPackets(videoState->videoStream, videoState->videoStreamIndex, &videoState->videoPacketQueue);
-    int cond33 = streamHasEnoughPackets(videoState->subtitleStream, videoState->subtitleStreamIndex, &videoState->subtitlePacketQueue);
-    bool cond3 = cond31 && cond32 && cond33;
-    return cond1 && (cond2 || cond3);
+    bool isNoInfiniteBuffer = options->infiniteBuffer < 1;
+    bool isNoEnoughMemory = (videoState->audioPacketQueue.memorySize + videoState->videoPacketQueue.memorySize + videoState->subtitlePacketQueue.memorySize) > MAX_QUEUE_SIZE;
+    bool isVideoEnoughPackets = streamHasEnoughPackets(videoState->videoStream, videoState->videoStreamIndex, &videoState->videoPacketQueue);
+    bool isAudioEnoughPackets = streamHasEnoughPackets(videoState->audioStream, videoState->audioStreamIndex, &videoState->audioPacketQueue);
+    bool isSubtitleEnoughPackets = streamHasEnoughPackets(videoState->subtitleStream, videoState->subtitleStreamIndex, &videoState->subtitlePacketQueue);
+    return isNoInfiniteBuffer && (isNoEnoughMemory || (isAudioEnoughPackets && isVideoEnoughPackets && isSubtitleEnoughPackets));
 }
 
-void Stream::closeReadThread(const VideoState *is, AVFormatContext *&formatContext) const {
+void Stream::closeReadThread(const VideoState *is, AVFormatContext *formatContext) const {
     ALOGD(STREAM_TAG, __func__);
     if (formatContext && !is->formatContext) {
         avformat_close_input(&formatContext);
+        avformat_free_context(formatContext);
     }
 }
 
-int Stream::isRealTime(AVFormatContext *s) {
-    if (!strcmp(s->iformat->name, FORMAT_RTP) || !strcmp(s->iformat->name, FORMAT_RTSP) || !strcmp(s->iformat->name, FORMAT_SDP)) {
+int Stream::isRealTime(AVFormatContext *formatContext) {
+    if (!strcmp(formatContext->iformat->name, FORMAT_RTP) || !strcmp(formatContext->iformat->name, FORMAT_RTSP) || !strcmp(formatContext->iformat->name, FORMAT_SDP)) {
         return POSITIVE;
     }
-    if (s->pb && (!strncmp(s->url, URL_FORMAT_RTP, 4) || !strncmp(s->url, URL_FORMAT_UDP, 4))) {
+    if (formatContext->pb && (!strncmp(formatContext->url, URL_FORMAT_RTP, 4) || !strncmp(formatContext->url, URL_FORMAT_UDP, 4))) {
         return POSITIVE;
     }
     return NEGATIVE(S_ERROR);
 }
 
-/* openAudio a given stream. Return 0 if OK */
+/* open a given stream. Return 0 if OK */
 int Stream::streamComponentOpen(int streamIndex) {
+
     ALOGD(STREAM_TAG, "%s streamIndex=%d", __func__, streamIndex);
 
     AVFormatContext *formatContext = videoState->formatContext;
@@ -906,13 +923,14 @@ int Stream::streamComponentOpen(int streamIndex) {
     AVCodec *codec;
     AVDictionary *opts = nullptr;
     AVDictionaryEntry *t = nullptr;
-    int sampleRate, nbChannels;
+    int sampleRate;
+    int nbChannels;
     int64_t channelLayout;
     int streamLowResolution = options->lowResolution;
     int ret = 0;
 
     if (streamIndex < 0 || streamIndex >= formatContext->nb_streams) {
-        return NEGATIVE(S_INVALID_STREAM_INDEX);
+        return NEGATIVE(S_NO_VALID_STREAM_INDEX);
     }
 
     codecContext = avcodec_alloc_context3(nullptr);
@@ -971,16 +989,17 @@ int Stream::streamComponentOpen(int streamIndex) {
 
     if (avcodec_open2(codecContext, codec, &opts) < 0) {
         avcodec_free_context(&codecContext);
-        return NEGATIVE(S_NOT_OPEN_DECODEC);
+        return NEGATIVE(S_NO_OPEN_DECODEC);
     }
 
     if ((t = av_dict_get(opts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
         ALOGE(STREAM_TAG, "%s Option %s not found.", __func__, t->key);
-        return NEGATIVE(S_NOT_FOUND_OPTION);
+        return NEGATIVE(S_NO_FOUND_OPTION);
     }
 
     videoState->eof = 0;
 
+    // discard useless packets like 0 size packets in avi
     formatContext->streams[streamIndex]->discard = AVDISCARD_DEFAULT;
 
     switch (codecContext->codec_type) {
@@ -1030,7 +1049,7 @@ int Stream::streamComponentOpen(int streamIndex) {
             }
             if (!videoState->audioDecoder.decoderStart("ADecode", innerAudioThread, this)) {
                 av_dict_free(&opts);
-                return NEGATIVE(S_NOT_AUDIO_DECODE_START);
+                return NEGATIVE(S_NO_AUDIO_DECODE_START);
             }
             audio->pauseAudio();
             break;
@@ -1040,7 +1059,7 @@ int Stream::streamComponentOpen(int streamIndex) {
             videoState->videoDecoder.decoderInit(codecContext, &videoState->videoPacketQueue, videoState->continueReadThread);
             if (!videoState->videoDecoder.decoderStart("VDecode", innerVideoThread, this)) {
                 av_dict_free(&opts);
-                return NEGATIVE(S_NOT_VIDEO_DECODE_START);
+                return NEGATIVE(S_NO_VIDEO_DECODE_START);
             }
             videoState->queueAttachmentsReq = 1;
             break;
@@ -1050,7 +1069,7 @@ int Stream::streamComponentOpen(int streamIndex) {
             videoState->subtitleDecoder.decoderInit(codecContext, &videoState->subtitlePacketQueue, videoState->continueReadThread);
             if (!videoState->subtitleDecoder.decoderStart("SDecode", innerSubtitleThread, this)) {
                 av_dict_free(&opts);
-                return NEGATIVE(S_NOT_SUBTITLE_DECODE_START);
+                return NEGATIVE(S_NO_SUBTITLE_DECODE_START);
             }
             break;
         default:
@@ -1094,7 +1113,7 @@ const char *Stream::getForcedCodecName(int streamIndex, const AVCodecContext *co
     return forcedCodecName;
 }
 
-int Stream::streamHasEnoughPackets(AVStream *stream, int streamIndex, PacketQueue *packetQueue) {
+bool Stream::streamHasEnoughPackets(AVStream *stream, int streamIndex, PacketQueue *packetQueue) {
     return streamIndex < 0 || packetQueue->abortRequest || (stream->disposition & AV_DISPOSITION_ATTACHED_PIC) || (packetQueue->packetSize > MIN_FRAMES && (!packetQueue->duration || av_q2d(stream->time_base) * packetQueue->duration > 1.0));
 }
 
@@ -1103,7 +1122,7 @@ int Stream::streamComponentClose(AVStream *stream, int streamIndex) {
     AVCodecParameters *codecParameters;
 
     if (streamIndex < 0 || streamIndex >= ic->nb_streams) {
-        return NEGATIVE(S_INVALID_STREAM_INDEX);
+        return NEGATIVE(S_NO_VALID_STREAM_INDEX);
     }
 
     codecParameters = ic->streams[streamIndex]->codecpar;
@@ -1213,7 +1232,7 @@ void Stream::streamSeek(int64_t pos, int64_t rel, int seekByBytes) {
 int Stream::getVideoFrame(AVFrame *frame) {
     ALOGD(STREAM_TAG, __func__);
 
-    int gotPicture;
+    int gotPicture = NEGATIVE(S_FRAME_DROP);
 
     if ((gotPicture = decoderDecodeFrame(&videoState->videoDecoder, frame, nullptr)) < 0) {
         return NEGATIVE(S_NOT_DECODE_FRAME);
@@ -1245,7 +1264,7 @@ int Stream::getVideoFrame(AVFrame *frame) {
                     // 显示过慢，丢掉当前帧
                     videoState->frameDropsEarly++;
                     av_frame_unref(frame);
-                    gotPicture = NEGATIVE(S_ERROR);
+                    gotPicture = NEGATIVE(S_FRAME_DROP);
                 }
             }
         }
@@ -1272,9 +1291,13 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                     case AVMEDIA_TYPE_VIDEO:
                         ret = avcodec_receive_frame(decoder->codecContext, frame);
                         if (ret >= 0) {
+                            // 是否使用通过解码器估算过的时间
                             if (options->decoderReorderPts == -1) {
+                                // frame timestamp estimated using various heuristics, in stream time base
                                 frame->pts = frame->best_effort_timestamp;
                             } else if (!options->decoderReorderPts) {
+                                // This is also the Presentation time of this AVFrame calculated from
+                                // only AVPacket.dts values without pts values.
                                 frame->pts = frame->pkt_dts;
                             }
                         }
@@ -1317,6 +1340,8 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
         }
 
         do {
+            // 同步读取序列
+
             if (decoder->packetQueue->packetSize == 0) {
                 decoder->emptyQueueCond->condSignal();
             }
@@ -1325,7 +1350,7 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                 decoder->packetPending = 0;
             } else {
                 if (IS_NEGATIVE(decoder->packetQueue->get(&packet, 1, &decoder->packetSerial))) {
-                    return NEGATIVE(S_NOT_GET_PACKET_QUEUE);
+                    return NEGATIVE(S_NO_GET_PACKET_QUEUE);
                 }
             }
         } while (decoder->packetQueue->serial != decoder->packetSerial);
@@ -1340,7 +1365,7 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                 int gotFrame = 0;
                 ret = avcodec_decode_subtitle2(decoder->codecContext, subtitle, &gotFrame, &packet);
                 if (ret < 0) {
-                    ret = NEGATIVE(EAGAIN);
+                    ret = NEGATIVE(S_NO_DECODE_SUBTITLE_FRAME);
                 } else {
                     if (gotFrame && !packet.data) {
                         decoder->packetPending = 1;
@@ -1384,7 +1409,7 @@ int Stream::queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duratio
     frame->serial = serial;
 
     if (surface) {
-        surface->setWindowSize(frame->width, frame->height, frame->sampleAspectRatio);
+        surface->setVideoSize(frame->width, frame->height, frame->sampleAspectRatio);
     }
 
     av_frame_move_ref(frame->frame, srcFrame);
@@ -1564,7 +1589,7 @@ int Stream::configureAudioFilters(const char *afilters, int forceOutputFormat) {
     avfilter_graph_free(&videoState->agraph);
 
     if (!(videoState->agraph = avfilter_graph_alloc())) {
-        return NEGATIVE(S_NOT_MEMORY);
+        return NEGATIVE(S_NO_MEMORY);
     }
     videoState->agraph->nb_threads = options->filterNBThreads;
 
@@ -1646,7 +1671,7 @@ int Stream::configureFilterGraph(AVFilterGraph *graph, const char *filterGraph,
         if (!outputs || !inputs) {
             avfilter_inout_free(&outputs);
             avfilter_inout_free(&inputs);
-            return NEGATIVE(S_NOT_MEMORY);
+            return NEGATIVE(S_NO_MEMORY);
         }
 
         outputs->name = av_strdup("in");

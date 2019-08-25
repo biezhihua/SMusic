@@ -94,7 +94,7 @@ int Audio::audioDecodeFrame() {
         }
         av_fast_malloc(&is->audioBuf1, &is->audioBuf1Size, out_size);
         if (!is->audioBuf1) {
-            return NEGATIVE(S_NOT_MEMORY);
+            return NEGATIVE(S_NO_MEMORY);
         }
         len2 = swr_convert(is->audioSwrContext, out, out_count, in, frame->frame->nb_samples);
         if (len2 < 0) {
@@ -172,4 +172,8 @@ int Audio::synchronizeAudio(int nbSamples) {
 
 void Audio::setOptions(Options *options) {
     Audio::options = options;
+}
+
+void Audio::setMsgQueue(MessageQueue *msgQueue) {
+    Audio::msgQueue = msgQueue;
 }

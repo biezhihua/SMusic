@@ -2,35 +2,39 @@
 
 int MacSurface::create() {
     ALOGD(MAC_SURFACE_TAG, __func__);
+
     if (!stream) {
         return NEGATIVE(S_NULL);
     }
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0) {
-        ALOGD(MAC_SURFACE_TAG, "%s init sdl fail code = %s", __func__, SDL_GetError());
-        return NEGATIVE(S_SDL_NOT_INIT);
-    }
-
-    Uint32 flags = SDL_WINDOW_HIDDEN;
     auto *mapOptions = dynamic_cast<MacOptions *>(options);
-    if (mapOptions->borderLess) {
-        flags |= SDL_WINDOW_BORDERLESS;
-    } else {
-        flags |= SDL_WINDOW_RESIZABLE;
-    }
+
+    unsigned int initFlags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
 
     if (!SDL_getenv("SDL_AUDIO_ALSA_SET_BUFFER_SIZE")) {
         SDL_setenv("SDL_AUDIO_ALSA_SET_BUFFER_SIZE", "1", 1);
     }
 
-    window = SDL_CreateWindow(options->windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->defaultWidth, options->defaultHeight, flags);
+    if (SDL_Init(initFlags) != 0) {
+        ALOGD(MAC_SURFACE_TAG, "%s init sdl fail code = %s", __func__, SDL_GetError());
+        return NEGATIVE(S_NO_SDL_INIT);
+    }
+
+    Uint32 windowFlags = SDL_WINDOW_HIDDEN;
+    if (mapOptions->borderLess) {
+        windowFlags |= SDL_WINDOW_BORDERLESS;
+    } else {
+        windowFlags |= SDL_WINDOW_RESIZABLE;
+    }
+
+    window = SDL_CreateWindow(options->windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->videoWidth, options->videoHeight, windowFlags);
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
     if (window == nullptr) {
         ALOGE(MAC_SURFACE_TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
         destroy();
-        return NEGATIVE(S_SDL_NOT_CREATE_WINDOW);
+        return NEGATIVE(S_NO_SDL_CREATE_WINDOW);
     }
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -41,7 +45,7 @@ int MacSurface::create() {
     if (renderer == nullptr) {
         ALOGE(MAC_SURFACE_TAG, "%s create renderer fail: %s", __func__, SDL_GetError());
         destroy();
-        return NEGATIVE(S_SDL_NOT_CREATE_RENDERER);
+        return NEGATIVE(S_NO_SDL_CREATE_RENDERER);
     }
 
     if (!SDL_GetRendererInfo(renderer, &rendererInfo)) {
@@ -51,7 +55,7 @@ int MacSurface::create() {
     if (!window || !renderer || !rendererInfo.num_texture_formats) {
         ALOGD(MAC_SURFACE_TAG, "%s failed to create window or renderer: %s", __func__, SDL_GetError());
         destroy();
-        return NEGATIVE(S_SDL_NOT_INIT);
+        return NEGATIVE(S_NO_SDL_INIT);
     }
 
     return POSITIVE;
@@ -249,15 +253,17 @@ int MacSurface::displayWindow() {
         return NEGATIVE(S_ERROR);
     }
     if (window && options && stream && stream->getVideoState()) {
-        VideoState *videoState = stream->getVideoState();
+        auto *macOptions = (MacOptions *) options;
+        auto *videoState = stream->getVideoState();
+
         SDL_SetWindowTitle(window, options->windowTitle);
         SDL_SetWindowSize(window, videoState->width, videoState->height);
         SDL_SetWindowPosition(window, options->screenLeft, options->screenTop);
-        if (options->isFullScreen) {
+        if (macOptions->isFullScreen) {
             SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         }
         SDL_ShowWindow(window);
-        ALOGD(MAC_SURFACE_TAG, "%s windowTitle = %s defaultWidth = %d defaultHeight = %d screenLeft = %d screenTop = %d", __func__,
+        ALOGD(MAC_SURFACE_TAG, "%s windowTitle = %s videoWidth = %d videoHeight = %d screenLeft = %d screenTop = %d", __func__,
               options->windowTitle,
               videoState->width, videoState->height,
               options->screenLeft, options->screenTop
@@ -436,8 +442,9 @@ void MacSurface::doExit() {
 
 void MacSurface::toggleFullScreen() const {
     if (options && window) {
-        options->isFullScreen = !options->isFullScreen;
-        SDL_SetWindowFullscreen(window, options->isFullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+        auto *macOptions = (MacOptions *) options;
+        macOptions->isFullScreen = !macOptions->isFullScreen;
+        SDL_SetWindowFullscreen(window, macOptions->isFullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
     }
 }
 

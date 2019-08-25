@@ -34,8 +34,8 @@ const char *Message::getMsgSimpleName(int what) {
             return "MSG_OPEN_INPUT";
         case MSG_FIND_STREAM_INFO :
             return "MSG_FIND_STREAM_INFO";
-        case MSG_COMPONENT_OPEN :
-            return "MSG_COMPONENT_OPEN";
+        case MSG_COMPONENTS_OPEN :
+            return "MSG_COMPONENTS_OPEN";
         case MSG_VIDEO_SEEK_RENDERING_START :
             return "MSG_VIDEO_SEEK_RENDERING_START";
         case MSG_AUDIO_SEEK_RENDERING_START :

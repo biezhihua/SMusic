@@ -16,18 +16,16 @@ static int check_stream_specifier(AVFormatContext *s, AVStream *st, const char *
     return ret;
 }
 
-AVDictionary *filter_codec_opts(AVDictionary *opts, enum AVCodecID codec_id,
-                                AVFormatContext *s, AVStream *st, AVCodec *codec) {
+AVDictionary *filter_codec_opts(AVDictionary *opts, enum AVCodecID codec_id, AVFormatContext *s, AVStream *st, AVCodec *codec) {
     AVDictionary *ret = NULL;
     AVDictionaryEntry *t = NULL;
-    int flags = s->oformat ? AV_OPT_FLAG_ENCODING_PARAM
-                           : AV_OPT_FLAG_DECODING_PARAM;
+    int flags = s->oformat ? AV_OPT_FLAG_ENCODING_PARAM : AV_OPT_FLAG_DECODING_PARAM;
     char prefix = 0;
     const AVClass *cc = avcodec_get_class();
 
-    if (!codec)
-        codec = s->oformat ? avcodec_find_encoder(codec_id)
-                           : avcodec_find_decoder(codec_id);
+    if (!codec) {
+        codec = s->oformat ? avcodec_find_encoder(codec_id) : avcodec_find_decoder(codec_id);
+    }
 
     switch (st->codecpar->codec_type) {
         case AVMEDIA_TYPE_VIDEO:
@@ -61,38 +59,33 @@ AVDictionary *filter_codec_opts(AVDictionary *opts, enum AVCodecID codec_id,
                     return NULL;
             }
 
-        if (av_opt_find(&cc, t->key, NULL, flags, AV_OPT_SEARCH_FAKE_OBJ) ||
-            (codec && codec->priv_class &&
-             av_opt_find(&codec->priv_class, t->key, NULL, flags,
-                         AV_OPT_SEARCH_FAKE_OBJ)))
+        if (av_opt_find(&cc, t->key, NULL, flags, AV_OPT_SEARCH_FAKE_OBJ) || (codec && codec->priv_class && av_opt_find(&codec->priv_class, t->key, NULL, flags, AV_OPT_SEARCH_FAKE_OBJ))) {
             av_dict_set(&ret, t->key, t->value, 0);
-        else if (t->key[0] == prefix &&
-                 av_opt_find(&cc, t->key + 1, NULL, flags,
-                             AV_OPT_SEARCH_FAKE_OBJ))
+        } else if (t->key[0] == prefix && av_opt_find(&cc, t->key + 1, NULL, flags, AV_OPT_SEARCH_FAKE_OBJ)) {
             av_dict_set(&ret, t->key + 1, t->value, 0);
+        }
 
-        if (p)
+        if (p) {
             *p = ':';
+        }
     }
     return ret;
 }
 
-AVDictionary **setupFindStreamInfoOpts(AVFormatContext *s,
-                                       AVDictionary *codec_opts) {
+AVDictionary **setupFindStreamInfoOpts(AVFormatContext *s, AVDictionary *codec_opts) {
     int i;
     AVDictionary **opts;
-
-    if (!s->nb_streams)
-        return NULL;
-    opts = av_mallocz(s->nb_streams * sizeof(*opts));
-    if (!opts) {
-        av_log(NULL, AV_LOG_ERROR,
-               "Could not alloc memory for stream options.\n");
+    if (!s->nb_streams) {
         return NULL;
     }
-    for (i = 0; i < s->nb_streams; i++)
-        opts[i] = filter_codec_opts(codec_opts, s->streams[i]->codecpar->codec_id,
-                                    s, s->streams[i], NULL);
+    opts = av_mallocz(s->nb_streams * sizeof(*opts));
+    if (!opts) {
+        av_log(NULL, AV_LOG_ERROR, "Could not alloc memory for stream options.\n");
+        return NULL;
+    }
+    for (i = 0; i < s->nb_streams; i++) {
+        opts[i] = filter_codec_opts(codec_opts, s->streams[i]->codecpar->codec_id, s, s->streams[i], NULL);
+    }
     return opts;
 }
 
