@@ -620,13 +620,13 @@ int Stream::videoThread() {
 
         ret = getVideoFrame(frame);
 
-        if (ret == S_FRAME_DROP) {
+        if (ret == NEGATIVE(S_FRAME_DROP)) {
             continue;
         }
 
         if (IS_NEGATIVE(ret)) {
             av_frame_free(&frame);
-            ALOGE(STREAM_TAG, "%s not get video frame", __func__);
+            ALOGE(STREAM_TAG, "%s not get video frame ret = %d ", __func__, ret);
             return NEGATIVE(S_NO_GET_VIDEO_FRAME);
         }
 
@@ -758,8 +758,7 @@ int Stream::subtitleThread() {
     return POSITIVE;
 }
 
-int Stream::cmpAudioFormats(AVSampleFormat fmt1, int64_t channel_count1,
-                            AVSampleFormat fmt2, int64_t channel_count2) {
+int Stream::cmpAudioFormats(AVSampleFormat fmt1, int64_t channel_count1, AVSampleFormat fmt2, int64_t channel_count2) {
     /* If channel count == 1, planar and non-planar formats are the same */
     if (channel_count1 == 1 && channel_count2 == 1) {
         return av_get_packed_sample_fmt(fmt1) != av_get_packed_sample_fmt(fmt2);
@@ -790,6 +789,7 @@ int Stream::audioThread() {
 
     do {
         if ((gotFrame = decoderDecodeFrame(&is->audioDecoder, avFrame, nullptr)) < 0) {
+            ALOGE(STREAM_TAG, "%s audio decoderDecodeFrame failure ret = %d", __func__, gotFrame);
             goto the_end;
         }
 
@@ -821,11 +821,13 @@ int Stream::audioThread() {
                 lastSerial = is->audioDecoder.packetSerial;
 
                 if ((ret = configureAudioFilters(options->afilters, 1)) < 0) {
+                    ALOGE(STREAM_TAG, "%s configure audio filter failure ret = %d", __func__, ret);
                     goto the_end;
                 }
             }
 
             if ((ret = av_buffersrc_add_frame(is->inAudioFilter, avFrame)) < 0) {
+                ALOGE(STREAM_TAG, "%s add src frame failure ret = %d", __func__, ret);
                 goto the_end;
             }
 
@@ -833,6 +835,7 @@ int Stream::audioThread() {
                 timeBase = av_buffersink_get_time_base(is->outAudioFilter);
 #endif
                 if (!(frame = videoState->audioFrameQueue.peekWritable())) {
+                    ALOGE(STREAM_TAG, "%s peek writable", __func__);
                     goto the_end;
                 }
 
@@ -881,20 +884,17 @@ int Stream::isPacketInPlayRange(const AVFormatContext *formatContext, const AVPa
     double startTime = (double) (options->startTime != AV_NOPTS_VALUE ? options->startTime : 0) / AV_TIME_BASE;
     double duration = (double) options->duration / AV_TIME_BASE;
 
-    // isPacketInPlayRange diffTime = 5123.535083 startTime = 0.000000 duration = -9223372036854.775391
-    // ALOGD(STREAM_TAG, "%s diffTime = %lf startTime = %lf duration = %lf", __func__, diffTime, startTime, duration);
-
     return (options->duration == AV_NOPTS_VALUE) || ((diffTime - startTime) <= duration);
 }
 
 bool Stream::isRetryPlay() const {
     // 未暂停
-    bool notPaused = !videoState->paused;
+    bool isNoPause = !videoState->paused;
     // 未初始化音频流 或者 解码结束 同时 无可用帧
-    bool audioSeekCond = !videoState->audioStream || (videoState->audioDecoder.finished == videoState->audioPacketQueue.serial && videoState->audioFrameQueue.numberRemaining() == 0);
+    bool isNoUseAudioFrame = !videoState->audioStream || (videoState->audioDecoder.finished == videoState->audioPacketQueue.serial && videoState->audioFrameQueue.numberRemaining() == 0);
     // 未初始化视频流 或者 解码结束 同时 无可用帧
-    bool videoSeekCond = !videoState->videoStream || (videoState->videoDecoder.finished == videoState->videoPacketQueue.serial && videoState->videoFrameQueue.numberRemaining() == 0);
-    return notPaused && audioSeekCond && videoSeekCond;
+    bool isNoUseVideoFrame = !videoState->videoStream || (videoState->videoDecoder.finished == videoState->videoPacketQueue.serial && videoState->videoFrameQueue.numberRemaining() == 0);
+    return isNoPause && isNoUseAudioFrame && isNoUseVideoFrame;
 }
 
 bool Stream::isNoReadMore() {
@@ -925,7 +925,6 @@ int Stream::isRealTime(AVFormatContext *formatContext) {
     return NEGATIVE(S_ERROR);
 }
 
-/* open a given stream. Return 0 if OK */
 int Stream::streamComponentOpen(int streamIndex) {
 
     ALOGD(STREAM_TAG, "%s streamIndex=%d", __func__, streamIndex);
@@ -1243,6 +1242,7 @@ int Stream::getVideoFrame(AVFrame *frame) {
     int gotPicture = NEGATIVE(S_FRAME_DROP);
 
     if ((gotPicture = decoderDecodeFrame(&videoState->videoDecoder, frame, nullptr)) < 0) {
+        ALOGE(STREAM_TAG, "%s video decoderDecodeFrame failure ret = %d", __func__, gotPicture);
         return NEGATIVE(S_NOT_DECODE_FRAME);
     }
 
@@ -1282,7 +1282,7 @@ int Stream::getVideoFrame(AVFrame *frame) {
 }
 
 int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *subtitle) {
-    ALOGD(STREAM_TAG, __func__);
+
 
     int ret = AVERROR(EAGAIN);
 
@@ -1336,6 +1336,9 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                     case AVMEDIA_TYPE_NB:
                         break;
                 }
+
+                ALOGD(STREAM_TAG, "%s avcodec_receive_frame", __func__);
+
                 if (ret == AVERROR_EOF) {
                     decoder->finished = decoder->packetSerial;
                     avcodec_flush_buffers(decoder->codecContext);
@@ -1387,6 +1390,8 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                     decoder->packetPending = 1;
                     av_packet_move_ref(&decoder->packet, &packet);
                 }
+
+                ALOGD(STREAM_TAG, "%s avcodec_send_packet", __func__);
             }
             av_packet_unref(&packet);
         }
@@ -1666,8 +1671,7 @@ int Stream::configureAudioFilters(const char *afilters, int forceOutputFormat) {
     return ret;
 }
 
-int Stream::configureFilterGraph(AVFilterGraph *graph, const char *filterGraph,
-                                 AVFilterContext *srcFilterContext, AVFilterContext *sinkFilterContext) {
+int Stream::configureFilterGraph(AVFilterGraph *graph, const char *filterGraph, AVFilterContext *srcFilterContext, AVFilterContext *sinkFilterContext) {
     int ret, i;
     int nb_filters = graph->nb_filters;
     AVFilterInOut *outputs = nullptr, *inputs = nullptr;
