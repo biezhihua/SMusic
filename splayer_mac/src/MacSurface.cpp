@@ -300,7 +300,7 @@ int MacSurface::displayWindow() {
     return NEGATIVE(S_NULL);
 }
 
-int MacSurface::uploadTexture(AVFrame *frame, SwsContext *convertContext) {
+int MacSurface::uploadVideoTexture(AVFrame *frame, SwsContext *convertContext) {
     Uint32 sdlPixelFormat;
     SDL_BlendMode sdlBlendMode;
 
@@ -374,25 +374,102 @@ int MacSurface::uploadTexture(AVFrame *frame, SwsContext *convertContext) {
     return POSITIVE;
 }
 
-void MacSurface::displayVideoImageBefore() {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
+int MacSurface::uploadSubtitleTexture(Frame *nextSubtitleFrame, SwsContext *convertContext) {
+    uint8_t *pixels[4];
+    int pitch[4];
+    int i;
+
+    if (!reallocTexture(&subtitleTexture, SDL_PIXELFORMAT_ARGB8888, nextSubtitleFrame->width, nextSubtitleFrame->height, SDL_BLENDMODE_BLEND, 1)) {
+        return NEGATIVE(S_NOT_REALLOC_TEXTURE);
+    }
+
+    for (i = 0; i < nextSubtitleFrame->sub.num_rects; i++) {
+        AVSubtitleRect *subRect = nextSubtitleFrame->sub.rects[i];
+
+        subRect->x = av_clip(subRect->x, 0, nextSubtitleFrame->width);
+        subRect->y = av_clip(subRect->y, 0, nextSubtitleFrame->height);
+        subRect->w = av_clip(subRect->w, 0, nextSubtitleFrame->width - subRect->x);
+        subRect->h = av_clip(subRect->h, 0, nextSubtitleFrame->height - subRect->y);
+
+        convertContext = sws_getCachedContext(convertContext, subRect->w, subRect->h, AV_PIX_FMT_PAL8, subRect->w, subRect->h, AV_PIX_FMT_BGRA, 0, NULL, NULL, NULL);
+        if (convertContext) {
+            ALOGE(MAC_SURFACE_TAG, "%s Cannot initialize the conversion context", __func__);
+            return NEGATIVE(S_NOT_INIT_CONVERSION_CONTEXT);
+        }
+
+        SDL_Rect rect;
+        rect.x = subRect->x;
+        rect.y = subRect->y;
+        rect.w = subRect->w;
+        rect.h = subRect->h;
+        if (!SDL_LockTexture(subtitleTexture, &rect, (void **) pixels, pitch)) {
+            sws_scale(convertContext, (const uint8_t *const *) subRect->data, subRect->linesize, 0, subRect->h, pixels, pitch);
+            SDL_UnlockTexture(subtitleTexture);
+        }
+    }
+    return POSITIVE;
 }
 
-void MacSurface::displayVideoImageAfter(Frame *lastFrame, Rect *rect) {
-    if (stream && stream->getVideoState() && lastFrame) {
-        SDL_Rect sdlRect;
-        if (rect) {
+int MacSurface::updateSubtitleTexture(const AVSubtitleRect *subRect) const {
+    uint8_t *pixels;
+    int pitch, j;
+    SDL_Rect rect;
+    rect.x = subRect->x;
+    rect.y = subRect->y;
+    rect.w = subRect->w;
+    rect.h = subRect->h;
+    if (!SDL_LockTexture(subtitleTexture, &rect, (void **) &pixels, &pitch)) {
+        for (j = 0; j < subRect->h; j++, pixels += pitch) {
+            memset(pixels, 0, subRect->w << 2);
+        }
+        SDL_UnlockTexture(subtitleTexture);
+    }
+    return POSITIVE;
+}
+
+int MacSurface::displayVideoImageBefore() {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    return POSITIVE;
+}
+
+int MacSurface::displayVideoImageAfter(Frame *currentFrame, Frame *nextSubtitleFrame, Rect *rect) {
+    if (stream && stream->getVideoState()) {
+        if (currentFrame) {
+            SDL_Rect sdlRect;
             sdlRect.x = rect->x;
             sdlRect.y = rect->y;
             sdlRect.w = rect->w;
             sdlRect.h = rect->h;
+            setYuvConversionMode(currentFrame->frame);
+            SDL_RenderCopyEx(renderer, videoTexture, nullptr, &sdlRect, 0, nullptr, currentFrame->flipVertical ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
+            setYuvConversionMode(nullptr);
         }
-        setYuvConversionMode(lastFrame->frame);
-        SDL_RenderCopyEx(renderer, videoTexture, nullptr, &sdlRect, 0, nullptr, lastFrame->flipVertical ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
-        setYuvConversionMode(nullptr);
+        if (nextSubtitleFrame) {
+            int i;
+            double xratio = (double) rect->w / (double) nextSubtitleFrame->width;
+            double yratio = (double) rect->h / (double) nextSubtitleFrame->height;
+            for (i = 0; i < nextSubtitleFrame->sub.num_rects; i++) {
+                AVSubtitleRect *subRect = nextSubtitleFrame->sub.rects[i];
+
+                SDL_Rect sdlSubRect;
+                sdlSubRect.x = rect->x;
+                sdlSubRect.y = rect->y;
+                sdlSubRect.w = rect->w;
+                sdlSubRect.h = rect->h;
+
+                SDL_Rect sdlRect;
+                sdlRect.x = (int) (rect->x + subRect->x * xratio);
+                sdlRect.y = (int) (rect->y + subRect->y * yratio);
+                sdlRect.w = (int) (subRect->w * xratio);
+                sdlRect.h = (int) (subRect->h * yratio);
+
+                SDL_RenderCopy(renderer, subtitleTexture, &sdlSubRect, &sdlRect);
+            }
+        }
+        SDL_RenderPresent(renderer);
+        return POSITIVE;
     }
-    SDL_RenderPresent(renderer);
 }
 
 void MacSurface::setYuvConversionMode(AVFrame *frame) {
@@ -537,13 +614,4 @@ AVPixelFormat *MacSurface::getPixelFormatsArray() {
     return pix_fmts;
 }
 
-void MacSurface::setSubtitleTexture(const AVSubtitleRect *sub_rect) const {
-    uint8_t *pixels;
-    int pitch, j;
-    if (!SDL_LockTexture(subtitleTexture, (SDL_Rect *) sub_rect, (void **) &pixels, &pitch)) {
-        for (j = 0; j < sub_rect->h; j++, pixels += pitch) {
-            memset(pixels, 0, sub_rect->w << 2);
-        }
-        SDL_UnlockTexture(subtitleTexture);
-    }
-}
+

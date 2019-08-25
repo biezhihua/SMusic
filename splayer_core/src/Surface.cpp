@@ -249,12 +249,12 @@ void Surface::refreshSubtitle() const {
 
         bool isNoSamePacketSerial = currentFrame->serial != videoState->subtitlePacketQueue.serial;
         bool isNeedDropFrame = videoState->videoClock.pts > (currentFrame->pts + ((float) currentFrame->sub.end_display_time / 1000));
-        bool isNeedDropNextFrame = nextFrame && videoState->videoClock.pts > (nextFrame->pts + ((float) nextFrame->sub.start_display_time / 1000));
+        bool isNeedDropNextFrame = nextFrame != nullptr && videoState->videoClock.pts > (nextFrame->pts + ((float) nextFrame->sub.start_display_time / 1000));
         if (isNoSamePacketSerial || isNeedDropFrame || isNeedDropNextFrame) {
             if (currentFrame->uploaded) {
                 for (int i = 0; i < currentFrame->sub.num_rects; i++) {
                     AVSubtitleRect *subtitleRect = currentFrame->sub.rects[i];
-                    setSubtitleTexture(subtitleRect);
+                    updateSubtitleTexture(subtitleRect);
                 }
             }
             videoState->subtitleFrameQueue.next();
@@ -264,7 +264,8 @@ void Surface::refreshSubtitle() const {
     }
 }
 
-void Surface::setSubtitleTexture(const AVSubtitleRect *sub_rect) const {
+int Surface::updateSubtitleTexture(const AVSubtitleRect *sub_rect) const {
+    return POSITIVE;
 }
 
 double Surface::getFrameDelayTime(const Frame *willToShowFrame, const Frame *firstReadyToShowFrame) const {
@@ -306,8 +307,8 @@ int Surface::displayWindow() {
     return NEGATIVE(S_NULL);
 }
 
-void Surface::displayVideoAudio() {
-
+int Surface::displayVideoAudio() {
+    return POSITIVE;
 }
 
 void Surface::displayVideoImage() {
@@ -315,36 +316,53 @@ void Surface::displayVideoImage() {
         displayVideoImageBefore();
 
         VideoState *videoState = stream->getVideoState();
-        Frame *sp = nullptr;
         Rect *rect = new Rect();
-        Frame *willToShowFrame = videoState->videoFrameQueue.peek();
+        Frame *currentFrame = videoState->videoFrameQueue.peek();
+        Frame *nextSubtitleFrame = nullptr;
 
         if (videoState->subtitleStream) {
-            // TODO
+            displaySubtitleImage(videoState, currentFrame, nextSubtitleFrame);
         }
 
-        calculateDisplayRect(rect, videoState->xLeft, videoState->yTop, videoState->width, videoState->height, willToShowFrame->width, willToShowFrame->height, willToShowFrame->sampleAspectRatio);
+        calculateDisplayRect(rect, videoState->xLeft, videoState->yTop, videoState->width, videoState->height, currentFrame->width, currentFrame->height, currentFrame->sampleAspectRatio);
 
-        if (!willToShowFrame->uploaded) {
-            if (!uploadTexture(willToShowFrame->frame, videoState->imgConvertCtx)) {
+        if (!currentFrame->uploaded) {
+            if (!uploadVideoTexture(currentFrame->frame, videoState->imgConvertCtx)) {
                 return;
             }
-            willToShowFrame->uploaded = 1;
-            willToShowFrame->flipVertical = willToShowFrame->frame->linesize[0] < 0;
+            currentFrame->uploaded = 1;
+            currentFrame->flipVertical = currentFrame->frame->linesize[0] < 0;
         }
 
-        displayVideoImageAfter(willToShowFrame, rect);
+        displayVideoImageAfter(currentFrame, nextSubtitleFrame, rect);
         delete rect;
     }
 }
 
-void Surface::displayVideoImageBefore() {
-
+void Surface::displaySubtitleImage(VideoState *videoState, const Frame *currentFrame, Frame *nextSubtitleFrame) {
+    if (videoState->subtitleFrameQueue.numberRemaining() > 0) {
+        nextSubtitleFrame = videoState->subtitleFrameQueue.peekNext();
+        if (currentFrame->pts >= nextSubtitleFrame->pts + ((float) nextSubtitleFrame->sub.start_display_time / 1000)) {
+            if (!nextSubtitleFrame->uploaded) {
+                if (!nextSubtitleFrame->width || !nextSubtitleFrame->height) {
+                    nextSubtitleFrame->width = currentFrame->width;
+                    nextSubtitleFrame->height = currentFrame->height;
+                }
+                if (!uploadSubtitleTexture(nextSubtitleFrame, videoState->subConvertCtx)) {
+                    return;
+                }
+                nextSubtitleFrame->uploaded = 1;
+            }
+        } else {
+            nextSubtitleFrame = nullptr;
+        }
+    }
 }
 
-void Surface::displayVideoImageAfter(Frame *lastFrame, Rect *rect) {
-
+int Surface::displayVideoImageBefore() {
+    return 0;
 }
+
 
 AVPixelFormat *Surface::getPixelFormatsArray() {
     return nullptr;
@@ -352,4 +370,12 @@ AVPixelFormat *Surface::getPixelFormatsArray() {
 
 void Surface::setMsgQueue(MessageQueue *msgQueue) {
     Surface::msgQueue = msgQueue;
+}
+
+int Surface::displayVideoImageAfter(Frame *currentFrame, Frame *subtitleNextFrame, Rect *rect) {
+    return 0;
+}
+
+int Surface::uploadSubtitleTexture(Frame *nextFrame, SwsContext *convertCtx) {
+    return 0;
 }

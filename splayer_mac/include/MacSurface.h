@@ -102,16 +102,16 @@ public:
 
     void doSeek(double increment) const;
 
-    void displayVideoImageBefore() override;
+    int displayVideoImageBefore() override;
 
-    void displayVideoImageAfter(Frame *lastFrame, Rect *rect) override;
+    int displayVideoImageAfter(Frame *currentFrame, Frame *nextSubtitleFrame, Rect *rect) override;
 
-    int uploadTexture(AVFrame *frame, SwsContext *convertContext) override;
+    int uploadVideoTexture(AVFrame *frame, SwsContext *convertContext) override;
 
-protected:
-    void setSubtitleTexture(const AVSubtitleRect *sub_rect) const override;
+    int updateSubtitleTexture(const AVSubtitleRect *subRect) const override;
 
-protected:
+    int uploadSubtitleTexture(Frame *nextSubtitleFrame, SwsContext *convertContext) override;
+
     AVPixelFormat *getPixelFormatsArray() override;
 };
 

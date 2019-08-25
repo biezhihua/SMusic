@@ -68,21 +68,25 @@ private:
 
     void displayVideoImage();
 
+    void displaySubtitleImage(VideoState *videoState, const Frame *currentFrame, Frame *nextSubtitleFrame);
+
 protected:
 
     int refreshVideo();
 
     virtual int displayWindow();
 
-    virtual void displayVideoImageBefore();
+    virtual int displayVideoImageBefore();
 
-    virtual void displayVideoImageAfter(Frame *lastFrame, Rect *rect);
+    virtual int displayVideoImageAfter(Frame *currentFrame, Frame *subtitleNextFrame, Rect *rect);
 
-    virtual int uploadTexture(AVFrame *frame, SwsContext *convertContext) = 0;
+    virtual int uploadVideoTexture(AVFrame *frame, SwsContext *convertContext) = 0;
 
-    virtual void displayVideoAudio();
+    virtual int displayVideoAudio();
 
-    virtual void setSubtitleTexture(const AVSubtitleRect *sub_rect) const;
+    virtual int updateSubtitleTexture(const AVSubtitleRect *sub_rect) const;
+
+    virtual int uploadSubtitleTexture(Frame *nextFrame, SwsContext *convertCtx);
 };
 
 
