@@ -15,6 +15,7 @@ class MediaPlayer;
 #include "Rect.h"
 #include "Frame.h"
 #include "MediaPlayer.h"
+#include "VideoState.h"
 
 extern "C" {
 #include <libavutil/rational.h>
@@ -49,23 +50,29 @@ public:
 
     void setMediaPlayer(MediaPlayer *mediaPlayer);
 
-    virtual AVPixelFormat *getPixelFormatsArray();
-
     void setMsgQueue(MessageQueue *msgQueue);
 
-protected:
+    virtual AVPixelFormat *getPixelFormatsArray();
+
+private:
+
+    void refreshVideo(double *remainingTime);
+
+    void refreshSubtitle() const;
+
+    double getFrameDelayTime(const Frame *willToShowFrame, const Frame *firstReadyToShowFrame) const;
 
     void calculateDisplayRect(Rect *rect, int xLeft, int yTop, int srcWidth, int scrHeight, int picWidth, int picHeight, AVRational picSar);
 
-    int refreshVideo();
-
-    void _refreshVideo(double *remainingTime);
-
     void displayVideo();
 
-    virtual int displayWindow();
-
     void displayVideoImage();
+
+protected:
+
+    int refreshVideo();
+
+    virtual int displayWindow();
 
     virtual void displayVideoImageBefore();
 
@@ -75,7 +82,7 @@ protected:
 
     virtual void displayVideoAudio();
 
-    double getFrameDelayTime(const Frame *willToShowFrame, const Frame *firstReadyToShowFrame) const;
+    virtual void setSubtitleTexture(const AVSubtitleRect *sub_rect) const;
 };
 
 

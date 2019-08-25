@@ -109,6 +109,9 @@ public:
     int uploadTexture(AVFrame *frame, SwsContext *convertContext) override;
 
 protected:
+    void setSubtitleTexture(const AVSubtitleRect *sub_rect) const override;
+
+protected:
     AVPixelFormat *getPixelFormatsArray() override;
 };
 

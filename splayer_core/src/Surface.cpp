@@ -2,6 +2,7 @@
 #include <Surface.h>
 
 #include "Surface.h"
+#include "../../../../../../usr/local/Cellar/sdl2/2.0.9_1/include/SDL2/SDL_render.h"
 
 Surface::Surface() {
     mutex = new Mutex();
@@ -90,7 +91,7 @@ int Surface::refreshVideo() {
     }
     remainingTime = REFRESH_RATE;
     if (videoState->showMode != SHOW_MODE_NONE && (!videoState->paused || videoState->forceRefresh)) {
-        _refreshVideo(&remainingTime);
+        refreshVideo(&remainingTime);
     }
     ALOGD(SURFACE_TAG, "===== end =====");
 
@@ -98,9 +99,8 @@ int Surface::refreshVideo() {
 }
 
 /* called to display each frame */
-void Surface::_refreshVideo(double *remainingTime) {
+void Surface::refreshVideo(double *remainingTime) {
     double time;
-    Frame *sp, *sp2;
     VideoState *videoState = stream->getVideoState();
 
     if (!videoState) {
@@ -130,21 +130,22 @@ void Surface::_refreshVideo(double *remainingTime) {
             ALOGD(SURFACE_TAG, "nothing to do, no picture to display in the queue");
         } else {
             double duration, delay;
-            Frame *willToShowFrame, *firstReadyToShowFrame;
+            Frame *currentFrame;
+            Frame *nextFrame;
 
-            willToShowFrame = videoState->videoFrameQueue.peekWillToShowFrame();
-            firstReadyToShowFrame = videoState->videoFrameQueue.peekFirstReadyToShowFrame();
+            currentFrame = videoState->videoFrameQueue.peek();
+            nextFrame = videoState->videoFrameQueue.peekNext();
 
-            ALOGD(SURFACE_TAG, "firstReadyToShowFrame serial = %d packetQueue serial = %d ", firstReadyToShowFrame->serial, videoState->videoPacketQueue.serial);
-            bool isNeedSyncSerial = firstReadyToShowFrame->serial != videoState->videoPacketQueue.serial;
+            ALOGD(SURFACE_TAG, "nextFrame serial = %d packetQueue serial = %d ", nextFrame->serial, videoState->videoPacketQueue.serial);
+            bool isNeedSyncSerial = nextFrame->serial != videoState->videoPacketQueue.serial;
             if (isNeedSyncSerial) {
                 videoState->videoFrameQueue.next();
                 ALOGE(SURFACE_TAG, "goto retry, need to sync serial");
                 goto retry;
             }
 
-            ALOGD(SURFACE_TAG, "willToShowFrame serial = %d firstReadyToShowFrame serial = %d ", willToShowFrame->serial, firstReadyToShowFrame->serial);
-            if (willToShowFrame->serial != firstReadyToShowFrame->serial) {
+            ALOGD(SURFACE_TAG, "currentFrame serial = %d nextFrame serial = %d ", currentFrame->serial, nextFrame->serial);
+            if (currentFrame->serial != nextFrame->serial) {
                 videoState->frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
                 ALOGD(SURFACE_TAG, "update frameTimer = %fd ", videoState->frameTimer);
             }
@@ -155,7 +156,7 @@ void Surface::_refreshVideo(double *remainingTime) {
             }
 
             // 当前帧帧持续时间
-            delay = getFrameDelayTime(willToShowFrame, firstReadyToShowFrame);
+            delay = getFrameDelayTime(currentFrame, nextFrame);
 
             // 当前帧时间
             time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
@@ -184,15 +185,15 @@ void Surface::_refreshVideo(double *remainingTime) {
             }
 
             videoState->videoFrameQueue.mutex->mutexLock();
-            if (!isnan(firstReadyToShowFrame->pts)) {
-                stream->updateVideoClockPts(firstReadyToShowFrame->pts, firstReadyToShowFrame->pos, firstReadyToShowFrame->serial);
+            if (!isnan(nextFrame->pts)) {
+                stream->updateVideoClockPts(nextFrame->pts, nextFrame->pos, nextFrame->serial);
             }
             videoState->videoFrameQueue.mutex->mutexUnLock();
 
             if (videoState->videoFrameQueue.numberRemaining() > 1) {
 
-                Frame *nextPrepareShowFrame = videoState->videoFrameQueue.peekNextReadyToShowFrame();
-                duration = stream->getFrameDuration(firstReadyToShowFrame, nextPrepareShowFrame);
+                Frame *nextPrepareShowFrame = videoState->videoFrameQueue.peekNextNext();
+                duration = stream->getFrameDuration(nextFrame, nextPrepareShowFrame);
                 ALOGD(SURFACE_TAG, "next frame duration = %lf ", duration);
 
                 bool isNoStepFrame = !videoState->stepFrame;
@@ -206,7 +207,9 @@ void Surface::_refreshVideo(double *remainingTime) {
                 }
             }
 
-            // TODO subtitle
+            if (videoState->subtitleStream) {
+                refreshSubtitle();
+            }
 
             videoState->videoFrameQueue.next();
             videoState->forceRefresh = 1;
@@ -225,6 +228,43 @@ void Surface::_refreshVideo(double *remainingTime) {
         ALOGD(SURFACE_TAG, "not video streaming");
     }
     videoState->forceRefresh = 0;
+}
+
+void Surface::refreshSubtitle() const {
+    if (!stream || !stream->getVideoState()) {
+        return;
+    }
+
+    VideoState *videoState = stream->getVideoState();
+    Frame *currentFrame;
+    Frame *nextFrame;
+
+    while (videoState->subtitleFrameQueue.numberRemaining() > 0) {
+        currentFrame = videoState->subtitleFrameQueue.peek();
+        if (videoState->subtitleFrameQueue.numberRemaining() > 1) {
+            nextFrame = videoState->subtitleFrameQueue.peekNext();
+        } else {
+            nextFrame = nullptr;
+        }
+
+        bool isNoSamePacketSerial = currentFrame->serial != videoState->subtitlePacketQueue.serial;
+        bool isNeedDropFrame = videoState->videoClock.pts > (currentFrame->pts + ((float) currentFrame->sub.end_display_time / 1000));
+        bool isNeedDropNextFrame = nextFrame && videoState->videoClock.pts > (nextFrame->pts + ((float) nextFrame->sub.start_display_time / 1000));
+        if (isNoSamePacketSerial || isNeedDropFrame || isNeedDropNextFrame) {
+            if (currentFrame->uploaded) {
+                for (int i = 0; i < currentFrame->sub.num_rects; i++) {
+                    AVSubtitleRect *subtitleRect = currentFrame->sub.rects[i];
+                    setSubtitleTexture(subtitleRect);
+                }
+            }
+            videoState->subtitleFrameQueue.next();
+        } else {
+            break;
+        }
+    }
+}
+
+void Surface::setSubtitleTexture(const AVSubtitleRect *sub_rect) const {
 }
 
 double Surface::getFrameDelayTime(const Frame *willToShowFrame, const Frame *firstReadyToShowFrame) const {
@@ -277,7 +317,7 @@ void Surface::displayVideoImage() {
         VideoState *videoState = stream->getVideoState();
         Frame *sp = nullptr;
         Rect *rect = new Rect();
-        Frame *willToShowFrame = videoState->videoFrameQueue.peekWillToShowFrame();
+        Frame *willToShowFrame = videoState->videoFrameQueue.peek();
 
         if (videoState->subtitleStream) {
             // TODO

@@ -536,3 +536,14 @@ AVPixelFormat *MacSurface::getPixelFormatsArray() {
     pix_fmts[nb_pix_fmts] = AV_PIX_FMT_NONE;
     return pix_fmts;
 }
+
+void MacSurface::setSubtitleTexture(const AVSubtitleRect *sub_rect) const {
+    uint8_t *pixels;
+    int pitch, j;
+    if (!SDL_LockTexture(subtitleTexture, (SDL_Rect *) sub_rect, (void **) &pixels, &pitch)) {
+        for (j = 0; j < sub_rect->h; j++, pixels += pitch) {
+            memset(pixels, 0, sub_rect->w << 2);
+        }
+        SDL_UnlockTexture(subtitleTexture);
+    }
+}
