@@ -600,14 +600,14 @@ int Stream::videoThread() {
     int ret;
 
 #if CONFIG_AVFILTER
-    AVFilterGraph *graph = nullptr;
+    AVFilterGraph *filterGraph = nullptr;
     AVFilterContext *filterOut = nullptr, *filterIn = nullptr;
     int lastWidth = 0;
     int lastHeight = 0;
     // AVPixelFormat
     int lastFormat = -2;
     int lastPacketSerial = -1;
-    int lastVFilterIdx = 0;
+    int lastFilterIndex = 0;
 #endif
 
     if (!frame) {
@@ -629,11 +629,16 @@ int Stream::videoThread() {
         }
 
 #if CONFIG_AVFILTER
-        if (lastWidth != frame->width
-            || lastHeight != frame->height
-            || lastFormat != frame->format
-            || lastPacketSerial != is->videoDecoder.packetSerial
-            || lastVFilterIdx != is->vfilterIdx) {
+
+        bool isNoSameWidth = lastWidth != frame->width;
+        bool isNoSameHeight = lastHeight != frame->height;
+        bool isNoSameFormat = lastFormat != frame->format;
+        bool isNoSamePacketSerial = lastPacketSerial != is->videoDecoder.packetSerial;
+        bool isNoSameVFilterIdx = lastFilterIndex != is->filterIndex;
+        bool isNeedConfigureFilter = isNoSameWidth || isNoSameHeight || isNoSameFormat || isNoSamePacketSerial || isNoSameVFilterIdx;
+
+        // https://ffmpeg.org/ffmpeg-filters.html
+        if (isNeedConfigureFilter) {
 
             ALOGD(STREAM_TAG, "%s Video frame changed from size:%dx%d format:%s serial:%d to size:%dx%d format:%s serial:%d", __func__,
                   lastWidth, lastHeight,
@@ -641,37 +646,41 @@ int Stream::videoThread() {
                   frame->width, frame->height,
                   (const char *) av_x_if_null(av_get_pix_fmt_name((AVPixelFormat) frame->format), "none"), is->videoDecoder.packetSerial);
 
-            avfilter_graph_free(&graph);
-            graph = avfilter_graph_alloc();
+            avfilter_graph_free(&filterGraph);
 
-            if (!graph) {
-                avfilter_graph_free(&graph);
+            filterGraph = avfilter_graph_alloc();
+
+            if (!filterGraph) {
+                avfilter_graph_free(&filterGraph);
                 av_frame_free(&frame);
                 return NEGATIVE(ENOMEM);
             }
 
-            graph->nb_threads = options->filterNBThreads;
-            if ((ret = configureVideoFilters(graph, is, options->vfiltersList ? options->vfiltersList[is->vfilterIdx] : nullptr, frame)) < 0) {
+            filterGraph->nb_threads = options->filterNumberThreads;
+
+            if ((ret = configureVideoFilters(filterGraph, is, options->filtersList ? options->filtersList[is->filterIndex] : nullptr, frame)) < 0) {
                 msgQueue->notifyMsg(Message::REQ_QUIT);
-                avfilter_graph_free(&graph);
+                avfilter_graph_free(&filterGraph);
                 av_frame_free(&frame);
                 return NEGATIVE(S_NOT_CONFIGURE_VIDEO_FILTERS);
             }
-            filterIn = is->inVideoFilter;
-            filterOut = is->outVideoFilter;
+
+            filterIn = is->videoInFilter;
+            filterOut = is->videoOutFilter;
             lastWidth = frame->width;
             lastHeight = frame->height;
-            lastFormat = (AVPixelFormat) frame->format;
+            lastFormat = frame->format;
             lastPacketSerial = is->videoDecoder.packetSerial;
-            lastVFilterIdx = is->vfilterIdx;
+            lastFilterIndex = is->filterIndex;
             frameRate = av_buffersink_get_frame_rate(filterOut);
         }
 
         ret = av_buffersrc_add_frame(filterIn, frame);
+
         if (ret < 0) {
-            avfilter_graph_free(&graph);
+            avfilter_graph_free(&filterGraph);
             av_frame_free(&frame);
-            return NEGATIVE(S_NOT_QUEUE_PICTURE);
+            return NEGATIVE(S_NO_ADD_FRAME_TO_FILTER);
         }
 
         while (ret >= 0) {
@@ -707,7 +716,7 @@ int Stream::videoThread() {
         if (IS_NEGATIVE(ret)) {
             av_frame_free(&frame);
             ALOGE(STREAM_TAG, "%s not queue picture", __func__);
-            return NEGATIVE(S_NOT_QUEUE_PICTURE);
+            return NEGATIVE(S_NO_QUEUE_PICTURE);
         }
     }
 
@@ -1591,7 +1600,7 @@ int Stream::configureAudioFilters(const char *afilters, int forceOutputFormat) {
     if (!(videoState->agraph = avfilter_graph_alloc())) {
         return NEGATIVE(S_NO_MEMORY);
     }
-    videoState->agraph->nb_threads = options->filterNBThreads;
+    videoState->agraph->nb_threads = options->filterNumberThreads;
 
     while ((e = av_dict_get(options->swrDict, "", e, AV_DICT_IGNORE_SUFFIX))) {
         av_strlcatf(aresample_swr_opts, sizeof(aresample_swr_opts), "%s=%s:", e->key, e->value);
@@ -1708,15 +1717,17 @@ int Stream::configureFilterGraph(AVFilterGraph *graph, const char *filterGraph,
     return ret;
 }
 
-int Stream::configureVideoFilters(AVFilterGraph *graph, VideoState *is, const char *vfilters, AVFrame *frame) {
-    char swsFlagsStr[512] = "";
-    char bufferSrcArgs[256];
-    int ret;
-    AVFilterContext *filterSrc = nullptr, *filterOut = nullptr, *lastFilter = nullptr;
+int Stream::configureVideoFilters(AVFilterGraph *filterGraph, VideoState *is, const char *filters, AVFrame *frame) {
+    AVFilterContext *filterSrc = nullptr;
+    AVFilterContext *filterOut = nullptr;
+    AVFilterContext *lastFilter = nullptr;
     AVCodecParameters *codecParameters = is->videoStream->codecpar;
     AVRational fr = av_guess_frame_rate(is->formatContext, is->videoStream, nullptr);
     AVDictionaryEntry *e = nullptr;
     AVPixelFormat *pixelFormat = surface->getPixelFormatsArray();
+    char swsFlagsStr[512] = "";
+    char bufferSrcArgs[256];
+    int ret;
 
     while ((e = av_dict_get(options->swsDict, "", e, AV_DICT_IGNORE_SUFFIX))) {
         if (!strcmp(e->key, "sws_flags")) {
@@ -1729,7 +1740,7 @@ int Stream::configureVideoFilters(AVFilterGraph *graph, VideoState *is, const ch
         swsFlagsStr[strlen(swsFlagsStr) - 1] = '\0';
     }
 
-    graph->scale_sws_opts = av_strdup(swsFlagsStr);
+    filterGraph->scale_sws_opts = av_strdup(swsFlagsStr);
 
     snprintf(bufferSrcArgs, sizeof(bufferSrcArgs), "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d", frame->width, frame->height, frame->format, is->videoStream->time_base.num, is->videoStream->time_base.den, codecParameters->sample_aspect_ratio.num, FFMAX(codecParameters->sample_aspect_ratio.den, 1));
 
@@ -1737,11 +1748,11 @@ int Stream::configureVideoFilters(AVFilterGraph *graph, VideoState *is, const ch
         av_strlcatf(bufferSrcArgs, sizeof(bufferSrcArgs), ":frame_rate=%d/%d", fr.num, fr.den);
     }
 
-    if ((ret = avfilter_graph_create_filter(&filterSrc, avfilter_get_by_name("buffer"), "splayer_buffer", bufferSrcArgs, nullptr, graph)) < 0) {
+    if ((ret = avfilter_graph_create_filter(&filterSrc, avfilter_get_by_name("buffer"), "splayer_buffer", bufferSrcArgs, nullptr, filterGraph)) < 0) {
         return ret;
     }
 
-    if ((ret = avfilter_graph_create_filter(&filterOut, avfilter_get_by_name("buffersink"), "splayer_buffersink", nullptr, nullptr, graph)) < 0) {
+    if ((ret = avfilter_graph_create_filter(&filterOut, avfilter_get_by_name("buffersink"), "splayer_buffersink", nullptr, nullptr, filterGraph)) < 0) {
         return ret;
     }
 
@@ -1758,7 +1769,7 @@ int Stream::configureVideoFilters(AVFilterGraph *graph, VideoState *is, const ch
                                                                              \
     ret = avfilter_graph_create_filter(&filt_ctx,                            \
                                        avfilter_get_by_name(name),           \
-                                       "splayer_" name, arg, NULL, graph);    \
+                                       "splayer_" name, arg, NULL, filterGraph);    \
     if (ret < 0)                                                             \
         return ret;                                                           \
                                                                              \
@@ -1786,12 +1797,12 @@ int Stream::configureVideoFilters(AVFilterGraph *graph, VideoState *is, const ch
         }
     }
 
-    if ((ret = configureFilterGraph(graph, vfilters, filterSrc, lastFilter)) < 0) {
+    if ((ret = configureFilterGraph(filterGraph, filters, filterSrc, lastFilter)) < 0) {
         return ret;
     }
 
-    is->inVideoFilter = filterSrc;
-    is->outVideoFilter = filterOut;
+    is->videoInFilter = filterSrc;
+    is->videoOutFilter = filterOut;
 
     return ret;
 }

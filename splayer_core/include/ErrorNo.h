@@ -24,7 +24,7 @@
 #define S_NOT_DECODE_FRAME          21
 #define S_NO_GET_PACKET_QUEUE          22
 #define S_NO_GET_VIDEO_FRAME          23
-#define S_NOT_QUEUE_PICTURE          24
+#define S_NO_QUEUE_PICTURE          24
 #define S_NOT_FOUND_CODER          25
 #define S_NOT_FRAME_WRITEABLE          26
 #define S_NOT_BLOACK_GET_MSG          27
@@ -58,4 +58,5 @@
 #define S_AUDIO_SWR_CONVERT_FAILED        54
 #define S_NO_DECODE_SUBTITLE_FRAME        55
 #define S_FRAME_DROP        56
+#define S_NO_ADD_FRAME_TO_FILTER        57
 #endif //SPLAYER_CORE_ERRORNO_H

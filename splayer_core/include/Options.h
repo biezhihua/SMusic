@@ -169,9 +169,17 @@ public:
     double rdftSpeed = 0.02;  // rdft speed
 
 #if CONFIG_AVFILTER
-    int filterNBThreads = 0;
-    const char **vfiltersList = nullptr;
+
+    ///
+    int filterNumberThreads = 0;
+
+    ///
+    const char **filtersList = nullptr;
+
+    ///
     int nb_vfilters = 0;
+
+    ///
     char *afilters = nullptr;
 #endif
 

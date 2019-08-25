@@ -183,7 +183,7 @@ private:
     int configureFilterGraph(AVFilterGraph *graph, const char *filterGraph,
                              AVFilterContext *srcFilterContext, AVFilterContext *sinkFilterContext);
 
-    int configureVideoFilters(AVFilterGraph *graph, VideoState *is, const char *vfilters, AVFrame *frame);
+    int configureVideoFilters(AVFilterGraph *filterGraph, VideoState *is, const char *filters, AVFrame *frame);
 
 #endif
 };

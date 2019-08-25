@@ -72,9 +72,8 @@ public:
     int frameDropsLate; // 晚期丢帧数
 
 
-
 #if CONFIG_AVFILTER
-    int vfilterIdx;
+    int filterIndex;
     AVFilterGraph *agraph;              // audio filter graph
 #endif
 
@@ -96,8 +95,8 @@ public:
     int videoLastStreamIndex;
 
 #if CONFIG_AVFILTER
-    AVFilterContext *inVideoFilter;   // the first filter in the video chain
-    AVFilterContext *outVideoFilter;  // the last filter in the video chain
+    AVFilterContext *videoInFilter;   // the first filter in the video chain
+    AVFilterContext *videoOutFilter;  // the last filter in the video chain
 #endif
 
     /// Audio
