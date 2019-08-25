@@ -2,6 +2,7 @@
 #define SPLAYER_MEDIASPLAYER_H
 
 class MessageQueue;
+class Event;
 
 #include "Log.h"
 #include "Error.h"
@@ -14,6 +15,7 @@ class MessageQueue;
 #include "MessageQueue.h"
 #include "Audio.h"
 #include "Surface.h"
+#include "Event.h"
 
 #define MEDIA_PLAYER_TAG "MediaPlayer"
 
@@ -26,6 +28,7 @@ protected:
     Stream *stream = nullptr;
     Audio *audio = nullptr;
     Surface *surface = nullptr;
+    Event *event = nullptr;
     char *dataSource = nullptr;
     Thread *msgThread = nullptr;
     Options *options = nullptr;
@@ -66,6 +69,8 @@ public:
 
 public:
 
+    virtual Event *createEvent() = 0;
+
     virtual Audio *createAudio() = 0;
 
     virtual Surface *createSurface() = 0;
@@ -87,6 +92,8 @@ private:
     int prepareStream();
 
     int prepareAudio();
+
+    int prepareEvent();
 };
 
 

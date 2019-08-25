@@ -835,7 +835,7 @@ int Stream::audioThread() {
                 timeBase = av_buffersink_get_time_base(is->outAudioFilter);
 #endif
                 if (!(frame = videoState->audioFrameQueue.peekWritable())) {
-                    ALOGE(STREAM_TAG, "%s peek writable", __func__);
+                    ALOGE(STREAM_TAG, "%s not queue audio", __func__);
                     goto the_end;
                 }
 

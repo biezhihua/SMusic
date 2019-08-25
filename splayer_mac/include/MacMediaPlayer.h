@@ -6,6 +6,7 @@
 #include "MacSurface.h"
 #include "MacStream.h"
 #include "MacOptions.h"
+#include "MacEvent.h"
 
 #define MAC_MEDIA_PLAYER_TAG "MacMPlayer"
 
@@ -13,6 +14,8 @@ class MacMediaPlayer : public MediaPlayer {
 
 public:
     int messageLoop() override;
+
+    Event *createEvent() override;
 
     Audio *createAudio() override;
 

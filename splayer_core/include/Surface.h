@@ -34,6 +34,7 @@ protected:
     double remainingTime = 0.0f;
 
 public:
+
     Surface();
 
     virtual ~Surface();
@@ -54,6 +55,10 @@ public:
 
     virtual AVPixelFormat *getPixelFormatsArray();
 
+    int refreshVideo();
+
+    void resetRemainingTime();
+
 private:
 
     void refreshVideo(double *remainingTime);
@@ -72,7 +77,7 @@ private:
 
 protected:
 
-    int refreshVideo();
+
 
     virtual int displayWindow();
 

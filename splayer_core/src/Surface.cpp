@@ -379,3 +379,7 @@ int Surface::displayVideoImageAfter(Frame *currentFrame, Frame *subtitleNextFram
 int Surface::uploadSubtitleTexture(Frame *nextFrame, SwsContext *convertCtx) {
     return 0;
 }
+
+void Surface::resetRemainingTime() {
+    remainingTime = 0;
+}

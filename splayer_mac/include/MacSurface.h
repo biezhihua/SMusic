@@ -60,22 +60,10 @@ private:
     SDL_Texture *subtitleTexture;
     SDL_Texture *visTexture;
 
-    int64_t lastMouseLeftClick = 0;
-
 public:
     int create() override;
 
     int destroy() override;
-
-    int eventLoop();
-
-private:
-
-    void doKeySystem(const SDL_Event &event) const;
-
-    bool isNotHaveWindow() const;
-
-    bool isQuitKey(const SDL_Event &event) const;
 
 public:
     int displayWindow() override;
@@ -88,19 +76,7 @@ public:
 
     int reallocTexture(SDL_Texture **texture, Uint32 newFormat, int newWidth, int newHeight, SDL_BlendMode blendMode, int initTexture);
 
-    void doExit();
-
     void toggleFullScreen() const;
-
-    void doWindowEvent(const SDL_Event &event);
-
-    void showCursor() const;
-
-    void hideCursor() const;
-
-    int isFullScreenClick();
-
-    void doSeek(double increment) const;
 
     int displayVideoImageBefore() override;
 
@@ -113,6 +89,8 @@ public:
     int uploadSubtitleTexture(Frame *nextSubtitleFrame, SwsContext *convertContext) override;
 
     AVPixelFormat *getPixelFormatsArray() override;
+
+    void destroyVideoTexture();
 };
 
 

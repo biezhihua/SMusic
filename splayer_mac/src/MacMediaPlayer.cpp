@@ -9,10 +9,10 @@ int MacMediaPlayer::messageLoop() {
         if (ret == NEGATIVE_EXIT) {
             break;
         }
-        if (ret == Message::REQ_QUIT) {
-            auto *macSurface = dynamic_cast<MacSurface *>(surface);
-            if (macSurface) {
-                macSurface->doExit();
+        if (ret == Message::REQ_QUIT && event) {
+            auto *macEvent = dynamic_cast<MacEvent *>(event);
+            if (macEvent) {
+                macEvent->doExit();
             }
         }
     }
@@ -35,12 +35,17 @@ Options *MacMediaPlayer::createOptions() const {
     return new MacOptions();
 }
 
+Event *MacMediaPlayer::createEvent() {
+    return new MacEvent();
+}
+
 int MacMediaPlayer::eventLoop() {
-    if (stream) {
-        auto *macSurface = dynamic_cast<MacSurface *>(surface);
-        if (macSurface) {
-            return macSurface->eventLoop();
+    if (event) {
+        auto *macEvent = dynamic_cast<MacEvent *>(event);
+        if (macEvent) {
+            return macEvent->eventLoop();
         }
     }
     return NEGATIVE(S_ERROR);
 }
+

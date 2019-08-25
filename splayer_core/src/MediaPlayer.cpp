@@ -32,6 +32,14 @@ int MediaPlayer::create() {
     msgQueue = new MessageQueue();
     state->setMsgQueue(msgQueue);
 
+    event = createEvent();
+    if (!event) {
+        ALOGE(MEDIA_PLAYER_TAG, "create event error");
+        destroy();
+        return NEGATIVE(S_NO_MEMORY);
+    }
+    event->setMediaPlayer(this);
+
     surface = createSurface();
     if (!surface) {
         ALOGE(MEDIA_PLAYER_TAG, "create surface error");
@@ -54,10 +62,15 @@ int MediaPlayer::create() {
         return NEGATIVE(S_NO_MEMORY);
     }
 
+    event->setStream(stream);
+    event->setSurface(surface);
+
     surface->setStream(stream);
     surface->setMsgQueue(msgQueue);
+
     audio->setStream(stream);
     audio->setMsgQueue(msgQueue);
+
     stream->setAudio(audio);
     stream->setSurface(surface);
     stream->setMsgQueue(msgQueue);
@@ -89,6 +102,12 @@ int MediaPlayer::destroy() {
             stream->setAudio(nullptr);
             delete audio;
             audio = nullptr;
+
+            event->setMediaPlayer(nullptr);
+            event->setOptions(nullptr);
+            event->setStream(nullptr);
+            delete event;
+            event = nullptr;
 
             stream->destroy();
             stream->setSurface(nullptr);
@@ -214,10 +233,10 @@ Options *MediaPlayer::createOptions() const {
 }
 
 int MediaPlayer::prepareAsync() {
-    if (state && mutex && stream) {
+    if (state && mutex) {
         mutex->mutexLock();
         state->changeState(State::STATE_ASYNC_PREPARING);
-        if (prepareMsgQueue() && prepareOptions() && prepareSurface() && prepareAudio() && prepareStream()) {
+        if (prepareMsgQueue() && prepareOptions() && prepareEvent() && prepareSurface() && prepareAudio() && prepareStream()) {
             mutex->mutexUnLock();
             return POSITIVE;
         }
@@ -236,6 +255,7 @@ int MediaPlayer::prepareOptions() {
         stream->setOptions(options);
         surface->setOptions(options);
         audio->setOptions(options);
+        event->setOptions(options);
         return notifyMsg(Message::MSG_OPTIONS_CREATED);
     }
     return NEGATIVE(S_NO_MEMORY);
@@ -250,6 +270,13 @@ int MediaPlayer::prepareMsgQueue() {
             return NEGATIVE(S_NO_MEMORY);
         }
         return POSITIVE;
+    }
+    return NEGATIVE(S_NULL);
+}
+
+int MediaPlayer::prepareEvent() {
+    if (event && event->create()) {
+        return notifyMsg(Message::MSG_EVENT_CREATED);
     }
     return NEGATIVE(S_NULL);
 }
@@ -315,6 +342,8 @@ int MediaPlayer::getMsg(Message *msg, bool block) {
     }
     return NEGATIVE_EXIT;
 }
+
+
 
 
 
