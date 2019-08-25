@@ -48,30 +48,30 @@ void Surface::setMediaPlayer(MediaPlayer *mediaPlayer) {
     Surface::mediaPlayer = mediaPlayer;
 }
 
-void Surface::calculateDisplayRect(Rect *rect, int screenXLeft, int screenYTop, int screenWidth, int screenHeight, int pictureWidth, int pictureHeight, AVRational picSar) {
+void Surface::calculateDisplayRect(Rect *rect, int xLeft, int yTop, int srcWidth, int scrHeight, int picWidth, int picHeight, AVRational picSar) {
 
-    AVRational aspect_ratio = picSar;
+    AVRational aspectRatio = picSar;
     int64_t width, height, x, y;
 
-    if (av_cmp_q(aspect_ratio, av_make_q(0, 1)) <= 0)
-        aspect_ratio = av_make_q(1, 1);
+    if (av_cmp_q(aspectRatio, av_make_q(0, 1)) <= 0) {
+        aspectRatio = av_make_q(1, 1);
+    }
 
-    aspect_ratio = av_mul_q(aspect_ratio, av_make_q(pictureWidth, pictureHeight));
+    aspectRatio = av_mul_q(aspectRatio, av_make_q(picWidth, picHeight));
 
     /* XXX: we suppose the screen has a 1.0 pixel ratio */
-    height = screenHeight;
-    width = av_rescale(height, aspect_ratio.num, aspect_ratio.den) & ~1;
-    if (width > screenWidth) {
-        width = screenWidth;
-        height = av_rescale(width, aspect_ratio.den, aspect_ratio.num) & ~1;
+    height = scrHeight;
+    width = av_rescale(height, aspectRatio.num, aspectRatio.den) & ~1;
+    if (width > srcWidth) {
+        width = srcWidth;
+        height = av_rescale(width, aspectRatio.den, aspectRatio.num) & ~1;
     }
-    x = (screenWidth - width) / 2;
-    y = (screenHeight - height) / 2;
-    rect->x = screenXLeft + x;
-    rect->y = screenYTop + y;
+    x = (srcWidth - width) / 2;
+    y = (scrHeight - height) / 2;
+    rect->x = xLeft + x;
+    rect->y = yTop + y;
     rect->w = FFMAX((int) width, 1);
     rect->h = FFMAX((int) height, 1);
-
     ALOGD(SURFACE_TAG, "%s x = %d y = %d w = %d h = %d", __func__, rect->x, rect->y, rect->w, rect->h);
 }
 
@@ -99,7 +99,6 @@ int Surface::refreshVideo() {
 
 /* called to display each frame */
 void Surface::_refreshVideo(double *remainingTime) {
-    ALOGD(SURFACE_TAG, "%s", __func__);
     double time;
     Frame *sp, *sp2;
     VideoState *videoState = stream->getVideoState();
@@ -113,7 +112,7 @@ void Surface::_refreshVideo(double *remainingTime) {
         stream->checkExternalClockSpeed();
     }
 
-    if (videoState->showMode != SHOW_MODE_VIDEO && videoState->audioStream) {
+    if (!options->displayDisable && videoState->showMode != SHOW_MODE_VIDEO && videoState->audioStream) {
         time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
         if (videoState->forceRefresh || (videoState->lastVisTime + options->rdftSpeed) < time) {
             displayVideo();
@@ -123,20 +122,24 @@ void Surface::_refreshVideo(double *remainingTime) {
     }
 
     if (videoState->videoStream) {
+
+        ///RETRY
         retry:
+
         if (videoState->videoFrameQueue.numberRemaining() == 0) {
             ALOGD(SURFACE_TAG, "nothing to do, no picture to display in the queue");
         } else {
-            double lastDuration, duration, delay;
+            double duration, delay;
             Frame *willToShowFrame, *firstReadyToShowFrame;
 
             willToShowFrame = videoState->videoFrameQueue.peekWillToShowFrame();
             firstReadyToShowFrame = videoState->videoFrameQueue.peekFirstReadyToShowFrame();
 
-            ALOGD(SURFACE_TAG, "firstReadyToShowFrame serial = %d list serial = %d ", firstReadyToShowFrame->serial, videoState->videoPacketQueue.serial);
-            if (firstReadyToShowFrame->serial != videoState->videoPacketQueue.serial) {
+            ALOGD(SURFACE_TAG, "firstReadyToShowFrame serial = %d packetQueue serial = %d ", firstReadyToShowFrame->serial, videoState->videoPacketQueue.serial);
+            bool isNeedSyncSerial = firstReadyToShowFrame->serial != videoState->videoPacketQueue.serial;
+            if (isNeedSyncSerial) {
                 videoState->videoFrameQueue.next();
-                ALOGD(SURFACE_TAG, "goto retry");
+                ALOGE(SURFACE_TAG, "goto retry, need to sync serial");
                 goto retry;
             }
 
@@ -147,26 +150,35 @@ void Surface::_refreshVideo(double *remainingTime) {
             }
 
             if (videoState->paused) {
-                ALOGD(SURFACE_TAG, "goto display");
+                ALOGD(SURFACE_TAG, "goto display, paused");
                 goto display;
             }
 
-            /* compute nominal lastDuration */
-            lastDuration = stream->getFrameDuration(willToShowFrame, firstReadyToShowFrame);
-            delay = stream->getComputeTargetDelay(lastDuration);
+            // 当前帧帧持续时间
+            delay = getFrameDelayTime(willToShowFrame, firstReadyToShowFrame);
 
+            // 当前帧时间
             time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
+
+            // 上一帧时间 + 当前帧持续时间
             double frameTimerDelay = videoState->frameTimer + delay;
-            ALOGD(SURFACE_TAG, "time = %f frameTimer = %f frameTimerDelay = %f", time, videoState->frameTimer, frameTimerDelay);
-            if (time < frameTimerDelay) {
+
+            ALOGD(SURFACE_TAG, "time = %f frameTimer = %f frameTimerDelay = %f delay = %f", time, videoState->frameTimer, frameTimerDelay, delay);
+
+            // 若上一帧持续显示时间超过当前帧的时间，那么代表上一帧还没显示结束，则继续显示当前帧
+            bool isDelayCurrentFrame = time < frameTimerDelay;
+            if (isDelayCurrentFrame) {
+                // TODO: 计算不准确会影响CPU使用率
                 *remainingTime = FFMIN(frameTimerDelay - time, *remainingTime);
-                ALOGD(SURFACE_TAG, "goto display diff time = %lf remainingTime = %lf", (frameTimerDelay - time), *remainingTime);
+                ALOGD(SURFACE_TAG, "goto display, need display pre frame, diff time = %lf remainingTime = %lf", (frameTimerDelay - time), *remainingTime);
                 goto display;
             }
 
+            // 累加当前帧持续时间
             videoState->frameTimer += delay;
-            ALOGD(SURFACE_TAG, "frameTimer = %f ", videoState->frameTimer);
-            if (delay > 0 && (time - videoState->frameTimer) > SYNC_THRESHOLD_MAX) {
+
+            bool isNeedSyncFrameTime = delay > 0 && (time - videoState->frameTimer) > SYNC_THRESHOLD_MAX;
+            if (isNeedSyncFrameTime) {
                 videoState->frameTimer = time;
                 ALOGD(SURFACE_TAG, "force set frameTimer = %f ", videoState->frameTimer);
             }
@@ -178,13 +190,18 @@ void Surface::_refreshVideo(double *remainingTime) {
             videoState->videoFrameQueue.mutex->mutexUnLock();
 
             if (videoState->videoFrameQueue.numberRemaining() > 1) {
+
                 Frame *nextPrepareShowFrame = videoState->videoFrameQueue.peekNextReadyToShowFrame();
                 duration = stream->getFrameDuration(firstReadyToShowFrame, nextPrepareShowFrame);
                 ALOGD(SURFACE_TAG, "next frame duration = %lf ", duration);
-                if (!videoState->step && (options->dropFrameWhenSlow > 0 || (options->dropFrameWhenSlow && stream->getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) && time > (videoState->frameTimer + duration)) {
+
+                bool isNoStepFrame = !videoState->stepFrame;
+                bool isDropFrameCondition = options->dropFrameWhenSlow > 0 || (options->dropFrameWhenSlow && stream->getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER);
+                bool isDropFrame = time > (videoState->frameTimer + duration);
+                if (isNoStepFrame && isDropFrameCondition && isDropFrame) {
                     videoState->frameDropsLate++;
                     videoState->videoFrameQueue.next();
-                    ALOGD(SURFACE_TAG, "goto retry");
+                    ALOGD(SURFACE_TAG, "goto retry, drop frame late");
                     goto retry;
                 }
             }
@@ -194,13 +211,13 @@ void Surface::_refreshVideo(double *remainingTime) {
             videoState->videoFrameQueue.next();
             videoState->forceRefresh = 1;
 
-            if (videoState->step && !videoState->paused) {
+            if (videoState->stepFrame && !videoState->paused) {
                 stream->streamTogglePause();
             }
         }
 
+        /// DISPLAY
         display:
-        /* display picture */
         if (videoState->forceRefresh && videoState->showMode == SHOW_MODE_VIDEO && videoState->videoFrameQueue.readIndexShown) {
             displayVideo();
         }
@@ -208,6 +225,12 @@ void Surface::_refreshVideo(double *remainingTime) {
         ALOGD(SURFACE_TAG, "not video streaming");
     }
     videoState->forceRefresh = 0;
+}
+
+double Surface::getFrameDelayTime(const Frame *willToShowFrame, const Frame *firstReadyToShowFrame) const {
+    double duration = stream->getFrameDuration(willToShowFrame, firstReadyToShowFrame);
+    double delay = stream->getComputeTargetDelay(duration);
+    return delay;
 }
 
 /* display the current picture, if any */

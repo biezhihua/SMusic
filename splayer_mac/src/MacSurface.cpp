@@ -7,57 +7,84 @@ int MacSurface::create() {
         return NEGATIVE(S_NULL);
     }
 
-    auto *mapOptions = dynamic_cast<MacOptions *>(options);
+    auto *macOptions = dynamic_cast<MacOptions *>(options);
+
+
+    if (macOptions->displayDisable) {
+        macOptions->videoDisable = 1;
+    }
 
     unsigned int initFlags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
 
-    if (!SDL_getenv("SDL_AUDIO_ALSA_SET_BUFFER_SIZE")) {
-        SDL_setenv("SDL_AUDIO_ALSA_SET_BUFFER_SIZE", "1", 1);
+    if (macOptions->audioDisable) {
+        initFlags &= ~SDL_INIT_AUDIO;
+    } else {
+        /* Try to work around an occasional ALSA buffer underflow issue when the
+         * period size is NPOT due to ALSA resampling by forcing the buffer size. */
+        if (!SDL_getenv("SDL_AUDIO_ALSA_SET_BUFFER_SIZE")) {
+            SDL_setenv("SDL_AUDIO_ALSA_SET_BUFFER_SIZE", "1", 1);
+        }
+    }
+
+    if (macOptions->displayDisable) {
+        initFlags &= ~SDL_INIT_VIDEO;
     }
 
     if (SDL_Init(initFlags) != 0) {
         ALOGD(MAC_SURFACE_TAG, "%s init sdl fail code = %s", __func__, SDL_GetError());
+        doExit();
         return NEGATIVE(S_NO_SDL_INIT);
     }
 
-    Uint32 windowFlags = SDL_WINDOW_HIDDEN;
-    if (mapOptions->borderLess) {
-        windowFlags |= SDL_WINDOW_BORDERLESS;
-    } else {
-        windowFlags |= SDL_WINDOW_RESIZABLE;
+    if (!macOptions->displayDisable) {
+
+        Uint32 windowFlags = SDL_WINDOW_HIDDEN;
+
+        if (macOptions->alwaysOntop) {
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+            windowFlags |= SDL_WINDOW_ALWAYS_ON_TOP;
+#else
+            ALOGE(MAC_SURFACE_TAG, "%s Your SDL version doesn't support SDL_WINDOW_ALWAYS_ON_TOP. Feature will be inactive.", __func__);
+#endif
+        }
+
+        if (macOptions->borderLess) {
+            windowFlags |= SDL_WINDOW_BORDERLESS;
+        } else {
+            windowFlags |= SDL_WINDOW_RESIZABLE;
+        }
+
+        window = SDL_CreateWindow(options->videoTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->videoWidth, options->videoHeight, windowFlags);
+
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
+
+        if (window == nullptr) {
+            ALOGE(MAC_SURFACE_TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
+            destroy();
+            return NEGATIVE(S_NO_SDL_CREATE_WINDOW);
+        }
+
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        if (renderer == nullptr) {
+            ALOGE(MAC_SURFACE_TAG, "%s failed to initialize a hardware accelerated renderer: %s", __func__, SDL_GetError());
+            renderer = SDL_CreateRenderer(window, -1, 0);
+        }
+        if (renderer == nullptr) {
+            ALOGE(MAC_SURFACE_TAG, "%s create renderer fail: %s", __func__, SDL_GetError());
+            destroy();
+            return NEGATIVE(S_NO_SDL_CREATE_RENDERER);
+        }
+
+        if (!SDL_GetRendererInfo(renderer, &rendererInfo)) {
+            ALOGD(MAC_SURFACE_TAG, "initialized %s renderer", rendererInfo.name);
+        }
+
+        if (!window || !renderer || !rendererInfo.num_texture_formats) {
+            ALOGD(MAC_SURFACE_TAG, "%s failed to create window or renderer: %s", __func__, SDL_GetError());
+            destroy();
+            return NEGATIVE(S_NO_SDL_INIT);
+        }
     }
-
-    window = SDL_CreateWindow(options->videoTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->videoWidth, options->videoHeight, windowFlags);
-
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
-
-    if (window == nullptr) {
-        ALOGE(MAC_SURFACE_TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
-        destroy();
-        return NEGATIVE(S_NO_SDL_CREATE_WINDOW);
-    }
-
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (renderer == nullptr) {
-        ALOGE(MAC_SURFACE_TAG, "%s failed to initialize a hardware accelerated renderer: %s", __func__, SDL_GetError());
-        renderer = SDL_CreateRenderer(window, -1, 0);
-    }
-    if (renderer == nullptr) {
-        ALOGE(MAC_SURFACE_TAG, "%s create renderer fail: %s", __func__, SDL_GetError());
-        destroy();
-        return NEGATIVE(S_NO_SDL_CREATE_RENDERER);
-    }
-
-    if (!SDL_GetRendererInfo(renderer, &rendererInfo)) {
-        ALOGD(MAC_SURFACE_TAG, "initialized %s renderer", rendererInfo.name);
-    }
-
-    if (!window || !renderer || !rendererInfo.num_texture_formats) {
-        ALOGD(MAC_SURFACE_TAG, "%s failed to create window or renderer: %s", __func__, SDL_GetError());
-        destroy();
-        return NEGATIVE(S_NO_SDL_INIT);
-    }
-
     return POSITIVE;
 }
 
@@ -210,7 +237,7 @@ void MacSurface::doKeySystem(const SDL_Event &event) const {
             break;
         case SDLK_s:
             if (stream) {
-                stream->setupToNextFrame();
+                stream->stepToNextFrame();
             }
             break;
         case SDLK_a:

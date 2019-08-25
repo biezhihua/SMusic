@@ -55,7 +55,7 @@ public:
 
 protected:
 
-    void calculateDisplayRect(Rect *rect, int screenXLeft, int screenYTop, int screenWidth, int screenHeight, int pictureWidth, int pictureHeight, AVRational picSar);
+    void calculateDisplayRect(Rect *rect, int xLeft, int yTop, int srcWidth, int scrHeight, int picWidth, int picHeight, AVRational picSar);
 
     int refreshVideo();
 
@@ -75,6 +75,7 @@ protected:
 
     virtual void displayVideoAudio();
 
+    double getFrameDelayTime(const Frame *willToShowFrame, const Frame *firstReadyToShowFrame) const;
 };
 
 

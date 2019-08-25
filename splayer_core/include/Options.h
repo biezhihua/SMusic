@@ -75,6 +75,9 @@ public:
     /// "select desired stream"
     char *wantedStreamSpec[AVMEDIA_TYPE_NB] = {nullptr};
 
+    /// 是否禁止视频渲染
+    int displayDisable;
+
     /// 是否禁止视频
     int videoDisable;
 

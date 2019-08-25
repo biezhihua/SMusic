@@ -101,7 +101,7 @@ public:
 
     int forceRefresh();
 
-    void setupToNextFrame();
+    void stepToNextFrame();
 
     void streamSeek(int64_t pos, int64_t rel, int seekByBytes);
 
@@ -131,7 +131,7 @@ public:
 
     void checkExternalClockSpeed();
 
-    double getFrameDuration(Frame *current, Frame *next);
+    double getFrameDuration(const Frame *current, const Frame *next);
 
     double getComputeTargetDelay(double duration);
 
@@ -154,8 +154,6 @@ private:
     int streamComponentClose(AVStream *stream, int streamIndex);
 
     void closeReadThread(const VideoState *is, AVFormatContext *formatContext) const;
-
-    void stepToNextFrame();
 
     int getVideoFrame(AVFrame *pFrame);
 

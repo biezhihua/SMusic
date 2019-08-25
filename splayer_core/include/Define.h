@@ -33,7 +33,8 @@
 /* no AV sync correction is done if below the minimum AV sync threshold */
 #define SYNC_THRESHOLD_MIN 0.04
 
-/* AV sync correction is done if above the maximum AV sync threshold */
+/// 如果超过最大同步阈值，则进行同步校正
+/// sync correction is done if above the maximum sync threshold
 #define SYNC_THRESHOLD_MAX 0.1
 
 /* If a frame duration is longer than this, it will not be duplicated to compensate AV sync */

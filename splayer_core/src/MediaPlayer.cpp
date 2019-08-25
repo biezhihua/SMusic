@@ -273,6 +273,9 @@ int MediaPlayer::prepareStream() {
         notifyMsg(Message::MSG_STREAM_CREATED);
         if (stream->prepareStream(dataSource)) {
             return POSITIVE;
+        } else {
+            notifyMsg(Message::MSG_STREAM_FAILURE);
+            return NEGATIVE(S_NO_INIT_VIDEO_STATE);
         }
     }
     return NEGATIVE(S_NULL);

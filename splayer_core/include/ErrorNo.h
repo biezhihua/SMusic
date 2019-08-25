@@ -59,4 +59,5 @@
 #define S_NO_DECODE_SUBTITLE_FRAME        55
 #define S_FRAME_DROP        56
 #define S_NO_ADD_FRAME_TO_FILTER        57
+#define S_NO_INIT_VIDEO_STATE        58
 #endif //SPLAYER_CORE_ERRORNO_H

@@ -80,6 +80,7 @@ int Stream::prepareStream(const char *fileName) {
     videoState = streamOpen();
 
     if (!videoState) {
+        ALOGE(STREAM_TAG, "%s Failed to initialize VideoState!", __func__);
         return NEGATIVE(S_NO_CREATE_VIDEO_STATE);
     }
 
@@ -1220,10 +1221,6 @@ int Stream::getMasterSyncType() {
     }
 }
 
-void Stream::stepToNextFrame() {
-    // TODO
-}
-
 void Stream::streamSeek(int64_t pos, int64_t rel, int seekByBytes) {
     /* seek in the stream */
     if (!videoState->seekReq) {
@@ -1441,7 +1438,7 @@ void Stream::checkExternalClockSpeed() {
     }
 }
 
-double Stream::getFrameDuration(Frame *current, Frame *next) {
+double Stream::getFrameDuration(const Frame *current, const Frame *next) {
     if (current->serial == next->serial) {
         double duration = next->pts - current->pts;
         ALOGD(STREAM_TAG, "%s current->pts = %f next->pts = %f duration = %f maxFrameDuration = %f", __func__, current->pts, next->pts, duration, videoState->maxFrameDuration);
@@ -1499,14 +1496,14 @@ VideoState *Stream::getVideoState() const {
     return videoState;
 }
 
-void Stream::setupToNextFrame() {
+void Stream::stepToNextFrame() {
     ALOGD(STREAM_TAG, "%s", __func__);
-    /* if the stream is paused unpause it, then step */
+    /* if the stream is paused unpause it, then stepFrame */
     if (videoState) {
         if (videoState->paused) {
             streamTogglePause();
         }
-        videoState->step = 1;
+        videoState->stepFrame = 1;
     }
 }
 
@@ -1514,7 +1511,7 @@ int Stream::togglePause() {
     ALOGD(STREAM_TAG, "%s", __func__);
     if (videoState) {
         streamTogglePause();
-        videoState->step = 0;
+        videoState->stepFrame = 0;
         return POSITIVE;
     }
     return NEGATIVE(S_NULL);

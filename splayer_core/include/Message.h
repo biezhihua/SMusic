@@ -55,6 +55,7 @@ public:
     static const int MSG_SURFACE_CREATED = 31;
     static const int MSG_AUDIO_CREATED = 32;
     static const int MSG_STREAM_CREATED = 33;
+    static const int MSG_STREAM_FAILURE = 34;
 
     /* REQ 20000 ~ 29999 */
 

@@ -28,7 +28,9 @@ public:
     int abortRequest;
     int forceRefresh;
     int syncType;
-    int step;
+
+    /// 是否逐帧播放
+    int stepFrame;
 
     SwsContext *imgConvertCtx;
     SwsContext *subConvertCtx;
