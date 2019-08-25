@@ -1,5 +1,5 @@
-#ifndef SPLAYER_AOUT_H
-#define SPLAYER_AOUT_H
+#ifndef SPLAYER_CORE_AUDIO_H
+#define SPLAYER_CORE_AUDIO_H
 
 class Stream;
 
@@ -50,4 +50,4 @@ public:
 };
 
 
-#endif //SPLAYER_AOUT_H
+#endif //SPLAYER_CORE_AUDIO_H

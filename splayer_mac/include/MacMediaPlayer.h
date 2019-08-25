@@ -1,5 +1,5 @@
-#ifndef SPLAYER_COMMAND_MYMEDIAPLAYER_H
-#define SPLAYER_COMMAND_MYMEDIAPLAYER_H
+#ifndef SPLAYER_CORE_MEDIAPLAYER_H
+#define SPLAYER_CORE_MEDIAPLAYER_H
 
 #include "MediaPlayer.h"
 #include "MacAudio.h"
@@ -29,4 +29,4 @@ public:
 
 };
 
-#endif //SPLAYER_COMMAND_MYMEDIAPLAYER_H
+#endif //SPLAYER_CORE_MEDIAPLAYER_H

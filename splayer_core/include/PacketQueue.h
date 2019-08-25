@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_PACKETQUEUE_H
-#define SPLAYER_MAC_PACKETQUEUE_H
+#ifndef SPLAYER_CORE_PACKET_QUEUE_H
+#define SPLAYER_CORE_PACKET_QUEUE_H
 
 #include "Mutex.h"
 #include "PacketData.h"
@@ -47,4 +47,4 @@ public:
 
 };
 
-#endif //SPLAYER_MAC_PACKETQUEUE_H
+#endif //SPLAYER_CORE_PACKET_QUEUE_H

@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_DECODER_H
-#define SPLAYER_MAC_DECODER_H
+#ifndef SPLAYER_CORE_DECODER_H
+#define SPLAYER_CORE_DECODER_H
 
 
 #include "Thread.h"
@@ -50,4 +50,4 @@ public:
 };
 
 
-#endif //SPLAYER_MAC_DECODER_H
+#endif //SPLAYER_CORE_DECODER_H

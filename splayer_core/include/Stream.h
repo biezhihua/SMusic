@@ -1,5 +1,5 @@
-#ifndef SPLAYER_PLAY_H
-#define SPLAYER_PLAY_H
+#ifndef SPLAYER_CORE_PLAY_H
+#define SPLAYER_CORE_PLAY_H
 
 class Surface;
 
@@ -186,4 +186,4 @@ private:
 #endif
 };
 
-#endif //SPLAYER_PLAY_H
+#endif //SPLAYER_CORE_PLAY_H

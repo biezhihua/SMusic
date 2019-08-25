@@ -3,7 +3,6 @@
 
 #include "Stream.h"
 
-
 class MacStream : public Stream {
 
 public:

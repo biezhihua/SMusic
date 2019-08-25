@@ -1,6 +1,5 @@
-#ifndef SPLAYER_MAC_DEMO_AUDIOPARAMS_H
-#define SPLAYER_MAC_DEMO_AUDIOPARAMS_H
-
+#ifndef SPLAYER_CORE_AUDIO_PARAMS_H
+#define SPLAYER_CORE_AUDIO_PARAMS_H
 
 extern "C" {
 #include <libavutil/samplefmt.h>
@@ -17,4 +16,4 @@ public:
 };
 
 
-#endif //SPLAYER_MAC_DEMO_AUDIOPARAMS_H
+#endif //SPLAYER_CORE_AUDIO_PARAMS_H

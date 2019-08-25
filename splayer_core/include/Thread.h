@@ -1,5 +1,5 @@
-#ifndef SPLAYER_THREAD_H
-#define SPLAYER_THREAD_H
+#ifndef SPLAYER_CORE_THREAD_H
+#define SPLAYER_CORE_THREAD_H
 
 class Thread;
 
@@ -16,9 +16,7 @@ enum ThreadPriority {
     THREAD_PRIORITY_HIGH
 };
 
-
 class Thread {
-
 
 public:
     pthread_t id;
@@ -45,4 +43,4 @@ public:
 };
 
 
-#endif //SPLAYER_THREAD_H
+#endif //SPLAYER_CORE_THREAD_H

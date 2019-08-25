@@ -1,5 +1,5 @@
-#ifndef SPLAYER_ERROR_H
-#define SPLAYER_ERROR_H
+#ifndef SPLAYER_CORE_ERROR_H
+#define SPLAYER_CORE_ERROR_H
 
 #include "ErrorNo.h"
 
@@ -30,4 +30,4 @@
 #define NEGATIVE_PROTOCOL_NOT_FOUND FFERRTAG(0xF8,'P','R','O') ///< Protocol not found
 #define NEGATIVE_UNKNOWN            FFERRTAG( 'U','N','K','N')
 
-#endif //SPLAYER_ERROR_H
+#endif //SPLAYER_CORE_ERROR_H

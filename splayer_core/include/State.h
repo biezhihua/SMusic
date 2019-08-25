@@ -1,5 +1,5 @@
-#ifndef SPLAYER_STATE_H
-#define SPLAYER_STATE_H
+#ifndef SPLAYER_CORE_STATE_H
+#define SPLAYER_CORE_STATE_H
 
 #include "Log.h"
 #include "Error.h"
@@ -117,4 +117,4 @@ public:
 };
 
 
-#endif //SPLAYER_STATE_H
+#endif //SPLAYER_CORE_STATE_H

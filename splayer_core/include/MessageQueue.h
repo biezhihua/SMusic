@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MESSAGEQUEUE_H
-#define SPLAYER_MESSAGEQUEUE_H
+#ifndef SPLAYER_CORE_MESSAGEQUEUE_H
+#define SPLAYER_CORE_MESSAGEQUEUE_H
 
 #include "Log.h"
 #include "Error.h"

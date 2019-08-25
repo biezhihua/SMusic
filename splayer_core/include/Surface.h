@@ -1,5 +1,5 @@
-#ifndef SPLAYER_VOUT_H
-#define SPLAYER_VOUT_H
+#ifndef SPLAYER_CORE_SURFACE_H
+#define SPLAYER_CORE_SURFACE_H
 
 class Stream;
 
@@ -95,4 +95,4 @@ protected:
 };
 
 
-#endif //SPLAYER_VOUT_H
+#endif //SPLAYER_CORE_SURFACE_H

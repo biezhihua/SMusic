@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MEDIASPLAYER_H
-#define SPLAYER_MEDIASPLAYER_H
+#ifndef SPLAYER_CORE_MEDIASPLAYER_H
+#define SPLAYER_CORE_MEDIASPLAYER_H
 
 class MessageQueue;
 class Event;

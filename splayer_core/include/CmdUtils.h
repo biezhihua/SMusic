@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_CMDUTILS_H
-#define SPLAYER_MAC_CMDUTILS_H
+#ifndef SPLAYER_CORE_CMDUTILS_H
+#define SPLAYER_CORE_CMDUTILS_H
 
 #include <stdbool.h>
 #include <assert.h>
@@ -79,4 +79,4 @@ double get_rotation(AVStream *st);
 
 void show_ffmpeg_banner();
 
-#endif //SPLAYER_MAC_CMDUTILS_H
+#endif //SPLAYER_CORE_CMDUTILS_H

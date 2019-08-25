@@ -1,4 +1,3 @@
-
 #include "MacAudio.h"
 
 int MacAudio::create() {

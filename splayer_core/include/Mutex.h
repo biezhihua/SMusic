@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MUTEX_H
-#define SPLAYER_MUTEX_H
+#ifndef SPLAYER_CORE_MUTEX_H
+#define SPLAYER_CORE_MUTEX_H
 
 #include <pthread.h>
 #include <assert.h>
@@ -54,4 +54,4 @@ public:
 };
 
 
-#endif //SPLAYER_MUTEX_H
+#endif //SPLAYER_CORE_MUTEX_H

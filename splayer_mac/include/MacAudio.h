@@ -1,5 +1,5 @@
-#ifndef SPLAYER_COMMAND_MACAOUT_H
-#define SPLAYER_COMMAND_MACAOUT_H
+#ifndef SPLAYER_MAC_AUDIO_H
+#define SPLAYER_MAC_AUDIO_H
 
 #include "Audio.h"
 #include "Error.h"
@@ -32,4 +32,4 @@ public:
 };
 
 
-#endif //SPLAYER_COMMAND_MACAOUT_H
+#endif //SPLAYER_MAC_AUDIO_H

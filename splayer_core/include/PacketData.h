@@ -1,6 +1,5 @@
-
-#ifndef SPLAYER_MAC_MYAVPACKETLIST_H
-#define SPLAYER_MAC_MYAVPACKETLIST_H
+#ifndef SPLAYER_CORE_PACKET_DATA_H
+#define SPLAYER_CORE_PACKET_DATA_H
 
 extern "C" {
 #include <libavformat/avformat.h>

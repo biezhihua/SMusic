@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_DEMO_MACEVENT_H
-#define SPLAYER_MAC_DEMO_MACEVENT_H
+#ifndef SPLAYER_MAC_EVENT_H
+#define SPLAYER_MAC_EVENT_H
 
 #include "Event.h"
 #include <SDL.h>
@@ -40,4 +40,4 @@ public:
 };
 
 
-#endif //SPLAYER_MAC_DEMO_MACEVENT_H
+#endif //SPLAYER_MAC_EVENT_H

@@ -1,5 +1,5 @@
-#ifndef SPLAYER_COMMAND_MACVOUT_H
-#define SPLAYER_COMMAND_MACVOUT_H
+#ifndef SPLAYER_MAC_SURFACE_H
+#define SPLAYER_MAC_SURFACE_H
 
 #include "Surface.h"
 #include "Error.h"
@@ -94,4 +94,4 @@ public:
 };
 
 
-#endif //SPLAYER_COMMAND_MACVOUT_H
+#endif //SPLAYER_MAC_SURFACE_H

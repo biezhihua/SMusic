@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC1_CLOCK_H
-#define SPLAYER_MAC1_CLOCK_H
+#ifndef SPLAYER_CORE_CLOCK_H
+#define SPLAYER_CORE_CLOCK_H
 
 #include "Error.h"
 #include "Log.h"

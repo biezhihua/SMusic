@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_VIDEOSTATE_H
-#define SPLAYER_MAC_VIDEOSTATE_H
+#ifndef SPLAYER_CORE_VIDEOSTATE_H
+#define SPLAYER_CORE_VIDEOSTATE_H
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -140,4 +140,4 @@ public:
 #endif
 };
 
-#endif //SPLAYER_MAC_VIDEOSTATE_H
+#endif //SPLAYER_CORE_VIDEOSTATE_H

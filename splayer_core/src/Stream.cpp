@@ -1,6 +1,5 @@
 #include "Stream.h"
 
-
 static int innerReadThread(void *arg) {
     auto *play = static_cast<Stream *>(arg);
     if (play) {

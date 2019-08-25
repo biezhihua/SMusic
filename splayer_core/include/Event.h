@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_DEMO_EVENT_H
-#define SPLAYER_MAC_DEMO_EVENT_H
+#ifndef SPLAYER_CORE_EVENT_H
+#define SPLAYER_CORE_EVENT_H
 
 class Stream;
 
@@ -37,4 +37,4 @@ public:
 };
 
 
-#endif //SPLAYER_MAC_DEMO_EVENT_H
+#endif //SPLAYER_CORE_EVENT_H

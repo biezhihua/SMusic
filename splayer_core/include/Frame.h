@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_FRAME_H
-#define SPLAYER_MAC_FRAME_H
+#ifndef SPLAYER_CORE_FRAME_H
+#define SPLAYER_CORE_FRAME_H
 
 extern "C" {
 #include <libavutil/rational.h>
@@ -27,4 +27,4 @@ public:
 };
 
 
-#endif //SPLAYER_MAC_FRAME_H
+#endif //SPLAYER_CORE_FRAME_H

@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_MACOPTIONS_H
-#define SPLAYER_MAC_MACOPTIONS_H
+#ifndef SPLAYER_MAC_OPTIONS_H
+#define SPLAYER_MAC_OPTIONS_H
 
 #include "Options.h"
 
@@ -27,4 +27,4 @@ public:
 };
 
 
-#endif //SPLAYER_MAC_MACOPTIONS_H
+#endif //SPLAYER_MAC_OPTIONS_H

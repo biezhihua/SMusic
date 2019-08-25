@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_FRAMEQUEUE_H
-#define SPLAYER_MAC_FRAMEQUEUE_H
+#ifndef SPLAYER_CORE_FRAMEQUEUE_H
+#define SPLAYER_CORE_FRAMEQUEUE_H
 
 #include "Mutex.h"
 #include "PacketQueue.h"
@@ -78,4 +78,4 @@ public:
 };
 
 
-#endif //SPLAYER_MAC_FRAMEQUEUE_H
+#endif //SPLAYER_CORE_FRAMEQUEUE_H

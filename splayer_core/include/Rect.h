@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_DEMO_RECT_H
-#define SPLAYER_MAC_DEMO_RECT_H
+#ifndef SPLAYER_CORE_RECT_H
+#define SPLAYER_CORE_RECT_H
 
 class Rect {
 public:
@@ -7,5 +7,4 @@ public:
     int w, h;
 };
 
-
-#endif //SPLAYER_MAC_DEMO_RECT_H
+#endif

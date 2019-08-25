@@ -1,8 +1,4 @@
-
-#include <Surface.h>
-
 #include "Surface.h"
-#include "../../../../../../usr/local/Cellar/sdl2/2.0.9_1/include/SDL2/SDL_render.h"
 
 Surface::Surface() {
     mutex = new Mutex();

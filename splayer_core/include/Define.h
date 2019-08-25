@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_DEFINE_H
-#define SPLAYER_MAC_DEFINE_H
+#ifndef SPLAYER_CORE_DEFINE_H
+#define SPLAYER_CORE_DEFINE_H
 
 #define VERSION_MODULE_FILE_NAME_LENGTH     13
 
@@ -68,4 +68,4 @@
 /* maximum audio speed change to get correct sync */
 #define SAMPLE_CORRECTION_PERCENT_MAX 10
 
-#endif //SPLAYER_MAC_DEFINE_H
+#endif //SPLAYER_CORE_DEFINE_H

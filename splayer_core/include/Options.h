@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_OPTIONS_H
-#define SPLAYER_MAC_OPTIONS_H
+#ifndef SPLAYER_CORE_OPTIONS_H
+#define SPLAYER_CORE_OPTIONS_H
 
 #include "Define.h"
 #include "Log.h"
@@ -190,4 +190,4 @@ public:
 
 };
 
-#endif //SPLAYER_MAC_OPTIONS_H
+#endif //SPLAYER_CORE_OPTIONS_H

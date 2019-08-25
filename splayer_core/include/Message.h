@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MESSAGE_H
-#define SPLAYER_MESSAGE_H
+#ifndef SPLAYER_CORE_MESSAGE_H
+#define SPLAYER_CORE_MESSAGE_H
 
 class MessageObject {
 public:
@@ -107,4 +107,4 @@ public:
     static const char *getMsgSimpleName(int what);
 };
 
-#endif //SPLAYER_MESSAGE_H
+#endif //SPLAYER_CORE_MESSAGE_H
