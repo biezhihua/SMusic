@@ -585,6 +585,7 @@ int Stream::readThread() {
         } else {
             av_packet_unref(packet);
         }
+
     } // for end
     return POSITIVE;
 }
@@ -714,6 +715,7 @@ int Stream::videoThread() {
             }
         }
 #endif
+
         if (IS_NEGATIVE(ret)) {
             av_frame_free(&frame);
             ALOGE(STREAM_TAG, "%s not queue picture", __func__);

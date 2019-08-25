@@ -76,16 +76,16 @@ public:
     char *wantedStreamSpec[AVMEDIA_TYPE_NB] = {nullptr};
 
     /// 是否禁止视频渲染
-    int displayDisable;
+    int displayDisable = 0;
 
     /// 是否禁止视频
-    int videoDisable;
+    int videoDisable = 0;
 
     /// 是否禁止音频
-    int audioDisable = 1;
+    int audioDisable = 0;
 
     /// 是否禁止字幕
-    int subtitleDisable = 1;
+    int subtitleDisable = 0;
 
     /// 按字节快进或者快退 0=off 1=on -1=auto
     /// seek by bytes 0=off 1=on -1=auto
