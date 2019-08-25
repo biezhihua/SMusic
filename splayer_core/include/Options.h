@@ -106,7 +106,8 @@ public:
 
     /// 流启动位置时间（秒）
     /// seek to a given position in seconds
-    int64_t startTime = AV_NOPTS_VALUE;
+//    int64_t startTime = AV_NOPTS_VALUE;
+    int64_t startTime = 100000;
 
     /// 流时长
     /// stream  \"duration\" seconds of audio/video
@@ -134,7 +135,7 @@ public:
 
     /// 结束播放时自动退出
     /// exit at the end
-    int autoExit = 0;
+    int autoExit = 1;
 
     /// 设置循环播放的次数
     /// set number of times the playback shall be looped

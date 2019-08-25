@@ -101,6 +101,17 @@ int MacAudio::openAudio(int64_t wantedChannelLayout, int wantedNbChannels, int w
 
 void MacAudio::audioCallback(Uint8 *stream, int len) {
     ALOGD(MAC_AUDIO_TAG, "%s stream = %p len = %d ", __func__, stream, len);
+
+    if (!Audio::stream) {
+        ALOGE(MAC_AUDIO_TAG, "%s stream is null", __func__);
+        return;
+    }
+
+    if (!Audio::stream->getVideoState()) {
+        ALOGE(MAC_AUDIO_TAG, "%s video state is null", __func__);
+        return;
+    }
+
     VideoState *is = Audio::stream->getVideoState();
     int audioSize, len1;
 
@@ -112,12 +123,12 @@ void MacAudio::audioCallback(Uint8 *stream, int len) {
             if (audioSize < 0) {
                 /* if error, just output silence */
                 is->audioBuf = nullptr;
-                is->audioBufSize = SDL_AUDIO_MIN_BUFFER_SIZE / is->audioTarget.frame_size * is->audioTarget.frame_size;
+                is->audioBufSize = static_cast<unsigned int>(SDL_AUDIO_MIN_BUFFER_SIZE / is->audioTarget.frame_size * is->audioTarget.frame_size);
             } else {
                 if (is->showMode != SHOW_MODE_VIDEO) {
                     update_sample_display((int16_t *) is->audioBuf, audioSize);
                 }
-                is->audioBufSize = audioSize;
+                is->audioBufSize = static_cast<unsigned int>(audioSize);
             }
             is->audioBufIndex = 0;
         }

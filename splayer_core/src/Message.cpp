@@ -154,6 +154,12 @@ const char *Message::getMsgSimpleName(int what) {
             return "MSG_AUDIO_CREATED";
         case MSG_STREAM_CREATED:
             return "MSG_STREAM_CREATED";
+        case MSG_STREAM_FAILURE:
+            return "MSG_STREAM_FAILURE";
+        case MSG_EVENT_CREATED:
+            return "MSG_EVENT_CREATED";
+        case REQ_QUIT:
+            return "REQ_QUIT";
         default:
             return "NONE";
     }

@@ -121,7 +121,7 @@ public:
 
     int audioThread();
 
-    void streamClose();
+    void streamsClose();
 
     VideoState *getVideoState() const;
 
@@ -141,7 +141,7 @@ public:
 
 private:
 
-    VideoState *streamOpen();
+    VideoState *streamsOpen();
 
     int getStartupVolume();
 

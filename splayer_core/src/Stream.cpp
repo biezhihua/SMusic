@@ -62,7 +62,7 @@ int Stream::stop() {
 }
 
 int Stream::shutdown() {
-    streamClose();
+    streamsClose();
     return POSITIVE;
 }
 
@@ -76,7 +76,7 @@ int Stream::prepareStream(const char *fileName) {
 
     options->inputFileName = fileName != nullptr ? av_strdup(fileName) : nullptr;
 
-    videoState = streamOpen();
+    videoState = streamsOpen();
 
     if (!videoState) {
         ALOGE(STREAM_TAG, "%s Failed to initialize VideoState!", __func__);
@@ -86,7 +86,7 @@ int Stream::prepareStream(const char *fileName) {
     return POSITIVE;
 }
 
-VideoState *Stream::streamOpen() {
+VideoState *Stream::streamsOpen() {
     ALOGD(STREAM_TAG, __func__);
 
     if (!options->inputFileName) {
@@ -102,19 +102,19 @@ VideoState *Stream::streamOpen() {
 
     if (is->videoFrameQueue.init(&is->videoPacketQueue, VIDEO_QUEUE_SIZE, 1) < 0) {
         ALOGE(STREAM_TAG, "%s video frame packetQueue init fail", __func__);
-        streamClose();
+        streamsClose();
         return nullptr;
     }
 
     if (is->audioFrameQueue.init(&is->audioPacketQueue, AUDIO_QUEUE_SIZE, 1) < 0) {
         ALOGE(STREAM_TAG, "%s audio frame packetQueue init fail", __func__);
-        streamClose();
+        streamsClose();
         return nullptr;
     }
 
     if (is->subtitleFrameQueue.init(&is->subtitlePacketQueue, SUBTITLE_QUEUE_SIZE, 0) < 0) {
         ALOGE(STREAM_TAG, "%s subtitle frame packetQueue init fail", __func__);
-        streamClose();
+        streamsClose();
         return nullptr;
     }
 
@@ -122,13 +122,13 @@ VideoState *Stream::streamOpen() {
         is->audioPacketQueue.init(&flushPacket) < 0 ||
         is->subtitlePacketQueue.init(&flushPacket) < 0) {
         ALOGE(STREAM_TAG, "%s packet packetQueue init fail", __func__);
-        streamClose();
+        streamsClose();
         return nullptr;
     }
 
     if (!(is->continueReadThread = new Mutex())) {
         ALOGE(STREAM_TAG, "%s create continue read thread mutex fail", __func__);
-        streamClose();
+        streamsClose();
         return nullptr;
     }
 
@@ -136,7 +136,7 @@ VideoState *Stream::streamOpen() {
         is->audioClock.init(&is->audioPacketQueue.serial) < 0 ||
         is->exitClock.init(&is->subtitlePacketQueue.serial) < 0) {
         ALOGE(STREAM_TAG, "%s init clock fail", __func__);
-        streamClose();
+        streamsClose();
         return nullptr;
     }
 
@@ -152,14 +152,14 @@ VideoState *Stream::streamOpen() {
 
     if (!is->readThread) {
         ALOGE(STREAM_TAG, "%s create read thread fail", __func__);
-        streamClose();
+        streamsClose();
         return nullptr;
     }
 
     return is;
 }
 
-void Stream::streamClose() {
+void Stream::streamsClose() {
     ALOGD(STREAM_TAG, __func__);
 
     if (videoState) {
@@ -541,6 +541,7 @@ int Stream::readThread() {
                 streamSeek(options->startTime != AV_NOPTS_VALUE ? options->startTime : 0, 0, 0);
             } else if (options->autoExit) {
                 closeReadThread(videoState, formatContext);
+                msgQueue->notifyMsg(Message::REQ_QUIT);
                 return NEGATIVE(NEGATIVE_EOF);
             }
         }
@@ -1548,20 +1549,22 @@ int Stream::forceRefresh() {
 }
 
 void Stream::setOptions(Options *options) {
+    ALOGD(STREAM_TAG, "%s params = %p", __func__, options);
     Stream::options = options;
 }
 
 void Stream::setMsgQueue(MessageQueue *msgQueue) {
+    ALOGD(STREAM_TAG, "%s params = %p", __func__, msgQueue);
     Stream::msgQueue = msgQueue;
 }
 
 void Stream::setAudio(Audio *audio) {
-    ALOGD(STREAM_TAG, __func__);
+    ALOGD(STREAM_TAG, "%s params = %p", __func__, audio);
     Stream::audio = audio;
 }
 
 void Stream::setSurface(Surface *surface) {
-    ALOGD(STREAM_TAG, __func__);
+    ALOGD(STREAM_TAG, "%s params = %p", __func__, surface);
     Stream::surface = surface;
 }
 
