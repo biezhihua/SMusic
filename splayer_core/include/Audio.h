@@ -3,12 +3,16 @@
 
 class Stream;
 
+class MediaPlayer;
+
+
 #include "Log.h"
 #include "Mutex.h"
 #include "Stream.h"
 #include "AudioParams.h"
 #include "Define.h"
 #include "Options.h"
+#include "MediaPlayer.h"
 
 extern "C" {
 #include <libavutil/samplefmt.h>
@@ -24,6 +28,7 @@ protected:
     Mutex *mutex = nullptr;
     Options *options = nullptr;
     MessageQueue *msgQueue = nullptr;
+    MediaPlayer *mediaPlayer = nullptr;
 
 public:
     Audio();
@@ -47,6 +52,8 @@ public:
     void setOptions(Options *options);
 
     void setMsgQueue(MessageQueue *msgQueue);
+
+    void setMediaPlayer(MediaPlayer *mediaPlayer);
 };
 
 

@@ -60,4 +60,6 @@
 #define S_FRAME_DROP        56
 #define S_NO_ADD_FRAME_TO_FILTER        57
 #define S_NO_INIT_VIDEO_STATE        58
+#define S_NO_CREATE_STREAM        59
+#define S_DISABLE_ALL_STREAM        60
 #endif //SPLAYER_CORE_ERROR_NO_H

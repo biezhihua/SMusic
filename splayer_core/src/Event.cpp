@@ -1,3 +1,6 @@
+
+#include <Event.h>
+
 #include "Event.h"
 
 Event::Event() = default;
@@ -9,6 +12,10 @@ int Event::create() {
 }
 
 int Event::destroy() {
+    return POSITIVE;
+}
+
+int Event::eventLoop() {
     return POSITIVE;
 }
 
@@ -27,3 +34,9 @@ void Event::setMediaPlayer(MediaPlayer *mediaPlayer) {
 void Event::setSurface(Surface *surface) {
     Event::surface = surface;
 }
+
+void Event::setMsgQueue(MessageQueue *msgQueue) {
+    Event::msgQueue = msgQueue;
+}
+
+

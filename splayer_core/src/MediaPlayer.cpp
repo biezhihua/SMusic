@@ -30,50 +30,61 @@ int MediaPlayer::create() {
     }
 
     msgQueue = new MessageQueue();
+    if (!msgQueue) {
+        ALOGE(MEDIA_PLAYER_TAG, "create msg queue error");
+        destroy();
+        return NEGATIVE(S_NO_MEMORY);
+    }
     state->setMsgQueue(msgQueue);
 
-    event = createEvent();
-    if (!event) {
-        ALOGE(MEDIA_PLAYER_TAG, "create event error");
-        destroy();
-        return NEGATIVE(S_NO_MEMORY);
-    }
-    event->setMediaPlayer(this);
+    if (!options) {
 
-    surface = createSurface();
-    if (!surface) {
-        ALOGE(MEDIA_PLAYER_TAG, "create surface error");
-        destroy();
-        return NEGATIVE(S_NO_MEMORY);
-    }
-    surface->setMediaPlayer(this);
+        options = new Options();
 
-    audio = createAudio();
-    if (!audio) {
-        ALOGE(MEDIA_PLAYER_TAG, "create audio error");
-        destroy();
-        return NEGATIVE(S_NO_MEMORY);
+        if (!options) {
+            ALOGE(MEDIA_PLAYER_TAG, "create options error");
+            destroy();
+            return NEGATIVE(S_NO_MEMORY);
+        }
     }
 
-    stream = createStream();
     if (!stream) {
-        ALOGE(MEDIA_PLAYER_TAG, "create stream error");
-        destroy();
-        return NEGATIVE(S_NO_MEMORY);
+
+        stream = new Stream();
+
+        if (!stream) {
+            ALOGE(MEDIA_PLAYER_TAG, "create stream error");
+            destroy();
+            return NEGATIVE(S_NO_MEMORY);
+        }
     }
 
-    event->setStream(stream);
-    event->setSurface(surface);
+    if (surface) {
+        surface->setMediaPlayer(this);
+        surface->setStream(stream);
+        surface->setMsgQueue(msgQueue);
+        surface->setOptions(options);
+    }
 
-    surface->setStream(stream);
-    surface->setMsgQueue(msgQueue);
+    if (audio) {
+        audio->setMediaPlayer(this);
+        audio->setStream(stream);
+        audio->setMsgQueue(msgQueue);
+        audio->setOptions(options);
+    }
 
-    audio->setStream(stream);
-    audio->setMsgQueue(msgQueue);
+    if (event) {
+        event->setMediaPlayer(this);
+        event->setStream(stream);
+        event->setSurface(surface);
+        event->setMsgQueue(msgQueue);
+        event->setOptions(options);
+    }
 
     stream->setAudio(audio);
     stream->setSurface(surface);
     stream->setMsgQueue(msgQueue);
+    stream->setOptions(options);
 
     return POSITIVE;
 }
@@ -83,10 +94,29 @@ int MediaPlayer::destroy() {
     if (mutex) {
         mutex->mutexLock();
 
-        if (stream && surface && audio) {
+        stream->shutdown();
 
-            stream->shutdown();
+        if (event) {
+            event->setMediaPlayer(nullptr);
+            event->setStream(nullptr);
+            event->setSurface(nullptr);
+            event->setMsgQueue(nullptr);
+            delete event;
+            event = nullptr;
+        }
 
+        if (audio) {
+            audio->destroy();
+            audio->setStream(nullptr);
+            audio->setMsgQueue(nullptr);
+            audio->setOptions(nullptr);
+            audio->setMediaPlayer(nullptr);
+            stream->setAudio(nullptr);
+            delete audio;
+            audio = nullptr;
+        }
+
+        if (surface) {
             surface->destroy();
             surface->setMediaPlayer(nullptr);
             surface->setStream(nullptr);
@@ -95,30 +125,17 @@ int MediaPlayer::destroy() {
             stream->setSurface(nullptr);
             delete surface;
             surface = nullptr;
-
-            audio->destroy();
-            audio->setStream(nullptr);
-            audio->setMsgQueue(nullptr);
-            stream->setAudio(nullptr);
-            delete audio;
-            audio = nullptr;
-
-            event->setMediaPlayer(nullptr);
-            event->setOptions(nullptr);
-            event->setStream(nullptr);
-            delete event;
-            event = nullptr;
-
-            stream->destroy();
-            stream->setSurface(nullptr);
-            stream->setOptions(nullptr);
-            stream->setMsgQueue(nullptr);
-            delete stream;
-            stream = nullptr;
-
-            delete options;
-            options = nullptr;
         }
+
+        stream->destroy();
+        stream->setSurface(nullptr);
+        stream->setOptions(nullptr);
+        stream->setMsgQueue(nullptr);
+        delete stream;
+        stream = nullptr;
+
+        delete options;
+        options = nullptr;
 
         if (dataSource) {
             free(dataSource);
@@ -134,16 +151,15 @@ int MediaPlayer::destroy() {
             msgThread = nullptr;
         }
 
+        state->setMsgQueue(nullptr);
+
         if (msgQueue) {
             delete msgQueue;
             msgQueue = nullptr;
         }
 
-        if (state) {
-            state->setMsgQueue(nullptr);
-            delete state;
-            state = nullptr;
-        }
+        delete state;
+        state = nullptr;
 
         mutex->mutexUnLock();
         delete mutex;
@@ -157,9 +173,9 @@ int MediaPlayer::start() {
     ALOGD(MEDIA_PLAYER_TAG, __func__);
     if (stream && mutex) {
         mutex->mutexLock();
-        removeMsg(Message::REQ_START);
-        removeMsg(Message::REQ_PAUSE);
-        notifyMsg(Message::REQ_START);
+        removeMsg(Msg::REQ_START);
+        removeMsg(Msg::REQ_PAUSE);
+        notifyMsg(Msg::REQ_START);
         mutex->mutexUnLock();
         return POSITIVE;
     }
@@ -170,8 +186,8 @@ int MediaPlayer::stop() {
     ALOGD(MEDIA_PLAYER_TAG, __func__);
     if (stream && mutex) {
         mutex->mutexLock();
-        removeMsg(Message::REQ_START);
-        removeMsg(Message::REQ_PAUSE);
+        removeMsg(Msg::REQ_START);
+        removeMsg(Msg::REQ_PAUSE);
         if (stream->stop()) {
             state->changeState(State::STATE_STOPPED);
             mutex->mutexUnLock();
@@ -187,9 +203,9 @@ int MediaPlayer::pause() {
     ALOGD(MEDIA_PLAYER_TAG, __func__);
     if (stream && mutex) {
         mutex->mutexLock();
-        removeMsg(Message::REQ_START);
-        removeMsg(Message::REQ_PAUSE);
-        notifyMsg(Message::REQ_PAUSE);
+        removeMsg(Msg::REQ_START);
+        removeMsg(Msg::REQ_PAUSE);
+        notifyMsg(Msg::REQ_PAUSE);
         mutex->mutexUnLock();
         return POSITIVE;
     }
@@ -228,9 +244,6 @@ int MediaPlayer::setDataSource(const char *url) {
     return NEGATIVE(S_NULL);
 }
 
-Options *MediaPlayer::createOptions() const {
-    return new Options();
-}
 
 int MediaPlayer::prepareAsync() {
     if (state && mutex) {
@@ -248,60 +261,72 @@ int MediaPlayer::prepareAsync() {
 }
 
 int MediaPlayer::prepareOptions() {
-    if (!options) {
-        options = createOptions();
+    if (!surface) {
+        options->displayDisable = 1;
+        options->videoDisable = 1;
     }
-    if (options && stream && surface) {
-        stream->setOptions(options);
-        surface->setOptions(options);
-        audio->setOptions(options);
-        event->setOptions(options);
-        return notifyMsg(Message::MSG_OPTIONS_CREATED);
+    if (!audio) {
+        options->audioDisable = 1;
     }
-    return NEGATIVE(S_NO_MEMORY);
+    stream->setOptions(options);
+    return notifyMsg(Msg::MSG_OPTIONS_CREATED);
 }
 
 int MediaPlayer::prepareMsgQueue() {
-    if (msgQueue) {
-        if (!msgQueue->startMsgQueue()) {
-            return NEGATIVE(S_NO_START_MSG_QUEUE);
-        }
-        if (!(msgThread = new Thread(staticMsgLoop, this, "Message"))) {
-            return NEGATIVE(S_NO_MEMORY);
-        }
-        return POSITIVE;
+    if (!msgQueue->startMsgQueue()) {
+        return NEGATIVE(S_NO_START_MSG_QUEUE);
     }
-    return NEGATIVE(S_NULL);
+    if (!(msgThread = new Thread(staticMsgLoop, this, "Msg"))) {
+        return NEGATIVE(S_NO_MEMORY);
+    }
+    return POSITIVE;
 }
 
 int MediaPlayer::prepareEvent() {
-    if (event && event->create()) {
-        return notifyMsg(Message::MSG_EVENT_CREATED);
+    if (event) {
+        if (event->create()) {
+            notifyMsg(Msg::MSG_EVENT_CREATED);
+        } else {
+            notifyMsg(Msg::MSG_EVENT_CREATE_FAILURE);
+        }
     }
-    return NEGATIVE(S_NULL);
+    return POSITIVE;
 }
 
 int MediaPlayer::prepareSurface() {
-    if (surface && surface->create()) {
-        return notifyMsg(Message::MSG_SURFACE_CREATED);
+    if (surface) {
+        if (surface->create()) {
+            notifyMsg(Msg::MSG_SURFACE_CREATED);
+        } else {
+            notifyMsg(Msg::MSG_SURFACE_CREATE_FAILURE);
+        }
     }
-    return NEGATIVE(S_NULL);
+    return POSITIVE;
 }
 
 int MediaPlayer::prepareAudio() {
-    if (audio && audio->create()) {
-        return notifyMsg(Message::MSG_AUDIO_CREATED);
+    if (audio) {
+        if (audio->create()) {
+            notifyMsg(Msg::MSG_AUDIO_CREATED);
+        } else {
+            notifyMsg(Msg::MSG_AUDIO_CREATE_FAILURE);
+        }
     }
-    return NEGATIVE(S_NULL);
+    return POSITIVE;
 }
 
 int MediaPlayer::prepareStream() {
-    if (stream && stream->create()) {
-        notifyMsg(Message::MSG_STREAM_CREATED);
+    if (stream) {
+        if (stream->create()) {
+            notifyMsg(Msg::MSG_STREAM_CREATED);
+        } else {
+            notifyMsg(Msg::MSG_STREAM_CREATE_FAILURE);
+            return NEGATIVE(S_NO_CREATE_STREAM);
+        }
         if (stream->prepareStream(dataSource)) {
             return POSITIVE;
         } else {
-            notifyMsg(Message::MSG_STREAM_FAILURE);
+            notifyMsg(Msg::MSG_STREAM_FAILURE);
             return NEGATIVE(S_NO_INIT_VIDEO_STATE);
         }
     }
@@ -336,11 +361,89 @@ int MediaPlayer::removeMsg(int what) {
     return NEGATIVE(S_NULL);
 }
 
-int MediaPlayer::getMsg(Message *msg, bool block) {
+int MediaPlayer::getMsg(Msg *msg, bool block) {
     if (msgQueue) {
         return msgQueue->getMsg(msg, block);
     }
-    return NEGATIVE_EXIT;
+    return NEGATIVE(S_NULL);
+}
+
+void MediaPlayer::setMessage(Message *message) {
+    MediaPlayer::message = message;
+}
+
+void MediaPlayer::setEvent(Event *event) {
+    MediaPlayer::event = event;
+}
+
+void MediaPlayer::setStream(Stream *stream) {
+    MediaPlayer::stream = stream;
+}
+
+void MediaPlayer::setAudio(Audio *audio) {
+    MediaPlayer::audio = audio;
+}
+
+void MediaPlayer::setSurface(Surface *surface) {
+    MediaPlayer::surface = surface;
+}
+
+void MediaPlayer::setOptions(Options *options) {
+    MediaPlayer::options = options;
+}
+
+int MediaPlayer::messageLoop() {
+
+    Msg msg;
+
+    for (;;) {
+
+        if (!msgQueue) {
+            ALOGD(MEDIA_PLAYER_TAG, "%s message loop break msgQueue = %p", __func__, msgQueue);
+            break;
+        }
+
+        msg.free();
+
+        int ret = getMsg(&msg, true);
+
+        if (msg.what != -1) {
+            ALOGD(MEDIA_PLAYER_TAG, "%s pop msg what = %s arg1 = %d arg2 = %d obj = %p", __func__, Msg::getMsgSimpleName(msg.what), msg.arg1, msg.arg2, msg.obj);
+            if (message) {
+                message->onMessage(event, &msg);
+            }
+        }
+
+        if (msg.what == Msg::REQ_QUIT) {
+            destroy();
+            quit = false;
+        }
+
+        if (ret == NEGATIVE(S_ABORT_REQUEST)) {
+            ALOGD(MEDIA_PLAYER_TAG, "%s abort request", __func__);
+            quit = false;
+            break;
+        }
+
+        if (msgQueue->isAbortRequest()) {
+            ALOGD(MEDIA_PLAYER_TAG, "%s message loop break isAbortRequest", __func__);
+            quit = false;
+            break;
+        }
+    }
+    return POSITIVE;
+}
+
+int MediaPlayer::eventLoop() {
+    if (event) {
+        return event->eventLoop();
+    } else {
+        quit = true;
+        while (quit) {
+            // 模拟主线程实现循环
+        }
+    }
+    return POSITIVE;
 }
 
 

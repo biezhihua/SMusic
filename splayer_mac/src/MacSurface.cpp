@@ -9,7 +9,6 @@ int MacSurface::create() {
 
     auto *macOptions = dynamic_cast<MacOptions *>(options);
 
-
     if (macOptions->displayDisable) {
         macOptions->videoDisable = 1;
     }

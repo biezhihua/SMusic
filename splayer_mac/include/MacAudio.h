@@ -4,6 +4,8 @@
 #include "Audio.h"
 #include "Error.h"
 #include <SDL_audio.h>
+#include <SDL.h>
+#include "MacOptions.h"
 
 extern "C" {
 #include <libavutil/samplefmt.h>
@@ -14,7 +16,11 @@ extern "C" {
 class MacAudio : public Audio {
 
 private:
+
+    SDL_Window *window;
+
     int64_t audioCallbackTime;
+
     SDL_AudioDeviceID audioDev;
 
 public:

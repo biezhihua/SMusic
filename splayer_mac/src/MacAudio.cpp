@@ -1,10 +1,44 @@
 #include "MacAudio.h"
 
 int MacAudio::create() {
+    if (stream && options && !options->audioDisable && options->displayDisable && options->videoDisable) {
+
+        unsigned int initFlags = SDL_INIT_AUDIO | SDL_INIT_TIMER;
+
+        /* Try to work around an occasional ALSA buffer underflow issue when the
+         * period size is NPOT due to ALSA resampling by forcing the buffer size. */
+        if (!SDL_getenv("SDL_AUDIO_ALSA_SET_BUFFER_SIZE")) {
+            SDL_setenv("SDL_AUDIO_ALSA_SET_BUFFER_SIZE", "1", 1);
+        }
+
+        if (SDL_Init(initFlags) != 0) {
+            ALOGD(MAC_AUDIO_TAG, "%s init sdl fail code = %s", __func__, SDL_GetError());
+            return NEGATIVE(S_NO_SDL_INIT);
+        }
+
+        Uint32 windowFlags = SDL_WINDOW_HIDDEN;
+
+        options->videoWidth = 0;
+        options->videoHeight = 0;
+
+        window = SDL_CreateWindow(options->videoTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, options->videoWidth, options->videoHeight, windowFlags);
+
+        if (window == nullptr) {
+            ALOGE(MAC_AUDIO_TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
+            destroy();
+            return NEGATIVE(S_NO_SDL_CREATE_WINDOW);
+        }
+    }
     return POSITIVE;
 }
 
 int MacAudio::destroy() {
+    if (window) {
+        SDL_DestroyWindow(window);
+        window = nullptr;
+    }
+    SDL_Quit();
+    options = nullptr;
     return POSITIVE;
 }
 

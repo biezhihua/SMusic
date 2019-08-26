@@ -3,14 +3,16 @@
 int MacEvent::eventLoop() {
     bool quit = false;
     SDL_Event event;
-    auto *macSurface = (MacSurface *) surface;
-    auto *macStream = (MacStream *) stream;
-    while (!quit && macStream && macSurface) {
-        macSurface->resetRemainingTime();
+    while (!quit) {
+        if (surface) {
+            surface->resetRemainingTime();
+        }
         SDL_PumpEvents();
         while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
             hideCursor();
-            macSurface->refreshVideo();
+            if (surface) {
+                surface->refreshVideo();
+            }
             SDL_PumpEvents();
         }
         switch (event.type) {
@@ -27,7 +29,10 @@ int MacEvent::eventLoop() {
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 if (stream && event.button.button == SDL_BUTTON_LEFT && !IS_NEGATIVE(isFullScreenClick())) {
-                    macSurface->toggleFullScreen();
+                    if (surface) {
+                        auto macSurface = (MacSurface *) surface;
+                        macSurface->toggleFullScreen();
+                    }
                     stream->forceRefresh();
                 }
             case SDL_MOUSEMOTION:

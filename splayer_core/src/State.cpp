@@ -11,7 +11,7 @@ int State::changeState(const int state) {
     ALOGD(STATE_TAG, "%s change to state = %s", __func__, getState(state));
     State::state = state;
     if (msgQueue) {
-        msgQueue->notifyMsg(Message::MSG_STATE_CHANGED);
+        msgQueue->notifyMsg(Msg::MSG_STATE_CHANGED);
         return POSITIVE;
     }
     return NEGATIVE(S_NULL);

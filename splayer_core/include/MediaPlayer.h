@@ -2,7 +2,10 @@
 #define SPLAYER_CORE_MEDIASPLAYER_H
 
 class MessageQueue;
+
 class Event;
+
+class Message;
 
 #include "Log.h"
 #include "Error.h"
@@ -16,24 +19,69 @@ class Event;
 #include "Audio.h"
 #include "Surface.h"
 #include "Event.h"
+#include "Message.h"
 
 #define MEDIA_PLAYER_TAG "MediaPlayer"
 
 class MediaPlayer {
 
-protected:
+private:
     State *state = nullptr;
     Mutex *mutex = nullptr;
+
     MessageQueue *msgQueue = nullptr;
+    Thread *msgThread = nullptr;
+    char *dataSource = nullptr;
+
+    Options *options = nullptr;
+    Event *event = nullptr;
+    Message *message = nullptr;
     Stream *stream = nullptr;
     Audio *audio = nullptr;
     Surface *surface = nullptr;
-    Event *event = nullptr;
-    char *dataSource = nullptr;
-    Thread *msgThread = nullptr;
-    Options *options = nullptr;
 
-protected:
+    bool quit = false;
+
+public:
+    class Builder;
+
+    MediaPlayer();
+
+    ~MediaPlayer();
+
+    int create();
+
+    int start();
+
+    int stop();
+
+    int pause();
+
+    int destroy();
+
+    int reset();
+
+    int setDataSource(const char *url);
+
+    int prepareAsync();
+
+    void setMessage(Message *message);
+
+    void setEvent(Event *event);
+
+    void setStream(Stream *stream);
+
+    void setAudio(Audio *audio);
+
+    void setSurface(Surface *surface);
+
+    void setOptions(Options *options);
+
+    int messageLoop();
+
+    int eventLoop();
+
+private:
 
     int notifyMsg(int what);
 
@@ -43,45 +91,7 @@ protected:
 
     int removeMsg(int what);
 
-    int getMsg(Message *pMessage, bool block);
-
-public:
-
-    MediaPlayer();
-
-    virtual ~MediaPlayer();
-
-    virtual int create();
-
-    virtual int start();
-
-    virtual int stop();
-
-    virtual int pause();
-
-    virtual int destroy();
-
-    virtual int reset();
-
-    virtual int setDataSource(const char *url);
-
-    virtual int prepareAsync();
-
-public:
-
-    virtual Event *createEvent() = 0;
-
-    virtual Audio *createAudio() = 0;
-
-    virtual Surface *createSurface() = 0;
-
-    virtual Stream *createStream() = 0;
-
-    virtual int messageLoop() = 0;
-
-    virtual Options *createOptions() const;
-
-private:
+    int getMsg(Msg *pMessage, bool block);
 
     int prepareOptions();
 
@@ -94,6 +104,59 @@ private:
     int prepareAudio();
 
     int prepareEvent();
+
+};
+
+class MediaPlayer::Builder {
+private:
+    Message *iMessage;
+    Event *iEvent;
+    Audio *iAudio;
+    Surface *iSurface;
+    Stream *iStream;
+    Options *iOptions;
+
+public:
+    Builder &withMessage(Message *message) {
+        iMessage = message;
+        return *this;
+    }
+
+    Builder &withEvent(Event *event) {
+        iEvent = event;
+        return *this;
+    }
+
+    Builder &withAudio(Audio *audio) {
+        iAudio = audio;
+        return *this;
+    }
+
+    Builder &withSurface(Surface *surface) {
+        iSurface = surface;
+        return *this;
+    }
+
+    Builder &withStream(Stream *stream) {
+        iStream = stream;
+        return *this;
+    }
+
+    Builder &withOptions(Options *options) {
+        iOptions = options;
+        return *this;
+    }
+
+    MediaPlayer *build() {
+        MediaPlayer *mediaPlayer = new MediaPlayer();
+        mediaPlayer->setOptions(iOptions);
+        mediaPlayer->setMessage(iMessage);
+        mediaPlayer->setEvent(iEvent);
+        mediaPlayer->setAudio(iAudio);
+        mediaPlayer->setSurface(iSurface);
+        mediaPlayer->setStream(iStream);
+        return mediaPlayer;
+    }
 };
 
 

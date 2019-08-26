@@ -85,9 +85,9 @@ public:
 
     ~Stream();
 
-    virtual int create();
+    int create();
 
-    virtual int destroy();
+    int destroy();
 
     void setMsgQueue(MessageQueue *msgQueue);
 

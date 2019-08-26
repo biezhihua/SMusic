@@ -2,7 +2,7 @@
 
 MessageQueue::MessageQueue() {
     mutex = new Mutex();
-    queue = new list<Message *>();
+    queue = new list<Msg *>();
 }
 
 MessageQueue::~MessageQueue() {
@@ -11,9 +11,9 @@ MessageQueue::~MessageQueue() {
     delete mutex;
 }
 
-int MessageQueue::putMsg(Message *msg) {
+int MessageQueue::putMsg(Msg *msg) {
 
-    ALOGD(MESSAGE_QUEUE_TAG, "%s abort = %d what = %s arg1 = %d arg2 = %d", __func__, abortRequest, Message::getMsgSimpleName(msg->what), msg->arg1, msg->arg2);
+    ALOGD(MESSAGE_QUEUE_TAG, "%s abort = %d what = %s arg1 = %d arg2 = %d", __func__, abortRequest, Msg::getMsgSimpleName(msg->what), msg->arg1, msg->arg2);
 
     int ret = NEGATIVE_UNKNOWN;
     if (mutex && queue) {
@@ -24,7 +24,7 @@ int MessageQueue::putMsg(Message *msg) {
     return ret;
 }
 
-int MessageQueue::_putMsg(Message *msg) {
+int MessageQueue::_putMsg(Msg *msg) {
     if (abortRequest || !msg) {
         return NEGATIVE(S_ABORT_REQUEST);
     }
@@ -52,7 +52,7 @@ int MessageQueue::clearMsgQueue() {
         mutex->mutexLock();
         if (queue != nullptr) {
             while (!queue->empty()) {
-                Message *message = queue->front();
+                Msg *message = queue->front();
                 if (message != nullptr) {
                     queue->pop_front();
                     delete message;
@@ -64,7 +64,7 @@ int MessageQueue::clearMsgQueue() {
     return POSITIVE;
 }
 
-int MessageQueue::getMsg(Message *msg, bool block) {
+int MessageQueue::getMsg(Msg *msg, bool block) {
     int ret = NEGATIVE_UNKNOWN;
     if (mutex && queue) {
         mutex->mutexLock();
@@ -74,7 +74,7 @@ int MessageQueue::getMsg(Message *msg, bool block) {
                 break;
             }
             if (queue) {
-                Message *message = queue->front();
+                Msg *message = queue->front();
                 if (message) {
                     queue->pop_front();
                     *msg = *message;
@@ -98,11 +98,11 @@ int MessageQueue::getMsg(Message *msg, bool block) {
 
 
 int MessageQueue::removeMsg(int what) {
-    ALOGD(MESSAGE_QUEUE_TAG, "%s what=%s", __func__, Message::getMsgSimpleName(what));
+    ALOGD(MESSAGE_QUEUE_TAG, "%s what=%s", __func__, Msg::getMsgSimpleName(what));
     if (queue && mutex) {
         mutex->mutexLock();
-        std::list<Message *>::iterator it;
-        Message *message = nullptr;
+        std::list<Msg *>::iterator it;
+        Msg *message = nullptr;
         for (it = queue->begin(); it != queue->end(); ++it) {
             if (*it && (*it)->what == what) {
                 message = *it;
@@ -122,8 +122,8 @@ int MessageQueue::startMsgQueue() {
     if (queue && mutex) {
         mutex->mutexLock();
         abortRequest = false;
-        auto *message = new Message();
-        message->what = Message::MSG_FLUSH;
+        auto *message = new Msg();
+        message->what = Msg::MSG_FLUSH;
         _putMsg(message);
         mutex->mutexUnLock();
         return POSITIVE;
@@ -132,14 +132,14 @@ int MessageQueue::startMsgQueue() {
 }
 
 int MessageQueue::notifyMsg(int what) {
-    auto *message = new Message();
+    auto *message = new Msg();
     message->what = what;
     putMsg(message);
     return POSITIVE;
 }
 
 int MessageQueue::notifyMsg(int what, int arg1) {
-    auto *message = new Message();
+    auto *message = new Msg();
     message->what = what;
     message->arg1 = arg1;
     putMsg(message);
@@ -147,7 +147,7 @@ int MessageQueue::notifyMsg(int what, int arg1) {
 }
 
 int MessageQueue::notifyMsg(int what, int arg1, int arg2) {
-    auto *message = new Message();
+    auto *message = new Msg();
     message->what = what;
     message->arg1 = arg1;
     message->arg2 = arg2;

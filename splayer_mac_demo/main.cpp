@@ -1,11 +1,22 @@
 #include <iostream>
 #include <string>
-#include <MacMediaPlayer.h>
+#include <MacMessage.h>
+#include <MacAudio.h>
 
 int main() {
-    auto *player = new MacMediaPlayer();
-    player->create();
-    player->setDataSource("/Users/biezhihua/Downloads/寄生虫.mp4");
-    player->prepareAsync();
-    return player->eventLoop();
+
+    MediaPlayer *mediaPlayer = MediaPlayer::Builder{}
+            .withMessage(new MacMessage())
+            .withOptions(new MacOptions())
+            .withEvent(new MacEvent())
+            .withAudio(new MacAudio())
+            .withSurface(new MacSurface())
+            .build();
+
+//    auto *player = new MacMediaPlayer();
+    mediaPlayer->create();
+    mediaPlayer->setDataSource("/Users/biezhihua/Downloads/寄生虫.mp4");
+    mediaPlayer->prepareAsync();
+    return mediaPlayer->eventLoop();
+
 }

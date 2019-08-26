@@ -1,6 +1,8 @@
 #include "Options.h"
 
 void Options::showOptions() {
+    ALOGD(OPTIONS_TAG, "");
+
     ALOGD(OPTIONS_TAG, "===== versions =====");
     ALOGD(OPTIONS_TAG, "%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "FFmpeg", av_version_info());
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libavutil", avutil_version());
@@ -9,6 +11,8 @@ void Options::showOptions() {
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libswscale", swscale_version());
     ALOGD(OPTIONS_TAG, "%-*s: %d", VERSION_MODULE_FILE_NAME_LENGTH, "libswresample", swresample_version());
     ALOGD(OPTIONS_TAG, "===== end =====");
+
+    ALOGD(OPTIONS_TAG, "");
 
     ALOGD(OPTIONS_TAG, "===== options =====");
     ALOGD(OPTIONS_TAG, "%-*s: %s", VERSION_MODULE_FILE_NAME_LENGTH, "inputFileName", inputFileName);
@@ -45,6 +49,8 @@ void Options::showOptions() {
     showDict("codec-opts ", codec);
     showDict("sws-opts   ", swsDict);
     showDict("swr-opts   ", swrDict);
+    ALOGD(OPTIONS_TAG, "===== end =====");
+    ALOGD(OPTIONS_TAG, "");
 }
 
 void Options::showDict(const char *tag, AVDictionary *dict) {

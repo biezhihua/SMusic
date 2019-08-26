@@ -274,7 +274,7 @@ int Stream::readThread() {
     }
 
     if (msgQueue) {
-        msgQueue->notifyMsg(Message::MSG_OPEN_INPUT);
+        msgQueue->notifyMsg(Msg::MSG_OPEN_INPUT);
     }
 
     if ((dictionaryEntry = av_dict_get(options->format, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
@@ -304,7 +304,7 @@ int Stream::readThread() {
             return NEGATIVE(S_NO_FIND_STREAM_INFO);
         }
         if (msgQueue) {
-            msgQueue->notifyMsg(Message::MSG_FIND_STREAM_INFO);
+            msgQueue->notifyMsg(Msg::MSG_FIND_STREAM_INFO);
         }
     }
 
@@ -380,7 +380,7 @@ int Stream::readThread() {
         AVStream *stream = formatContext->streams[streamIndex[AVMEDIA_TYPE_VIDEO]];
         AVCodecParameters *codecParameters = stream->codecpar;
         AVRational sampleAspectRatio = av_guess_sample_aspect_ratio(formatContext, stream, nullptr);
-        if (codecParameters->width && surface) {
+        if (surface && codecParameters->width) {
             surface->setVideoSize(codecParameters->width, codecParameters->height, sampleAspectRatio);
         }
     }
@@ -393,10 +393,17 @@ int Stream::readThread() {
         options->showOptions();
     }
 
+    if (options->videoDisable && options->audioDisable) {
+        ALOGD(STREAM_TAG, "%s disable all stream", __func__);
+        msgQueue->notifyMsg(Msg::MSG_DISABLE_ALL_STREAM);
+        msgQueue->notifyMsg(Msg::REQ_QUIT);
+        return NEGATIVE(S_DISABLE_ALL_STREAM);
+    }
+
     if (streamIndex[AVMEDIA_TYPE_AUDIO] >= 0) {
         if (streamComponentOpen(streamIndex[AVMEDIA_TYPE_AUDIO])) {
             if (msgQueue) {
-                msgQueue->notifyMsg(Message::MSG_AUDIO_COMPONENT_OPEN);
+                msgQueue->notifyMsg(Msg::MSG_AUDIO_COMPONENT_OPEN);
             }
         }
     } else {
@@ -408,7 +415,7 @@ int Stream::readThread() {
         ret = streamComponentOpen(streamIndex[AVMEDIA_TYPE_VIDEO]);
         if (ret) {
             if (msgQueue) {
-                msgQueue->notifyMsg(Message::MSG_VIDEO_COMPONENT_OPEN);
+                msgQueue->notifyMsg(Msg::MSG_VIDEO_COMPONENT_OPEN);
             }
         }
     }
@@ -420,13 +427,13 @@ int Stream::readThread() {
     if (streamIndex[AVMEDIA_TYPE_SUBTITLE] >= 0) {
         if (streamComponentOpen(streamIndex[AVMEDIA_TYPE_SUBTITLE])) {
             if (msgQueue) {
-                msgQueue->notifyMsg(Message::MSG_SUBTITLE_COMPONENT_OPEN);
+                msgQueue->notifyMsg(Msg::MSG_SUBTITLE_COMPONENT_OPEN);
             }
         }
     }
 
     if (msgQueue) {
-        msgQueue->notifyMsg(Message::MSG_COMPONENTS_OPEN);
+        msgQueue->notifyMsg(Msg::MSG_COMPONENTS_OPEN);
     }
 
     if (videoState->videoStreamIndex < 0 && videoState->audioStreamIndex < 0) {
@@ -438,17 +445,17 @@ int Stream::readThread() {
     if (videoState->videoStream && videoState->videoStream->codecpar) {
         AVCodecParameters *codecParameters = videoState->videoStream->codecpar;
         if (msgQueue) {
-            msgQueue->notifyMsg(Message::MSG_VIDEO_SIZE_CHANGED, codecParameters->width, codecParameters->height);
-            msgQueue->notifyMsg(Message::MSG_SAR_CHANGED, codecParameters->width, codecParameters->height);
+            msgQueue->notifyMsg(Msg::MSG_VIDEO_SIZE_CHANGED, codecParameters->width, codecParameters->height);
+            msgQueue->notifyMsg(Msg::MSG_SAR_CHANGED, codecParameters->width, codecParameters->height);
         }
     }
 
     if (msgQueue) {
-        msgQueue->notifyMsg(Message::MSG_PREPARED);
+        msgQueue->notifyMsg(Msg::MSG_PREPARED);
     }
 
     if (msgQueue) {
-        msgQueue->notifyMsg(Message::REQ_START);
+        msgQueue->notifyMsg(Msg::REQ_START);
     }
 
     for (;;) {
@@ -516,6 +523,7 @@ int Stream::readThread() {
             if (videoState->videoStream && videoState->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC) {
                 AVPacket copy = {nullptr};
                 if ((av_packet_ref(&copy, &videoState->videoStream->attached_pic)) < 0) {
+                    ALOGD(STREAM_TAG, "%s av_packet_ref failed", __func__);
                     closeReadThread(videoState, formatContext);
                     return NEGATIVE(S_NO_ATTACHED_PIC);
                 }
@@ -541,7 +549,8 @@ int Stream::readThread() {
                 streamSeek(options->startTime != AV_NOPTS_VALUE ? options->startTime : 0, 0, 0);
             } else if (options->autoExit) {
                 closeReadThread(videoState, formatContext);
-                msgQueue->notifyMsg(Message::REQ_QUIT);
+                msgQueue->notifyMsg(Msg::REQ_QUIT);
+                ALOGD(STREAM_TAG, "%s auto exit", __func__);
                 return NEGATIVE(NEGATIVE_EOF);
             }
         }
@@ -564,6 +573,7 @@ int Stream::readThread() {
                 videoState->eof = 1;
             }
             if (formatContext->pb && formatContext->pb->error) {
+                ALOGD(STREAM_TAG, "%s I/O context error ", __func__);
                 closeReadThread(videoState, formatContext);
                 break;
             }
@@ -661,7 +671,7 @@ int Stream::videoThread() {
             filterGraph->nb_threads = options->filterNumberThreads;
 
             if ((ret = configureVideoFilters(filterGraph, is, options->filtersList ? options->filtersList[is->filterIndex] : nullptr, frame)) < 0) {
-                msgQueue->notifyMsg(Message::REQ_QUIT);
+                msgQueue->notifyMsg(Msg::REQ_QUIT);
                 avfilter_graph_free(&filterGraph);
                 av_frame_free(&frame);
                 return NEGATIVE(S_NOT_CONFIGURE_VIDEO_FILTERS);
@@ -1035,7 +1045,7 @@ int Stream::streamComponentOpen(int streamIndex) {
         channelLayout = codecContext->channel_layout;
 #endif
 
-            if ((ret = audio->openAudio(channelLayout, nbChannels, sampleRate, &videoState->audioTarget)) < 0) {
+            if (audio && (ret = audio->openAudio(channelLayout, nbChannels, sampleRate, &videoState->audioTarget)) < 0) {
                 av_dict_free(&opts);
                 return NEGATIVE(S_NOT_OPEN_AUDIO);
             }
@@ -1062,7 +1072,9 @@ int Stream::streamComponentOpen(int streamIndex) {
                 av_dict_free(&opts);
                 return NEGATIVE(S_NO_AUDIO_DECODE_START);
             }
-            audio->pauseAudio();
+            if (audio) {
+                audio->pauseAudio();
+            }
             break;
         case AVMEDIA_TYPE_VIDEO:
             videoState->videoStreamIndex = streamIndex;
@@ -1337,8 +1349,6 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                         break;
                 }
 
-                ALOGD(STREAM_TAG, "%s avcodec_receive_frame", __func__);
-
                 if (ret == AVERROR_EOF) {
                     decoder->finished = decoder->packetSerial;
                     avcodec_flush_buffers(decoder->codecContext);
@@ -1390,8 +1400,6 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                     decoder->packetPending = 1;
                     av_packet_move_ref(&decoder->packet, &packet);
                 }
-
-                ALOGD(STREAM_TAG, "%s avcodec_send_packet", __func__);
             }
             av_packet_unref(&packet);
         }
@@ -1549,22 +1557,18 @@ int Stream::forceRefresh() {
 }
 
 void Stream::setOptions(Options *options) {
-    ALOGD(STREAM_TAG, "%s params = %p", __func__, options);
     Stream::options = options;
 }
 
 void Stream::setMsgQueue(MessageQueue *msgQueue) {
-    ALOGD(STREAM_TAG, "%s params = %p", __func__, msgQueue);
     Stream::msgQueue = msgQueue;
 }
 
 void Stream::setAudio(Audio *audio) {
-    ALOGD(STREAM_TAG, "%s params = %p", __func__, audio);
     Stream::audio = audio;
 }
 
 void Stream::setSurface(Surface *surface) {
-    ALOGD(STREAM_TAG, "%s params = %p", __func__, surface);
     Stream::surface = surface;
 }
 
@@ -1729,7 +1733,6 @@ int Stream::configureVideoFilters(AVFilterGraph *filterGraph, VideoState *is, co
     AVCodecParameters *codecParameters = is->videoStream->codecpar;
     AVRational fr = av_guess_frame_rate(is->formatContext, is->videoStream, nullptr);
     AVDictionaryEntry *e = nullptr;
-    AVPixelFormat *pixelFormat = surface->getPixelFormatsArray();
     char swsFlagsStr[512] = "";
     char bufferSrcArgs[256];
     int ret;
@@ -1761,8 +1764,11 @@ int Stream::configureVideoFilters(AVFilterGraph *filterGraph, VideoState *is, co
         return ret;
     }
 
-    if ((ret = av_opt_set_int_list(filterOut, "pix_fmts", pixelFormat, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN)) < 0) {
-        return ret;
+    if (surface) {
+        AVPixelFormat *pixelFormat = surface->getPixelFormatsArray();
+        if ((ret = av_opt_set_int_list(filterOut, "pix_fmts", pixelFormat, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN)) < 0) {
+            return ret;
+        }
     }
 
     lastFilter = filterOut;

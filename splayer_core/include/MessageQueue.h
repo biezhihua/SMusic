@@ -4,7 +4,7 @@
 #include "Log.h"
 #include "Error.h"
 #include "Mutex.h"
-#include "Message.h"
+#include "Msg.h"
 #include <list>
 #include <queue>
 
@@ -17,13 +17,13 @@ private:
 
     Mutex *mutex = nullptr;
 
-    list<Message *> *queue = nullptr;
+    list<Msg *> *queue = nullptr;
 
     bool abortRequest = true;
 
 private:
 
-    int _putMsg(Message *msg);
+    int _putMsg(Msg *msg);
 public:
     bool isAbortRequest() const;
 
@@ -34,12 +34,12 @@ public:
     /**
      * push message to queue
      */
-    int putMsg(Message *msg);
+    int putMsg(Msg *msg);
 
     /**
      * get first message from queue, will block thread
      */
-    int getMsg(Message *msg, bool block);
+    int getMsg(Msg *msg, bool block);
 
     /**
      * abort message queue

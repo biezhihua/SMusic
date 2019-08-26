@@ -9,6 +9,9 @@ class Stream;
 #include "MediaPlayer.h"
 #include "Surface.h"
 
+/**
+ * 用于处理输入事件
+ */
 class Event {
 
 protected:
@@ -16,15 +19,18 @@ protected:
     Options *options = nullptr;
     MediaPlayer *mediaPlayer = nullptr;
     Surface *surface = nullptr;
+    MessageQueue *msgQueue = nullptr;
 
 public:
     Event();
 
-    ~Event();
+    virtual ~Event();
 
     virtual int create();
 
     virtual int destroy();
+
+    virtual int eventLoop();
 
     void setStream(Stream *stream);
 
@@ -33,6 +39,10 @@ public:
     void setMediaPlayer(MediaPlayer *mediaPlayer);
 
     void setSurface(Surface *surface);
+
+    void setMsgQueue(MessageQueue *msgQueue);
+
+
 
 };
 

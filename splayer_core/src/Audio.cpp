@@ -174,3 +174,7 @@ void Audio::setOptions(Options *options) {
 void Audio::setMsgQueue(MessageQueue *msgQueue) {
     Audio::msgQueue = msgQueue;
 }
+
+void Audio::setMediaPlayer(MediaPlayer *mediaPlayer) {
+    Audio::mediaPlayer = mediaPlayer;
+}

@@ -23,7 +23,7 @@ private:
 
 public:
 
-    int eventLoop();
+    int eventLoop() override;
 
     void doWindowEvent(const SDL_Event &event);
 
