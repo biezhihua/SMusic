@@ -16,7 +16,6 @@ void Audio::pauseAudio() {
 
 }
 
-
 /**
  * Decode one audio frame and return its uncompressed size.
  *
@@ -28,12 +27,13 @@ int Audio::audioDecodeFrame() {
     VideoState *is = Audio::stream->getVideoState();
     int dataSize, resampled_data_size;
     int64_t decChannelLayout;
-    av_unused double audio_clock0;
+    double audio_clock0;
     int wantedNbSamples;
     Frame *frame;
 
-    if (is->paused)
+    if (is->paused) {
         return NEGATIVE(S_AUDIO_PAUSED);
+    }
 
     do {
         if (!(frame = is->audioFrameQueue.peekReadable())) {
@@ -91,7 +91,7 @@ int Audio::audioDecodeFrame() {
         }
         av_fast_malloc(&is->audioBuf1, &is->audioBuf1Size, out_size);
         if (!is->audioBuf1) {
-            return NEGATIVE(S_NO_MEMORY);
+            return NEGATIVE(S_NOT_MEMORY);
         }
         len2 = swr_convert(is->audioSwrContext, out, out_count, in, frame->frame->nb_samples);
         if (len2 < 0) {

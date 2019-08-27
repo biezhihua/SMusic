@@ -13,7 +13,7 @@ int MacAudio::create() {
 
         if (SDL_Init(initFlags) != 0) {
             ALOGD(MAC_AUDIO_TAG, "%s init sdl fail code = %s", __func__, SDL_GetError());
-            return NEGATIVE(S_NO_SDL_INIT);
+            return NEGATIVE(S_NOT_SDL_INIT);
         }
 
         Uint32 windowFlags = SDL_WINDOW_HIDDEN;
@@ -26,7 +26,7 @@ int MacAudio::create() {
         if (window == nullptr) {
             ALOGE(MAC_AUDIO_TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
             destroy();
-            return NEGATIVE(S_NO_SDL_CREATE_WINDOW);
+            return NEGATIVE(S_NOT_SDL_CREATE_WINDOW);
         }
     }
     return POSITIVE;
@@ -77,7 +77,7 @@ int MacAudio::openAudio(int64_t wantedChannelLayout, int wantedNbChannels, int w
 
     if (wantedSpec.freq <= 0 || wantedSpec.channels <= 0) {
         ALOGE(MAC_AUDIO_TAG, "%s Invalid sample rate or channel count!", __func__);
-        return NEGATIVE(S_INVALID_SAMPLE_RATE_OR_CHANNEL_COUNT);
+        return NEGATIVE(S_SAMPLE_RATE_OR_CHANNEL_COUNT);
     }
 
     while (nextSampleRateIdx && next_sample_rates[nextSampleRateIdx] >= wantedSpec.freq) {

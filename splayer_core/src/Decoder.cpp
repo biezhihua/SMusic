@@ -40,7 +40,7 @@ int Decoder::decoderStart(const char *name, int (*fn)(void *), void *arg) {
     decoderTid = new Thread(fn, arg, name);
     if (!decoderTid) {
         ALOGD("%s create decoder thread fail ", __func__);
-        return NEGATIVE(S_NO_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
     return POSITIVE;
 }

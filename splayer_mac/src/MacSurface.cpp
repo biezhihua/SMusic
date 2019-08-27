@@ -31,7 +31,7 @@ int MacSurface::create() {
 
     if (SDL_Init(initFlags) != 0) {
         ALOGD(MAC_SURFACE_TAG, "%s init sdl fail code = %s", __func__, SDL_GetError());
-        return NEGATIVE(S_NO_SDL_INIT);
+        return NEGATIVE(S_NOT_SDL_INIT);
     }
 
     if (!macOptions->displayDisable) {
@@ -59,7 +59,7 @@ int MacSurface::create() {
         if (window == nullptr) {
             ALOGE(MAC_SURFACE_TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
             destroy();
-            return NEGATIVE(S_NO_SDL_CREATE_WINDOW);
+            return NEGATIVE(S_NOT_SDL_CREATE_WINDOW);
         }
 
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -70,7 +70,7 @@ int MacSurface::create() {
         if (renderer == nullptr) {
             ALOGE(MAC_SURFACE_TAG, "%s create renderer fail: %s", __func__, SDL_GetError());
             destroy();
-            return NEGATIVE(S_NO_SDL_CREATE_RENDERER);
+            return NEGATIVE(S_NOT_SDL_CREATE_RENDERER);
         }
 
         if (!SDL_GetRendererInfo(renderer, &rendererInfo)) {
@@ -80,7 +80,7 @@ int MacSurface::create() {
         if (!window || !renderer || !rendererInfo.num_texture_formats) {
             ALOGD(MAC_SURFACE_TAG, "%s failed to create window or renderer: %s", __func__, SDL_GetError());
             destroy();
-            return NEGATIVE(S_NO_SDL_INIT);
+            return NEGATIVE(S_NOT_SDL_INIT);
         }
     }
     return POSITIVE;

@@ -43,7 +43,6 @@ public:
     void setMsgQueue(MessageQueue *msgQueue);
 
 
-
 };
 
 

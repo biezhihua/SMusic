@@ -24,6 +24,7 @@ private:
 private:
 
     int _putMsg(Msg *msg);
+
 public:
     bool isAbortRequest() const;
 

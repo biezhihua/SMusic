@@ -12,10 +12,8 @@ MessageQueue::~MessageQueue() {
 }
 
 int MessageQueue::putMsg(Msg *msg) {
-
     ALOGD(MESSAGE_QUEUE_TAG, "%s abort = %d what = %s arg1 = %d arg2 = %d", __func__, abortRequest, Msg::getMsgSimpleName(msg->what), msg->arg1, msg->arg2);
-
-    int ret = NEGATIVE_UNKNOWN;
+    int ret;
     if (mutex && queue) {
         mutex->mutexLock();
         ret = _putMsg(msg);
@@ -65,7 +63,7 @@ int MessageQueue::clearMsgQueue() {
 }
 
 int MessageQueue::getMsg(Msg *msg, bool block) {
-    int ret = NEGATIVE_UNKNOWN;
+    int ret;
     if (mutex && queue) {
         mutex->mutexLock();
         while (true) {
@@ -81,7 +79,7 @@ int MessageQueue::getMsg(Msg *msg, bool block) {
                     ret = POSITIVE;
                     break;
                 } else if (!block) {
-                    ret = NEGATIVE(S_NOT_BLOACK_GET_MSG);
+                    ret = NEGATIVE(S_NOT_BLOCK_GET_MSG);
                     break;
                 } else {
                     mutex->condWait();

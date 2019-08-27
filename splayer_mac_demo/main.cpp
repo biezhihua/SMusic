@@ -1,8 +1,6 @@
-#include <iostream>
-#include <string>
+
 
 #include "MacMediaPlayer.h"
-#include "MediaPlayer.h"
 
 int main() {
     MediaPlayer *mediaPlayer = MacMediaPlayer::create();

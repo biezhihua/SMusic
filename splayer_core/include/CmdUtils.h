@@ -54,6 +54,7 @@ static int warned_cfg = 0;
         }                                                               \
     }                                                                   \
 
+
 void print_error(const char *filename, int err);
 
 AVDictionary **setupFindStreamInfoOpts(AVFormatContext *s, AVDictionary *codec_opts);

@@ -19,21 +19,21 @@ int MediaPlayer::create() {
     if (!mutex) {
         ALOGE(MEDIA_PLAYER_TAG, "create mutex error");
         destroy();
-        return NEGATIVE(S_NO_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
 
     state = new State();
     if (!state) {
         ALOGE(MEDIA_PLAYER_TAG, "create state error");
         destroy();
-        return NEGATIVE(S_NO_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
 
     msgQueue = new MessageQueue();
     if (!msgQueue) {
         ALOGE(MEDIA_PLAYER_TAG, "create msg queue error");
         destroy();
-        return NEGATIVE(S_NO_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
     state->setMsgQueue(msgQueue);
 
@@ -44,7 +44,7 @@ int MediaPlayer::create() {
         if (!options) {
             ALOGE(MEDIA_PLAYER_TAG, "create options error");
             destroy();
-            return NEGATIVE(S_NO_MEMORY);
+            return NEGATIVE(S_NOT_MEMORY);
         }
     }
 
@@ -55,7 +55,7 @@ int MediaPlayer::create() {
         if (!stream) {
             ALOGE(MEDIA_PLAYER_TAG, "create stream error");
             destroy();
-            return NEGATIVE(S_NO_MEMORY);
+            return NEGATIVE(S_NOT_MEMORY);
         }
     }
 
@@ -239,7 +239,7 @@ int MediaPlayer::setDataSource(const char *url) {
             return POSITIVE;
         }
         mutex->mutexUnLock();
-        return NEGATIVE(S_NO_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
     return NEGATIVE(S_NULL);
 }
@@ -274,10 +274,10 @@ int MediaPlayer::prepareOptions() {
 
 int MediaPlayer::prepareMsgQueue() {
     if (!msgQueue->startMsgQueue()) {
-        return NEGATIVE(S_NO_START_MSG_QUEUE);
+        return NEGATIVE(S_NOT_START_MSG_QUEUE);
     }
     if (!(msgThread = new Thread(staticMsgLoop, this, "Msg"))) {
-        return NEGATIVE(S_NO_MEMORY);
+        return NEGATIVE(S_NOT_MEMORY);
     }
     return POSITIVE;
 }
@@ -321,13 +321,13 @@ int MediaPlayer::prepareStream() {
             notifyMsg(Msg::MSG_STREAM_CREATED);
         } else {
             notifyMsg(Msg::MSG_STREAM_CREATE_FAILURE);
-            return NEGATIVE(S_NO_CREATE_STREAM);
+            return NEGATIVE(S_NOT_CREATE_STREAM);
         }
         if (stream->prepareStream(dataSource)) {
             return POSITIVE;
         } else {
             notifyMsg(Msg::MSG_STREAM_FAILURE);
-            return NEGATIVE(S_NO_INIT_VIDEO_STATE);
+            return NEGATIVE(S_NOT_INIT_VIDEO_STATE);
         }
     }
     return NEGATIVE(S_NULL);

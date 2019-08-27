@@ -78,7 +78,6 @@ private:
 protected:
 
 
-
     virtual int displayWindow();
 
     virtual int displayVideoImageBefore();
