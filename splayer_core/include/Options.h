@@ -184,7 +184,7 @@ public:
     int nb_vfilters = 0;
 
     ///
-    char *afilters = nullptr;
+    char *audioFilters = nullptr;
 #endif
 
     virtual void showOptions();

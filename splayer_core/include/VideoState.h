@@ -117,7 +117,7 @@ public:
 
     SwrContext *audioSwrContext;
     uint8_t *audioBuf;
-    uint8_t *audioBuf1;
+    uint8_t *audioConvertBuf;
     int audioHwBufSize;
     int audioBufIndex; /* in bytes */
     unsigned int audioBufSize; /* in bytes */
@@ -126,7 +126,7 @@ public:
     double audioDiffAvgCoef;
     double audioDiffThreshold;
     int audioDiffAvgCount;
-    int audio_write_buf_size;
+    int audioWriteBufSize;
 
     AudioParams audioSrc;
 #if CONFIG_AVFILTER

@@ -316,7 +316,8 @@ int Stream::readThread() {
     if (options->seekByBytes < 0) {
         // AVFMT_NO_BYTE_SEEK
         // Format allows timestamp discontinuities
-        options->seekByBytes = formatContext->iformat->flags & AVFMT_TS_DISCONT && strcmp(FORMAT_OGG, formatContext->iformat->name) != 0;
+        options->seekByBytes = formatContext->iformat->flags & AVFMT_TS_DISCONT &&
+                               strcmp(FORMAT_OGG, formatContext->iformat->name) != 0;
     }
 
     videoState->maxFrameDuration = (formatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
@@ -334,7 +335,8 @@ int Stream::readThread() {
             timestamp += formatContext->start_time;
         }
         if (avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX, 0) < 0) {
-            ALOGE(STREAM_TAG, "%s %s: could not seek to position %0.3f", __func__, videoState->fileName, (double) timestamp / AV_TIME_BASE);
+            ALOGE(STREAM_TAG, "%s %s: could not seek to position %0.3f", __func__, videoState->fileName,
+                  (double) timestamp / AV_TIME_BASE);
         }
     }
 
@@ -357,21 +359,29 @@ int Stream::readThread() {
 
     for (int i = 0; i < AVMEDIA_TYPE_NB; i++) {
         if (options->wantedStreamSpec[i] && streamIndex[i] == -1) {
-            ALOGD(STREAM_TAG, "%s Stream specifier %s does not match any stream", __func__, options->wantedStreamSpec[i]);
+            ALOGD(STREAM_TAG, "%s Stream specifier %s does not match any stream", __func__,
+                  options->wantedStreamSpec[i]);
             streamIndex[i] = INT_MAX;
         }
     }
 
     if (options && !options->videoDisable) {
-        streamIndex[AVMEDIA_TYPE_VIDEO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_VIDEO, streamIndex[AVMEDIA_TYPE_VIDEO], -1, nullptr, 0);
+        streamIndex[AVMEDIA_TYPE_VIDEO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_VIDEO,
+                                                              streamIndex[AVMEDIA_TYPE_VIDEO], -1, nullptr, 0);
     }
 
     if (options && !options->audioDisable) {
-        streamIndex[AVMEDIA_TYPE_AUDIO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO, streamIndex[AVMEDIA_TYPE_AUDIO], streamIndex[AVMEDIA_TYPE_VIDEO], nullptr, 0);
+        streamIndex[AVMEDIA_TYPE_AUDIO] = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO,
+                                                              streamIndex[AVMEDIA_TYPE_AUDIO],
+                                                              streamIndex[AVMEDIA_TYPE_VIDEO], nullptr, 0);
     }
 
     if (options && !options->videoDisable && !options->subtitleDisable) {
-        streamIndex[AVMEDIA_TYPE_SUBTITLE] = av_find_best_stream(formatContext, AVMEDIA_TYPE_SUBTITLE, streamIndex[AVMEDIA_TYPE_SUBTITLE], (streamIndex[AVMEDIA_TYPE_AUDIO] >= 0 ? streamIndex[AVMEDIA_TYPE_AUDIO] : streamIndex[AVMEDIA_TYPE_VIDEO]), nullptr, 0);
+        streamIndex[AVMEDIA_TYPE_SUBTITLE] = av_find_best_stream(formatContext, AVMEDIA_TYPE_SUBTITLE,
+                                                                 streamIndex[AVMEDIA_TYPE_SUBTITLE],
+                                                                 (streamIndex[AVMEDIA_TYPE_AUDIO] >= 0
+                                                                  ? streamIndex[AVMEDIA_TYPE_AUDIO]
+                                                                  : streamIndex[AVMEDIA_TYPE_VIDEO]), nullptr, 0);
     }
 
     videoState->showMode = options->showMode;
@@ -474,7 +484,8 @@ int Stream::readThread() {
         }
 
 #if CONFIG_RTSP_DEMUXER || CONFIG_MMSH_PROTOCOL
-        if (videoState->paused && (!strcmp(formatContext->iformat->name, "rtsp") || (formatContext->pb && !strncmp(options->inputFileName, "mmsh:", 5)))) {
+        if (videoState->paused && (!strcmp(formatContext->iformat->name, "rtsp") ||
+                                   (formatContext->pb && !strncmp(options->inputFileName, "mmsh:", 5)))) {
             /* wait 10 ms to avoid trying to get another packet */
             /* XXX: horrible */
             waitMutex->mutexLock();
@@ -488,7 +499,8 @@ int Stream::readThread() {
             int64_t seekTarget = videoState->seekPos;
             int64_t seekMin = videoState->seekRel > 0 ? (seekTarget - videoState->seekRel + 2) : INT64_MIN;
             int64_t seekMax = videoState->seekRel < 0 ? (seekTarget - videoState->seekRel - 2) : INT64_MAX;
-            if (avformat_seek_file(videoState->formatContext, -1, seekMin, seekTarget, seekMax, videoState->seekFlags) < 0) {
+            if (avformat_seek_file(videoState->formatContext, -1, seekMin, seekTarget, seekMax, videoState->seekFlags) <
+                0) {
                 ALOGD(STREAM_TAG, "%s %s: error while seeking", __func__, videoState->formatContext->url);
             } else {
                 if (videoState->audioStreamIndex >= 0) {
@@ -588,7 +600,8 @@ int Stream::readThread() {
         int packetInPlayRange = isPacketInPlayRange(formatContext, packet);
         if (packet->stream_index == videoState->audioStreamIndex && packetInPlayRange) {
             videoState->audioPacketQueue.put(packet);
-        } else if (packet->stream_index == videoState->videoStreamIndex && packetInPlayRange && !(videoState->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
+        } else if (packet->stream_index == videoState->videoStreamIndex && packetInPlayRange &&
+                   !(videoState->videoStream->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
             videoState->videoPacketQueue.put(packet);
         } else if (packet->stream_index == videoState->subtitleStreamIndex && packetInPlayRange) {
             videoState->subtitlePacketQueue.put(packet);
@@ -647,16 +660,21 @@ int Stream::videoThread() {
         bool isNoSameFormat = lastFormat != frame->format;
         bool isNoSamePacketSerial = lastPacketSerial != is->videoDecoder.packetSerial;
         bool isNoSameVFilterIdx = lastFilterIndex != is->filterIndex;
-        bool isNeedConfigureFilter = isNoSameWidth || isNoSameHeight || isNoSameFormat || isNoSamePacketSerial || isNoSameVFilterIdx;
+        bool isNeedConfigureFilter =
+                isNoSameWidth || isNoSameHeight || isNoSameFormat || isNoSamePacketSerial || isNoSameVFilterIdx;
 
         // https://ffmpeg.org/ffmpeg-filters.html
         if (isNeedConfigureFilter) {
 
-            ALOGD(STREAM_TAG, "%s Video frame changed from size:%dx%d format:%s serial:%d to size:%dx%d format:%s serial:%d", __func__,
+            ALOGD(STREAM_TAG,
+                  "%s Video frame changed from size:%dx%d format:%s serial:%d to size:%dx%d format:%s serial:%d",
+                  __func__,
                   lastWidth, lastHeight,
-                  (const char *) av_x_if_null(av_get_pix_fmt_name((AVPixelFormat) lastFormat), "none"), lastPacketSerial,
+                  (const char *) av_x_if_null(av_get_pix_fmt_name((AVPixelFormat) lastFormat), "none"),
+                  lastPacketSerial,
                   frame->width, frame->height,
-                  (const char *) av_x_if_null(av_get_pix_fmt_name((AVPixelFormat) frame->format), "none"), is->videoDecoder.packetSerial);
+                  (const char *) av_x_if_null(av_get_pix_fmt_name((AVPixelFormat) frame->format), "none"),
+                  is->videoDecoder.packetSerial);
 
             avfilter_graph_free(&filterGraph);
 
@@ -670,7 +688,9 @@ int Stream::videoThread() {
 
             filterGraph->nb_threads = options->filterNumberThreads;
 
-            if ((ret = configureVideoFilters(filterGraph, is, options->filtersList ? options->filtersList[is->filterIndex] : nullptr, frame)) < 0) {
+            if ((ret = configureVideoFilters(filterGraph, is,
+                                             options->filtersList ? options->filtersList[is->filterIndex] : nullptr,
+                                             frame)) < 0) {
                 msgQueue->notifyMsg(Msg::REQ_QUIT);
                 avfilter_graph_free(&filterGraph);
                 av_frame_free(&frame);
@@ -794,6 +814,9 @@ int Stream::audioThread() {
 #endif
 
     if (!avFrame) {
+        if (msgQueue) {
+            msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_MEMORY);
+        }
         return NEGATIVE(S_NOT_MEMORY);
     }
 
@@ -820,9 +843,13 @@ int Stream::audioThread() {
                 av_get_channel_layout_string(buf1, sizeof(buf1), -1, is->audioFilterSrc.channelLayout);
                 av_get_channel_layout_string(buf2, sizeof(buf2), -1, decChannelLayout);
 
-                ALOGD(STREAM_TAG, "%s Audio avFrame changed from rate:%d ch:%d fmt:%s layout:%s serial:%d to rate:%d ch:%d fmt:%s layout:%s serial:%d", __func__,
-                      is->audioFilterSrc.sampleRate, is->audioFilterSrc.channels, av_get_sample_fmt_name(is->audioFilterSrc.sampleFormat), buf1, lastSerial,
-                      avFrame->sample_rate, avFrame->channels, av_get_sample_fmt_name((AVSampleFormat) avFrame->format), buf2, is->audioDecoder.packetSerial);
+                ALOGD(STREAM_TAG,
+                      "%s Audio avFrame changed from rate:%d ch:%d fmt:%s layout:%s serial:%d to rate:%d ch:%d fmt:%s layout:%s serial:%d",
+                      __func__,
+                      is->audioFilterSrc.sampleRate, is->audioFilterSrc.channels,
+                      av_get_sample_fmt_name(is->audioFilterSrc.sampleFormat), buf1, lastSerial,
+                      avFrame->sample_rate, avFrame->channels, av_get_sample_fmt_name((AVSampleFormat) avFrame->format),
+                      buf2, is->audioDecoder.packetSerial);
 
                 is->audioFilterSrc.sampleFormat = (AVSampleFormat) avFrame->format;
                 is->audioFilterSrc.channels = avFrame->channels;
@@ -830,7 +857,7 @@ int Stream::audioThread() {
                 is->audioFilterSrc.sampleRate = avFrame->sample_rate;
                 lastSerial = is->audioDecoder.packetSerial;
 
-                if ((ret = configureAudioFilters(options->afilters, 1)) < 0) {
+                if ((ret = configureAudioFilters(options->audioFilters, 1)) < 0) {
                     ALOGE(STREAM_TAG, "%s configure audio filter failure ret = %d", __func__, ret);
                     goto the_end;
                 }
@@ -901,20 +928,29 @@ bool Stream::isRetryPlay() const {
     // 未暂停
     bool isNoPause = !videoState->paused;
     // 未初始化音频流 或者 解码结束 同时 无可用帧
-    bool isNoUseAudioFrame = !videoState->audioStream || (videoState->audioDecoder.finished == videoState->audioPacketQueue.serial && videoState->audioFrameQueue.numberRemaining() == 0);
+    bool isNoUseAudioFrame = !videoState->audioStream ||
+                             (videoState->audioDecoder.finished == videoState->audioPacketQueue.serial &&
+                              videoState->audioFrameQueue.numberRemaining() == 0);
     // 未初始化视频流 或者 解码结束 同时 无可用帧
-    bool isNoUseVideoFrame = !videoState->videoStream || (videoState->videoDecoder.finished == videoState->videoPacketQueue.serial && videoState->videoFrameQueue.numberRemaining() == 0);
+    bool isNoUseVideoFrame = !videoState->videoStream ||
+                             (videoState->videoDecoder.finished == videoState->videoPacketQueue.serial &&
+                              videoState->videoFrameQueue.numberRemaining() == 0);
     return isNoPause && isNoUseAudioFrame && isNoUseVideoFrame;
 }
 
 bool Stream::isNoReadMore() {
     /* if the packetQueue are full, no need to read more */
     bool isNoInfiniteBuffer = options->infiniteBuffer < 1;
-    bool isNoEnoughMemory = (videoState->audioPacketQueue.memorySize + videoState->videoPacketQueue.memorySize + videoState->subtitlePacketQueue.memorySize) > MAX_QUEUE_SIZE;
-    bool isVideoEnoughPackets = streamHasEnoughPackets(videoState->videoStream, videoState->videoStreamIndex, &videoState->videoPacketQueue);
-    bool isAudioEnoughPackets = streamHasEnoughPackets(videoState->audioStream, videoState->audioStreamIndex, &videoState->audioPacketQueue);
-    bool isSubtitleEnoughPackets = streamHasEnoughPackets(videoState->subtitleStream, videoState->subtitleStreamIndex, &videoState->subtitlePacketQueue);
-    return isNoInfiniteBuffer && (isNoEnoughMemory || (isAudioEnoughPackets && isVideoEnoughPackets && isSubtitleEnoughPackets));
+    bool isNoEnoughMemory = (videoState->audioPacketQueue.memorySize + videoState->videoPacketQueue.memorySize +
+                             videoState->subtitlePacketQueue.memorySize) > MAX_QUEUE_SIZE;
+    bool isVideoEnoughPackets = streamHasEnoughPackets(videoState->videoStream, videoState->videoStreamIndex,
+                                                       &videoState->videoPacketQueue);
+    bool isAudioEnoughPackets = streamHasEnoughPackets(videoState->audioStream, videoState->audioStreamIndex,
+                                                       &videoState->audioPacketQueue);
+    bool isSubtitleEnoughPackets = streamHasEnoughPackets(videoState->subtitleStream, videoState->subtitleStreamIndex,
+                                                          &videoState->subtitlePacketQueue);
+    return isNoInfiniteBuffer &&
+           (isNoEnoughMemory || (isAudioEnoughPackets && isVideoEnoughPackets && isSubtitleEnoughPackets));
 }
 
 void Stream::closeReadThread(const VideoState *is, AVFormatContext *formatContext) const {
@@ -926,10 +962,12 @@ void Stream::closeReadThread(const VideoState *is, AVFormatContext *formatContex
 }
 
 int Stream::isRealTime(AVFormatContext *formatContext) {
-    if (!strcmp(formatContext->iformat->name, FORMAT_RTP) || !strcmp(formatContext->iformat->name, FORMAT_RTSP) || !strcmp(formatContext->iformat->name, FORMAT_SDP)) {
+    if (!strcmp(formatContext->iformat->name, FORMAT_RTP) || !strcmp(formatContext->iformat->name, FORMAT_RTSP) ||
+        !strcmp(formatContext->iformat->name, FORMAT_SDP)) {
         return POSITIVE;
     }
-    if (formatContext->pb && (!strncmp(formatContext->url, URL_FORMAT_RTP, 4) || !strncmp(formatContext->url, URL_FORMAT_UDP, 4))) {
+    if (formatContext->pb &&
+        (!strncmp(formatContext->url, URL_FORMAT_RTP, 4) || !strncmp(formatContext->url, URL_FORMAT_UDP, 4))) {
         return POSITIVE;
     }
     return NEGATIVE(S_ERROR);
@@ -951,16 +989,25 @@ int Stream::streamComponentOpen(int streamIndex) {
     int ret = 0;
 
     if (streamIndex < 0 || streamIndex >= formatContext->nb_streams) {
+        if (msgQueue) {
+            msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_VALID_STREAM_INDEX);
+        }
         return NEGATIVE(S_NOT_VALID_STREAM_INDEX);
     }
 
     codecContext = avcodec_alloc_context3(nullptr);
     if (!codecContext) {
+        if (msgQueue) {
+            msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_ALLOC_CODEC_CONTEXT);
+        }
         return NEGATIVE(S_NOT_ALLOC_CODEC_CONTEXT);
     }
 
     if (avcodec_parameters_to_context(codecContext, formatContext->streams[streamIndex]->codecpar) < 0) {
         avcodec_free_context(&codecContext);
+        if (msgQueue) {
+            msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_CODEC_PARAMS_CONTEXT);
+        }
         return NEGATIVE(S_NOT_CODEC_PARAMS_CONTEXT);
     }
 
@@ -976,16 +1023,21 @@ int Stream::streamComponentOpen(int streamIndex) {
         if (forcedCodecName) {
             ALOGD(STREAM_TAG, "%s No codec could be found with name '%s'", __func__, forcedCodecName);
         } else {
-            ALOGD(STREAM_TAG, "%sNo decoder could be found for codec %s", __func__, avcodec_get_name(codecContext->codec_id));
+            ALOGD(STREAM_TAG, "%sNo decoder could be found for codec %s", __func__,
+                  avcodec_get_name(codecContext->codec_id));
         }
         avcodec_free_context(&codecContext);
+        if (msgQueue) {
+            msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_FOUND_CODER);
+        }
         return NEGATIVE(S_NOT_FOUND_CODER);
     }
 
     codecContext->codec_id = codec->id;
 
     if (streamLowResolution > codec->max_lowres) {
-        ALOGD(STREAM_TAG, "%s The maximum value for low Resolution supported by the decoder is %d", __func__, codec->max_lowres);
+        ALOGD(STREAM_TAG, "%s The maximum value for low Resolution supported by the decoder is %d", __func__,
+              codec->max_lowres);
         streamLowResolution = codec->max_lowres;
     }
     codecContext->lowres = streamLowResolution;
@@ -994,7 +1046,8 @@ int Stream::streamComponentOpen(int streamIndex) {
         codecContext->flags2 |= AV_CODEC_FLAG2_FAST;
     }
 
-    opts = filter_codec_opts(options->codec, codecContext->codec_id, formatContext, formatContext->streams[streamIndex], codec);
+    opts = filter_codec_opts(options->codec, codecContext->codec_id, formatContext, formatContext->streams[streamIndex],
+                             codec);
 
     if (!av_dict_get(opts, KEY_THREADS, nullptr, 0)) {
         av_dict_set(&opts, KEY_THREADS, "auto", 0);
@@ -1010,6 +1063,9 @@ int Stream::streamComponentOpen(int streamIndex) {
 
     if (avcodec_open2(codecContext, codec, &opts) < 0) {
         avcodec_free_context(&codecContext);
+        if (msgQueue) {
+            msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_OPEN_DECODE);
+        }
         return NEGATIVE(S_NOT_OPEN_DECODE);
     }
 
@@ -1029,10 +1085,14 @@ int Stream::streamComponentOpen(int streamIndex) {
             AVFilterContext *sink;
             videoState->audioFilterSrc.sampleRate = codecContext->sample_rate;
             videoState->audioFilterSrc.channels = codecContext->channels;
-            videoState->audioFilterSrc.channelLayout = getValidChannelLayout(codecContext->channel_layout, codecContext->channels);
+            videoState->audioFilterSrc.channelLayout = getValidChannelLayout(codecContext->channel_layout,
+                                                                             codecContext->channels);
             videoState->audioFilterSrc.sampleFormat = codecContext->sample_fmt;
-            if (configureAudioFilters(options->afilters, 0) < 0) {
+            if (configureAudioFilters(options->audioFilters, 0) < 0) {
                 av_dict_free(&opts);
+                if (msgQueue) {
+                    msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_CONFIGURE_AUDIO_FILTERS);
+                }
                 return NEGATIVE(S_NOT_CONFIGURE_AUDIO_FILTERS);
             }
             sink = videoState->outAudioFilter;
@@ -1045,8 +1105,12 @@ int Stream::streamComponentOpen(int streamIndex) {
         channelLayout = codecContext->channelLayout;
 #endif
 
-            if (audio && (ret = audio->openAudio(channelLayout, nbChannels, sampleRate, &videoState->audioTarget)) < 0) {
+            if (audio &&
+                (ret = audio->openAudio(channelLayout, nbChannels, sampleRate, &videoState->audioTarget)) < 0) {
                 av_dict_free(&opts);
+                if (msgQueue) {
+                    msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_OPEN_AUDIO);
+                }
                 return NEGATIVE(S_NOT_OPEN_AUDIO);
             }
 
@@ -1059,17 +1123,24 @@ int Stream::streamComponentOpen(int streamIndex) {
             videoState->audioDiffAvgCoef = exp(log(0.01) / AUDIO_DIFF_AVG_NB);
             videoState->audioDiffAvgCount = 0;
             /* since we do not have a precise anough audio FIFO fullness,we correct audio sync only if larger than this threshold */
-            videoState->audioDiffThreshold = (double) (videoState->audioHwBufSize) / videoState->audioTarget.bytes_per_sec;
+            videoState->audioDiffThreshold =
+                    (double) (videoState->audioHwBufSize) / videoState->audioTarget.bytesPerSec;
 
             videoState->audioStreamIndex = streamIndex;
             videoState->audioStream = formatContext->streams[streamIndex];
-            videoState->audioDecoder.decoderInit(codecContext, &videoState->audioPacketQueue, videoState->continueReadThread);
-            if ((videoState->formatContext->iformat->flags & (AVFMT_NOBINSEARCH | AVFMT_NOGENSEARCH | AVFMT_NO_BYTE_SEEK)) && !videoState->formatContext->iformat->read_seek) {
+            videoState->audioDecoder.decoderInit(codecContext, &videoState->audioPacketQueue,
+                                                 videoState->continueReadThread);
+            if ((videoState->formatContext->iformat->flags &
+                 (AVFMT_NOBINSEARCH | AVFMT_NOGENSEARCH | AVFMT_NO_BYTE_SEEK)) &&
+                !videoState->formatContext->iformat->read_seek) {
                 videoState->audioDecoder.startPts = videoState->audioStream->start_time;
                 videoState->audioDecoder.startPtsTb = videoState->audioStream->time_base;
             }
             if (!videoState->audioDecoder.decoderStart("ADecode", innerAudioThread, this)) {
                 av_dict_free(&opts);
+                if (msgQueue) {
+                    msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_AUDIO_DECODE_START);
+                }
                 return NEGATIVE(S_NOT_AUDIO_DECODE_START);
             }
             if (audio) {
@@ -1079,9 +1150,13 @@ int Stream::streamComponentOpen(int streamIndex) {
         case AVMEDIA_TYPE_VIDEO:
             videoState->videoStreamIndex = streamIndex;
             videoState->videoStream = formatContext->streams[streamIndex];
-            videoState->videoDecoder.decoderInit(codecContext, &videoState->videoPacketQueue, videoState->continueReadThread);
+            videoState->videoDecoder.decoderInit(codecContext, &videoState->videoPacketQueue,
+                                                 videoState->continueReadThread);
             if (!videoState->videoDecoder.decoderStart("VDecode", innerVideoThread, this)) {
                 av_dict_free(&opts);
+                if (msgQueue) {
+                    msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_VIDEO_DECODE_START);
+                }
                 return NEGATIVE(S_NOT_VIDEO_DECODE_START);
             }
             videoState->queueAttachmentsReq = 1;
@@ -1089,9 +1164,13 @@ int Stream::streamComponentOpen(int streamIndex) {
         case AVMEDIA_TYPE_SUBTITLE:
             videoState->subtitleStreamIndex = streamIndex;
             videoState->subtitleStream = formatContext->streams[streamIndex];
-            videoState->subtitleDecoder.decoderInit(codecContext, &videoState->subtitlePacketQueue, videoState->continueReadThread);
+            videoState->subtitleDecoder.decoderInit(codecContext, &videoState->subtitlePacketQueue,
+                                                    videoState->continueReadThread);
             if (!videoState->subtitleDecoder.decoderStart("SDecode", innerSubtitleThread, this)) {
                 av_dict_free(&opts);
+                if (msgQueue) {
+                    msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_SUBTITLE_DECODE_START);
+                }
                 return NEGATIVE(S_NOT_SUBTITLE_DECODE_START);
             }
             break;
@@ -1137,7 +1216,9 @@ const char *Stream::getForcedCodecName(int streamIndex, const AVCodecContext *co
 }
 
 bool Stream::streamHasEnoughPackets(AVStream *stream, int streamIndex, PacketQueue *packetQueue) {
-    return streamIndex < 0 || packetQueue->abortRequest || (stream->disposition & AV_DISPOSITION_ATTACHED_PIC) || (packetQueue->packetSize > MIN_FRAMES && (!packetQueue->duration || av_q2d(stream->time_base) * packetQueue->duration > 1.0));
+    return streamIndex < 0 || packetQueue->abortRequest || (stream->disposition & AV_DISPOSITION_ATTACHED_PIC) ||
+           (packetQueue->packetSize > MIN_FRAMES &&
+            (!packetQueue->duration || av_q2d(stream->time_base) * packetQueue->duration > 1.0));
 }
 
 int Stream::streamComponentClose(AVStream *stream, int streamIndex) {
@@ -1155,7 +1236,7 @@ int Stream::streamComponentClose(AVStream *stream, int streamIndex) {
             videoState->audioDecoder.decoderAbort(&videoState->audioFrameQueue);
             videoState->audioDecoder.decoderDestroy();
             swr_free(&videoState->audioSwrContext);
-            av_freep(&videoState->audioBuf1);
+            av_freep(&videoState->audioConvertBuf);
             videoState->audioBuf1Size = 0;
             videoState->audioBuf = nullptr;
             if (videoState->rdft) {
@@ -1265,9 +1346,11 @@ int Stream::getVideoFrame(AVFrame *frame) {
             dpts = av_q2d(videoState->videoStream->time_base) * frame->pts;
         }
 
-        frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(videoState->formatContext, videoState->videoStream, frame);
+        frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(videoState->formatContext, videoState->videoStream,
+                                                                  frame);
 
-        if (options->dropFrameWhenSlow > 0 || (options->dropFrameWhenSlow && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) {
+        if (options->dropFrameWhenSlow > 0 ||
+            (options->dropFrameWhenSlow && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) {
             if (frame->pts != AV_NOPTS_VALUE) {
 
                 // diff > 0 当前帧显示时间略超于出主时钟
@@ -1396,7 +1479,9 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                 }
             } else {
                 if (avcodec_send_packet(decoder->codecContext, &packet) == AVERROR(EAGAIN)) {
-                    ALOGE(STREAM_TAG, "%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.", __func__);
+                    ALOGE(STREAM_TAG,
+                          "%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
+                          __func__);
                     decoder->packetPending = 1;
                     av_packet_move_ref(&decoder->packet, &packet);
                 }
@@ -1441,10 +1526,13 @@ int Stream::queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duratio
 void Stream::checkExternalClockSpeed() {
     if ((videoState->videoStreamIndex >= 0 && videoState->videoPacketQueue.packetSize <= EXTERNAL_CLOCK_MIN_FRAMES) ||
         (videoState->audioStreamIndex >= 0 && videoState->audioPacketQueue.packetSize <= EXTERNAL_CLOCK_MIN_FRAMES)) {
-        videoState->exitClock.setClockSpeed(FFMAX(EXTERNAL_CLOCK_SPEED_MIN, videoState->exitClock.speed - EXTERNAL_CLOCK_SPEED_STEP));
-    } else if ((videoState->videoStreamIndex < 0 || videoState->videoPacketQueue.packetSize > EXTERNAL_CLOCK_MAX_FRAMES) &&
-               (videoState->audioStreamIndex < 0 || videoState->audioPacketQueue.packetSize > EXTERNAL_CLOCK_MAX_FRAMES)) {
-        videoState->exitClock.setClockSpeed(FFMIN(EXTERNAL_CLOCK_SPEED_MAX, videoState->exitClock.speed + EXTERNAL_CLOCK_SPEED_STEP));
+        videoState->exitClock.setClockSpeed(
+                FFMAX(EXTERNAL_CLOCK_SPEED_MIN, videoState->exitClock.speed - EXTERNAL_CLOCK_SPEED_STEP));
+    } else if (
+            (videoState->videoStreamIndex < 0 || videoState->videoPacketQueue.packetSize > EXTERNAL_CLOCK_MAX_FRAMES) &&
+            (videoState->audioStreamIndex < 0 || videoState->audioPacketQueue.packetSize > EXTERNAL_CLOCK_MAX_FRAMES)) {
+        videoState->exitClock.setClockSpeed(
+                FFMIN(EXTERNAL_CLOCK_SPEED_MAX, videoState->exitClock.speed + EXTERNAL_CLOCK_SPEED_STEP));
     } else {
         double speed = videoState->exitClock.speed;
         if (speed != 1.0) {
@@ -1456,7 +1544,8 @@ void Stream::checkExternalClockSpeed() {
 double Stream::getFrameDuration(const Frame *current, const Frame *next) {
     if (current->serial == next->serial) {
         double duration = next->pts - current->pts;
-        ALOGD(STREAM_TAG, "%s current->pts = %f next->pts = %f duration = %f maxFrameDuration = %f", __func__, current->pts, next->pts, duration, videoState->maxFrameDuration);
+        ALOGD(STREAM_TAG, "%s current->pts = %f next->pts = %f duration = %f maxFrameDuration = %f", __func__,
+              current->pts, next->pts, duration, videoState->maxFrameDuration);
         if (isnan(duration) || duration <= 0 || duration > videoState->maxFrameDuration) {
             return current->duration;
         } else {
@@ -1535,7 +1624,8 @@ int Stream::togglePause() {
 int Stream::streamTogglePause() {
     if (videoState) {
         if (videoState->paused) {
-            videoState->frameTimer += (av_gettime_relative() * 1.0F / AV_TIME_BASE - videoState->videoClock.lastUpdatedTime);
+            videoState->frameTimer += (av_gettime_relative() * 1.0F / AV_TIME_BASE -
+                                       videoState->videoClock.lastUpdatedTime);
             if (videoState->readPauseReturn != AVERROR(ENOSYS)) {
                 videoState->videoClock.paused = 0;
             }
@@ -1594,15 +1684,17 @@ int64_t Stream::getValidChannelLayout(uint64_t channelLayout, int channels) {
 
 #if CONFIG_AVFILTER
 
-int Stream::configureAudioFilters(const char *afilters, int forceOutputFormat) {
-    static const enum AVSampleFormat sample_fmts[] = {AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_NONE};
-    int sample_rates[2] = {0, -1};
-    int64_t channel_layouts[2] = {0, -1};
+int Stream::configureAudioFilters(const char *audioFilters, int forceOutputFormat) {
+
+    static const enum AVSampleFormat sampleFmts[] = {AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_NONE};
+
+    int sampleRates[2] = {0, -1};
+    int64_t channelLayouts[2] = {0, -1};
     int channels[2] = {0, -1};
     AVFilterContext *filterSrc = nullptr, *filterSink = nullptr;
-    char aresample_swr_opts[512] = "";
+    char resampleSwrOpts[512] = "";
     AVDictionaryEntry *e = nullptr;
-    char asrc_args[256];
+    char srcArgs[256];
     int ret;
 
     avfilter_graph_free(&videoState->agraph);
@@ -1613,56 +1705,64 @@ int Stream::configureAudioFilters(const char *afilters, int forceOutputFormat) {
     videoState->agraph->nb_threads = options->filterNumberThreads;
 
     while ((e = av_dict_get(options->swrDict, "", e, AV_DICT_IGNORE_SUFFIX))) {
-        av_strlcatf(aresample_swr_opts, sizeof(aresample_swr_opts), "%s=%s:", e->key, e->value);
+        av_strlcatf(resampleSwrOpts, sizeof(resampleSwrOpts), "%s=%s:", e->key, e->value);
     }
-    if (strlen(aresample_swr_opts)) {
-        aresample_swr_opts[strlen(aresample_swr_opts) - 1] = '\0';
+    if (strlen(resampleSwrOpts)) {
+        resampleSwrOpts[strlen(resampleSwrOpts) - 1] = '\0';
     }
-    av_opt_set(videoState->agraph, "aresample_swr_opts", aresample_swr_opts, 0);
+    av_opt_set(videoState->agraph, OPT_RESAMPLE_SWR, resampleSwrOpts, 0);
 
-    ret = snprintf(asrc_args, sizeof(asrc_args), "sample_rate=%d:sample_fmt=%s:channels=%d:time_base=%d/%d", videoState->audioFilterSrc.sampleRate, av_get_sample_fmt_name(videoState->audioFilterSrc.sampleFormat), videoState->audioFilterSrc.channels, 1, videoState->audioFilterSrc.sampleRate);
+    ret = snprintf(srcArgs, sizeof(srcArgs), "sample_rate=%d:sample_fmt=%s:channels=%d:time_base=%d/%d",
+                   videoState->audioFilterSrc.sampleRate,
+                   av_get_sample_fmt_name(videoState->audioFilterSrc.sampleFormat), videoState->audioFilterSrc.channels,
+                   1, videoState->audioFilterSrc.sampleRate);
 
     if (videoState->audioFilterSrc.channelLayout) {
-        snprintf(asrc_args + ret, sizeof(asrc_args) - ret, ":channel_layout=0x%lld", videoState->audioFilterSrc.channelLayout);
+        snprintf(srcArgs + ret, sizeof(srcArgs) - ret, ":channel_layout=0x%lld",
+                 videoState->audioFilterSrc.channelLayout);
     }
 
-    ret = avfilter_graph_create_filter(&filterSrc, avfilter_get_by_name("abuffer"), "splayer_abuffer", asrc_args, nullptr, videoState->agraph);
+    ret = avfilter_graph_create_filter(&filterSrc, avfilter_get_by_name("abuffer"), "splayer_abuffer", srcArgs, nullptr,
+                                       videoState->agraph);
     if (ret < 0) {
         goto end;
     }
 
-    ret = avfilter_graph_create_filter(&filterSink, avfilter_get_by_name("abuffersink"), "splayer_abuffersink", nullptr, nullptr, videoState->agraph);
+    ret = avfilter_graph_create_filter(&filterSink, avfilter_get_by_name("abuffersink"), "splayer_abuffersink", nullptr,
+                                       nullptr, videoState->agraph);
     if (ret < 0) {
         goto end;
     }
 
-    if ((ret = av_opt_set_int_list(filterSink, "sample_fmts", sample_fmts, AV_SAMPLE_FMT_NONE, AV_OPT_SEARCH_CHILDREN)) < 0) {
+    if ((ret = av_opt_set_int_list(filterSink, OPT_SAMPLE_FMTS, sampleFmts, AV_SAMPLE_FMT_NONE,
+                                   AV_OPT_SEARCH_CHILDREN)) < 0) {
         goto end;
     }
 
-    if ((ret = av_opt_set_int(filterSink, "all_channel_counts", 1, AV_OPT_SEARCH_CHILDREN)) < 0) {
+    if ((ret = av_opt_set_int(filterSink, OPT_ALL_CHANNEL_COUNTS, 1, AV_OPT_SEARCH_CHILDREN)) < 0) {
         goto end;
     }
 
     if (forceOutputFormat) {
-        channel_layouts[0] = videoState->audioTarget.channelLayout;
+        channelLayouts[0] = videoState->audioTarget.channelLayout;
         channels[0] = videoState->audioTarget.channels;
-        sample_rates[0] = videoState->audioTarget.sampleRate;
-        if ((ret = av_opt_set_int(filterSink, "all_channel_counts", 0, AV_OPT_SEARCH_CHILDREN)) < 0) {
+        sampleRates[0] = videoState->audioTarget.sampleRate;
+        if ((ret = av_opt_set_int(filterSink, OPT_ALL_CHANNEL_COUNTS, 0, AV_OPT_SEARCH_CHILDREN)) < 0) {
             goto end;
         }
-        if ((ret = av_opt_set_int_list(filterSink, "channel_layouts", channel_layouts, -1, AV_OPT_SEARCH_CHILDREN)) < 0) {
+        if ((ret = av_opt_set_int_list(filterSink, OPT_CHANNEL_LAYOUTS, channelLayouts, -1, AV_OPT_SEARCH_CHILDREN)) <
+            0) {
             goto end;
         }
-        if ((ret = av_opt_set_int_list(filterSink, "channel_counts", channels, -1, AV_OPT_SEARCH_CHILDREN)) < 0) {
+        if ((ret = av_opt_set_int_list(filterSink, OPT_CHANNEL_COUNTS, channels, -1, AV_OPT_SEARCH_CHILDREN)) < 0) {
             goto end;
         }
-        if ((ret = av_opt_set_int_list(filterSink, "sample_rates", sample_rates, -1, AV_OPT_SEARCH_CHILDREN)) < 0) {
+        if ((ret = av_opt_set_int_list(filterSink, OPT_SAMPLE_RATES, sampleRates, -1, AV_OPT_SEARCH_CHILDREN)) < 0) {
             goto end;
         }
     }
 
-    if ((ret = configureFilterGraph(videoState->agraph, afilters, filterSrc, filterSink)) < 0) {
+    if ((ret = configureFilterGraph(videoState->agraph, audioFilters, filterSrc, filterSink)) < 0) {
         goto end;
     }
 
@@ -1677,7 +1777,8 @@ int Stream::configureAudioFilters(const char *afilters, int forceOutputFormat) {
     return ret;
 }
 
-int Stream::configureFilterGraph(AVFilterGraph *graph, const char *filterGraph, AVFilterContext *srcFilterContext, AVFilterContext *sinkFilterContext) {
+int Stream::configureFilterGraph(AVFilterGraph *graph, const char *filterGraph, AVFilterContext *srcFilterContext,
+                                 AVFilterContext *sinkFilterContext) {
     int ret, i;
     int nb_filters = graph->nb_filters;
     AVFilterInOut *outputs = nullptr, *inputs = nullptr;
@@ -1750,23 +1851,28 @@ int Stream::configureVideoFilters(AVFilterGraph *filterGraph, VideoState *is, co
 
     filterGraph->scale_sws_opts = av_strdup(swsFlagsStr);
 
-    snprintf(bufferSrcArgs, sizeof(bufferSrcArgs), "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d", frame->width, frame->height, frame->format, is->videoStream->time_base.num, is->videoStream->time_base.den, codecParameters->sample_aspect_ratio.num, FFMAX(codecParameters->sample_aspect_ratio.den, 1));
+    snprintf(bufferSrcArgs, sizeof(bufferSrcArgs), "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
+             frame->width, frame->height, frame->format, is->videoStream->time_base.num, is->videoStream->time_base.den,
+             codecParameters->sample_aspect_ratio.num, FFMAX(codecParameters->sample_aspect_ratio.den, 1));
 
     if (fr.num && fr.den) {
         av_strlcatf(bufferSrcArgs, sizeof(bufferSrcArgs), ":frame_rate=%d/%d", fr.num, fr.den);
     }
 
-    if ((ret = avfilter_graph_create_filter(&filterSrc, avfilter_get_by_name("buffer"), "splayer_buffer", bufferSrcArgs, nullptr, filterGraph)) < 0) {
+    if ((ret = avfilter_graph_create_filter(&filterSrc, avfilter_get_by_name("buffer"), "splayer_buffer", bufferSrcArgs,
+                                            nullptr, filterGraph)) < 0) {
         return ret;
     }
 
-    if ((ret = avfilter_graph_create_filter(&filterOut, avfilter_get_by_name("buffersink"), "splayer_buffersink", nullptr, nullptr, filterGraph)) < 0) {
+    if ((ret = avfilter_graph_create_filter(&filterOut, avfilter_get_by_name("buffersink"), "splayer_buffersink",
+                                            nullptr, nullptr, filterGraph)) < 0) {
         return ret;
     }
 
     if (surface) {
         AVPixelFormat *pixelFormat = surface->getPixelFormatsArray();
-        if ((ret = av_opt_set_int_list(filterOut, "pix_fmts", pixelFormat, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN)) < 0) {
+        if ((ret = av_opt_set_int_list(filterOut, "pix_fmts", pixelFormat, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN)) <
+            0) {
             return ret;
         }
     }

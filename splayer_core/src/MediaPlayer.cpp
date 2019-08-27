@@ -249,7 +249,8 @@ int MediaPlayer::prepareAsync() {
     if (state && mutex) {
         mutex->mutexLock();
         state->changeState(State::STATE_ASYNC_PREPARING);
-        if (prepareMsgQueue() && prepareOptions() && prepareEvent() && prepareSurface() && prepareAudio() && prepareStream()) {
+        if (prepareMsgQueue() && prepareOptions() && prepareEvent() && prepareSurface() && prepareAudio() &&
+            prepareStream()) {
             mutex->mutexUnLock();
             return POSITIVE;
         }
@@ -408,7 +409,8 @@ int MediaPlayer::messageLoop() {
         int ret = getMsg(&msg, true);
 
         if (msg.what != -1) {
-            ALOGD(MEDIA_PLAYER_TAG, "%s pop msg what = %s arg1 = %d arg2 = %d obj = %p", __func__, Msg::getMsgSimpleName(msg.what), msg.arg1, msg.arg2, msg.obj);
+            ALOGD(MEDIA_PLAYER_TAG, "%s pop msg what = %s arg1 = %d arg2 = %d obj = %p", __func__,
+                  Msg::getMsgSimpleName(msg.what), msg.arg1, msg.arg2, msg.obj);
             if (message) {
                 message->onMessage(event, &msg);
             }

@@ -63,6 +63,18 @@ extern "C" {
 
 #define STREAM_TAG "Stream"
 
+static const char *const OPT_RESAMPLE_SWR = "aresample_swr_opts";
+
+static const char *const OPT_SAMPLE_FMTS = "sample_fmts";
+
+static const char *const OPT_ALL_CHANNEL_COUNTS = "all_channel_counts";
+
+static const char *const OPT_CHANNEL_LAYOUTS = "channel_layouts";
+
+static const char *const OPT_CHANNEL_COUNTS = "channel_counts";
+
+static const char *const OPT_SAMPLE_RATES = "sample_rates";
+
 class Stream {
 
 private:
@@ -176,7 +188,7 @@ private:
 
 #if CONFIG_AVFILTER
 
-    int configureAudioFilters(const char *afilters, int forceOutputFormat);
+    int configureAudioFilters(const char *audioFilters, int forceOutputFormat);
 
     int configureFilterGraph(AVFilterGraph *graph, const char *filterGraph,
                              AVFilterContext *srcFilterContext, AVFilterContext *sinkFilterContext);

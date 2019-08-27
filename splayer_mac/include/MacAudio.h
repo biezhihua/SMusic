@@ -19,8 +19,6 @@ private:
 
     SDL_Window *window;
 
-    int64_t audioCallbackTime;
-
     SDL_AudioDeviceID audioDev;
 
 public:
@@ -28,13 +26,11 @@ public:
 
     int destroy() override;
 
-    int openAudio(int64_t wantedChannelLayout, int wantedNbChannels, int wantedSampleRate, AudioParams *audioHwParams) override;
-
-    void audioCallback(Uint8 *stream, int len);
+    int openAudio(int64_t wantedChannelLayout, int wantedNbChannels, int wantedSampleRate, AudioParams *wantedAudioTarget) override;
 
     void pauseAudio() override;
 
-    void update_sample_display(short *samples, int samples_size);
+    void maxAudio(uint8_t *stream, uint8_t *buf, int index, int length, int volume) override;
 };
 
 

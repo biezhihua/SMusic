@@ -11,8 +11,8 @@ public:
     int channels;
     int64_t channelLayout;
     AVSampleFormat sampleFormat;
-    int frame_size;
-    int bytes_per_sec;
+    int frameSize;
+    int bytesPerSec;
 };
 
 

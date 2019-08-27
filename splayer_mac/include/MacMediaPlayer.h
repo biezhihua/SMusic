@@ -6,6 +6,8 @@
 #include "MacOptions.h"
 #include "MacAudio.h"
 
+#define SDL_IMPL 1
+
 class MacMediaPlayer {
 
 public:

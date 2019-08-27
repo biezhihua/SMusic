@@ -55,10 +55,10 @@
 #define S_NOT_SUPPORT_AUDIO_GET_BUFFER_SIZE 48
 #define S_AUDIO_PAUSED                      49
 #define S_NOT_FRAME_READABLE                50
-#define S_NOT_AUDIO_SWR_CONTEXT             51
+#define S_NOT_CREATE_AUDIO_SWR_CONTEXT             51
 #define S_AUDIO_OUT_SIZE                    52
-#define S_AUDIO_SWR_COMPENSATION            53
-#define S_AUDIO_SWR_CONVERT_FAILED          54
+#define S_NOT_AUDIO_SWR_COMPENSATION            53
+#define S_NOT_CONVERT_AUDIO          54
 #define S_NOT_DECODE_SUBTITLE_FRAME         55
 #define S_FRAME_DROP                        56
 #define S_NOT_ADD_FRAME_TO_FILTER           57
