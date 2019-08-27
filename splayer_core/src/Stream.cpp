@@ -809,25 +809,25 @@ int Stream::audioThread() {
 #if CONFIG_AVFILTER
             decChannelLayout = getValidChannelLayout(avFrame->channel_layout, avFrame->channels);
 
-            reconfigure = cmpAudioFormats(is->audioFilterSrc.fmt, is->audioFilterSrc.channels,
+            reconfigure = cmpAudioFormats(is->audioFilterSrc.sampleFormat, is->audioFilterSrc.channels,
                                           (AVSampleFormat) avFrame->format, avFrame->channels) ||
-                          is->audioFilterSrc.channel_layout != decChannelLayout ||
-                          is->audioFilterSrc.freq != avFrame->sample_rate ||
+                          is->audioFilterSrc.channelLayout != decChannelLayout ||
+                          is->audioFilterSrc.sampleRate != avFrame->sample_rate ||
                           is->audioDecoder.packetSerial != lastSerial;
 
             if (reconfigure) {
                 char buf1[1024], buf2[1024];
-                av_get_channel_layout_string(buf1, sizeof(buf1), -1, is->audioFilterSrc.channel_layout);
+                av_get_channel_layout_string(buf1, sizeof(buf1), -1, is->audioFilterSrc.channelLayout);
                 av_get_channel_layout_string(buf2, sizeof(buf2), -1, decChannelLayout);
 
                 ALOGD(STREAM_TAG, "%s Audio avFrame changed from rate:%d ch:%d fmt:%s layout:%s serial:%d to rate:%d ch:%d fmt:%s layout:%s serial:%d", __func__,
-                      is->audioFilterSrc.freq, is->audioFilterSrc.channels, av_get_sample_fmt_name(is->audioFilterSrc.fmt), buf1, lastSerial,
+                      is->audioFilterSrc.sampleRate, is->audioFilterSrc.channels, av_get_sample_fmt_name(is->audioFilterSrc.sampleFormat), buf1, lastSerial,
                       avFrame->sample_rate, avFrame->channels, av_get_sample_fmt_name((AVSampleFormat) avFrame->format), buf2, is->audioDecoder.packetSerial);
 
-                is->audioFilterSrc.fmt = (AVSampleFormat) avFrame->format;
+                is->audioFilterSrc.sampleFormat = (AVSampleFormat) avFrame->format;
                 is->audioFilterSrc.channels = avFrame->channels;
-                is->audioFilterSrc.channel_layout = decChannelLayout;
-                is->audioFilterSrc.freq = avFrame->sample_rate;
+                is->audioFilterSrc.channelLayout = decChannelLayout;
+                is->audioFilterSrc.sampleRate = avFrame->sample_rate;
                 lastSerial = is->audioDecoder.packetSerial;
 
                 if ((ret = configureAudioFilters(options->afilters, 1)) < 0) {
@@ -1027,10 +1027,10 @@ int Stream::streamComponentOpen(int streamIndex) {
         case AVMEDIA_TYPE_AUDIO:
 #if CONFIG_AVFILTER
             AVFilterContext *sink;
-            videoState->audioFilterSrc.freq = codecContext->sample_rate;
+            videoState->audioFilterSrc.sampleRate = codecContext->sample_rate;
             videoState->audioFilterSrc.channels = codecContext->channels;
-            videoState->audioFilterSrc.channel_layout = getValidChannelLayout(codecContext->channel_layout, codecContext->channels);
-            videoState->audioFilterSrc.fmt = codecContext->sample_fmt;
+            videoState->audioFilterSrc.channelLayout = getValidChannelLayout(codecContext->channel_layout, codecContext->channels);
+            videoState->audioFilterSrc.sampleFormat = codecContext->sample_fmt;
             if (configureAudioFilters(options->afilters, 0) < 0) {
                 av_dict_free(&opts);
                 return NEGATIVE(S_NOT_CONFIGURE_AUDIO_FILTERS);
@@ -1042,7 +1042,7 @@ int Stream::streamComponentOpen(int streamIndex) {
 #else
         sampleRate = codecContext->sample_rate;
         nbChannels = codecContext->channels;
-        channelLayout = codecContext->channel_layout;
+        channelLayout = codecContext->channelLayout;
 #endif
 
             if (audio && (ret = audio->openAudio(channelLayout, nbChannels, sampleRate, &videoState->audioTarget)) < 0) {
@@ -1620,10 +1620,10 @@ int Stream::configureAudioFilters(const char *afilters, int forceOutputFormat) {
     }
     av_opt_set(videoState->agraph, "aresample_swr_opts", aresample_swr_opts, 0);
 
-    ret = snprintf(asrc_args, sizeof(asrc_args), "sample_rate=%d:sample_fmt=%s:channels=%d:time_base=%d/%d", videoState->audioFilterSrc.freq, av_get_sample_fmt_name(videoState->audioFilterSrc.fmt), videoState->audioFilterSrc.channels, 1, videoState->audioFilterSrc.freq);
+    ret = snprintf(asrc_args, sizeof(asrc_args), "sample_rate=%d:sample_fmt=%s:channels=%d:time_base=%d/%d", videoState->audioFilterSrc.sampleRate, av_get_sample_fmt_name(videoState->audioFilterSrc.sampleFormat), videoState->audioFilterSrc.channels, 1, videoState->audioFilterSrc.sampleRate);
 
-    if (videoState->audioFilterSrc.channel_layout) {
-        snprintf(asrc_args + ret, sizeof(asrc_args) - ret, ":channel_layout=0x%lld", videoState->audioFilterSrc.channel_layout);
+    if (videoState->audioFilterSrc.channelLayout) {
+        snprintf(asrc_args + ret, sizeof(asrc_args) - ret, ":channel_layout=0x%lld", videoState->audioFilterSrc.channelLayout);
     }
 
     ret = avfilter_graph_create_filter(&filterSrc, avfilter_get_by_name("abuffer"), "splayer_abuffer", asrc_args, nullptr, videoState->agraph);
@@ -1645,9 +1645,9 @@ int Stream::configureAudioFilters(const char *afilters, int forceOutputFormat) {
     }
 
     if (forceOutputFormat) {
-        channel_layouts[0] = videoState->audioTarget.channel_layout;
+        channel_layouts[0] = videoState->audioTarget.channelLayout;
         channels[0] = videoState->audioTarget.channels;
-        sample_rates[0] = videoState->audioTarget.freq;
+        sample_rates[0] = videoState->audioTarget.sampleRate;
         if ((ret = av_opt_set_int(filterSink, "all_channel_counts", 0, AV_OPT_SEARCH_CHILDREN)) < 0) {
             goto end;
         }

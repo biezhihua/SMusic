@@ -7,10 +7,10 @@ extern "C" {
 
 class AudioParams {
 public:
-    int freq;
+    int sampleRate;
     int channels;
-    int64_t channel_layout;
-    AVSampleFormat fmt;
+    int64_t channelLayout;
+    AVSampleFormat sampleFormat;
     int frame_size;
     int bytes_per_sec;
 };

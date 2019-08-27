@@ -118,12 +118,12 @@ int MacAudio::openAudio(int64_t wantedChannelLayout, int wantedNbChannels, int w
         }
     }
 
-    audioHwParams->fmt = AV_SAMPLE_FMT_S16;
-    audioHwParams->freq = spec.freq;
-    audioHwParams->channel_layout = wantedChannelLayout;
+    audioHwParams->sampleFormat = AV_SAMPLE_FMT_S16;
+    audioHwParams->sampleRate = spec.freq;
+    audioHwParams->channelLayout = wantedChannelLayout;
     audioHwParams->channels = spec.channels;
-    audioHwParams->frame_size = av_samples_get_buffer_size(nullptr, audioHwParams->channels, 1, audioHwParams->fmt, 1);
-    audioHwParams->bytes_per_sec = av_samples_get_buffer_size(nullptr, audioHwParams->channels, audioHwParams->freq, audioHwParams->fmt, 1);
+    audioHwParams->frame_size = av_samples_get_buffer_size(nullptr, audioHwParams->channels, 1, audioHwParams->sampleFormat, 1);
+    audioHwParams->bytes_per_sec = av_samples_get_buffer_size(nullptr, audioHwParams->channels, audioHwParams->sampleRate, audioHwParams->sampleFormat, 1);
 
     if (audioHwParams->bytes_per_sec <= 0 || audioHwParams->frame_size <= 0) {
         ALOGE(MAC_AUDIO_TAG, "%s av_samples_get_buffer_size failed", __func__);

@@ -47,44 +47,44 @@ int Audio::audioDecodeFrame() {
     decChannelLayout = (frame->frame->channel_layout && frame->frame->channels == av_get_channel_layout_nb_channels(frame->frame->channel_layout)) ? frame->frame->channel_layout : av_get_default_channel_layout(frame->frame->channels);
     wantedNbSamples = synchronizeAudio(frame->frame->nb_samples);
 
-    if (((AVSampleFormat) frame->frame->format != is->audioSrc.fmt) ||
-        decChannelLayout != is->audioSrc.channel_layout ||
-        frame->frame->sample_rate != is->audioSrc.freq ||
+    if (((AVSampleFormat) frame->frame->format != is->audioSrc.sampleFormat) ||
+        decChannelLayout != is->audioSrc.channelLayout ||
+        frame->frame->sample_rate != is->audioSrc.sampleRate ||
         (wantedNbSamples != frame->frame->nb_samples && !is->audioSwrContext)) {
 
         swr_free(&is->audioSwrContext);
 
         is->audioSwrContext = swr_alloc_set_opts(nullptr,
-                                                 is->audioTarget.channel_layout, is->audioTarget.fmt, is->audioTarget.freq,
+                                                 is->audioTarget.channelLayout, is->audioTarget.sampleFormat, is->audioTarget.sampleRate,
                                                  decChannelLayout, (AVSampleFormat) frame->frame->format, frame->frame->sample_rate,
                                                  0, nullptr);
 
         if (!is->audioSwrContext || swr_init(is->audioSwrContext) < 0) {
             ALOGE(AUDIO_TAG, "%s Cannot create sample rate converter for conversion of %d Hz %s %d channels to %d Hz %s %d channels!", __func__,
                   frame->frame->sample_rate, av_get_sample_fmt_name((AVSampleFormat) frame->frame->format), frame->frame->channels,
-                  is->audioTarget.freq, av_get_sample_fmt_name(is->audioTarget.fmt), is->audioTarget.channels);
+                  is->audioTarget.sampleRate, av_get_sample_fmt_name(is->audioTarget.sampleFormat), is->audioTarget.channels);
             swr_free(&is->audioSwrContext);
             return NEGATIVE(S_NOT_AUDIO_SWR_CONTEXT);
         }
-        is->audioSrc.channel_layout = decChannelLayout;
+        is->audioSrc.channelLayout = decChannelLayout;
         is->audioSrc.channels = frame->frame->channels;
-        is->audioSrc.freq = frame->frame->sample_rate;
-        is->audioSrc.fmt = (AVSampleFormat) frame->frame->format;
+        is->audioSrc.sampleRate = frame->frame->sample_rate;
+        is->audioSrc.sampleFormat = (AVSampleFormat) frame->frame->format;
     }
 
     if (is->audioSwrContext) {
         const uint8_t **in = (const uint8_t **) frame->frame->extended_data;
         uint8_t **out = &is->audioBuf1;
-        int out_count = (int64_t) wantedNbSamples * is->audioTarget.freq / frame->frame->sample_rate + 256;
-        int out_size = av_samples_get_buffer_size(nullptr, is->audioTarget.channels, out_count, is->audioTarget.fmt, 0);
+        int out_count = (int64_t) wantedNbSamples * is->audioTarget.sampleRate / frame->frame->sample_rate + 256;
+        int out_size = av_samples_get_buffer_size(nullptr, is->audioTarget.channels, out_count, is->audioTarget.sampleFormat, 0);
         int len2;
         if (out_size < 0) {
             ALOGE(AUDIO_TAG, "%s av_samples_get_buffer_size() failed", __func__);
             return NEGATIVE(S_AUDIO_OUT_SIZE);
         }
         if (wantedNbSamples != frame->frame->nb_samples) {
-            if (swr_set_compensation(is->audioSwrContext, (wantedNbSamples - frame->frame->nb_samples) * is->audioTarget.freq / frame->frame->sample_rate,
-                                     wantedNbSamples * is->audioTarget.freq / frame->frame->sample_rate) < 0) {
+            if (swr_set_compensation(is->audioSwrContext, (wantedNbSamples - frame->frame->nb_samples) * is->audioTarget.sampleRate / frame->frame->sample_rate,
+                                     wantedNbSamples * is->audioTarget.sampleRate / frame->frame->sample_rate) < 0) {
                 ALOGE(AUDIO_TAG, "%s swr_set_compensation() failed", __func__);
                 return NEGATIVE(S_AUDIO_SWR_COMPENSATION);
             }
@@ -105,7 +105,7 @@ int Audio::audioDecodeFrame() {
             }
         }
         is->audioBuf = is->audioBuf1;
-        resampled_data_size = len2 * is->audioTarget.channels * av_get_bytes_per_sample(is->audioTarget.fmt);
+        resampled_data_size = len2 * is->audioTarget.channels * av_get_bytes_per_sample(is->audioTarget.sampleFormat);
     } else {
         is->audioBuf = frame->frame->data[0];
         resampled_data_size = dataSize;
@@ -150,7 +150,7 @@ int Audio::synchronizeAudio(int nbSamples) {
                 avg_diff = is->audioDiffCum * (1.0 - is->audioDiffAvgCoef);
 
                 if (fabs(avg_diff) >= is->audioDiffThreshold) {
-                    wantedNbSamples = nbSamples + (int) (diff * is->audioSrc.freq);
+                    wantedNbSamples = nbSamples + (int) (diff * is->audioSrc.sampleRate);
                     min_nb_samples = ((nbSamples * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100));
                     max_nb_samples = ((nbSamples * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100));
                     wantedNbSamples = av_clip(wantedNbSamples, min_nb_samples, max_nb_samples);
