@@ -115,6 +115,7 @@ private:
     Surface *iSurface;
     Stream *iStream;
     Options *iOptions;
+    bool debug = true;
 
 public:
     Builder &withMessage(Message *message) {
@@ -147,7 +148,15 @@ public:
         return *this;
     }
 
+    Builder &withDebug(bool debug) {
+        Builder::debug = debug;
+        return *this;
+    }
+
+
     MediaPlayer *build() {
+        DEBUG = debug;
+
         MediaPlayer *mediaPlayer = new MediaPlayer();
         mediaPlayer->setOptions(iOptions);
         mediaPlayer->setMessage(iMessage);

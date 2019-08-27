@@ -16,6 +16,7 @@ public:
                 .withEvent(new MacEvent())
                 .withAudio(new MacAudio())
                 .withSurface(new MacSurface())
+                .withDebug(true)
                 .build();
         return mediaPlayer;
     }
