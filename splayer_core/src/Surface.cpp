@@ -132,16 +132,16 @@ void Surface::refreshVideo(double *remainingTime) {
             currentFrame = videoState->videoFrameQueue.peek();
             nextFrame = videoState->videoFrameQueue.peekNext();
 
-            ALOGD(SURFACE_TAG, "nextFrame serial = %d packetQueue serial = %d ", nextFrame->serial, videoState->videoPacketQueue.serial);
-            bool isNeedSyncSerial = nextFrame->serial != videoState->videoPacketQueue.serial;
+            ALOGD(SURFACE_TAG, "nextFrame seekSerial = %d packetQueue seekSerial = %d ", nextFrame->seekSerial, videoState->videoPacketQueue.seekSerial);
+            bool isNeedSyncSerial = nextFrame->seekSerial != videoState->videoPacketQueue.seekSerial;
             if (isNeedSyncSerial) {
                 videoState->videoFrameQueue.next();
-                ALOGE(SURFACE_TAG, "goto retry, need to sync serial");
+                ALOGE(SURFACE_TAG, "goto retry, need to sync seekSerial");
                 goto retry;
             }
 
-            ALOGD(SURFACE_TAG, "currentFrame serial = %d nextFrame serial = %d ", currentFrame->serial, nextFrame->serial);
-            if (currentFrame->serial != nextFrame->serial) {
+            ALOGD(SURFACE_TAG, "currentFrame seekSerial = %d nextFrame seekSerial = %d ", currentFrame->seekSerial, nextFrame->seekSerial);
+            if (currentFrame->seekSerial != nextFrame->seekSerial) {
                 videoState->frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
                 ALOGD(SURFACE_TAG, "update frameTimer = %fd ", videoState->frameTimer);
             }
@@ -182,7 +182,7 @@ void Surface::refreshVideo(double *remainingTime) {
 
             videoState->videoFrameQueue.mutex->mutexLock();
             if (!isnan(nextFrame->pts)) {
-                stream->updateVideoClockPts(nextFrame->pts, nextFrame->pos, nextFrame->serial);
+                stream->updateVideoClockPts(nextFrame->pts, nextFrame->pos, nextFrame->seekSerial);
             }
             videoState->videoFrameQueue.mutex->mutexUnLock();
 
@@ -243,7 +243,7 @@ void Surface::refreshSubtitle() const {
             nextFrame = nullptr;
         }
 
-        bool isNoSamePacketSerial = currentFrame->serial != videoState->subtitlePacketQueue.serial;
+        bool isNoSamePacketSerial = currentFrame->seekSerial != videoState->subtitlePacketQueue.seekSerial;
         bool isNeedDropFrame = videoState->videoClock.pts > (currentFrame->pts + ((float) currentFrame->subtitle.end_display_time / 1000));
         bool isNeedDropNextFrame = nextFrame != nullptr && videoState->videoClock.pts > (nextFrame->pts + ((float) nextFrame->subtitle.start_display_time / 1000));
         if (isNoSamePacketSerial || isNeedDropFrame || isNeedDropNextFrame) {

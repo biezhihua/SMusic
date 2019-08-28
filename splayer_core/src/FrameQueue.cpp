@@ -170,10 +170,10 @@ int FrameQueue::next() {
 
 int64_t FrameQueue::lastPos() {
     /* return last shown position */
-    Frame *fp = &queue[readIndex];
-    if (readIndexShown && packetQueue && fp->serial == packetQueue->serial) {
+    Frame *frame = &queue[readIndex];
+    if (readIndexShown && packetQueue && frame->seekSerial == packetQueue->seekSerial) {
         // 返回正在显示的帧的position
-        return fp->pos;
+        return frame->pos;
     } else {
         return -1;
     }

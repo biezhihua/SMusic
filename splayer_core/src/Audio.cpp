@@ -52,7 +52,7 @@ int Audio::audioDecodeFrame() {
             return NEGATIVE(S_NOT_FRAME_READABLE);
         }
         is->audioFrameQueue.next();
-    } while (frame->serial != is->audioPacketQueue.serial);
+    } while (frame->seekSerial != is->audioPacketQueue.seekSerial);
 
     wantedChannelLayout = getWantedChannelLayout(frame);
 
@@ -96,14 +96,14 @@ int Audio::audioDecodeFrame() {
         is->audioClockTime = NAN;
     }
 
-    is->audioClockSerial = frame->serial;
+    is->audioClockSerial = frame->seekSerial;
 
     ALOGD(AUDIO_TAG, "%s audio: delay=%0.3f clock=%0.3f clock0=%0.3f", __func__,
-          is->audioClockTime - is->lastAudioclockTime,
+          is->audioClockTime - is->lastAudioClockTime,
           is->audioClockTime,
           audioClock);
 
-    is->lastAudioclockTime = is->audioClockTime;
+    is->lastAudioClockTime = is->audioClockTime;
 
     return reSampledDataSize;
 }

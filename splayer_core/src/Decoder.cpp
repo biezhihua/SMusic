@@ -9,7 +9,7 @@ void Decoder::decoderInit(AVCodecContext *codecContext, PacketQueue *packetQueue
     Decoder::packetQueue = packetQueue;
     Decoder::emptyQueueCond = emptyQueueMutex;
     Decoder::startPts = AV_NOPTS_VALUE;
-    Decoder::packetSerial = -1;
+    Decoder::packetSeekSerial = -1;
 }
 
 void Decoder::decoderDestroy() {

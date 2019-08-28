@@ -29,14 +29,24 @@ public:
     AVCodecContext *codecContext;
     PacketQueue *packetQueue;
     AVPacket packet;
-    int packetSerial;
+
+    /// 序列，作seek时使用，作为区分前后帧序列
+    int packetSeekSerial;
+
     int finished;
+
     int packetPending;
+
     Mutex *emptyQueueCond;
+
     int64_t startPts;
+
     AVRational startPtsTb;
+
     int64_t nextPts;
+
     AVRational nextPtsTb;
+
     Thread *decoderTid;
 
 public:

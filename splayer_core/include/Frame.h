@@ -15,14 +15,35 @@ public:
     AVFrame *frame;
     AVSubtitle subtitle;
     AVRational sampleAspectRatio;
-    int serial;
-    double pts;           /* presentation timestamp for the frame */
-    double duration;      /* estimated duration of the frame */
-    int64_t pos;          /* byte position of the frame in the input file */
+
+    /// 序列，作seek时使用，作为区分前后帧序列
+    int seekSerial;
+
+    /// 帧的展示时间戳
+    /// presentation timestamp for the frame
+    double pts;
+
+    /// 一帧的时长
+    /// estimated duration of the frame
+    double duration;
+
+    /// 帧在文件中的字节位置
+    /// byte position of the frame in the input file
+    int64_t pos;
+
+    /// 帧宽度
     int width;
+
+    /// 帧高度
     int height;
+
+    /// 帧格式
     int format;
-    int uploaded; // 是否更新到Texture
+
+    /// 是否已更新到Texture中
+    int uploaded;
+
+    /// 是否翻转图像
     int flipVertical;
 };
 

@@ -94,7 +94,7 @@ VideoState *Stream::streamsOpen() {
         return nullptr;
     }
 
-    auto *is = new VideoState();
+    VideoState *is = new VideoState();
     if (!is) {
         ALOGD(STREAM_TAG, "%s create video state oom", __func__);
         return nullptr;
@@ -132,9 +132,9 @@ VideoState *Stream::streamsOpen() {
         return nullptr;
     }
 
-    if (is->videoClock.init(&is->videoPacketQueue.serial) < 0 ||
-        is->audioClock.init(&is->audioPacketQueue.serial) < 0 ||
-        is->exitClock.init(&is->subtitlePacketQueue.serial) < 0) {
+    if (is->videoClock.init(&is->videoPacketQueue.seekSerial) < 0 ||
+        is->audioClock.init(&is->audioPacketQueue.seekSerial) < 0 ||
+        is->exitClock.init(&is->subtitlePacketQueue.seekSerial) < 0) {
         ALOGE(STREAM_TAG, "%s init clock fail", __func__);
         streamsClose();
         return nullptr;
@@ -658,7 +658,7 @@ int Stream::videoThread() {
         bool isNoSameWidth = lastWidth != frame->width;
         bool isNoSameHeight = lastHeight != frame->height;
         bool isNoSameFormat = lastFormat != frame->format;
-        bool isNoSamePacketSerial = lastPacketSerial != is->videoDecoder.packetSerial;
+        bool isNoSamePacketSerial = lastPacketSerial != is->videoDecoder.packetSeekSerial;
         bool isNoSameVFilterIdx = lastFilterIndex != is->filterIndex;
         bool isNeedConfigureFilter =
                 isNoSameWidth || isNoSameHeight || isNoSameFormat || isNoSamePacketSerial || isNoSameVFilterIdx;
@@ -667,14 +667,14 @@ int Stream::videoThread() {
         if (isNeedConfigureFilter) {
 
             ALOGD(STREAM_TAG,
-                  "%s Video frame changed from size:%dx%d format:%s serial:%d to size:%dx%d format:%s serial:%d",
+                  "%s Video frame changed from size:%dx%d format:%s seekSerial:%d to size:%dx%d format:%s seekSerial:%d",
                   __func__,
                   lastWidth, lastHeight,
                   (const char *) av_x_if_null(av_get_pix_fmt_name((AVPixelFormat) lastFormat), "none"),
                   lastPacketSerial,
                   frame->width, frame->height,
                   (const char *) av_x_if_null(av_get_pix_fmt_name((AVPixelFormat) frame->format), "none"),
-                  is->videoDecoder.packetSerial);
+                  is->videoDecoder.packetSeekSerial);
 
             avfilter_graph_free(&filterGraph);
 
@@ -702,7 +702,7 @@ int Stream::videoThread() {
             lastWidth = frame->width;
             lastHeight = frame->height;
             lastFormat = frame->format;
-            lastPacketSerial = is->videoDecoder.packetSerial;
+            lastPacketSerial = is->videoDecoder.packetSeekSerial;
             lastFilterIndex = is->filterIndex;
             frameRate = av_buffersink_get_frame_rate(filterOut);
         }
@@ -722,7 +722,7 @@ int Stream::videoThread() {
             ret = av_buffersink_get_frame_flags(filterOut, frame, 0);
             if (ret < 0) {
                 if (ret == AVERROR_EOF) {
-                    is->videoDecoder.finished = is->videoDecoder.packetSerial;
+                    is->videoDecoder.finished = is->videoDecoder.packetSeekSerial;
                 }
                 ret = 0;
                 break;
@@ -736,11 +736,11 @@ int Stream::videoThread() {
 
             duration = (frameRate.num && frameRate.den ? av_q2d((AVRational) {frameRate.den, frameRate.num}) : 0);
             pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(timeBase);
-            ret = queueFrameToFrameQueue(frame, pts, duration, frame->pkt_pos, is->videoDecoder.packetSerial);
+            ret = queueFrameToFrameQueue(frame, pts, duration, frame->pkt_pos, is->videoDecoder.packetSeekSerial);
             av_frame_unref(frame);
 
 #if CONFIG_AVFILTER
-            if (is->videoPacketQueue.serial != is->videoDecoder.packetSerial) {
+            if (is->videoPacketQueue.seekSerial != is->videoDecoder.packetSeekSerial) {
                 break;
             }
         }
@@ -775,7 +775,7 @@ int Stream::subtitleThread() {
                 pts = frame->subtitle.pts / (double) AV_TIME_BASE;
             }
             frame->pts = pts;
-            frame->serial = videoState->subtitleDecoder.packetSerial;
+            frame->seekSerial = videoState->subtitleDecoder.packetSeekSerial;
             frame->width = videoState->subtitleDecoder.codecContext->width;
             frame->height = videoState->subtitleDecoder.codecContext->height;
             frame->uploaded = 0;
@@ -836,7 +836,7 @@ int Stream::audioThread() {
                                           (AVSampleFormat) avFrame->format, avFrame->channels) ||
                           is->audioFilterSrc.channelLayout != decChannelLayout ||
                           is->audioFilterSrc.sampleRate != avFrame->sample_rate ||
-                          is->audioDecoder.packetSerial != lastSerial;
+                          is->audioDecoder.packetSeekSerial != lastSerial;
 
             if (reconfigure) {
                 char buf1[1024], buf2[1024];
@@ -844,18 +844,18 @@ int Stream::audioThread() {
                 av_get_channel_layout_string(buf2, sizeof(buf2), -1, decChannelLayout);
 
                 ALOGD(STREAM_TAG,
-                      "%s Audio avFrame changed from rate:%d ch:%d fmt:%s layout:%s serial:%d to rate:%d ch:%d fmt:%s layout:%s serial:%d",
+                      "%s Audio avFrame changed from rate:%d ch:%d fmt:%s layout:%s seekSerial:%d to rate:%d ch:%d fmt:%s layout:%s seekSerial:%d",
                       __func__,
                       is->audioFilterSrc.sampleRate, is->audioFilterSrc.channels,
                       av_get_sample_fmt_name(is->audioFilterSrc.sampleFormat), buf1, lastSerial,
                       avFrame->sample_rate, avFrame->channels, av_get_sample_fmt_name((AVSampleFormat) avFrame->format),
-                      buf2, is->audioDecoder.packetSerial);
+                      buf2, is->audioDecoder.packetSeekSerial);
 
                 is->audioFilterSrc.sampleFormat = (AVSampleFormat) avFrame->format;
                 is->audioFilterSrc.channels = avFrame->channels;
                 is->audioFilterSrc.channelLayout = decChannelLayout;
                 is->audioFilterSrc.sampleRate = avFrame->sample_rate;
-                lastSerial = is->audioDecoder.packetSerial;
+                lastSerial = is->audioDecoder.packetSeekSerial;
 
                 if ((ret = configureAudioFilters(options->audioFilters, 1)) < 0) {
                     ALOGE(STREAM_TAG, "%s configure audio filter failure ret = %d", __func__, ret);
@@ -878,19 +878,19 @@ int Stream::audioThread() {
 
                 frame->pts = (avFrame->pts == AV_NOPTS_VALUE) ? NAN : avFrame->pts * av_q2d(timeBase);
                 frame->pos = avFrame->pkt_pos;
-                frame->serial = videoState->audioDecoder.packetSerial;
+                frame->seekSerial = videoState->audioDecoder.packetSeekSerial;
                 frame->duration = av_q2d((AVRational) {avFrame->nb_samples, avFrame->sample_rate});
 
                 av_frame_move_ref(frame->frame, avFrame);
                 videoState->audioFrameQueue.push();
 
 #if CONFIG_AVFILTER
-                if (is->audioPacketQueue.serial != is->audioDecoder.packetSerial) {
+                if (is->audioPacketQueue.seekSerial != is->audioDecoder.packetSeekSerial) {
                     break;
                 }
             }
             if (ret == AVERROR_EOF) {
-                is->audioDecoder.finished = is->audioDecoder.packetSerial;
+                is->audioDecoder.finished = is->audioDecoder.packetSeekSerial;
             }
 #endif
         }
@@ -929,11 +929,11 @@ bool Stream::isRetryPlay() const {
     bool isNoPause = !videoState->paused;
     // 未初始化音频流 或者 解码结束 同时 无可用帧
     bool isNoUseAudioFrame = !videoState->audioStream ||
-                             (videoState->audioDecoder.finished == videoState->audioPacketQueue.serial &&
+                             (videoState->audioDecoder.finished == videoState->audioPacketQueue.seekSerial &&
                               videoState->audioFrameQueue.numberRemaining() == 0);
     // 未初始化视频流 或者 解码结束 同时 无可用帧
     bool isNoUseVideoFrame = !videoState->videoStream ||
-                             (videoState->videoDecoder.finished == videoState->videoPacketQueue.serial &&
+                             (videoState->videoDecoder.finished == videoState->videoPacketQueue.seekSerial &&
                               videoState->videoFrameQueue.numberRemaining() == 0);
     return isNoPause && isNoUseAudioFrame && isNoUseVideoFrame;
 }
@@ -1360,7 +1360,7 @@ int Stream::getVideoFrame(AVFrame *frame) {
                 bool isNoNan = !isnan(diff);
                 bool isNoSync = fabs(diff) < NO_SYNC_THRESHOLD;
                 bool isNeedCorrection = diff - videoState->frameSinkFilterConsumeTime < 0;
-                bool isSameSerial = videoState->videoDecoder.packetSerial == videoState->videoClock.serial;
+                bool isSameSerial = videoState->videoDecoder.packetSeekSerial == videoState->videoClock.serial;
                 bool isLegalSize = videoState->videoPacketQueue.packetSize > 0;
 
                 if (isNoNan && isNoSync && isNeedCorrection && isSameSerial && isLegalSize) {
@@ -1384,7 +1384,7 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
     for (;;) {
         AVPacket packet;
 
-        if (decoder->packetQueue->serial == decoder->packetSerial) {
+        if (decoder->packetQueue->seekSerial == decoder->packetSeekSerial) {
             // 接收一帧解码后的数据
             do {
                 if (decoder->packetQueue->abortRequest) {
@@ -1433,7 +1433,7 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                 }
 
                 if (ret == AVERROR_EOF) {
-                    decoder->finished = decoder->packetSerial;
+                    decoder->finished = decoder->packetSeekSerial;
                     avcodec_flush_buffers(decoder->codecContext);
                     return NEGATIVE(S_EOF);
                 }
@@ -1453,11 +1453,12 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
                 av_packet_move_ref(&packet, &decoder->packet);
                 decoder->packetPending = 0;
             } else {
-                if (IS_NEGATIVE(decoder->packetQueue->get(&packet, 1, &decoder->packetSerial))) {
+                // 更新packetSerial
+                if (IS_NEGATIVE(decoder->packetQueue->get(&packet, 1, &decoder->packetSeekSerial))) {
                     return NEGATIVE(S_NOT_GET_PACKET_QUEUE);
                 }
             }
-        } while (decoder->packetQueue->serial != decoder->packetSerial);
+        } while (decoder->packetQueue->seekSerial != decoder->packetSeekSerial);
 
         if (packet.data == flushPacket.data) {
             avcodec_flush_buffers(decoder->codecContext);
@@ -1494,7 +1495,7 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
 }
 
 int Stream::queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
-    ALOGD(STREAM_TAG, "%s pts=%lf duration=%lf pos=%lld serial=%d", __func__, pts, duration, pos, serial);
+    ALOGD(STREAM_TAG, "%s pts=%lf duration=%lf pos=%lld seekSerial=%d", __func__, pts, duration, pos, serial);
 
     Frame *frame;
 
@@ -1512,7 +1513,7 @@ int Stream::queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duratio
     frame->pts = pts;
     frame->duration = duration;
     frame->pos = pos;
-    frame->serial = serial;
+    frame->seekSerial = serial;
 
     if (surface) {
         surface->setVideoSize(frame->width, frame->height, frame->sampleAspectRatio);
@@ -1542,7 +1543,7 @@ void Stream::checkExternalClockSpeed() {
 }
 
 double Stream::getFrameDuration(const Frame *current, const Frame *next) {
-    if (current->serial == next->serial) {
+    if (current->seekSerial == next->seekSerial) {
         double duration = next->pts - current->pts;
         ALOGD(STREAM_TAG, "%s current->pts = %f next->pts = %f duration = %f maxFrameDuration = %f", __func__,
               current->pts, next->pts, duration, videoState->maxFrameDuration);
@@ -1591,7 +1592,7 @@ double Stream::getComputeTargetDelay(double duration) {
 
 /* update current video pts */
 void Stream::updateVideoClockPts(double pts, int64_t pos, int serial) {
-    ALOGD(STREAM_TAG, "%s pts = %lf pos = %lld serial = %d", __func__, pts, pos, serial);
+    ALOGD(STREAM_TAG, "%s pts = %lf pos = %lld seekSerial = %d", __func__, pts, pos, serial);
     videoState->videoClock.setClock(pts, serial);
     videoState->exitClock.syncClockToSlave(&videoState->videoClock);
 }

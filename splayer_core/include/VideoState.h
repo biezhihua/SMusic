@@ -16,12 +16,19 @@ extern "C" {
 class VideoState {
 
 public:
+
+    ////////////////////////////////////////
+    ////////////////////////////////////////
+    ////////////////////////////////////////
     /// Common
 
     AVInputFormat *inputFormat;
     AVFormatContext *formatContext;
     Thread *readThread;
+
+    /// 用于控制读取线程
     Mutex *continueReadThread;
+
     Clock exitClock;
 
     int showMode = SHOW_MODE_VIDEO;
@@ -41,6 +48,8 @@ public:
 
     int queueAttachmentsReq;
     int realTime;
+
+    /// 文件名
     char *fileName;
 
     // 暂停逻辑
@@ -79,7 +88,11 @@ public:
     AVFilterGraph *agraph;              // audio filter graph
 #endif
 
+    ////////////////////////////////////////
+    ////////////////////////////////////////
+    ////////////////////////////////////////
     /// Subtitle
+
     FrameQueue subtitleFrameQueue;
     PacketQueue subtitlePacketQueue;
     AVStream *subtitleStream;
@@ -87,7 +100,11 @@ public:
     int subtitleLastStreamIndex;
     int subtitleStreamIndex;
 
+    ////////////////////////////////////////
+    ////////////////////////////////////////
+    ////////////////////////////////////////
     /// Video
+
     AVStream *videoStream;
     FrameQueue videoFrameQueue;
     Decoder videoDecoder;
@@ -101,16 +118,24 @@ public:
     AVFilterContext *videoOutFilter;  // the last filter in the video chain
 #endif
 
+
+    ////////////////////////////////////////
+    ////////////////////////////////////////
+    ////////////////////////////////////////
     /// Audio
+
+
     AVStream *audioStream;
     FrameQueue audioFrameQueue;
     PacketQueue audioPacketQueue;
     Decoder audioDecoder;
     Clock audioClock;
     double audioClockTime;
-    double lastAudioclockTime;
+    double lastAudioClockTime;
     int audioLastStreamIndex;
     int audioStreamIndex;
+
+    /// 音频时钟
     int audioClockSerial;
     int audioVolume;
     int audioMuted;

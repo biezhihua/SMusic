@@ -147,9 +147,9 @@ int PacketQueue::putPrivate(AVPacket *packet) {
     packetList->packet = *packet;
     packetList->next = nullptr;
     if (packet == flushPacket) {
-        serial++;
+        seekSerial++;
     }
-    packetList->serial = serial;
+    packetList->serial = seekSerial;
     if (!lastPacket) {
         firstPacket = packetList;
     } else {

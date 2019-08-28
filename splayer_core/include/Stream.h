@@ -78,6 +78,8 @@ static const char *const OPT_SAMPLE_RATES = "sample_rates";
 class Stream {
 
 private:
+
+    /// 用于在SEEK时，刷新数据队列
     AVPacket flushPacket;
 
     Audio *audio = nullptr;
