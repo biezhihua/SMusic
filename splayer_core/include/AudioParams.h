@@ -11,19 +11,19 @@ public:
     /// 采样率
     int sampleRate;
 
-    /// 音频通道的数量
+    /// 声道数
     int channels;
 
-    /// 音频数据的通道布局
+    /// 声道设计，单声道，双声道还是立体声
     int64_t channelLayout;
 
-    /// 音频采样格式
+    /// 采样格式
     AVSampleFormat sampleFormat;
 
-    /// 音频缓冲区大小
+    /// 采样大小
     int frameSize;
 
-    /// 每秒音频Byte
+    /// 每秒多少字节
     int bytesPerSec;
 };
 

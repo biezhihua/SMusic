@@ -45,7 +45,9 @@ void Surface::setMediaPlayer(MediaPlayer *mediaPlayer) {
     Surface::mediaPlayer = mediaPlayer;
 }
 
-void Surface::calculateDisplayRect(Rect *rect, int xLeft, int yTop, int srcWidth, int scrHeight, int picWidth, int picHeight, AVRational picSar) {
+void
+Surface::calculateDisplayRect(Rect *rect, int xLeft, int yTop, int srcWidth, int scrHeight, int picWidth, int picHeight,
+                              AVRational picSar) {
 
     AVRational aspectRatio = picSar;
     int64_t width, height, x, y;
@@ -81,7 +83,8 @@ int Surface::refreshVideo() {
     }
 
     ALOGD(SURFACE_TAG, "===== refreshVideo =====");
-    ALOGD(SURFACE_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime, videoState->paused, videoState->forceRefresh);
+    ALOGD(SURFACE_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime,
+          videoState->paused, videoState->forceRefresh);
     if (remainingTime > 0.0) {
         av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * AV_TIME_BASE)));
     }
@@ -94,7 +97,7 @@ int Surface::refreshVideo() {
     return POSITIVE;
 }
 
-/* called to display each frame */
+/// 刷新视频帧
 void Surface::refreshVideo(double *remainingTime) {
     double time;
     VideoState *videoState = stream->getVideoState();
@@ -104,16 +107,19 @@ void Surface::refreshVideo(double *remainingTime) {
         return;
     }
 
+    // 主同步类型是外部时钟同步，并且是实时码流，则检查外部时钟速度
     if (!videoState->paused && stream->getMasterSyncType() == SYNC_TYPE_EXTERNAL_CLOCK && videoState->realTime) {
         stream->checkExternalClockSpeed();
     }
 
+    // 音频码流
     if (!options->displayDisable && videoState->showMode != SHOW_MODE_VIDEO && videoState->audioStream) {
         time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
         if (videoState->forceRefresh || (videoState->lastVisTime + options->rdftSpeed) < time) {
             displayVideo();
             videoState->lastVisTime = time;
         }
+        // 剩余时间
         *remainingTime = FFMIN(*remainingTime, videoState->lastVisTime + options->rdftSpeed - time);
     }
 
@@ -132,7 +138,9 @@ void Surface::refreshVideo(double *remainingTime) {
             currentFrame = videoState->videoFrameQueue.peek();
             nextFrame = videoState->videoFrameQueue.peekNext();
 
-            ALOGD(SURFACE_TAG, "nextFrame seekSerial = %d packetQueue seekSerial = %d ", nextFrame->seekSerial, videoState->videoPacketQueue.seekSerial);
+            ALOGD(SURFACE_TAG, "nextFrame seekSerial = %d packetQueue seekSerial = %d ", nextFrame->seekSerial,
+                  videoState->videoPacketQueue.seekSerial);
+
             bool isNeedSyncSerial = nextFrame->seekSerial != videoState->videoPacketQueue.seekSerial;
             if (isNeedSyncSerial) {
                 videoState->videoFrameQueue.next();
@@ -140,7 +148,10 @@ void Surface::refreshVideo(double *remainingTime) {
                 goto retry;
             }
 
-            ALOGD(SURFACE_TAG, "currentFrame seekSerial = %d nextFrame seekSerial = %d ", currentFrame->seekSerial, nextFrame->seekSerial);
+            ALOGD(SURFACE_TAG, "currentFrame seekSerial = %d nextFrame seekSerial = %d ", currentFrame->seekSerial,
+                  nextFrame->seekSerial);
+
+            // seek操作时才会产生变化
             if (currentFrame->seekSerial != nextFrame->seekSerial) {
                 videoState->frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
                 ALOGD(SURFACE_TAG, "update frameTimer = %fd ", videoState->frameTimer);
@@ -160,41 +171,51 @@ void Surface::refreshVideo(double *remainingTime) {
             // 上一帧时间 + 当前帧持续时间
             double frameTimerDelay = videoState->frameTimer + delay;
 
-            ALOGD(SURFACE_TAG, "time = %f frameTimer = %f frameTimerDelay = %f delay = %f", time, videoState->frameTimer, frameTimerDelay, delay);
+            ALOGD(SURFACE_TAG, "time = %f frameTimer = %f frameTimerDelay = %f delay = %f", time,
+                  videoState->frameTimer, frameTimerDelay, delay);
 
             // 若上一帧持续显示时间超过当前帧的时间，那么代表上一帧还没显示结束，则继续显示当前帧
             bool isDelayCurrentFrame = time < frameTimerDelay;
             if (isDelayCurrentFrame) {
                 // TODO: 计算不准确会影响CPU使用率
                 *remainingTime = FFMIN(frameTimerDelay - time, *remainingTime);
-                ALOGD(SURFACE_TAG, "goto display, need display pre frame, diff time = %lf remainingTime = %lf", (frameTimerDelay - time), *remainingTime);
+                ALOGD(SURFACE_TAG, "goto display, need display pre frame, diff time = %lf remainingTime = %lf",
+                      (frameTimerDelay - time), *remainingTime);
                 goto display;
             }
 
-            // 累加当前帧持续时间
+            // 计算帧的计时器，累加当前帧持续时间
             videoState->frameTimer += delay;
 
-            bool isNeedSyncFrameTime = delay > 0 && (time - videoState->frameTimer) > SYNC_THRESHOLD_MAX;
-            if (isNeedSyncFrameTime) {
+            // 判断当前的时间是否大于同步阈值，如果大于，则使用当前的时间作为帧的计时器
+            bool isNeedSyncFrameTimer = delay > 0 && (time - videoState->frameTimer) > SYNC_THRESHOLD_MAX;
+            if (isNeedSyncFrameTimer) {
                 videoState->frameTimer = time;
                 ALOGD(SURFACE_TAG, "force set frameTimer = %f ", videoState->frameTimer);
             }
 
+            // 更新显示时间戳
             videoState->videoFrameQueue.mutex->mutexLock();
             if (!isnan(nextFrame->pts)) {
                 stream->updateVideoClockPts(nextFrame->pts, nextFrame->pos, nextFrame->seekSerial);
             }
             videoState->videoFrameQueue.mutex->mutexUnLock();
 
+            // 判断是否还有剩余的帧
             if (videoState->videoFrameQueue.numberRemaining() > 1) {
 
-                Frame *nextPrepareShowFrame = videoState->videoFrameQueue.peekNextNext();
-                duration = stream->getFrameDuration(nextFrame, nextPrepareShowFrame);
+                // 取得下一帧
+                Frame *nextNextFrame = videoState->videoFrameQueue.peekNextNext();
+                duration = stream->getFrameDuration(nextFrame, nextNextFrame);
                 ALOGD(SURFACE_TAG, "next frame duration = %lf ", duration);
 
                 bool isNoStepFrame = !videoState->stepFrame;
-                bool isDropFrameCondition = options->dropFrameWhenSlow > 0 || (options->dropFrameWhenSlow && stream->getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER);
+                bool isDropFrameCondition = options->dropFrameWhenSlow > 0 || (options->dropFrameWhenSlow &&
+                                                                               stream->getMasterSyncType() !=
+                                                                               SYNC_TYPE_VIDEO_MASTER);
                 bool isDropFrame = time > (videoState->frameTimer + duration);
+
+                // 判断是否需要丢弃一部分帧
                 if (isNoStepFrame && isDropFrameCondition && isDropFrame) {
                     videoState->frameDropsLate++;
                     videoState->videoFrameQueue.next();
@@ -217,7 +238,10 @@ void Surface::refreshVideo(double *remainingTime) {
 
         /// DISPLAY
         display:
-        if (videoState->forceRefresh && videoState->showMode == SHOW_MODE_VIDEO && videoState->videoFrameQueue.readIndexShown) {
+
+        // 显示视频画面
+        if (videoState->forceRefresh && videoState->showMode == SHOW_MODE_VIDEO &&
+            videoState->videoFrameQueue.readIndexShown) {
             displayVideo();
         }
     } else {
@@ -235,8 +259,12 @@ void Surface::refreshSubtitle() const {
     Frame *currentFrame;
     Frame *nextFrame;
 
+    // 如果字幕还存在剩余帧，则获取剩余帧
     while (videoState->subtitleFrameQueue.numberRemaining() > 0) {
+
         currentFrame = videoState->subtitleFrameQueue.peek();
+
+        // 判断是否还有剩余的帧
         if (videoState->subtitleFrameQueue.numberRemaining() > 1) {
             nextFrame = videoState->subtitleFrameQueue.peekNext();
         } else {
@@ -244,8 +272,11 @@ void Surface::refreshSubtitle() const {
         }
 
         bool isNoSamePacketSerial = currentFrame->seekSerial != videoState->subtitlePacketQueue.seekSerial;
-        bool isNeedDropFrame = videoState->videoClock.pts > (currentFrame->pts + ((float) currentFrame->subtitle.end_display_time / 1000));
-        bool isNeedDropNextFrame = nextFrame != nullptr && videoState->videoClock.pts > (nextFrame->pts + ((float) nextFrame->subtitle.start_display_time / 1000));
+        bool isNeedDropFrame = videoState->videoClock.pts >
+                               (currentFrame->pts + ((float) currentFrame->subtitle.end_display_time / 1000));
+        bool isNeedDropNextFrame = nextFrame != nullptr && videoState->videoClock.pts > (nextFrame->pts +
+                                                                                         ((float) nextFrame->subtitle.start_display_time /
+                                                                                          1000));
         if (isNoSamePacketSerial || isNeedDropFrame || isNeedDropNextFrame) {
             if (currentFrame->uploaded) {
                 for (int i = 0; i < currentFrame->subtitle.num_rects; i++) {
@@ -320,7 +351,8 @@ void Surface::displayVideoImage() {
             displaySubtitleImage(videoState, currentFrame, nextSubtitleFrame);
         }
 
-        calculateDisplayRect(rect, videoState->xLeft, videoState->yTop, videoState->width, videoState->height, currentFrame->width, currentFrame->height, currentFrame->sampleAspectRatio);
+        calculateDisplayRect(rect, videoState->xLeft, videoState->yTop, videoState->width, videoState->height,
+                             currentFrame->width, currentFrame->height, currentFrame->sampleAspectRatio);
 
         if (!currentFrame->uploaded) {
             if (!uploadVideoTexture(currentFrame->frame, videoState->imgConvertCtx)) {
@@ -338,7 +370,8 @@ void Surface::displayVideoImage() {
 void Surface::displaySubtitleImage(VideoState *videoState, const Frame *currentFrame, Frame *nextSubtitleFrame) {
     if (videoState->subtitleFrameQueue.numberRemaining() > 0) {
         nextSubtitleFrame = videoState->subtitleFrameQueue.peekNext();
-        if (currentFrame->pts >= nextSubtitleFrame->pts + ((float) nextSubtitleFrame->subtitle.start_display_time / 1000)) {
+        if (currentFrame->pts >=
+            nextSubtitleFrame->pts + ((float) nextSubtitleFrame->subtitle.start_display_time / 1000)) {
             if (!nextSubtitleFrame->uploaded) {
                 if (!nextSubtitleFrame->width || !nextSubtitleFrame->height) {
                     nextSubtitleFrame->width = currentFrame->width;

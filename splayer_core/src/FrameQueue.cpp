@@ -44,6 +44,7 @@ int FrameQueue::destroy() {
     return POSITIVE;
 }
 
+/// 队列剩余帧
 int FrameQueue::numberRemaining() {
     /* return the number of undisplayed frames in the packetQueue */
     // 返回队列中待显示帧的数目

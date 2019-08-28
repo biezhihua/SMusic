@@ -134,14 +134,14 @@ VideoState *Stream::streamsOpen() {
 
     if (is->videoClock.init(&is->videoPacketQueue.seekSerial) < 0 ||
         is->audioClock.init(&is->audioPacketQueue.seekSerial) < 0 ||
-        is->exitClock.init(&is->subtitlePacketQueue.seekSerial) < 0) {
+        is->externalClock.init(&is->subtitlePacketQueue.seekSerial) < 0) {
         ALOGE(STREAM_TAG, "%s init clock fail", __func__);
         streamsClose();
         return nullptr;
     }
 
     is->fileName = av_strdup(options->inputFileName);
-    is->audioClockSerial = -1;
+    is->audioClockSeekSerial = -1;
     is->inputFormat = options->inputFormat;
     is->yTop = 0;
     is->xLeft = 0;
@@ -211,8 +211,7 @@ void Stream::streamsClose() {
     }
 }
 
-/// this thread gets the stream from the disk or the network
-/// work thread
+/// 读取线程，从文件中不断读取数据
 int Stream::readThread() {
     ALOGD(STREAM_TAG, __func__);
 
@@ -223,12 +222,13 @@ int Stream::readThread() {
     AVFormatContext *formatContext = nullptr;
     AVPacket packet1;
     AVPacket *packet = &packet1;
-    auto *waitMutex = new Mutex();
+    Mutex *waitMutex = new Mutex();
     AVDictionaryEntry *dictionaryEntry;
     int streamIndex[AVMEDIA_TYPE_NB];
-    int scanAllPmtsSet = 0;
+    int scanAllProgrameMapTableSet = 0;
     int ret = 0;
 
+    // 设置初始值
     memset(streamIndex, -1, sizeof(streamIndex));
 
     videoState->videoLastStreamIndex = videoState->videoStreamIndex = -1;
@@ -236,12 +236,17 @@ int Stream::readThread() {
     videoState->subtitleLastStreamIndex = videoState->subtitleStreamIndex = -1;
     videoState->eof = 0;
 
+    // 设置解码中断回调方法
     formatContext = avformat_alloc_context();
     if (!formatContext) {
         ALOGE(STREAM_TAG, "%s avformat could not allocate context", __func__);
+        if (msgQueue) {
+            msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_MEMORY);
+        }
         return NEGATIVE(S_NOT_MEMORY);
     }
 
+    // 设置中断回调参数
     formatContext->interrupt_callback.callback = decodeInterruptCallback;
     formatContext->interrupt_callback.opaque = videoState;
 
@@ -259,17 +264,21 @@ int Stream::readThread() {
     // TODO: 针对MPEGTS的特殊处理
     if (!av_dict_get(options->format, SCAN_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE)) {
         av_dict_set(&options->format, SCAN_ALL_PMTS, "1", AV_DICT_DONT_OVERWRITE);
-        scanAllPmtsSet = 1;
+        scanAllProgrameMapTableSet = 1;
     }
 
+    // 打开文件
     if (avformat_open_input(&formatContext, videoState->fileName, videoState->inputFormat, &options->format) < 0) {
         ALOGE(STREAM_TAG, "%s avformat could not open input", __func__);
         closeReadThread(videoState, formatContext);
+        if (msgQueue) {
+            msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_OPEN_INPUT);
+        }
         return NEGATIVE(S_NOT_OPEN_INPUT);
     }
 
     // TODO: 还原MPEGTS的特殊处理标记
-    if (scanAllPmtsSet) {
+    if (scanAllProgrameMapTableSet) {
         av_dict_set(&options->format, SCAN_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE);
     }
 
@@ -280,6 +289,9 @@ int Stream::readThread() {
     if ((dictionaryEntry = av_dict_get(options->format, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
         ALOGE(STREAM_TAG, "%s option %s not found.", __func__, dictionaryEntry->key);
         closeReadThread(videoState, formatContext);
+        if (msgQueue) {
+            msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_FOUND_OPTION);
+        }
         return NEGATIVE(S_NOT_FOUND_OPTION);
     }
 
@@ -430,10 +442,12 @@ int Stream::readThread() {
         }
     }
 
+    // 设置显示视频还是自适应滤波
     if (videoState->showMode == SHOW_MODE_NONE) {
         videoState->showMode = ret >= 0 ? SHOW_MODE_VIDEO : SHOW_MODE_RDFT;
     }
 
+    // 打开字幕流
     if (streamIndex[AVMEDIA_TYPE_SUBTITLE] >= 0) {
         if (streamComponentOpen(streamIndex[AVMEDIA_TYPE_SUBTITLE])) {
             if (msgQueue) {
@@ -446,10 +460,11 @@ int Stream::readThread() {
         msgQueue->notifyMsg(Msg::MSG_COMPONENTS_OPEN);
     }
 
+    // 如果音频流和视频流都不存在，则退出
     if (videoState->videoStreamIndex < 0 && videoState->audioStreamIndex < 0) {
         ALOGD(STREAM_TAG, "%s failed to open file '%s' or configure filter graph", __func__, videoState->fileName);
         closeReadThread(videoState, formatContext);
-        return NEGATIVE(S_NOT_OPEN_FILE);
+        return NEGATIVE(S_NOT_VIDEO_AUDIO_STREAM);
     }
 
     if (videoState->videoStream && videoState->videoStream->codecpar) {
@@ -516,9 +531,9 @@ int Stream::readThread() {
                     videoState->subtitlePacketQueue.put(&flushPacket);
                 }
                 if (videoState->seekFlags & AVSEEK_FLAG_BYTE) {
-                    videoState->exitClock.setClock(NAN, 0);
+                    videoState->externalClock.setClock(NAN, 0);
                 } else {
-                    videoState->exitClock.setClock(seekTarget / (double) AV_TIME_BASE, 0);
+                    videoState->externalClock.setClock(seekTarget / (double) AV_TIME_BASE, 0);
                 }
             }
             videoState->seekReq = 0;
@@ -567,7 +582,7 @@ int Stream::readThread() {
             }
         }
 
-        // 读取帧
+        // 读取包
         ret = av_read_frame(formatContext, packet);
 
         if (ret < 0) {
@@ -597,6 +612,7 @@ int Stream::readThread() {
             videoState->eof = 0;
         }
 
+        // 将解复用得到的数据包添加到对应的待解码队列中
         int packetInPlayRange = isPacketInPlayRange(formatContext, packet);
         if (packet->stream_index == videoState->audioStreamIndex && packetInPlayRange) {
             videoState->audioPacketQueue.put(packet);
@@ -613,12 +629,14 @@ int Stream::readThread() {
     return POSITIVE;
 }
 
+/// 视频解码线程
 int Stream::videoThread() {
     ALOGD(STREAM_TAG, __func__);
 
     VideoState *is = videoState;
     AVFrame *frame = av_frame_alloc();
     AVRational timeBase = is->videoStream->time_base;
+    // 猜测视频帧率
     AVRational frameRate = av_guess_frame_rate(is->formatContext, is->videoStream, nullptr);
     double pts;
     double duration;
@@ -641,6 +659,7 @@ int Stream::videoThread() {
 
     for (;;) {
 
+        // 获得视频解码帧，如果失败，则直接释放，如果没有视频帧，则继续等待
         ret = getVideoFrame(frame);
 
         if (ret == NEGATIVE(S_FRAME_DROP)) {
@@ -659,7 +678,7 @@ int Stream::videoThread() {
         bool isNoSameHeight = lastHeight != frame->height;
         bool isNoSameFormat = lastFormat != frame->format;
         bool isNoSamePacketSerial = lastPacketSerial != is->videoDecoder.packetSeekSerial;
-        bool isNoSameVFilterIdx = lastFilterIndex != is->filterIndex;
+        bool isNoSameVFilterIdx = lastFilterIndex != is->videoFilterIndex;
         bool isNeedConfigureFilter =
                 isNoSameWidth || isNoSameHeight || isNoSameFormat || isNoSamePacketSerial || isNoSameVFilterIdx;
 
@@ -689,7 +708,8 @@ int Stream::videoThread() {
             filterGraph->nb_threads = options->filterNumberThreads;
 
             if ((ret = configureVideoFilters(filterGraph, is,
-                                             options->filtersList ? options->filtersList[is->filterIndex] : nullptr,
+                                             options->videoFiltersList ? options->videoFiltersList[is->videoFilterIndex]
+                                                                       : nullptr,
                                              frame)) < 0) {
                 msgQueue->notifyMsg(Msg::REQ_QUIT);
                 avfilter_graph_free(&filterGraph);
@@ -703,7 +723,7 @@ int Stream::videoThread() {
             lastHeight = frame->height;
             lastFormat = frame->format;
             lastPacketSerial = is->videoDecoder.packetSeekSerial;
-            lastFilterIndex = is->filterIndex;
+            lastFilterIndex = is->videoFilterIndex;
             frameRate = av_buffersink_get_frame_rate(filterOut);
         }
 
@@ -734,8 +754,11 @@ int Stream::videoThread() {
             timeBase = av_buffersink_get_time_base(filterOut);
 #endif
 
+            // 计算帧的pts、duration等
             duration = (frameRate.num && frameRate.den ? av_q2d((AVRational) {frameRate.den, frameRate.num}) : 0);
             pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(timeBase);
+
+            // 放入到已解码队列
             ret = queueFrameToFrameQueue(frame, pts, duration, frame->pkt_pos, is->videoDecoder.packetSeekSerial);
             av_frame_unref(frame);
 
@@ -757,19 +780,27 @@ int Stream::videoThread() {
     return POSITIVE;
 }
 
+/// 字幕线程
 int Stream::subtitleThread() {
     ALOGD(STREAM_TAG, __func__);
     Frame *frame;
     int gotSubtitle;
     double pts;
     for (;;) {
+
+        // 查询队列是否可写
         if (!(frame = videoState->subtitleFrameQueue.peekWritable())) {
             return NEGATIVE(S_NOT_FRAME_WRITEABLE);
         }
+
+        // 解码字幕帧
         if ((gotSubtitle = decoderDecodeFrame(&videoState->subtitleDecoder, nullptr, &frame->subtitle)) < 0) {
             break;
         }
+
         pts = 0;
+
+        // 如果存在字幕
         if (gotSubtitle && frame->subtitle.format == 0) {
             if (frame->subtitle.pts != AV_NOPTS_VALUE) {
                 pts = frame->subtitle.pts / (double) AV_TIME_BASE;
@@ -779,7 +810,9 @@ int Stream::subtitleThread() {
             frame->width = videoState->subtitleDecoder.codecContext->width;
             frame->height = videoState->subtitleDecoder.codecContext->height;
             frame->uploaded = 0;
+
             /* now we can update the picture count */
+            // 将解码后的字幕帧压入解码后的字幕队列
             videoState->subtitleFrameQueue.push();
         } else if (gotSubtitle) {
             avsubtitle_free(&frame->subtitle);
@@ -788,8 +821,10 @@ int Stream::subtitleThread() {
     return POSITIVE;
 }
 
+/// 比较音频格式
 int Stream::cmpAudioFormats(AVSampleFormat fmt1, int64_t channel_count1, AVSampleFormat fmt2, int64_t channel_count2) {
     /* If channel count == 1, planar and non-planar formats are the same */
+    // 如果声道数都等于1，直接比较采样格式是否相同，否则比较声道和格式
     if (channel_count1 == 1 && channel_count2 == 1) {
         return av_get_packed_sample_fmt(fmt1) != av_get_packed_sample_fmt(fmt2);
     } else {
@@ -797,6 +832,7 @@ int Stream::cmpAudioFormats(AVSampleFormat fmt1, int64_t channel_count1, AVSampl
     }
 }
 
+/// 音频解码线程
 int Stream::audioThread() {
     ALOGD(STREAM_TAG, __func__);
 
@@ -821,6 +857,8 @@ int Stream::audioThread() {
     }
 
     do {
+
+        // 解码音频帧帧
         if ((gotFrame = decoderDecodeFrame(&is->audioDecoder, avFrame, nullptr)) < 0) {
             ALOGE(STREAM_TAG, "%s audio decoderDecodeFrame failure ret = %d", __func__, gotFrame);
             goto the_end;
@@ -871,6 +909,7 @@ int Stream::audioThread() {
             while ((ret = av_buffersink_get_frame_flags(is->outAudioFilter, avFrame, 0)) >= 0) {
                 timeBase = av_buffersink_get_time_base(is->outAudioFilter);
 #endif
+                // 检查是否帧队列是否可写入，如果不可写入，则直接释放
                 if (!(frame = videoState->audioFrameQueue.peekWritable())) {
                     ALOGE(STREAM_TAG, "%s not queue audio", __func__);
                     goto the_end;
@@ -881,6 +920,7 @@ int Stream::audioThread() {
                 frame->seekSerial = videoState->audioDecoder.packetSeekSerial;
                 frame->duration = av_q2d((AVRational) {avFrame->nb_samples, avFrame->sample_rate});
 
+                // 将解码后的音频帧压入解码后的音频队列
                 av_frame_move_ref(frame->frame, avFrame);
                 videoState->audioFrameQueue.push();
 
@@ -898,8 +938,9 @@ int Stream::audioThread() {
 
     the_end:
 #if CONFIG_AVFILTER
-    avfilter_graph_free(&is->agraph);
+    avfilter_graph_free(&is->audioGraph);
 #endif
+    // 释放
     av_frame_free(&avFrame);
     return ret;
 }
@@ -973,6 +1014,7 @@ int Stream::isRealTime(AVFormatContext *formatContext) {
     return NEGATIVE(S_ERROR);
 }
 
+/// 开打码流
 int Stream::streamComponentOpen(int streamIndex) {
 
     ALOGD(STREAM_TAG, "%s streamIndex=%d", __func__, streamIndex);
@@ -995,6 +1037,7 @@ int Stream::streamComponentOpen(int streamIndex) {
         return NEGATIVE(S_NOT_VALID_STREAM_INDEX);
     }
 
+    // 创建解码上下文
     codecContext = avcodec_alloc_context3(nullptr);
     if (!codecContext) {
         if (msgQueue) {
@@ -1003,6 +1046,7 @@ int Stream::streamComponentOpen(int streamIndex) {
         return NEGATIVE(S_NOT_ALLOC_CODEC_CONTEXT);
     }
 
+    // 复制解码器信息到解码上下文
     if (avcodec_parameters_to_context(codecContext, formatContext->streams[streamIndex]->codecpar) < 0) {
         avcodec_free_context(&codecContext);
         if (msgQueue) {
@@ -1011,10 +1055,13 @@ int Stream::streamComponentOpen(int streamIndex) {
         return NEGATIVE(S_NOT_CODEC_PARAMS_CONTEXT);
     }
 
+    // 时间基准
     codecContext->pkt_timebase = formatContext->streams[streamIndex]->time_base;
 
+    // 查找解码器
     codec = avcodec_find_decoder(codecContext->codec_id);
 
+    // 判断解码器类型，设置流的索引并根据类型设置解码名称
     const char *forcedCodecName = getForcedCodecName(streamIndex, codecContext);
     if (forcedCodecName) {
         codec = avcodec_find_decoder_by_name(forcedCodecName);
@@ -1033,8 +1080,10 @@ int Stream::streamComponentOpen(int streamIndex) {
         return NEGATIVE(S_NOT_FOUND_CODER);
     }
 
+    // 设置解码器的Id
     codecContext->codec_id = codec->id;
 
+    // 判断是否需要重新设置lowres的值
     if (streamLowResolution > codec->max_lowres) {
         ALOGD(STREAM_TAG, "%s The maximum value for low Resolution supported by the decoder is %d", __func__,
               codec->max_lowres);
@@ -1046,6 +1095,7 @@ int Stream::streamComponentOpen(int streamIndex) {
         codecContext->flags2 |= AV_CODEC_FLAG2_FAST;
     }
 
+    // 设置解码参数
     opts = filter_codec_opts(options->codec, codecContext->codec_id, formatContext, formatContext->streams[streamIndex],
                              codec);
 
@@ -1061,6 +1111,7 @@ int Stream::streamComponentOpen(int streamIndex) {
         av_dict_set(&opts, KEY_REF_COUNTED_FRAMES, "1", 0);
     }
 
+    // 打开解码器
     if (avcodec_open2(codecContext, codec, &opts) < 0) {
         avcodec_free_context(&codecContext);
         if (msgQueue) {
@@ -1079,6 +1130,7 @@ int Stream::streamComponentOpen(int streamIndex) {
     // discard useless packets like 0 size packets in avi
     formatContext->streams[streamIndex]->discard = AVDISCARD_DEFAULT;
 
+    // 根据类型打开解码器
     switch (codecContext->codec_type) {
         case AVMEDIA_TYPE_AUDIO:
 #if CONFIG_AVFILTER
@@ -1114,7 +1166,7 @@ int Stream::streamComponentOpen(int streamIndex) {
                 return NEGATIVE(S_NOT_OPEN_AUDIO);
             }
 
-            videoState->audioHwBufSize = ret;
+            videoState->audioHardwareBufSize = ret;
             videoState->audioSrc = videoState->audioTarget;
             videoState->audioBufSize = 0;
             videoState->audioBufIndex = 0;
@@ -1124,19 +1176,24 @@ int Stream::streamComponentOpen(int streamIndex) {
             videoState->audioDiffAvgCount = 0;
             /* since we do not have a precise anough audio FIFO fullness,we correct audio sync only if larger than this threshold */
             videoState->audioDiffThreshold =
-                    (double) (videoState->audioHwBufSize) / videoState->audioTarget.bytesPerSec;
+                    (double) (videoState->audioHardwareBufSize) / videoState->audioTarget.bytesPerSec;
 
             videoState->audioStreamIndex = streamIndex;
             videoState->audioStream = formatContext->streams[streamIndex];
-            videoState->audioDecoder.decoderInit(codecContext, &videoState->audioPacketQueue,
-                                                 videoState->continueReadThread);
+
+            // 音频解码器初始化
+            videoState->audioDecoder.init(codecContext, &videoState->audioPacketQueue,
+                                          videoState->continueReadThread);
+
             if ((videoState->formatContext->iformat->flags &
                  (AVFMT_NOBINSEARCH | AVFMT_NOGENSEARCH | AVFMT_NO_BYTE_SEEK)) &&
                 !videoState->formatContext->iformat->read_seek) {
                 videoState->audioDecoder.startPts = videoState->audioStream->start_time;
                 videoState->audioDecoder.startPtsTb = videoState->audioStream->time_base;
             }
-            if (!videoState->audioDecoder.decoderStart("ADecode", innerAudioThread, this)) {
+
+            // 音频解码队列和线程初始化
+            if (!videoState->audioDecoder.start("ADecode", innerAudioThread, this)) {
                 av_dict_free(&opts);
                 if (msgQueue) {
                     msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_AUDIO_DECODE_START);
@@ -1150,9 +1207,13 @@ int Stream::streamComponentOpen(int streamIndex) {
         case AVMEDIA_TYPE_VIDEO:
             videoState->videoStreamIndex = streamIndex;
             videoState->videoStream = formatContext->streams[streamIndex];
-            videoState->videoDecoder.decoderInit(codecContext, &videoState->videoPacketQueue,
-                                                 videoState->continueReadThread);
-            if (!videoState->videoDecoder.decoderStart("VDecode", innerVideoThread, this)) {
+
+            // 视频解码器初始化
+            videoState->videoDecoder.init(codecContext, &videoState->videoPacketQueue,
+                                          videoState->continueReadThread);
+
+            // 视频解码队列和线程初始化
+            if (!videoState->videoDecoder.start("VDecode", innerVideoThread, this)) {
                 av_dict_free(&opts);
                 if (msgQueue) {
                     msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_VIDEO_DECODE_START);
@@ -1164,9 +1225,13 @@ int Stream::streamComponentOpen(int streamIndex) {
         case AVMEDIA_TYPE_SUBTITLE:
             videoState->subtitleStreamIndex = streamIndex;
             videoState->subtitleStream = formatContext->streams[streamIndex];
-            videoState->subtitleDecoder.decoderInit(codecContext, &videoState->subtitlePacketQueue,
-                                                    videoState->continueReadThread);
-            if (!videoState->subtitleDecoder.decoderStart("SDecode", innerSubtitleThread, this)) {
+
+            // 字幕解码器初始化
+            videoState->subtitleDecoder.init(codecContext, &videoState->subtitlePacketQueue,
+                                             videoState->continueReadThread);
+
+            // 字幕解码队列和线程初始化
+            if (!videoState->subtitleDecoder.start("SDecode", innerSubtitleThread, this)) {
                 av_dict_free(&opts);
                 if (msgQueue) {
                     msgQueue->notifyMsg(Msg::MSG_ERROR, S_NOT_SUBTITLE_DECODE_START);
@@ -1233,11 +1298,11 @@ int Stream::streamComponentClose(AVStream *stream, int streamIndex) {
 
     switch (codecParameters->codec_type) {
         case AVMEDIA_TYPE_AUDIO:
-            videoState->audioDecoder.decoderAbort(&videoState->audioFrameQueue);
-            videoState->audioDecoder.decoderDestroy();
+            videoState->audioDecoder.abort(&videoState->audioFrameQueue);
+            videoState->audioDecoder.destroy();
             swr_free(&videoState->audioSwrContext);
             av_freep(&videoState->audioConvertBuf);
-            videoState->audioBuf1Size = 0;
+            videoState->audioConvertBufSize = 0;
             videoState->audioBuf = nullptr;
             if (videoState->rdft) {
                 av_rdft_end(videoState->rdft);
@@ -1247,12 +1312,12 @@ int Stream::streamComponentClose(AVStream *stream, int streamIndex) {
             }
             break;
         case AVMEDIA_TYPE_VIDEO:
-            videoState->videoDecoder.decoderAbort(&videoState->videoFrameQueue);
-            videoState->videoDecoder.decoderDestroy();
+            videoState->videoDecoder.abort(&videoState->videoFrameQueue);
+            videoState->videoDecoder.destroy();
             break;
         case AVMEDIA_TYPE_SUBTITLE:
-            videoState->subtitleDecoder.decoderAbort(&videoState->subtitleFrameQueue);
-            videoState->subtitleDecoder.decoderDestroy();
+            videoState->subtitleDecoder.abort(&videoState->subtitleFrameQueue);
+            videoState->subtitleDecoder.destroy();
             break;
         default:
             break;
@@ -1280,7 +1345,7 @@ int Stream::streamComponentClose(AVStream *stream, int streamIndex) {
     return POSITIVE;
 }
 
-/* get the current master clock value */
+/// 获取主时钟
 double Stream::getMasterClock() {
     double val;
     switch (getMasterSyncType()) {
@@ -1291,12 +1356,13 @@ double Stream::getMasterClock() {
             val = videoState->audioClock.getClock();
             break;
         default:
-            val = videoState->exitClock.getClock();
+            val = videoState->externalClock.getClock();
             break;
     }
     return val;
 }
 
+/// 获取同步类型
 int Stream::getMasterSyncType() {
     if (videoState && videoState->syncType == SYNC_TYPE_VIDEO_MASTER) {
         if (videoState->videoStream) {
@@ -1329,16 +1395,19 @@ void Stream::streamSeek(int64_t pos, int64_t rel, int seekByBytes) {
     }
 }
 
+/// 获取视频帧
 int Stream::getVideoFrame(AVFrame *frame) {
     ALOGD(STREAM_TAG, __func__);
 
     int gotPicture = NEGATIVE(S_FRAME_DROP);
 
+    // 解码视频帧
     if ((gotPicture = decoderDecodeFrame(&videoState->videoDecoder, frame, nullptr)) < 0) {
         ALOGE(STREAM_TAG, "%s video decoderDecodeFrame failure ret = %d", __func__, gotPicture);
         return NEGATIVE(S_NOT_DECODE_FRAME);
     }
 
+    // 判断是否解码成功
     if (gotPicture) {
         double dpts = NAN;
 
@@ -1349,6 +1418,7 @@ int Stream::getVideoFrame(AVFrame *frame) {
         frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(videoState->formatContext, videoState->videoStream,
                                                                   frame);
 
+        // 判断是否需要舍弃该帧
         if (options->dropFrameWhenSlow > 0 ||
             (options->dropFrameWhenSlow && getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER)) {
             if (frame->pts != AV_NOPTS_VALUE) {
@@ -1360,7 +1430,7 @@ int Stream::getVideoFrame(AVFrame *frame) {
                 bool isNoNan = !isnan(diff);
                 bool isNoSync = fabs(diff) < NO_SYNC_THRESHOLD;
                 bool isNeedCorrection = diff - videoState->frameSinkFilterConsumeTime < 0;
-                bool isSameSerial = videoState->videoDecoder.packetSeekSerial == videoState->videoClock.serial;
+                bool isSameSerial = videoState->videoDecoder.packetSeekSerial == videoState->videoClock.seekSerial;
                 bool isLegalSize = videoState->videoPacketQueue.packetSize > 0;
 
                 if (isNoNan && isNoSync && isNeedCorrection && isSameSerial && isLegalSize) {
@@ -1376,8 +1446,8 @@ int Stream::getVideoFrame(AVFrame *frame) {
     return gotPicture;
 }
 
+/// 解码器解码frame帧
 int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *subtitle) {
-
 
     int ret = AVERROR(EAGAIN);
 
@@ -1494,6 +1564,7 @@ int Stream::decoderDecodeFrame(Decoder *decoder, AVFrame *frame, AVSubtitle *sub
     return ret;
 }
 
+//. 将已经解码的帧压入解码后的视频队列
 int Stream::queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
     ALOGD(STREAM_TAG, "%s pts=%lf duration=%lf pos=%lld seekSerial=%d", __func__, pts, duration, pos, serial);
 
@@ -1524,24 +1595,27 @@ int Stream::queueFrameToFrameQueue(AVFrame *srcFrame, double pts, double duratio
     return POSITIVE;
 }
 
+/// 检查外部时钟速度
 void Stream::checkExternalClockSpeed() {
     if ((videoState->videoStreamIndex >= 0 && videoState->videoPacketQueue.packetSize <= EXTERNAL_CLOCK_MIN_FRAMES) ||
         (videoState->audioStreamIndex >= 0 && videoState->audioPacketQueue.packetSize <= EXTERNAL_CLOCK_MIN_FRAMES)) {
-        videoState->exitClock.setClockSpeed(
-                FFMAX(EXTERNAL_CLOCK_SPEED_MIN, videoState->exitClock.speed - EXTERNAL_CLOCK_SPEED_STEP));
+        videoState->externalClock.setClockSpeed(
+                FFMAX(EXTERNAL_CLOCK_SPEED_MIN, videoState->externalClock.speed - EXTERNAL_CLOCK_SPEED_STEP));
     } else if (
             (videoState->videoStreamIndex < 0 || videoState->videoPacketQueue.packetSize > EXTERNAL_CLOCK_MAX_FRAMES) &&
             (videoState->audioStreamIndex < 0 || videoState->audioPacketQueue.packetSize > EXTERNAL_CLOCK_MAX_FRAMES)) {
-        videoState->exitClock.setClockSpeed(
-                FFMIN(EXTERNAL_CLOCK_SPEED_MAX, videoState->exitClock.speed + EXTERNAL_CLOCK_SPEED_STEP));
+        videoState->externalClock.setClockSpeed(
+                FFMIN(EXTERNAL_CLOCK_SPEED_MAX, videoState->externalClock.speed + EXTERNAL_CLOCK_SPEED_STEP));
     } else {
-        double speed = videoState->exitClock.speed;
+        double speed = videoState->externalClock.speed;
         if (speed != 1.0) {
-            videoState->exitClock.setClockSpeed(speed + EXTERNAL_CLOCK_SPEED_STEP * (1.0 - speed) / fabs(1.0 - speed));
+            videoState->externalClock.setClockSpeed(
+                    speed + EXTERNAL_CLOCK_SPEED_STEP * (1.0 - speed) / fabs(1.0 - speed));
         }
     }
 }
 
+/// 计算显示时长
 double Stream::getFrameDuration(const Frame *current, const Frame *next) {
     if (current->seekSerial == next->seekSerial) {
         double duration = next->pts - current->pts;
@@ -1557,14 +1631,19 @@ double Stream::getFrameDuration(const Frame *current, const Frame *next) {
     }
 }
 
+/// 计算时延
 double Stream::getComputeTargetDelay(double duration) {
     double syncThreshold, diff = 0;
+
+
     /* update duration to follow master synchronisation source */
+    // 如果不是以视频做为同步基准，则计算延时
     if (getMasterSyncType() != SYNC_TYPE_VIDEO_MASTER) {
         /* if video is slave, we try to correct big delays byduplicating or deleting a frame */
         double videoClock = videoState->videoClock.getClock();
         double masterClock = getMasterClock();
 
+        // 计算时间差
         diff = videoClock - masterClock;
 
         ALOGD(STREAM_TAG, "videoClock = %lf masterClock = %lf ", videoClock, masterClock);
@@ -1572,16 +1651,21 @@ double Stream::getComputeTargetDelay(double duration) {
         // skip or repeat frame. We take into account the duration to compute the threshold. I still don't know
         // if it is the best guess */
         // 0.04 ~ 0.1
+        // 计算同步阈值
         syncThreshold = FFMAX(SYNC_THRESHOLD_MIN, FFMIN(SYNC_THRESHOLD_MAX, duration));
 
         ALOGD(STREAM_TAG, "diff = %lf syncThreshold[0.04,0.1] = %lf ", diff, syncThreshold);
 
+        // 判断时间差是否在许可范围内
         if (!isnan(diff) && fabs(diff) < videoState->maxFrameDuration) {
             if (diff <= -syncThreshold) {
+                // 滞后
                 duration = FFMAX(0, duration + diff);
             } else if (diff >= syncThreshold && duration > SYNC_FRAMEDUP_THRESHOLD) {
+                // 超前
                 duration = duration + diff;
             } else if (diff >= syncThreshold) {
+                // 超出了理论阈值
                 duration = 2 * duration;
             }
         }
@@ -1590,17 +1674,18 @@ double Stream::getComputeTargetDelay(double duration) {
     return duration;
 }
 
-/* update current video pts */
+/// 更新视频的pts
 void Stream::updateVideoClockPts(double pts, int64_t pos, int serial) {
     ALOGD(STREAM_TAG, "%s pts = %lf pos = %lld seekSerial = %d", __func__, pts, pos, serial);
     videoState->videoClock.setClock(pts, serial);
-    videoState->exitClock.syncClockToSlave(&videoState->videoClock);
+    videoState->externalClock.syncClockToSlave(&videoState->videoClock);
 }
 
 VideoState *Stream::getVideoState() const {
     return videoState;
 }
 
+/// 下一帧
 void Stream::stepToNextFrame() {
     ALOGD(STREAM_TAG, "%s", __func__);
     /* if the stream is paused unpause it, then stepFrame */
@@ -1622,18 +1707,19 @@ int Stream::togglePause() {
     return NEGATIVE(S_NULL);
 }
 
+/// 暂停/播放视频流
 int Stream::streamTogglePause() {
     if (videoState) {
         if (videoState->paused) {
             videoState->frameTimer += (av_gettime_relative() * 1.0F / AV_TIME_BASE -
-                                       videoState->videoClock.updatedTime);
+                                       videoState->videoClock.lastUpdatedTime);
             if (videoState->readPauseReturn != AVERROR(ENOSYS)) {
                 videoState->videoClock.paused = 0;
             }
-            videoState->videoClock.setClock(videoState->videoClock.getClock(), videoState->videoClock.serial);
+            videoState->videoClock.setClock(videoState->videoClock.getClock(), videoState->videoClock.seekSerial);
         }
-        videoState->exitClock.setClock(videoState->exitClock.getClock(), videoState->exitClock.serial);
-        videoState->paused = videoState->audioClock.paused = videoState->videoClock.paused = videoState->exitClock.paused = !videoState->paused;
+        videoState->externalClock.setClock(videoState->externalClock.getClock(), videoState->externalClock.seekSerial);
+        videoState->paused = videoState->audioClock.paused = videoState->videoClock.paused = videoState->externalClock.paused = !videoState->paused;
         return POSITIVE;
     }
     return NEGATIVE(S_NULL);
@@ -1675,7 +1761,9 @@ int Stream::getStartupVolume() {
     return options->audioStartupVolume;
 }
 
+///  获取有效的声道设计，是指的单声道，双声道，立体声
 int64_t Stream::getValidChannelLayout(uint64_t channelLayout, int channels) {
+    // 比较声道设计是否存在以及对应的声道数量是否相等
     if (channelLayout && av_get_channel_layout_nb_channels(channelLayout) == channels) {
         return channelLayout;
     } else {
@@ -1685,6 +1773,7 @@ int64_t Stream::getValidChannelLayout(uint64_t channelLayout, int channels) {
 
 #if CONFIG_AVFILTER
 
+///  配置音频过滤器
 int Stream::configureAudioFilters(const char *audioFilters, int forceOutputFormat) {
 
     static const enum AVSampleFormat sampleFmts[] = {AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_NONE};
@@ -1698,12 +1787,12 @@ int Stream::configureAudioFilters(const char *audioFilters, int forceOutputForma
     char srcArgs[256];
     int ret;
 
-    avfilter_graph_free(&videoState->agraph);
+    avfilter_graph_free(&videoState->audioGraph);
 
-    if (!(videoState->agraph = avfilter_graph_alloc())) {
+    if (!(videoState->audioGraph = avfilter_graph_alloc())) {
         return NEGATIVE(S_NOT_MEMORY);
     }
-    videoState->agraph->nb_threads = options->filterNumberThreads;
+    videoState->audioGraph->nb_threads = options->filterNumberThreads;
 
     while ((e = av_dict_get(options->swrDict, "", e, AV_DICT_IGNORE_SUFFIX))) {
         av_strlcatf(resampleSwrOpts, sizeof(resampleSwrOpts), "%s=%s:", e->key, e->value);
@@ -1711,7 +1800,7 @@ int Stream::configureAudioFilters(const char *audioFilters, int forceOutputForma
     if (strlen(resampleSwrOpts)) {
         resampleSwrOpts[strlen(resampleSwrOpts) - 1] = '\0';
     }
-    av_opt_set(videoState->agraph, OPT_RESAMPLE_SWR, resampleSwrOpts, 0);
+    av_opt_set(videoState->audioGraph, OPT_RESAMPLE_SWR, resampleSwrOpts, 0);
 
     ret = snprintf(srcArgs, sizeof(srcArgs), "sample_rate=%d:sample_fmt=%s:channels=%d:time_base=%d/%d",
                    videoState->audioFilterSrc.sampleRate,
@@ -1724,13 +1813,13 @@ int Stream::configureAudioFilters(const char *audioFilters, int forceOutputForma
     }
 
     ret = avfilter_graph_create_filter(&filterSrc, avfilter_get_by_name("abuffer"), "splayer_abuffer", srcArgs, nullptr,
-                                       videoState->agraph);
+                                       videoState->audioGraph);
     if (ret < 0) {
         goto end;
     }
 
     ret = avfilter_graph_create_filter(&filterSink, avfilter_get_by_name("abuffersink"), "splayer_abuffersink", nullptr,
-                                       nullptr, videoState->agraph);
+                                       nullptr, videoState->audioGraph);
     if (ret < 0) {
         goto end;
     }
@@ -1763,7 +1852,7 @@ int Stream::configureAudioFilters(const char *audioFilters, int forceOutputForma
         }
     }
 
-    if ((ret = configureFilterGraph(videoState->agraph, audioFilters, filterSrc, filterSink)) < 0) {
+    if ((ret = configureFilterGraph(videoState->audioGraph, audioFilters, filterSrc, filterSink)) < 0) {
         goto end;
     }
 
@@ -1772,18 +1861,20 @@ int Stream::configureAudioFilters(const char *audioFilters, int forceOutputForma
 
     end:
     if (ret < 0) {
-        avfilter_graph_free(&videoState->agraph);
+        avfilter_graph_free(&videoState->audioGraph);
     }
 
     return ret;
 }
 
+/// 过滤器配置
 int Stream::configureFilterGraph(AVFilterGraph *graph, const char *filterGraph, AVFilterContext *srcFilterContext,
                                  AVFilterContext *sinkFilterContext) {
     int ret, i;
     int nb_filters = graph->nb_filters;
     AVFilterInOut *outputs = nullptr, *inputs = nullptr;
 
+    // 判断过滤器是否存在
     if (filterGraph) {
         outputs = avfilter_inout_alloc();
         inputs = avfilter_inout_alloc();
@@ -1804,6 +1895,7 @@ int Stream::configureFilterGraph(AVFilterGraph *graph, const char *filterGraph, 
         inputs->pad_idx = 0;
         inputs->next = nullptr;
 
+        // 将一串通过字符串描述的filtergraph添加到graph中
         if ((ret = avfilter_graph_parse_ptr(graph, filterGraph, &inputs, &outputs, nullptr)) < 0) {
             avfilter_inout_free(&outputs);
             avfilter_inout_free(&inputs);
@@ -1820,6 +1912,7 @@ int Stream::configureFilterGraph(AVFilterGraph *graph, const char *filterGraph, 
     }
 
     /* Reorder the filters to ensure that inputs of the custom filters are merged first */
+    // 对滤镜重新排序，以确保自定义滤镜已经合并了
     for (i = 0; i < graph->nb_filters - nb_filters; i++) {
         FFSWAP(AVFilterContext*, graph->filters[i], graph->filters[i + nb_filters]);
     }
@@ -1828,6 +1921,7 @@ int Stream::configureFilterGraph(AVFilterGraph *graph, const char *filterGraph, 
     return ret;
 }
 
+///  配置视频过滤器
 int Stream::configureVideoFilters(AVFilterGraph *filterGraph, VideoState *is, const char *filters, AVFrame *frame) {
     AVFilterContext *filterSrc = nullptr;
     AVFilterContext *filterOut = nullptr;
@@ -1860,11 +1954,13 @@ int Stream::configureVideoFilters(AVFilterGraph *filterGraph, VideoState *is, co
         av_strlcatf(bufferSrcArgs, sizeof(bufferSrcArgs), ":frame_rate=%d/%d", fr.num, fr.den);
     }
 
+    // 创建滤镜
     if ((ret = avfilter_graph_create_filter(&filterSrc, avfilter_get_by_name("buffer"), "splayer_buffer", bufferSrcArgs,
                                             nullptr, filterGraph)) < 0) {
         return ret;
     }
 
+    // 创建滤镜
     if ((ret = avfilter_graph_create_filter(&filterOut, avfilter_get_by_name("buffersink"), "splayer_buffersink",
                                             nullptr, nullptr, filterGraph)) < 0) {
         return ret;

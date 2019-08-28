@@ -32,6 +32,7 @@ protected:
     MessageQueue *msgQueue = nullptr;
     MediaPlayer *mediaPlayer = nullptr;
 
+    /// 音频回调时间
     int64_t audioCallbackTime;
 
 public:

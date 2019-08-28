@@ -4,7 +4,7 @@
 #pragma clang diagnostic ignored "-Wunknown-pragmas"
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 
-void Decoder::decoderInit(AVCodecContext *codecContext, PacketQueue *packetQueue, Mutex *emptyQueueMutex) {
+void Decoder::init(AVCodecContext *codecContext, PacketQueue *packetQueue, Mutex *emptyQueueMutex) {
     Decoder::codecContext = codecContext;
     Decoder::packetQueue = packetQueue;
     Decoder::emptyQueueCond = emptyQueueMutex;
@@ -12,12 +12,12 @@ void Decoder::decoderInit(AVCodecContext *codecContext, PacketQueue *packetQueue
     Decoder::packetSeekSerial = -1;
 }
 
-void Decoder::decoderDestroy() {
+void Decoder::destroy() {
     av_packet_unref(&packet);
     avcodec_free_context(&codecContext);
 }
 
-void Decoder::decoderAbort(FrameQueue *frameQueue) {
+void Decoder::abort(FrameQueue *frameQueue) {
     if (packetQueue) {
         packetQueue->abort();
     }
@@ -33,7 +33,7 @@ void Decoder::decoderAbort(FrameQueue *frameQueue) {
     }
 }
 
-int Decoder::decoderStart(const char *name, int (*fn)(void *), void *arg) {
+int Decoder::start(const char *name, int (*fn)(void *), void *arg) {
     if (packetQueue) {
         packetQueue->start();
     }

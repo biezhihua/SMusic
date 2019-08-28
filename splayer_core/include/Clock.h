@@ -17,22 +17,22 @@ extern "C" {
 class Clock {
 public:
 
-    /// 展示时间
+    /// 时钟基准
     double pts;
 
-    /// 偏移时间，展示时间减去更新的时间
+    /// 更新时钟的差值
     double ptsDrift;
 
-    /// 更新时间
-    double updatedTime;
+    /// 上一次更新的时间
+    double lastUpdatedTime;
 
     /// 速度
     double speed;
 
-    /// 时钟是基于串行包的
-    int serial;
+    /// 时钟基于使用该序列的包
+    int seekSerial;
 
-    /// 是否暂停
+    /// 停止标志
     int paused;
 
     /// 指向当前包队列串行的指针，用于过时的时钟检测

@@ -79,7 +79,7 @@ class Stream {
 
 private:
 
-    /// 用于在SEEK时，刷新数据队列
+    /// 刷新的包,用于在SEEK时，刷新数据队列
     AVPacket flushPacket;
 
     Audio *audio = nullptr;

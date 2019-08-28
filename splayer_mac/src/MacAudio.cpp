@@ -51,6 +51,7 @@ static void sdlAudioCallback(void *opaque, Uint8 *stream, int len) {
     }
 }
 
+/// 打开音频
 int MacAudio::openAudio(int64_t wantedChannelLayout, int wantedNbChannels, int wantedSampleRate,
                         AudioParams *wantedAudioTarget) {
 

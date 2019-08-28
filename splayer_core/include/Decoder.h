@@ -26,37 +26,51 @@ extern "C" {
 
 class Decoder {
 public:
+
+    /// 解码上下文
     AVCodecContext *codecContext;
+
+    /// 包队列
     PacketQueue *packetQueue;
+
+    /// 包数据
     AVPacket packet;
 
-    /// 序列，作seek时使用，作为区分前后帧序列
+    /// 包序列，作seek时使用，作为区分前后帧序列
     int packetSeekSerial;
 
+    /// 是否已结束
     int finished;
 
+    /// 是否有包再等待
     int packetPending;
 
+    /// 空队列条件变量
     Mutex *emptyQueueCond;
 
+    /// 开始的间戳
     int64_t startPts;
 
+    /// 开始的额外参数
     AVRational startPtsTb;
 
+    /// 下一帧时间戳
     int64_t nextPts;
 
+    /// 下一阵额外参数
     AVRational nextPtsTb;
 
+    /// 解码线程
     Thread *decoderTid;
 
 public:
-    void decoderInit(AVCodecContext *codecContext, PacketQueue *packetQueue, Mutex *emptyQueueMutex);
+    void init(AVCodecContext *codecContext, PacketQueue *packetQueue, Mutex *emptyQueueMutex);
 
-    void decoderDestroy();
+    void destroy();
 
-    void decoderAbort(FrameQueue *frameQueue);
+    void abort(FrameQueue *frameQueue);
 
-    int decoderStart(const char *name, int (*fn)(void *), void *arg);
+    int start(const char *name, int (*fn)(void *), void *arg);
 };
 
 

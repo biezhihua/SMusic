@@ -7,23 +7,28 @@ extern "C" {
 #include <libavformat/avformat.h>
 };
 
-/**
- * Common struct for handling all types of decoded data and allocated render buffers.
- */
+/// 解码帧结构
+/// Common struct for handling all types of decoded data and allocated render buffers.
 class Frame {
 public:
+
+    /// 帧数据
     AVFrame *frame;
+
+    /// 字幕数据
     AVSubtitle subtitle;
+
+    /// 采样率比率
     AVRational sampleAspectRatio;
 
     /// 序列，作seek时使用，作为区分前后帧序列
     int seekSerial;
 
-    /// 帧的展示时间戳
+    /// 帧的显示时间戳
     /// presentation timestamp for the frame
     double pts;
 
-    /// 一帧的时长
+    /// 帧显示时长
     /// estimated duration of the frame
     double duration;
 
@@ -40,10 +45,10 @@ public:
     /// 帧格式
     int format;
 
-    /// 是否已更新到Texture中
+    /// 上载
     int uploaded;
 
-    /// 是否翻转图像
+    /// 反转
     int flipVertical;
 };
 

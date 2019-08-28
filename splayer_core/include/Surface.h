@@ -84,6 +84,7 @@ protected:
 
     virtual int displayVideoImageAfter(Frame *currentFrame, Frame *subtitleNextFrame, Rect *rect);
 
+    /// 上载Texture，更新画面
     virtual int uploadVideoTexture(AVFrame *frame, SwsContext *convertContext) = 0;
 
     virtual int displayVideoAudio();

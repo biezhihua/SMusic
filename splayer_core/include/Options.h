@@ -78,13 +78,13 @@ public:
     /// 是否禁止视频渲染
     int displayDisable = 0;
 
-    /// 是否禁止视频
+    /// 是否禁止播放视频
     int videoDisable = 0;
 
-    /// 是否禁止音频
+    /// 是否禁止播放音频
     int audioDisable = 0;
 
-    /// 是否禁止字幕
+    /// 是否禁止播放字幕
     int subtitleDisable = 0;
 
     /// 按字节快进或者快退 0=off 1=on -1=auto
@@ -95,7 +95,7 @@ public:
     /// set seek interval for left/right keys, in seconds
     float seekInterval = 10;
 
-    /// 启动音量
+    /// 起始音量
     int audioStartupVolume = 100; // set startup volume 0=min 100=max
 
     /// 音视频同步类型
@@ -104,7 +104,7 @@ public:
     /// set audio-video sync. type (type=audio/video/ext)
     int syncType = SYNC_TYPE_AUDIO_MASTER;
 
-    /// 流启动位置时间（秒）
+    /// 开始时间
     /// seek to a given position in seconds
     int64_t startTime = AV_NOPTS_VALUE;
 
@@ -128,6 +128,7 @@ public:
     /// automatically rotate video
     int autoRotate = 1;
 
+    /// 解码器重新排列时间戳
     /// 是否使用解码器估算过的时间来矫正PTS 0=off 1=on -1=auto
     /// let decoder reorder pts 0=off 1=on -1=auto
     int decoderReorderPts = -1;
@@ -157,7 +158,7 @@ public:
     /// 视频解码器名称，可能会导致失败
     char *forceVideoCodecName = nullptr;
 
-    /// 不设置缓存区限制，通常对实时流很有用
+    /// 无限缓冲区
     /// don't limit the input buffer size (useful with realtime streams)
     int infiniteBuffer = -1;
 
@@ -168,7 +169,7 @@ public:
     /// read and decode the streams to fill missing information with heuristics
     int findStreamInfoFillMissingInformation = 1;
 
-    ///
+    /// 自适应滤波器的速度
     double rdftSpeed = 0.02;  // rdft speed
 
 #if CONFIG_AVFILTER
@@ -176,13 +177,13 @@ public:
     /// Filter处理的最大线程数量
     int filterNumberThreads = 0;
 
-    ///
-    const char **filtersList = nullptr;
+    /// 视频滤镜
+    const char **videoFiltersList = nullptr;
 
-    ///
-    int nb_vfilters = 0;
+    /// 视频滤镜数量
+    int nbVideofilters = 0;
 
-    ///
+    /// 音频滤镜
     char *audioFilters = nullptr;
 #endif
 
