@@ -13,7 +13,7 @@ extern "C" {
 class Frame {
 public:
     AVFrame *frame;
-    AVSubtitle sub;
+    AVSubtitle subtitle;
     AVRational sampleAspectRatio;
     int serial;
     double pts;           /* presentation timestamp for the frame */

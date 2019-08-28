@@ -156,9 +156,11 @@ int MacAudio::openAudio(int64_t wantedChannelLayout, int wantedNbChannels, int w
     wantedAudioTarget->sampleRate = spec.freq;
     wantedAudioTarget->channelLayout = wantedChannelLayout;
     wantedAudioTarget->channels = spec.channels;
-    wantedAudioTarget->frameSize = av_samples_get_buffer_size(nullptr, wantedAudioTarget->channels, 1,
+    wantedAudioTarget->frameSize = av_samples_get_buffer_size(nullptr,
+                                                              wantedAudioTarget->channels, 1,
                                                               wantedAudioTarget->sampleFormat, 1);
-    wantedAudioTarget->bytesPerSec = av_samples_get_buffer_size(nullptr, wantedAudioTarget->channels,
+    wantedAudioTarget->bytesPerSec = av_samples_get_buffer_size(nullptr,
+                                                                wantedAudioTarget->channels,
                                                                 wantedAudioTarget->sampleRate,
                                                                 wantedAudioTarget->sampleFormat, 1);
 

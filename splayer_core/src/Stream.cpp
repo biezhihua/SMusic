@@ -766,13 +766,13 @@ int Stream::subtitleThread() {
         if (!(frame = videoState->subtitleFrameQueue.peekWritable())) {
             return NEGATIVE(S_NOT_FRAME_WRITEABLE);
         }
-        if ((gotSubtitle = decoderDecodeFrame(&videoState->subtitleDecoder, nullptr, &frame->sub)) < 0) {
+        if ((gotSubtitle = decoderDecodeFrame(&videoState->subtitleDecoder, nullptr, &frame->subtitle)) < 0) {
             break;
         }
         pts = 0;
-        if (gotSubtitle && frame->sub.format == 0) {
-            if (frame->sub.pts != AV_NOPTS_VALUE) {
-                pts = frame->sub.pts / (double) AV_TIME_BASE;
+        if (gotSubtitle && frame->subtitle.format == 0) {
+            if (frame->subtitle.pts != AV_NOPTS_VALUE) {
+                pts = frame->subtitle.pts / (double) AV_TIME_BASE;
             }
             frame->pts = pts;
             frame->serial = videoState->subtitleDecoder.packetSerial;
@@ -782,7 +782,7 @@ int Stream::subtitleThread() {
             /* now we can update the picture count */
             videoState->subtitleFrameQueue.push();
         } else if (gotSubtitle) {
-            avsubtitle_free(&frame->sub);
+            avsubtitle_free(&frame->subtitle);
         }
     }
     return POSITIVE;
@@ -1625,7 +1625,7 @@ int Stream::streamTogglePause() {
     if (videoState) {
         if (videoState->paused) {
             videoState->frameTimer += (av_gettime_relative() * 1.0F / AV_TIME_BASE -
-                                       videoState->videoClock.lastUpdatedTime);
+                                       videoState->videoClock.updatedTime);
             if (videoState->readPauseReturn != AVERROR(ENOSYS)) {
                 videoState->videoClock.paused = 0;
             }

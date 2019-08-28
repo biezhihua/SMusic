@@ -13,33 +13,29 @@ extern "C" {
 
 #define CLOCK_TAG  "Clock"
 
+/// 时钟
 class Clock {
 public:
 
-    /**
-     * clock base
-     */
+    /// 展示时间
     double pts;
 
-    /**
-     * clock base minus time at which we updated the clock
-     */
+    /// 偏移时间，展示时间减去更新的时间
     double ptsDrift;
 
-    double lastUpdatedTime;
+    /// 更新时间
+    double updatedTime;
 
+    /// 速度
     double speed;
 
-    /**
-     * clock is based on a packet with this serial
-     */
+    /// 时钟是基于串行包的
     int serial;
 
+    /// 是否暂停
     int paused;
 
-    /**
-     * pointer to the current packet queue serial, used for obsolete clock detection
-     */
+    /// 指向当前包队列串行的指针，用于过时的时钟检测
     int *queueSerial;
 
 public:

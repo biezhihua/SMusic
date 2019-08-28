@@ -183,7 +183,7 @@ int FrameQueue::unrefItem(Frame *frame) {
     if (frame) {
         // 取消引用帧引用的所有缓冲区并重置帧字段，释放给定字幕结构中的所有已分配数据。
         av_frame_unref(frame->frame);
-        avsubtitle_free(&frame->sub);
+        avsubtitle_free(&frame->subtitle);
         return POSITIVE;
     }
     return NEGATIVE(S_NULL);

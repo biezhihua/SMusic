@@ -222,8 +222,8 @@ int MacSurface::uploadSubtitleTexture(Frame *nextSubtitleFrame, SwsContext *conv
         return NEGATIVE(S_NOT_REALLOC_TEXTURE);
     }
 
-    for (i = 0; i < nextSubtitleFrame->sub.num_rects; i++) {
-        AVSubtitleRect *subRect = nextSubtitleFrame->sub.rects[i];
+    for (i = 0; i < nextSubtitleFrame->subtitle.num_rects; i++) {
+        AVSubtitleRect *subRect = nextSubtitleFrame->subtitle.rects[i];
 
         subRect->x = av_clip(subRect->x, 0, nextSubtitleFrame->width);
         subRect->y = av_clip(subRect->y, 0, nextSubtitleFrame->height);
@@ -288,8 +288,8 @@ int MacSurface::displayVideoImageAfter(Frame *currentFrame, Frame *nextSubtitleF
             int i;
             double xratio = (double) rect->w / (double) nextSubtitleFrame->width;
             double yratio = (double) rect->h / (double) nextSubtitleFrame->height;
-            for (i = 0; i < nextSubtitleFrame->sub.num_rects; i++) {
-                AVSubtitleRect *subRect = nextSubtitleFrame->sub.rects[i];
+            for (i = 0; i < nextSubtitleFrame->subtitle.num_rects; i++) {
+                AVSubtitleRect *subRect = nextSubtitleFrame->subtitle.rects[i];
 
                 SDL_Rect sdlSubRect;
                 sdlSubRect.x = rect->x;

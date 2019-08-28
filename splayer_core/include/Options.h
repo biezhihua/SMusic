@@ -106,8 +106,7 @@ public:
 
     /// 流启动位置时间（秒）
     /// seek to a given position in seconds
-//    int64_t startTime = AV_NOPTS_VALUE;
-    int64_t startTime = 100000;
+    int64_t startTime = AV_NOPTS_VALUE;
 
     /// 流时长
     /// stream  \"duration\" seconds of audio/video
@@ -174,7 +173,7 @@ public:
 
 #if CONFIG_AVFILTER
 
-    ///
+    /// Filter处理的最大线程数量
     int filterNumberThreads = 0;
 
     ///

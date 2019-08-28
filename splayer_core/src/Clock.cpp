@@ -6,7 +6,7 @@ int Clock::init(int *queueSerial) {
     Clock::queueSerial = queueSerial;
     setClock(NAN, -1);
 
-    ALOGD(CLOCK_TAG, "%s speed = %f speed = %d queueSerial = %d pts = %lf ptsDrift = %lf lastUpdatedTime = %lf", __func__, speed, paused, *queueSerial, pts, ptsDrift, lastUpdatedTime);
+    ALOGD(CLOCK_TAG, "%s speed = %f speed = %d queueSerial = %d pts = %lf ptsDrift = %lf updatedTime = %lf", __func__, speed, paused, *queueSerial, pts, ptsDrift, updatedTime);
     return POSITIVE;
 }
 
@@ -19,7 +19,7 @@ int Clock::setClock(double pts, int serial) {
 int Clock::setClockAt(double pts, int serial, double time) {
     Clock::pts = pts;
     Clock::ptsDrift = pts - time;
-    Clock::lastUpdatedTime = time;
+    Clock::updatedTime = time;
     Clock::serial = serial;
     return POSITIVE;
 }
@@ -32,7 +32,7 @@ double Clock::getClock() {
         return pts;
     } else {
         double time = av_gettime_relative() * 1.0F / AV_TIME_BASE;
-        return ptsDrift + time - (time - lastUpdatedTime) * (1.0 - speed);
+        return ptsDrift + time - (time - updatedTime) * (1.0 - speed);
     }
 }
 

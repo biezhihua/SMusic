@@ -244,12 +244,12 @@ void Surface::refreshSubtitle() const {
         }
 
         bool isNoSamePacketSerial = currentFrame->serial != videoState->subtitlePacketQueue.serial;
-        bool isNeedDropFrame = videoState->videoClock.pts > (currentFrame->pts + ((float) currentFrame->sub.end_display_time / 1000));
-        bool isNeedDropNextFrame = nextFrame != nullptr && videoState->videoClock.pts > (nextFrame->pts + ((float) nextFrame->sub.start_display_time / 1000));
+        bool isNeedDropFrame = videoState->videoClock.pts > (currentFrame->pts + ((float) currentFrame->subtitle.end_display_time / 1000));
+        bool isNeedDropNextFrame = nextFrame != nullptr && videoState->videoClock.pts > (nextFrame->pts + ((float) nextFrame->subtitle.start_display_time / 1000));
         if (isNoSamePacketSerial || isNeedDropFrame || isNeedDropNextFrame) {
             if (currentFrame->uploaded) {
-                for (int i = 0; i < currentFrame->sub.num_rects; i++) {
-                    AVSubtitleRect *subtitleRect = currentFrame->sub.rects[i];
+                for (int i = 0; i < currentFrame->subtitle.num_rects; i++) {
+                    AVSubtitleRect *subtitleRect = currentFrame->subtitle.rects[i];
                     updateSubtitleTexture(subtitleRect);
                 }
             }
@@ -338,7 +338,7 @@ void Surface::displayVideoImage() {
 void Surface::displaySubtitleImage(VideoState *videoState, const Frame *currentFrame, Frame *nextSubtitleFrame) {
     if (videoState->subtitleFrameQueue.numberRemaining() > 0) {
         nextSubtitleFrame = videoState->subtitleFrameQueue.peekNext();
-        if (currentFrame->pts >= nextSubtitleFrame->pts + ((float) nextSubtitleFrame->sub.start_display_time / 1000)) {
+        if (currentFrame->pts >= nextSubtitleFrame->pts + ((float) nextSubtitleFrame->subtitle.start_display_time / 1000)) {
             if (!nextSubtitleFrame->uploaded) {
                 if (!nextSubtitleFrame->width || !nextSubtitleFrame->height) {
                     nextSubtitleFrame->width = currentFrame->width;
