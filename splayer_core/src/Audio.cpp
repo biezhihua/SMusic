@@ -39,8 +39,8 @@ int Audio::audioDecodeFrame() {
     int wantedNbSamples;
     Frame *frame;
 
-    if (is->paused) {
-        ALOGD(AUDIO_TAG, "%s paused ", __func__);
+    if (is->pauseRequest) {
+        ALOGD(AUDIO_TAG, "%s pauseRequest ", __func__);
         return NEGATIVE(S_AUDIO_PAUSED);
     }
 

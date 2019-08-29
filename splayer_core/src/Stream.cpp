@@ -489,9 +489,9 @@ int Stream::readThread() {
             break;
         }
 
-        if (playerState->paused != playerState->lastPaused) {
-            playerState->lastPaused = playerState->paused;
-            if (playerState->paused) {
+        if (playerState->pauseRequest != playerState->lastPaused) {
+            playerState->lastPaused = playerState->pauseRequest;
+            if (playerState->pauseRequest) {
                 playerState->readPauseReturn = av_read_pause(formatContext);
             } else {
                 av_read_play(formatContext);
@@ -499,7 +499,7 @@ int Stream::readThread() {
         }
 
 #if CONFIG_RTSP_DEMUXER || CONFIG_MMSH_PROTOCOL
-        if (playerState->paused && (!strcmp(formatContext->iformat->name, "rtsp") ||
+        if (playerState->pauseRequest && (!strcmp(formatContext->iformat->name, "rtsp") ||
                                    (formatContext->pb && !strncmp(options->inputFileName, "mmsh:", 5)))) {
             /* wait 10 ms to avoid trying to get another packet */
             /* XXX: horrible */
@@ -539,7 +539,7 @@ int Stream::readThread() {
             playerState->seekReq = 0;
             playerState->queueAttachmentsReq = 1;
             playerState->eof = 0;
-            if (playerState->paused) {
+            if (playerState->pauseRequest) {
                 stepToNextFrame();
             }
         }
@@ -967,7 +967,7 @@ int Stream::isPacketInPlayRange(const AVFormatContext *formatContext, const AVPa
 
 bool Stream::isRetryPlay() const {
     // 未暂停
-    bool isNoPause = !playerState->paused;
+    bool isNoPause = !playerState->pauseRequest;
     // 未初始化音频流 或者 解码结束 同时 无可用帧
     bool isNoUseAudioFrame = !playerState->audioStream ||
                              (playerState->audioDecoder.finished == playerState->audioPacketQueue.seekSerial &&
@@ -1688,9 +1688,9 @@ PlayerState *Stream::getVideoState() const {
 /// 下一帧
 void Stream::stepToNextFrame() {
     ALOGD(STREAM_TAG, "%s", __func__);
-    /* if the stream is paused unpause it, then stepFrame */
+    /* if the stream is pauseRequest unpause it, then stepFrame */
     if (playerState) {
-        if (playerState->paused) {
+        if (playerState->pauseRequest) {
             streamTogglePause();
         }
         playerState->stepFrame = 1;
@@ -1710,7 +1710,7 @@ int Stream::togglePause() {
 /// 暂停/播放视频流
 int Stream::streamTogglePause() {
     if (playerState) {
-        if (playerState->paused) {
+        if (playerState->pauseRequest) {
             playerState->frameTimer += (av_gettime_relative() * 1.0F / AV_TIME_BASE -
                                        playerState->videoClock.lastUpdatedTime);
             if (playerState->readPauseReturn != AVERROR(ENOSYS)) {
@@ -1719,7 +1719,7 @@ int Stream::streamTogglePause() {
             playerState->videoClock.setClock(playerState->videoClock.getClock(), playerState->videoClock.seekSerial);
         }
         playerState->externalClock.setClock(playerState->externalClock.getClock(), playerState->externalClock.seekSerial);
-        playerState->paused = playerState->audioClock.paused = playerState->videoClock.paused = playerState->externalClock.paused = !playerState->paused;
+        playerState->pauseRequest = playerState->audioClock.paused = playerState->videoClock.paused = playerState->externalClock.paused = !playerState->pauseRequest;
         return POSITIVE;
     }
     return NEGATIVE(S_NULL);

@@ -83,13 +83,13 @@ int Surface::refreshVideo() {
     }
 
     ALOGD(SURFACE_TAG, "===== refreshVideo =====");
-    ALOGD(SURFACE_TAG, "%s while remainingTime = %lf paused = %d forceRefresh = %d", __func__, remainingTime,
-          videoState->paused, videoState->forceRefresh);
+    ALOGD(SURFACE_TAG, "%s while remainingTime = %lf pauseRequest = %d forceRefresh = %d", __func__, remainingTime,
+          videoState->pauseRequest, videoState->forceRefresh);
     if (remainingTime > 0.0) {
         av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * AV_TIME_BASE)));
     }
     remainingTime = REFRESH_RATE;
-    if (videoState->showMode != SHOW_MODE_NONE && (!videoState->paused || videoState->forceRefresh)) {
+    if (videoState->showMode != SHOW_MODE_NONE && (!videoState->pauseRequest || videoState->forceRefresh)) {
         refreshVideo(&remainingTime);
     }
     ALOGD(SURFACE_TAG, "===== end =====");
@@ -108,7 +108,7 @@ void Surface::refreshVideo(double *remainingTime) {
     }
 
     // 主同步类型是外部时钟同步，并且是实时码流，则检查外部时钟速度
-    if (!videoState->paused && stream->getMasterSyncType() == SYNC_TYPE_EXTERNAL_CLOCK && videoState->realTime) {
+    if (!videoState->pauseRequest && stream->getMasterSyncType() == SYNC_TYPE_EXTERNAL_CLOCK && videoState->realTime) {
         stream->checkExternalClockSpeed();
     }
 
@@ -157,8 +157,8 @@ void Surface::refreshVideo(double *remainingTime) {
                 ALOGD(SURFACE_TAG, "update frameTimer = %fd ", videoState->frameTimer);
             }
 
-            if (videoState->paused) {
-                ALOGD(SURFACE_TAG, "goto display, paused");
+            if (videoState->pauseRequest) {
+                ALOGD(SURFACE_TAG, "goto display, pauseRequest");
                 goto display;
             }
 
@@ -231,7 +231,7 @@ void Surface::refreshVideo(double *remainingTime) {
             videoState->videoFrameQueue.next();
             videoState->forceRefresh = 1;
 
-            if (videoState->stepFrame && !videoState->paused) {
+            if (videoState->stepFrame && !videoState->pauseRequest) {
                 stream->streamTogglePause();
             }
         }

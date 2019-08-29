@@ -74,8 +74,8 @@ public:
     /// 文件名
     char *fileName;
 
-    /// 是否暂停
-    int paused;
+    /// 暂停标志
+    int pauseRequest;
 
     /// 上一次暂停状态
     int lastPaused;
@@ -83,7 +83,6 @@ public:
     /// 暂停基于网络的流状态
     int readPauseReturn;
 
-    // 宽高与XY轴偏移量
     int width;
     int height;
     int yTop;
@@ -98,7 +97,7 @@ public:
     /// Seek位置
     int64_t seekPos;
 
-    ///
+    /// Seek偏移
     int64_t seekRel;
 
     RDFTContext *rdft;
