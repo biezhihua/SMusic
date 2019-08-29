@@ -26,7 +26,7 @@ void Audio::pauseAudio() {
  */
 /// 从解码后的音频缓存队列中读取一帧，并做重采样处理(转码、变声、变速等操作)
 int Audio::audioDecodeFrame() {
-    VideoState *is = Audio::stream->getVideoState();
+    PlayerState *is = Audio::stream->getVideoState();
 
     if (!is) {
         ALOGD(AUDIO_TAG, "%s video state is null", __func__);
@@ -120,7 +120,7 @@ int Audio::audioDecodeFrame() {
     return reSampledDataSize;
 }
 
-int Audio::convertAudio(VideoState *is, int wantedNbSamples, Frame *frame) {
+int Audio::convertAudio(PlayerState *is, int wantedNbSamples, Frame *frame) {
 
     const uint8_t **in = (const uint8_t **) frame->frame->extended_data;
     uint8_t **out = &is->audioConvertBuf;
@@ -175,7 +175,7 @@ int Audio::convertAudio(VideoState *is, int wantedNbSamples, Frame *frame) {
     return length;
 }
 
-int Audio::initConvertSwrContext(VideoState *is, int64_t desireChannelLayout, const Frame *frame) const {
+int Audio::initConvertSwrContext(PlayerState *is, int64_t desireChannelLayout, const Frame *frame) const {
 
     swr_free(&is->audioSwrContext);
 
@@ -238,7 +238,7 @@ int Audio::synchronizeAudio(int nbSamples) {
 
     //TODO:
 
-    VideoState *is = stream->getVideoState();
+    PlayerState *is = stream->getVideoState();
     int wantedNbSamples = nbSamples;
 
     // 如果不是以音频同步，则尝试通过移除或增加采样来纠正时钟
@@ -314,7 +314,7 @@ void Audio::audioCallback(uint8_t *stream, int streamLength) {
         return;
     }
 
-    VideoState *is = Audio::stream->getVideoState();
+    PlayerState *is = Audio::stream->getVideoState();
     int audioSize, length;
 
     audioCallbackTime = av_gettime_relative();
@@ -387,7 +387,7 @@ void Audio::maxAudio(uint8_t *stream, uint8_t *buf, int index, int length, int v
 
 void Audio::updateVolume(int sign, double step) const {
     if (stream && stream->getVideoState()) {
-        VideoState *is = stream->getVideoState();
+        PlayerState *is = stream->getVideoState();
         double volumeLevel = is->audioVolume ? (20 * log(is->audioVolume / (double) MIX_MAX_VOLUME) / log(10)) : -1000.0;
         int newVolume = lrint(MIX_MAX_VOLUME * pow(10.0, (volumeLevel + sign * step) / 20.0));
         is->audioVolume = av_clip(is->audioVolume == newVolume ? (is->audioVolume + sign) : newVolume, 0, MIX_MAX_VOLUME);

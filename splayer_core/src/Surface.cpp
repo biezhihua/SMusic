@@ -75,7 +75,7 @@ Surface::calculateDisplayRect(Rect *rect, int xLeft, int yTop, int srcWidth, int
 }
 
 int Surface::refreshVideo() {
-    VideoState *videoState = stream->getVideoState();
+    PlayerState *videoState = stream->getVideoState();
 
     if (!videoState) {
         ALOGE(SURFACE_TAG, "%s video status is null", __func__);
@@ -100,7 +100,7 @@ int Surface::refreshVideo() {
 /// 刷新视频帧
 void Surface::refreshVideo(double *remainingTime) {
     double time;
-    VideoState *videoState = stream->getVideoState();
+    PlayerState *videoState = stream->getVideoState();
 
     if (!videoState) {
         ALOGE(SURFACE_TAG, "%s video status is null", __func__);
@@ -255,7 +255,7 @@ void Surface::refreshSubtitle() const {
         return;
     }
 
-    VideoState *videoState = stream->getVideoState();
+    PlayerState *videoState = stream->getVideoState();
     Frame *currentFrame;
     Frame *nextFrame;
 
@@ -304,7 +304,7 @@ double Surface::getFrameDelayTime(const Frame *willToShowFrame, const Frame *fir
 /* display the current picture, if any */
 void Surface::displayVideo() {
     ALOGD(SURFACE_TAG, __func__);
-    VideoState *videoState = stream->getVideoState();
+    PlayerState *videoState = stream->getVideoState();
     if (videoState) {
         if (!videoState->width) {
             displayWindow();
@@ -319,7 +319,7 @@ void Surface::displayVideo() {
 
 int Surface::displayWindow() {
     if (options) {
-        VideoState *videoState = stream->getVideoState();
+        PlayerState *videoState = stream->getVideoState();
         if (videoState) {
             int width = options->surfaceWidth ? options->surfaceWidth : options->videoWidth;
             int height = options->surfaceHeight ? options->surfaceHeight : options->videoHeight;
@@ -342,7 +342,7 @@ void Surface::displayVideoImage() {
     if (stream && stream->getVideoState()) {
         displayVideoImageBefore();
 
-        VideoState *videoState = stream->getVideoState();
+        PlayerState *videoState = stream->getVideoState();
         Rect *rect = new Rect();
         Frame *currentFrame = videoState->videoFrameQueue.peek();
         Frame *nextSubtitleFrame = nullptr;
@@ -367,7 +367,7 @@ void Surface::displayVideoImage() {
     }
 }
 
-void Surface::displaySubtitleImage(VideoState *videoState, const Frame *currentFrame, Frame *nextSubtitleFrame) {
+void Surface::displaySubtitleImage(PlayerState *videoState, const Frame *currentFrame, Frame *nextSubtitleFrame) {
     if (videoState->subtitleFrameQueue.numberRemaining() > 0) {
         nextSubtitleFrame = videoState->subtitleFrameQueue.peekNext();
         if (currentFrame->pts >=

@@ -193,7 +193,7 @@ void MacEvent::doExit() {
 void MacEvent::doSeek(double increment) const {
     double pos;
     if (options && stream && stream->getVideoState()) {
-        VideoState *videoState = stream->getVideoState();
+        PlayerState *videoState = stream->getVideoState();
         if (options->seekByBytes) {
             pos = -1;
             if (pos < 0 && videoState->videoStreamIndex >= 0) {

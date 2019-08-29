@@ -14,7 +14,7 @@ class Audio;
 #include "Stream.h"
 #include "State.h"
 #include "Error.h"
-#include "VideoState.h"
+#include "PlayerState.h"
 #include "Thread.h"
 #include "Options.h"
 
@@ -86,7 +86,7 @@ private:
 
     Surface *surface = nullptr;
 
-    VideoState *videoState = nullptr;
+    PlayerState *playerState = nullptr;
 
     Options *options = nullptr;
 
@@ -137,7 +137,7 @@ public:
 
     void streamsClose();
 
-    VideoState *getVideoState() const;
+    PlayerState *getVideoState() const;
 
     double getMasterClock();
 
@@ -155,7 +155,7 @@ public:
 
 private:
 
-    VideoState *streamsOpen();
+    PlayerState *streamsOpen();
 
     int getStartupVolume();
 
@@ -167,7 +167,7 @@ private:
 
     int streamComponentClose(AVStream *stream, int streamIndex);
 
-    void closeReadThread(const VideoState *is, AVFormatContext *formatContext) const;
+    void closeReadThread(const PlayerState *is, AVFormatContext *formatContext) const;
 
     int getVideoFrame(AVFrame *pFrame);
 
@@ -195,7 +195,7 @@ private:
     int configureFilterGraph(AVFilterGraph *graph, const char *filterGraph,
                              AVFilterContext *srcFilterContext, AVFilterContext *sinkFilterContext);
 
-    int configureVideoFilters(AVFilterGraph *filterGraph, VideoState *is, const char *filters, AVFrame *frame);
+    int configureVideoFilters(AVFilterGraph *filterGraph, PlayerState *is, const char *filters, AVFrame *frame);
 
 #endif
 };

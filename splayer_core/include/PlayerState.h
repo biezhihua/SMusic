@@ -13,7 +13,7 @@ extern "C" {
 #include "Thread.h"
 #include "AudioParams.h"
 
-class VideoState {
+class PlayerState {
 
 public:
 

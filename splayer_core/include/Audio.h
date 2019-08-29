@@ -14,7 +14,7 @@ class MediaPlayer;
 #include "Options.h"
 #include "MediaPlayer.h"
 #include "Frame.h"
-#include "VideoState.h"
+#include "PlayerState.h"
 
 extern "C" {
 #include <libavutil/samplefmt.h>
@@ -65,9 +65,9 @@ public:
 
     uint64_t getWantedChannelLayout(const Frame *frame) const;
 
-    int initConvertSwrContext(VideoState *is, int64_t desireChannelLayout, const Frame *frame) const;
+    int initConvertSwrContext(PlayerState *is, int64_t desireChannelLayout, const Frame *frame) const;
 
-    int convertAudio(VideoState *is, int wantedNbSamples, Frame *frame);
+    int convertAudio(PlayerState *is, int wantedNbSamples, Frame *frame);
 
     void update_sample_display(short *samples, int samples_size);
 

@@ -15,7 +15,7 @@ class MediaPlayer;
 #include "Rect.h"
 #include "Frame.h"
 #include "MediaPlayer.h"
-#include "VideoState.h"
+#include "PlayerState.h"
 
 extern "C" {
 #include <libavutil/rational.h>
@@ -73,7 +73,7 @@ private:
 
     void displayVideoImage();
 
-    void displaySubtitleImage(VideoState *videoState, const Frame *currentFrame, Frame *nextSubtitleFrame);
+    void displaySubtitleImage(PlayerState *videoState, const Frame *currentFrame, Frame *nextSubtitleFrame);
 
 protected:
 
