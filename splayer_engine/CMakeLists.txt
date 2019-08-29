@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-project(splayer_core)
+project(splayer_engine)
 
 set(CMAKE_CXX_STANDARD 14)
 

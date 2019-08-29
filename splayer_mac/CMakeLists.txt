@@ -15,9 +15,9 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "iOS")
     set(DISTRIBUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/ios)
 endif ()
 
-set(SPLAYER_CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../splayer_core)
+set(SPLAYER_ENGINE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../splayer_engine)
 
-add_subdirectory(${SPLAYER_CORE_DIR} splayer_core)
+add_subdirectory(${SPLAYER_CORE_DIR} splayer_engine)
 
 aux_source_directory(src src_source)
 
