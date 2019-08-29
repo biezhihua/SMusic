@@ -72,6 +72,9 @@ public:
     void update_sample_display(short *samples, int samples_size);
 
     virtual void maxAudio(uint8_t *stream, uint8_t *buf, int index, int length, int volume);
+
+    void updateVolume(int sign, double step) const;
+
 };
 
 

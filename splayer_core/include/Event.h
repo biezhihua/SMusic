@@ -16,6 +16,7 @@ class Event {
 
 protected:
     Stream *stream = nullptr;
+    Audio *audio = nullptr;
     Options *options = nullptr;
     MediaPlayer *mediaPlayer = nullptr;
     Surface *surface = nullptr;
@@ -42,6 +43,7 @@ public:
 
     void setMsgQueue(MessageQueue *msgQueue);
 
+    void setAudio(Audio *audio);
 
 };
 

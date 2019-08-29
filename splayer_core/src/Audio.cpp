@@ -1,6 +1,3 @@
-
-#include <Audio.h>
-
 #include "Audio.h"
 
 Audio::Audio() = default;
@@ -387,3 +384,13 @@ void Audio::update_sample_display(short *samples, int samples_size) {
 void Audio::maxAudio(uint8_t *stream, uint8_t *buf, int index, int length, int volume) {
 
 }
+
+void Audio::updateVolume(int sign, double step) const {
+    if (stream && stream->getVideoState()) {
+        VideoState *is = stream->getVideoState();
+        double volumeLevel = is->audioVolume ? (20 * log(is->audioVolume / (double) MIX_MAX_VOLUME) / log(10)) : -1000.0;
+        int newVolume = lrint(MIX_MAX_VOLUME * pow(10.0, (volumeLevel + sign * step) / 20.0));
+        is->audioVolume = av_clip(is->audioVolume == newVolume ? (is->audioVolume + sign) : newVolume, 0, MIX_MAX_VOLUME);
+    }
+}
+

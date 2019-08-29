@@ -37,4 +37,7 @@ void Event::setMsgQueue(MessageQueue *msgQueue) {
     Event::msgQueue = msgQueue;
 }
 
+void Event::setAudio(Audio *audio) {
+    Event::audio = audio;
+}
 

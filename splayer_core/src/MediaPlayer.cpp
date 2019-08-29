@@ -79,6 +79,7 @@ int MediaPlayer::create() {
         event->setSurface(surface);
         event->setMsgQueue(msgQueue);
         event->setOptions(options);
+        event->setAudio(audio);
     }
 
     stream->setAudio(audio);
@@ -97,6 +98,7 @@ int MediaPlayer::destroy() {
         stream->shutdown();
 
         if (event) {
+            event->setAudio(nullptr);
             event->setMediaPlayer(nullptr);
             event->setStream(nullptr);
             event->setSurface(nullptr);

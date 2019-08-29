@@ -36,7 +36,6 @@ public:
     void doExit();
 
     void doSeek(double increment) const;
-
 };
 
 

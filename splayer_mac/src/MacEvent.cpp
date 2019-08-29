@@ -133,9 +133,15 @@ void MacEvent::doKeySystem(const SDL_Event &event) const {
             break;
         case SDLK_KP_MULTIPLY:
         case SDLK_0:
+            if (audio) {
+                audio->updateVolume(1, SDL_VOLUME_STEP);
+            }
             break;
         case SDLK_KP_DIVIDE:
         case SDLK_9:
+            if (audio) {
+                audio->updateVolume(-1, SDL_VOLUME_STEP);
+            }
             break;
         case SDLK_s:
             if (stream) {
@@ -212,7 +218,8 @@ void MacEvent::doSeek(double increment) const {
                 pos = (double) videoState->seekPos / AV_TIME_BASE;
             }
             pos += increment;
-            if (videoState->formatContext->start_time != AV_NOPTS_VALUE && pos < videoState->formatContext->start_time / (double) AV_TIME_BASE) {
+            if (videoState->formatContext->start_time != AV_NOPTS_VALUE &&
+                pos < videoState->formatContext->start_time / (double) AV_TIME_BASE) {
                 pos = videoState->formatContext->start_time / (double) AV_TIME_BASE;
             }
             stream->streamSeek((int64_t) (pos * AV_TIME_BASE), (int64_t) (increment * AV_TIME_BASE), 0);
