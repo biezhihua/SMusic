@@ -16,10 +16,27 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "iOS")
     set(DISTRIBUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/ios)
 endif ()
 
+aux_source_directory(src/common common)
+aux_source_directory(src/convertor convertor)
+aux_source_directory(src/decoder decoder)
+aux_source_directory(src/device device)
+aux_source_directory(src/player player)
+aux_source_directory(src/queue queue)
+aux_source_directory(src/renderer renderer)
+aux_source_directory(src/sync sync)
 
-aux_source_directory(src src)
+add_library(${PROJECT_NAME}
+        ${common}
+        ${convertor}
+        ${decoder}
+        ${device}
+        ${player}
+        ${queue}
+        ${renderer}
+        ${sync}
+        )
 
-add_library(${PROJECT_NAME} ${include} ${src})
-
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+target_include_directories(${PROJECT_NAME} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/common
         ${DISTRIBUTION_DIR}/ffmpeg/include)
