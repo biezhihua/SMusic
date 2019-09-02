@@ -1,7 +1,8 @@
 #ifndef MEDIADECODER_H
 #define MEDIADECODER_H
 
-#include <Log.h>
+#include <common/Thread.h>
+#include <common/Log.h>
 #include <player/PlayerState.h>
 #include <queue/PacketQueue.h>
 #include <queue/FrameQueue.h>

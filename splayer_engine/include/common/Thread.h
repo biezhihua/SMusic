@@ -1,8 +1,8 @@
 #ifndef THREAD_H
 #define THREAD_H
 
-#include <Mutex.h>
-#include <Condition.h>
+#include <common/Mutex.h>
+#include <common/Condition.h>
 
 typedef enum {
     Priority_Default = -1,

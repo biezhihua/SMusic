@@ -1,8 +1,8 @@
 #ifndef AVMESSAGEQUEUE_H
 #define AVMESSAGEQUEUE_H
 
-#include <Mutex.h>
-#include <Condition.h>
+#include <common/Mutex.h>
+#include <common/Condition.h>
 #include <cstring>
 #include <assert.h>
 
@@ -17,7 +17,9 @@ typedef struct AVMessage {
     int arg1;
     int arg2;
     void *obj;
+
     void (*free)(void *obj);
+
     struct AVMessage *next;
 } AVMessage;
 

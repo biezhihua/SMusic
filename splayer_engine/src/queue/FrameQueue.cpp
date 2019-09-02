@@ -1,21 +1,21 @@
-#include "FrameQueue.h"
+#include "queue/FrameQueue.h"
 
 FrameQueue::FrameQueue(int max_size, int keep_last) {
     memset(queue, 0, sizeof(Frame) * FRAME_QUEUE_SIZE);
-    this->max_size = FFMIN(max_size, FRAME_QUEUE_SIZE);
-    this->keep_last = (keep_last != 0);
-    for (int i = 0; i < this->max_size; ++i) {
+    maxSize = FFMIN(max_size, FRAME_QUEUE_SIZE);
+    keepLast = (keep_last != 0);
+    for (int i = 0; i < this->maxSize; ++i) {
         queue[i].frame = av_frame_alloc();
     }
-    abort_request = 1;
-    rindex = 0;
-    windex = 0;
+    abortRequest = true;
+    readIndex = 0;
+    writeIndex = 0;
     size = 0;
-    show_index = 0;
+    readIndexShown = 0;
 }
 
 FrameQueue::~FrameQueue() {
-    for (int i = 0; i < max_size; ++i) {
+    for (int i = 0; i < maxSize; ++i) {
         Frame *vp = &queue[i];
         unrefFrame(vp);
         av_frame_free(&vp->frame);
@@ -23,68 +23,68 @@ FrameQueue::~FrameQueue() {
 }
 
 void FrameQueue::start() {
-    mMutex.lock();
-    abort_request = 0;
-    mCondition.signal();
-    mMutex.unlock();
+    mutex.lock();
+    abortRequest = false;
+    condition.signal();
+    mutex.unlock();
 }
 
 void FrameQueue::abort() {
-    mMutex.lock();
-    abort_request = 1;
-    mCondition.signal();
-    mMutex.unlock();
+    mutex.lock();
+    abortRequest = true;
+    condition.signal();
+    mutex.unlock();
 }
 
 Frame *FrameQueue::currentFrame() {
-    return &queue[(rindex + show_index) % max_size];
+    return &queue[(readIndex + readIndexShown) % maxSize];
 }
 
 Frame *FrameQueue::nextFrame() {
-    return &queue[(rindex + show_index + 1) % max_size];
+    return &queue[(readIndex + readIndexShown + 1) % maxSize];
 }
 
 Frame *FrameQueue::lastFrame() {
-    return &queue[rindex];
+    return &queue[readIndex];
 }
 
 Frame *FrameQueue::peekWritable() {
-    mMutex.lock();
-    while (size >= max_size && !abort_request) {
-        mCondition.wait(mMutex);
+    mutex.lock();
+    while (size >= maxSize && !abortRequest) {
+        condition.wait(mutex);
     }
-    mMutex.unlock();
+    mutex.unlock();
 
-    if (abort_request) {
-        return NULL;
+    if (abortRequest) {
+        return nullptr;
     }
 
-    return &queue[windex];
+    return &queue[writeIndex];
 }
 
 void FrameQueue::pushFrame() {
-    if (++windex == max_size) {
-        windex = 0;
+    if (++writeIndex == maxSize) {
+        writeIndex = 0;
     }
-    mMutex.lock();
+    mutex.lock();
     size++;
-    mCondition.signal();
-    mMutex.unlock();
+    condition.signal();
+    mutex.unlock();
 }
 
 void FrameQueue::popFrame() {
-    if (keep_last && !show_index) {
-        show_index = 1;
+    if (keepLast && !readIndexShown) {
+        readIndexShown = 1;
         return;
     }
-    unrefFrame(&queue[rindex]);
-    if (++rindex == max_size) {
-        rindex = 0;
+    unrefFrame(&queue[readIndex]);
+    if (++readIndex == maxSize) {
+        readIndex = 0;
     }
-    mMutex.lock();
+    mutex.lock();
     size--;
-    mCondition.signal();
-    mMutex.unlock();
+    condition.signal();
+    mutex.unlock();
 }
 
 void FrameQueue::flush() {
@@ -94,7 +94,7 @@ void FrameQueue::flush() {
 }
 
 int FrameQueue::getFrameSize() {
-    return size - show_index;
+    return size - readIndexShown;
 }
 
 void FrameQueue::unrefFrame(Frame *vp) {
@@ -103,5 +103,5 @@ void FrameQueue::unrefFrame(Frame *vp) {
 }
 
 int FrameQueue::getShowIndex() const {
-    return show_index;
+    return readIndexShown;
 }

@@ -1,8 +1,4 @@
-//
-// Created by cain on 2019/1/6.
-//
-
-#include "AudioResampler.h"
+#include "convertor/AudioResampler.h"
 
 AudioResampler::AudioResampler(PlayerState *playerState, AudioDecoder *audioDecoder, MediaSync *mediaSync) {
     this->playerState = playerState;

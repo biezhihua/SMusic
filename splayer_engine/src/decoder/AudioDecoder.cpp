@@ -1,20 +1,20 @@
-#include "AudioDecoder.h"
+#include "decoder/AudioDecoder.h"
 
 AudioDecoder::AudioDecoder(AVCodecContext *avctx, AVStream *stream, int streamIndex, PlayerState *playerState)
         : MediaDecoder(avctx, stream, streamIndex, playerState) {
     packet = av_packet_alloc();
-    packetPending = 0;
+    packetPending = false;
 }
 
 AudioDecoder::~AudioDecoder() {
-    mMutex.lock();
-    packetPending = 0;
+    mutex.lock();
+    packetPending = false;
     if (packet) {
         av_packet_free(&packet);
         av_freep(&packet);
-        packet = NULL;
+        packet = nullptr;
     }
-    mMutex.unlock();
+    mutex.unlock();
 }
 
 int AudioDecoder::getAudioFrame(AVFrame *frame) {
@@ -40,7 +40,7 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
         AVPacket pkt;
         if (packetPending) {
             av_packet_move_ref(&pkt, packet);
-            packetPending = 0;
+            packetPending = false;
         } else {
             if (packetQueue->getPacket(&pkt) < 0) {
                 ret = -1;
@@ -50,22 +50,22 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
 
         playerState->mMutex.lock();
         // 将数据包解码
-        ret = avcodec_send_packet(pCodecCtx, &pkt);
+        ret = avcodec_send_packet(codecContext, &pkt);
         if (ret < 0) {
             // 一次解码无法消耗完AVPacket中的所有数据，需要重新解码
             if (ret == AVERROR(EAGAIN)) {
                 av_packet_move_ref(packet, &pkt);
-                packetPending = 1;
+                packetPending = true;
             } else {
                 av_packet_unref(&pkt);
-                packetPending = 0;
+                packetPending = false;
             }
             playerState->mMutex.unlock();
             continue;
         }
 
         // 获取解码得到的音频帧AVFrame
-        ret = avcodec_receive_frame(pCodecCtx, frame);
+        ret = avcodec_receive_frame(codecContext, frame);
         playerState->mMutex.unlock();
         // 释放数据包的引用，防止内存泄漏
         av_packet_unref(packet);
@@ -78,7 +78,7 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
             // 这里要重新计算frame的pts 否则会导致网络视频出现pts 对不上的情况
             AVRational tb = (AVRational) {1, frame->sample_rate};
             if (frame->pts != AV_NOPTS_VALUE) {
-                frame->pts = av_rescale_q(frame->pts, av_codec_get_pkt_timebase(pCodecCtx), tb);
+                frame->pts = av_rescale_q(frame->pts, av_codec_get_pkt_timebase(codecContext), tb);
             } else if (next_pts != AV_NOPTS_VALUE) {
                 frame->pts = av_rescale_q(next_pts, next_pts_tb, tb);
             }

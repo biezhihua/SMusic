@@ -17,7 +17,7 @@ endif ()
 
 set(SPLAYER_ENGINE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../splayer_engine)
 
-add_subdirectory(${SPLAYER_CORE_DIR} splayer_engine)
+add_subdirectory(${SPLAYER_ENGINE_DIR} splayer_engine)
 
 aux_source_directory(src src_source)
 
@@ -29,11 +29,12 @@ add_library(splayer_mac ${src_source})
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${DISTRIBUTION_DIR}/ffmpeg/include
-        ${SPLAYER_CORE_DIR}/include
+        ${SPLAYER_ENGINE_DIR}/include
+        ${SPLAYER_ENGINE_DIR}/src
         ${SDL2_INCLUDE_DIRS}
         )
 
-target_link_libraries(${PROJECT_NAME} splayer_core ${SDL2_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} splayer_engine ${SDL2_LIBRARIES})
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     file(GLOB libs "${DISTRIBUTION_DIR}/ffmpeg/lib/*.dylib")

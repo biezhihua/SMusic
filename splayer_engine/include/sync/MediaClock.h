@@ -2,6 +2,7 @@
 #define MEDIACLOCK_H
 
 #include <math.h>
+#include <player/PlayerState.h>
 
 extern "C" {
 #include <libavutil/time.h>
@@ -42,7 +43,6 @@ private:
     double speed;
     int paused;
 };
-
 
 
 #endif //MEDIACLOCK_H

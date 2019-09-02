@@ -1,11 +1,11 @@
 #ifndef PLAYERSTATE_H
 #define PLAYERSTATE_H
 
-#include <Mutex.h>
-#include <Condition.h>
-#include <Thread.h>
-
-#include <FFmpegUtils.h>
+#include <common/Mutex.h>
+#include <common/Condition.h>
+#include <common/Thread.h>
+#include <common/FFmpegUtils.h>
+#include <common/Log.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>

@@ -1,27 +1,26 @@
-#include "MediaSync.h"
+#include "sync/MediaSync.h"
 
 MediaSync::MediaSync(PlayerState *playerState) {
     this->playerState = playerState;
-    audioDecoder = NULL;
-    videoDecoder = NULL;
+    audioDecoder = nullptr;
+    videoDecoder = nullptr;
     audioClock = new MediaClock();
     videoClock = new MediaClock();
-    extClock = new MediaClock();
+    externalClock = new MediaClock();
 
-    mExit = true;
+    quit = true;
     abortRequest = true;
-    syncThread = NULL;
+    syncThread = nullptr;
 
     forceRefresh = 0;
     maxFrameDuration = 10.0;
     frameTimerRefresh = 1;
     frameTimer = 0;
 
-
-    videoDevice = NULL;
-    swsContext = NULL;
-    mBuffer = NULL;
-    pFrameARGB = NULL;
+    videoDevice = nullptr;
+    swsContext = nullptr;
+    buffer = nullptr;
+    frameARGB = nullptr;
 }
 
 MediaSync::~MediaSync() {
@@ -30,34 +29,34 @@ MediaSync::~MediaSync() {
 
 void MediaSync::reset() {
     stop();
-    playerState = NULL;
-    videoDecoder = NULL;
-    audioDecoder = NULL;
-    videoDevice = NULL;
+    playerState = nullptr;
+    videoDecoder = nullptr;
+    audioDecoder = nullptr;
+    videoDevice = nullptr;
 
-    if (pFrameARGB) {
-        av_frame_free(&pFrameARGB);
-        av_free(pFrameARGB);
-        pFrameARGB = NULL;
+    if (frameARGB) {
+        av_frame_free(&frameARGB);
+        av_free(frameARGB);
+        frameARGB = nullptr;
     }
-    if (mBuffer) {
-        av_freep(&mBuffer);
-        mBuffer = NULL;
+    if (buffer) {
+        av_freep(&buffer);
+        buffer = nullptr;
     }
     if (swsContext) {
         sws_freeContext(swsContext);
-        swsContext = NULL;
+        swsContext = nullptr;
     }
 }
 
 void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
-    mMutex.lock();
+    mutex.lock();
     this->videoDecoder = videoDecoder;
     this->audioDecoder = audioDecoder;
     abortRequest = false;
-    mExit = false;
-    mCondition.signal();
-    mMutex.unlock();
+    quit = false;
+    condition.signal();
+    mutex.unlock();
     if (videoDecoder && !syncThread) {
         syncThread = new Thread(this);
         syncThread->start();
@@ -65,25 +64,25 @@ void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
 }
 
 void MediaSync::stop() {
-    mMutex.lock();
+    mutex.lock();
     abortRequest = true;
-    mCondition.signal();
-    mMutex.unlock();
+    condition.signal();
+    mutex.unlock();
 
-    mMutex.lock();
-    while (!mExit) {
-        mCondition.wait(mMutex);
+    mutex.lock();
+    while (!quit) {
+        condition.wait(mutex);
     }
-    mMutex.unlock();
+    mutex.unlock();
     if (syncThread) {
         syncThread->join();
         delete syncThread;
-        syncThread = NULL;
+        syncThread = nullptr;
     }
 }
 
 void MediaSync::setVideoDevice(VideoDevice *device) {
-    Mutex::Autolock lock(mMutex);
+    Mutex::Autolock lock(mutex);
     this->videoDevice = device;
 }
 
@@ -92,15 +91,15 @@ void MediaSync::setMaxDuration(double maxDuration) {
 }
 
 void MediaSync::refreshVideoTimer() {
-    mMutex.lock();
+    mutex.lock();
     this->frameTimerRefresh = 1;
-    mCondition.signal();
-    mMutex.unlock();
+    condition.signal();
+    mutex.unlock();
 }
 
 void MediaSync::updateAudioClock(double pts, double time) {
     audioClock->setClock(pts, time);
-    extClock->syncToSlave(audioClock);
+    externalClock->syncToSlave(audioClock);
 }
 
 double MediaSync::getAudioDiffClock() {
@@ -108,7 +107,7 @@ double MediaSync::getAudioDiffClock() {
 }
 
 void MediaSync::updateExternalClock(double pts) {
-    extClock->setClock(pts);
+    externalClock->setClock(pts);
 }
 
 double MediaSync::getMasterClock() {
@@ -123,14 +122,14 @@ double MediaSync::getMasterClock() {
             break;
         }
         case AV_SYNC_EXTERNAL: {
-            val = extClock->getClock();
+            val = externalClock->getClock();
             break;
         }
     }
     return val;
 }
 
-MediaClock* MediaSync::getAudioClock() {
+MediaClock *MediaSync::getAudioClock() {
     return audioClock;
 }
 
@@ -139,20 +138,18 @@ MediaClock *MediaSync::getVideoClock() {
 }
 
 MediaClock *MediaSync::getExternalClock() {
-    return extClock;
+    return externalClock;
 }
 
 void MediaSync::run() {
     double remaining_time = 0.0;
     while (true) {
-
         if (abortRequest || playerState->abortRequest) {
-            if (videoDevice != NULL) {
+            if (videoDevice != nullptr) {
                 videoDevice->terminate();
             }
             break;
         }
-
         if (remaining_time > 0.0) {
             av_usleep((int64_t) (remaining_time * 1000000.0));
         }
@@ -161,9 +158,8 @@ void MediaSync::run() {
             refreshVideo(&remaining_time);
         }
     }
-
-    mExit = true;
-    mCondition.signal();
+    quit = true;
+    condition.signal();
 }
 
 void MediaSync::refreshVideo(double *remaining_time) {
@@ -231,12 +227,12 @@ void MediaSync::refreshVideo(double *remaining_time) {
             }
 
             // 更新视频时钟的pts
-            mMutex.lock();
+            mutex.lock();
             if (!isnan(currentFrame->pts)) {
                 videoClock->setClock(currentFrame->pts);
-                extClock->syncToSlave(videoClock);
+                externalClock->syncToSlave(videoClock);
             }
-            mMutex.unlock();
+            mutex.unlock();
 
             // 如果队列中还剩余超过一帧的数据时，需要拿到下一帧，然后计算间隔，并判断是否需要进行舍帧操作
             if (videoDecoder->getFrameSize() > 1) {
@@ -273,7 +269,7 @@ void MediaSync::refreshVideo(double *remaining_time) {
         if (isnan(clock)) {
             pos = playerState->seekPos;
         } else {
-            pos = (int64_t)(clock * 1000);
+            pos = (int64_t) (clock * 1000);
         }
         if (pos < 0 || pos < start_diff) {
             pos = 0;
@@ -282,7 +278,7 @@ void MediaSync::refreshVideo(double *remaining_time) {
         if (playerState->videoDuration < 0) {
             pos = 0;
         }
-        playerState->messageQueue->postMessage(MSG_CURRENT_POSITON, pos, playerState->videoDuration);
+        playerState->messageQueue->notifyMsg(MSG_CURRENT_POSITON, pos, playerState->videoDuration);
     }
 
     // 显示画面
@@ -294,23 +290,23 @@ void MediaSync::refreshVideo(double *remaining_time) {
 }
 
 void MediaSync::checkExternalClockSpeed() {
-    if (videoDecoder && videoDecoder->getPacketSize() <= EXTERNAL_CLOCK_MIN_FRAMES
-        || audioDecoder && audioDecoder->getPacketSize() <= EXTERNAL_CLOCK_MIN_FRAMES) {
-        extClock->setSpeed(FFMAX(EXTERNAL_CLOCK_SPEED_MIN,
-                                 extClock->getSpeed() - EXTERNAL_CLOCK_SPEED_STEP));
+    if ((videoDecoder && videoDecoder->getPacketSize() <= EXTERNAL_CLOCK_MIN_FRAMES)
+        || (audioDecoder && audioDecoder->getPacketSize() <= EXTERNAL_CLOCK_MIN_FRAMES)) {
+        externalClock->setSpeed(FFMAX(EXTERNAL_CLOCK_SPEED_MIN,
+                                      externalClock->getSpeed() - EXTERNAL_CLOCK_SPEED_STEP));
     } else if ((!videoDecoder || videoDecoder->getPacketSize() > EXTERNAL_CLOCK_MAX_FRAMES)
                && (!audioDecoder || audioDecoder->getPacketSize() > EXTERNAL_CLOCK_MAX_FRAMES)) {
-        extClock->setSpeed(FFMIN(EXTERNAL_CLOCK_SPEED_MAX,
-                                 extClock->getSpeed() + EXTERNAL_CLOCK_SPEED_STEP));
+        externalClock->setSpeed(FFMIN(EXTERNAL_CLOCK_SPEED_MAX,
+                                      externalClock->getSpeed() + EXTERNAL_CLOCK_SPEED_STEP));
     } else {
-        double speed = extClock->getSpeed();
+        double speed = externalClock->getSpeed();
         if (speed != 1.0) {
-            extClock->setSpeed(speed + EXTERNAL_CLOCK_SPEED_STEP * (1.0 - speed) / fabs(1.0 - speed));
+            externalClock->setSpeed(speed + EXTERNAL_CLOCK_SPEED_STEP * (1.0 - speed) / fabs(1.0 - speed));
         }
     }
 }
 
-double MediaSync::calculateDelay(double delay)  {
+double MediaSync::calculateDelay(double delay) {
     double sync_threshold, diff = 0;
     // 如果不是同步到视频流，则需要计算延时时间
     if (playerState->syncType != AV_SYNC_VIDEO) {
@@ -329,7 +325,7 @@ double MediaSync::calculateDelay(double delay)  {
         }
     }
 
-    av_log(NULL, AV_LOG_TRACE, "video: delay=%0.3f A-V=%f\n", delay, -diff);
+    av_log(nullptr, AV_LOG_TRACE, "video: delay=%0.3f A-V=%f\n", delay, -diff);
 
     return delay;
 }
@@ -344,9 +340,9 @@ double MediaSync::calculateDuration(Frame *vp, Frame *nextvp) {
 }
 
 void MediaSync::renderVideo() {
-    mMutex.lock();
+    mutex.lock();
     if (!videoDecoder || !videoDevice) {
-        mMutex.unlock();
+        mutex.unlock();
         return;
     }
     Frame *vp = videoDecoder->getFrameQueue()->lastFrame();
@@ -365,7 +361,7 @@ void MediaSync::renderVideo() {
                                            FMT_YUV420P, BLEND_NONE);
 
                 if (vp->frame->linesize[0] < 0 || vp->frame->linesize[1] < 0 || vp->frame->linesize[2] < 0) {
-                    av_log(NULL, AV_LOG_ERROR, "Negative linesize is not supported for YUV.\n");
+                    av_log(nullptr, AV_LOG_ERROR, "Negative linesize is not supported for YUV.\n");
                     return;
                 }
                 ret = videoDevice->onUpdateYUV(vp->frame->data[0], vp->frame->linesize[0],
@@ -377,7 +373,7 @@ void MediaSync::renderVideo() {
                 break;
             }
 
-            // 直接渲染BGRA，对应的是shader->argb格式
+                // 直接渲染BGRA，对应的是shader->argb格式
             case AV_PIX_FMT_BGRA: {
                 videoDevice->onInitTexture(vp->frame->width, vp->frame->height,
                                            FMT_ARGB, BLEND_NONE);
@@ -388,29 +384,29 @@ void MediaSync::renderVideo() {
                 break;
             }
 
-            // 其他格式转码成BGRA格式再做渲染
+                // 其他格式转码成BGRA格式再做渲染
             default: {
                 swsContext = sws_getCachedContext(swsContext,
                                                   vp->frame->width, vp->frame->height,
                                                   (AVPixelFormat) vp->frame->format,
                                                   vp->frame->width, vp->frame->height,
-                                                  AV_PIX_FMT_BGRA, SWS_BICUBIC, NULL, NULL, NULL);
-                if (!mBuffer) {
+                                                  AV_PIX_FMT_BGRA, SWS_BICUBIC, nullptr, nullptr, nullptr);
+                if (!buffer) {
                     int numBytes = av_image_get_buffer_size(AV_PIX_FMT_BGRA, vp->frame->width, vp->frame->height, 1);
-                    mBuffer = (uint8_t *)av_malloc(numBytes * sizeof(uint8_t));
-                    pFrameARGB = av_frame_alloc();
-                    av_image_fill_arrays(pFrameARGB->data, pFrameARGB->linesize, mBuffer, AV_PIX_FMT_BGRA,
+                    buffer = (uint8_t *) av_malloc(numBytes * sizeof(uint8_t));
+                    frameARGB = av_frame_alloc();
+                    av_image_fill_arrays(frameARGB->data, frameARGB->linesize, buffer, AV_PIX_FMT_BGRA,
                                          vp->frame->width, vp->frame->height, 1);
                 }
-                if (swsContext != NULL) {
+                if (swsContext != nullptr) {
                     sws_scale(swsContext, (uint8_t const *const *) vp->frame->data,
                               vp->frame->linesize, 0, vp->frame->height,
-                              pFrameARGB->data, pFrameARGB->linesize);
+                              frameARGB->data, frameARGB->linesize);
                 }
 
                 videoDevice->onInitTexture(vp->frame->width, vp->frame->height,
                                            FMT_ARGB, BLEND_NONE, videoDecoder->getRotate());
-                ret = videoDevice->onUpdateARGB(pFrameARGB->data[0], pFrameARGB->linesize[0]);
+                ret = videoDevice->onUpdateARGB(frameARGB->data[0], frameARGB->linesize[0]);
                 if (ret < 0) {
                     return;
                 }
@@ -420,8 +416,8 @@ void MediaSync::renderVideo() {
         vp->uploaded = 1;
     }
     // 请求渲染视频
-    if (videoDevice != NULL) {
+    if (videoDevice != nullptr) {
         videoDevice->onRequestRender(vp->frame->linesize[0] < 0);
     }
-    mMutex.unlock();
+    mutex.unlock();
 }

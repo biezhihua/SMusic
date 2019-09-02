@@ -1,8 +1,8 @@
 #ifndef MEDIAPLAYER_FRAMEQUEUE_H
 #define MEDIAPLAYER_FRAMEQUEUE_H
 
-#include <Mutex.h>
-#include <Condition.h>
+#include <common/Mutex.h>
+#include <common/Condition.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>

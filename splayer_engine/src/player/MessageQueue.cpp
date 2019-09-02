@@ -1,55 +1,55 @@
-#include "AVMessageQueue.h"
+#include "player/MessageQueue.h"
 
-AVMessageQueue::AVMessageQueue() {
+MessageQueue::MessageQueue() {
     abortRequest = false;
-    mSize = 0;
-    mFirstMsg = 0;
-    mLastMsg = 0;
+    size = 0;
+    firstMsg = nullptr;
+    lastMsg = nullptr;
 }
 
-AVMessageQueue::~AVMessageQueue() {
+MessageQueue::~MessageQueue() {
 
 }
 
-void AVMessageQueue::start() {
-    Mutex::Autolock lock(mMutex);
+void MessageQueue::start() {
+    Mutex::Autolock lock(mutex);
     abortRequest = false;
     AVMessage msg;
     message_init(&msg);
     msg.what = MSG_FLUSH;
 }
 
-void AVMessageQueue::stop() {
-    Mutex::Autolock lock(mMutex);
+void MessageQueue::stop() {
+    Mutex::Autolock lock(mutex);
     abortRequest = true;
-    mCondition.signal();
+    condition.signal();
 }
 
-void AVMessageQueue::flush() {
+void MessageQueue::flush() {
     AVMessage *msg, *msg1;
-    Mutex::Autolock lock(mMutex);
-    for (msg = mFirstMsg; msg != NULL; msg = msg1) {
+    Mutex::Autolock lock(mutex);
+    for (msg = firstMsg; msg != nullptr; msg = msg1) {
         msg1 = msg->next;
         av_freep(&msg);
     }
-    mFirstMsg = NULL;
-    mLastMsg = NULL;
-    mSize = 0;
-    mCondition.signal();
+    firstMsg = nullptr;
+    lastMsg = nullptr;
+    size = 0;
+    condition.signal();
 }
 
-void AVMessageQueue::release() {
+void MessageQueue::release() {
     flush();
 }
 
-void AVMessageQueue::postMessage(int what) {
+void MessageQueue::postMessage(int what) {
     AVMessage msg;
     message_init(&msg);
     msg.what = what;
     putMessage(&msg);
 }
 
-void AVMessageQueue::postMessage(int what, int arg1) {
+void MessageQueue::postMessage(int what, int arg1) {
     AVMessage msg;
     message_init(&msg);
     msg.what = what;
@@ -57,7 +57,7 @@ void AVMessageQueue::postMessage(int what, int arg1) {
     putMessage(&msg);
 }
 
-void AVMessageQueue::notifyMsg(int what, int arg1, int arg2) {
+void MessageQueue::notifyMsg(int what, int arg1, int arg2) {
     AVMessage msg;
     message_init(&msg);
     msg.what = what;
@@ -66,7 +66,7 @@ void AVMessageQueue::notifyMsg(int what, int arg1, int arg2) {
     putMessage(&msg);
 }
 
-void AVMessageQueue::postMessage(int what, int arg1, int arg2, void *obj, int len) {
+void MessageQueue::postMessage(int what, int arg1, int arg2, void *obj, int len) {
     AVMessage msg;
     message_init(&msg);
     msg.what = what;
@@ -78,28 +78,28 @@ void AVMessageQueue::postMessage(int what, int arg1, int arg2, void *obj, int le
     putMessage(&msg);
 }
 
-int AVMessageQueue::getMessage(AVMessage *msg) {
+int MessageQueue::getMessage(AVMessage *msg) {
     return getMessage(msg, 1);
 }
 
-int AVMessageQueue::getMessage(AVMessage *msg, int block) {
+int MessageQueue::getMessage(AVMessage *msg, int block) {
     AVMessage *msg1;
     int ret;
-    mMutex.lock();
+    mutex.lock();
     for (;;) {
         if (abortRequest) {
             ret = -1;
             break;
         }
-        msg1 = mFirstMsg;
+        msg1 = firstMsg;
         if (msg1) {
-            mFirstMsg = msg1->next;
-            if (!mFirstMsg) {
-                mLastMsg = NULL;
+            firstMsg = msg1->next;
+            if (!firstMsg) {
+                lastMsg = nullptr;
             }
-            mSize--;
+            size--;
             *msg = *msg1;
-            msg1->obj = NULL;
+            msg1->obj = nullptr;
             av_free(msg1);
             ret = 1;
             break;
@@ -107,44 +107,44 @@ int AVMessageQueue::getMessage(AVMessage *msg, int block) {
             ret = 0;
             break;
         } else {
-            mCondition.wait(mMutex);
+            condition.wait(mutex);
         }
     }
-    mMutex.unlock();
+    mutex.unlock();
 
     return ret;
 }
 
-void AVMessageQueue::removeMessage(int what) {
-    Mutex::Autolock lock(mMutex);
+void MessageQueue::removeMessage(int what) {
+    Mutex::Autolock lock(mutex);
     AVMessage **p_msg, *msg, *last_msg;
-    last_msg = mFirstMsg;
-    if (!abortRequest && mFirstMsg) {
-        p_msg = &mFirstMsg;
+    last_msg = firstMsg;
+    if (!abortRequest && firstMsg) {
+        p_msg = &firstMsg;
         while (*p_msg) {
             msg = *p_msg;
 
             if (msg->what == what) {
                 *p_msg = msg->next;
                 av_free(msg);
-                mSize--;
+                size--;
             } else {
                 last_msg = msg;
                 p_msg = &msg->next;
             }
         }
 
-        if (mFirstMsg) {
-            mLastMsg = last_msg;
+        if (firstMsg) {
+            lastMsg = last_msg;
         } else {
-            mLastMsg = NULL;
+            lastMsg = nullptr;
         }
     }
-    mCondition.signal();
+    condition.signal();
 }
 
-int AVMessageQueue::putMessage(AVMessage *msg) {
-    Mutex::Autolock lock(mMutex);
+int MessageQueue::putMessage(AVMessage *msg) {
+    Mutex::Autolock lock(mutex);
     AVMessage *message;
     if (abortRequest) {
         return -1;
@@ -154,15 +154,15 @@ int AVMessageQueue::putMessage(AVMessage *msg) {
         return -1;
     }
     *message = *msg;
-    message->next = NULL;
+    message->next = nullptr;
 
-    if (!mLastMsg) {
-        mFirstMsg = message;
+    if (!lastMsg) {
+        firstMsg = message;
     } else {
-        mLastMsg->next = message;
+        lastMsg->next = message;
     }
-    mLastMsg = message;
-    mSize++;
-    mCondition.signal();
+    lastMsg = message;
+    size++;
+    condition.signal();
     return 0;
 }

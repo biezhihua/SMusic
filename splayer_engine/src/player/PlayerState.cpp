@@ -1,5 +1,5 @@
-#include <AndroidLog.h>
-#include "PlayerState.h"
+
+#include "player/PlayerState.h"
 
 PlayerState::PlayerState() {
     init();
@@ -31,7 +31,7 @@ void PlayerState::init() {
 
     audioCodecName = NULL;
     videoCodecName = NULL;
-    messageQueue = new AVMessageQueue();
+    messageQueue = new MessageQueue();
 }
 
 void PlayerState::reset() {
@@ -66,7 +66,7 @@ void PlayerState::reset() {
     videoDisable = 0;
     displayDisable = 0;
     fast = 0;
-    genpts = 0;
+    generateMissingPts = 0;
     lowres = 0;
     playbackRate = 1.0;
     playbackPitch = 1.0;
@@ -175,8 +175,8 @@ void PlayerState::parse_int(const char *type, int64_t option) {
         displayDisable = (option != 0) ? 1 : 0;
     } else if (!strcmp("fast", type)) { // fast标志
         fast = (option != 0) ? 1 : 0;
-    } else if (!strcmp("genpts", type)) { // genpts标志
-        genpts = (option != 0) ? 1 : 0;
+    } else if (!strcmp("generateMissingPts", type)) { // genpts标志
+        generateMissingPts = (option != 0) ? 1 : 0;
     } else if (!strcmp("lowres", type)) { // lowres标准字
         lowres = (option != 0) ? 1 : 0;
     } else if (!strcmp("drp", type)) { // 重排pts

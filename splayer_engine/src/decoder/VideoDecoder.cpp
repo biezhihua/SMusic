@@ -1,36 +1,36 @@
-#include "VideoDecoder.h"
+#include "decoder/VideoDecoder.h"
 
 VideoDecoder::VideoDecoder(AVFormatContext *pFormatCtx, AVCodecContext *avctx,
                            AVStream *stream, int streamIndex, PlayerState *playerState)
         : MediaDecoder(avctx, stream, streamIndex, playerState) {
-    this->pFormatCtx = pFormatCtx;
+    formatContext = pFormatCtx;
     frameQueue = new FrameQueue(VIDEO_QUEUE_SIZE, 1);
-    mExit = true;
-    decodeThread = NULL;
-    masterClock = NULL;
+    quit = true;
+    decodeThread = nullptr;
+    masterClock = nullptr;
     // 旋转角度
-    AVDictionaryEntry *entry = av_dict_get(stream->metadata, "rotate", NULL, AV_DICT_MATCH_CASE);
+    AVDictionaryEntry *entry = av_dict_get(stream->metadata, "rotate", nullptr, AV_DICT_MATCH_CASE);
     if (entry && entry->value) {
-        mRotate = atoi(entry->value);
+        rotate = atoi(entry->value);
     } else {
-        mRotate = 0;
+        rotate = 0;
     }
 }
 
 VideoDecoder::~VideoDecoder() {
-    mMutex.lock();
-    pFormatCtx = NULL;
+    mutex.lock();
+    formatContext = nullptr;
     if (frameQueue) {
         frameQueue->flush();
         delete frameQueue;
-        frameQueue = NULL;
+        frameQueue = nullptr;
     }
-    masterClock = NULL;
-    mMutex.unlock();
+    masterClock = nullptr;
+    mutex.unlock();
 }
 
 void VideoDecoder::setMasterClock(MediaClock *masterClock) {
-    Mutex::Autolock lock(mMutex);
+    Mutex::Autolock lock(mutex);
     this->masterClock = masterClock;
 }
 
@@ -42,7 +42,7 @@ void VideoDecoder::start() {
     if (!decodeThread) {
         decodeThread = new Thread(this);
         decodeThread->start();
-        mExit = false;
+        quit = false;
     }
 }
 
@@ -51,46 +51,46 @@ void VideoDecoder::stop() {
     if (frameQueue) {
         frameQueue->abort();
     }
-    mMutex.lock();
-    while (!mExit) {
-        mCondition.wait(mMutex);
+    mutex.lock();
+    while (!quit) {
+        condition.wait(mutex);
     }
-    mMutex.unlock();
+    mutex.unlock();
     if (decodeThread) {
         decodeThread->join();
         delete decodeThread;
-        decodeThread = NULL;
+        decodeThread = nullptr;
     }
 }
 
 void VideoDecoder::flush() {
-    mMutex.lock();
+    mutex.lock();
     MediaDecoder::flush();
     if (frameQueue) {
         frameQueue->flush();
     }
-    mCondition.signal();
-    mMutex.unlock();
+    condition.signal();
+    mutex.unlock();
 }
 
 int VideoDecoder::getFrameSize() {
-    Mutex::Autolock lock(mMutex);
+    Mutex::Autolock lock(mutex);
     return frameQueue ? frameQueue->getFrameSize() : 0;
 }
 
 int VideoDecoder::getRotate() {
-    Mutex::Autolock lock(mMutex);
-    return mRotate;
+    Mutex::Autolock lock(mutex);
+    return rotate;
 }
 
 FrameQueue *VideoDecoder::getFrameQueue() {
-    Mutex::Autolock lock(mMutex);
+    Mutex::Autolock lock(mutex);
     return frameQueue;
 }
 
 AVFormatContext *VideoDecoder::getFormatContext() {
-    Mutex::Autolock lock(mMutex);
-    return pFormatCtx;
+    Mutex::Autolock lock(mutex);
+    return formatContext;
 }
 
 void VideoDecoder::run() {
@@ -107,19 +107,19 @@ int VideoDecoder::decodeVideo() {
     int got_picture;
     int ret = 0;
 
-    AVRational tb = pStream->time_base;
-    AVRational frame_rate = av_guess_frame_rate(pFormatCtx, pStream, NULL);
+    AVRational tb = stream->time_base;
+    AVRational frame_rate = av_guess_frame_rate(formatContext, stream, nullptr);
 
     if (!frame) {
-        mExit = true;
-        mCondition.signal();
+        quit = true;
+        condition.signal();
         return AVERROR(ENOMEM);
     }
 
     AVPacket *packet = av_packet_alloc();
     if (!packet) {
-        mExit = true;
-        mCondition.signal();
+        quit = true;
+        condition.signal();
         return AVERROR(ENOMEM);
     }
 
@@ -141,7 +141,7 @@ int VideoDecoder::decodeVideo() {
 
         // 送去解码
         playerState->mMutex.lock();
-        ret = avcodec_send_packet(pCodecCtx, packet);
+        ret = avcodec_send_packet(codecContext, packet);
         if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF) {
             av_packet_unref(packet);
             playerState->mMutex.unlock();
@@ -149,7 +149,7 @@ int VideoDecoder::decodeVideo() {
         }
 
         // 得到解码帧
-        ret = avcodec_receive_frame(pCodecCtx, frame);
+        ret = avcodec_receive_frame(codecContext, frame);
         playerState->mMutex.unlock();
         if (ret < 0 && ret != AVERROR_EOF) {
             av_frame_unref(frame);
@@ -166,14 +166,14 @@ int VideoDecoder::decodeVideo() {
             }
 
             // 丢帧处理
-            if (masterClock != NULL) {
+            if (masterClock != nullptr) {
                 double dpts = NAN;
 
                 if (frame->pts != AV_NOPTS_VALUE) {
-                    dpts = av_q2d(pStream->time_base) * frame->pts;
+                    dpts = av_q2d(stream->time_base) * frame->pts;
                 }
                 // 计算视频帧的长宽比
-                frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(pFormatCtx, pStream,
+                frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(formatContext, stream,
                                                                           frame);
                 // 是否需要做舍帧操作
                 if (playerState->frameDrop > 0 ||
@@ -205,7 +205,7 @@ int VideoDecoder::decodeVideo() {
             vp->format = frame->format;
             vp->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
             vp->duration = frame_rate.num && frame_rate.den
-                           ? av_q2d((AVRational){frame_rate.den, frame_rate.num}) : 0;
+                           ? av_q2d((AVRational) {frame_rate.den, frame_rate.num}) : 0;
             av_frame_move_ref(vp->frame, frame);
 
             // 入队帧
@@ -219,14 +219,14 @@ int VideoDecoder::decodeVideo() {
 
     av_frame_free(&frame);
     av_free(frame);
-    frame = NULL;
+    frame = nullptr;
 
     av_packet_free(&packet);
     av_free(packet);
-    packet = NULL;
+    packet = nullptr;
 
-    mExit = true;
-    mCondition.signal();
+    quit = true;
+    condition.signal();
 
     return ret;
 }
