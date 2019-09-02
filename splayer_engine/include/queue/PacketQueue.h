@@ -56,13 +56,25 @@ private:
     int put(AVPacket *pkt);
 
 private:
-    Mutex mMutex;
-    Condition mCondition;
-    PacketList *first_pkt, *last_pkt;
-    int nb_packets;
-    int size;
+
+    Mutex mutex;
+
+    Condition condition;
+
+    PacketList *firstPacket;
+    PacketList *lastPacket;
+
+    /// 包数量，也就是队列元素数量
+    int packetSize;
+
+    /// 占用内存大小
+    int memorySize;
+
+    /// 持续时长
     int64_t duration;
-    int abort_request;
+
+    /// 用户退出请求标志
+    bool abortRequest;
 };
 
 

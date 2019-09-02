@@ -1,14 +1,14 @@
 #ifndef MEDIADECODER_H
 #define MEDIADECODER_H
 
-#include <AndroidLog.h>
+#include <Log.h>
 #include <player/PlayerState.h>
 #include <queue/PacketQueue.h>
 #include <queue/FrameQueue.h>
 
 class MediaDecoder : public Runnable {
 public:
-    MediaDecoder(AVCodecContext *avctx, AVStream *stream, int streamIndex, PlayerState *playerState);
+    MediaDecoder(AVCodecContext *codecContext, AVStream *stream, int streamIndex, PlayerState *playerState);
 
     virtual ~MediaDecoder();
 
@@ -35,13 +35,13 @@ public:
     virtual void run();
 
 protected:
-    Mutex mMutex;
-    Condition mCondition;
+    Mutex mutex;
+    Condition condition;
     bool abortRequest;
     PlayerState *playerState;
     PacketQueue *packetQueue;       // 数据包队列
-    AVCodecContext *pCodecCtx;
-    AVStream *pStream;
+    AVCodecContext *codecContext;
+    AVStream *stream;
     int streamIndex;
 };
 

@@ -64,14 +64,14 @@ protected:
 inline Thread::Thread() {
     mNeedJoin = true;
     mRunning = false;
-    mRunnable = NULL;
+    mRunnable = nullptr;
     mPriority = Priority_Default;
 }
 
 inline Thread::Thread(ThreadPriority priority) {
     mNeedJoin = true;
     mRunning = false;
-    mRunnable = NULL;
+    mRunnable = nullptr;
     mPriority = priority;
 }
 
@@ -91,12 +91,12 @@ inline Thread::Thread(Runnable *runnable, ThreadPriority priority) {
 
 inline Thread::~Thread() {
     join();
-    mRunnable = NULL;
+    mRunnable = nullptr;
 }
 
 inline void Thread::start() {
     if (!mRunning) {
-        pthread_create(&mId, NULL, threadEntry, this);
+        pthread_create(&mId, nullptr, threadEntry, this);
         mNeedJoin = true;
     }
     // wait thread to run
@@ -110,7 +110,7 @@ inline void Thread::start() {
 inline void Thread::join() {
     Mutex::Autolock lock(mMutex);
     if (mNeedJoin) {
-        pthread_join(mId, NULL);
+        pthread_join(mId, nullptr);
         mNeedJoin = false;
     }
 }
@@ -132,7 +132,7 @@ inline bool Thread::isActive() const {
 inline void *Thread::threadEntry(void *arg) {
     Thread *thread = (Thread *) arg;
 
-    if (thread != NULL) {
+    if (thread != nullptr) {
         thread->mRunning = true;
         thread->mCondition.signal();
 
@@ -149,9 +149,9 @@ inline void *Thread::threadEntry(void *arg) {
         thread->mCondition.signal();
     }
 
-    pthread_exit(NULL);
+    pthread_exit(nullptr);
 
-    return NULL;
+    return nullptr;
 }
 
 inline int Thread::schedPriority(ThreadPriority priority) {

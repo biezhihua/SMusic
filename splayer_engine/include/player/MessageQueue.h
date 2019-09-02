@@ -35,14 +35,14 @@ inline static void message_free_resouce(AVMessage *msg) {
     }
     assert(msg->free);
     msg->free(msg->obj);
-    msg->obj = NULL;
+    msg->obj = nullptr;
 }
 
-class AVMessageQueue {
+class MessageQueue {
 public:
-    AVMessageQueue();
+    MessageQueue();
 
-    virtual ~AVMessageQueue();
+    virtual ~MessageQueue();
 
     void start();
 
@@ -56,7 +56,7 @@ public:
 
     void postMessage(int what, int arg1);
 
-    void postMessage(int what, int arg1, int arg2);
+    void notifyMsg(int what, int arg1, int arg2);
 
     void postMessage(int what, int arg1, int arg2, void *obj, int len);
 
@@ -70,11 +70,11 @@ private:
     int putMessage(AVMessage *msg);
 
 private:
-    Mutex mMutex;
-    Condition mCondition;
-    AVMessage *mFirstMsg, *mLastMsg;
+    Mutex mutex;
+    Condition condition;
+    AVMessage *firstMsg, *lastMsg;
     bool abortRequest;
-    int mSize;
+    int size;
 };
 
 #endif //AVMESSAGEQUEUE_H

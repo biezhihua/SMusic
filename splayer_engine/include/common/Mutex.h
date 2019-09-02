@@ -18,15 +18,15 @@ public:
     };
     Mutex();
     Mutex(const char* name);
-    Mutex(int type, const char* name = NULL);
+    Mutex(int type, const char* name = nullptr);
     ~Mutex();
 
     // lock or unlock the mutex
-    status_t    lock();
-    status_t    unlock();
+    int    lock();
+    int    unlock();
 
     // lock if possible; returns 0 on success, error otherwise
-    status_t    tryLock();
+    int    tryLock();
 
     // Manages the mutex automatically. It'll be locked when Autolock is
     // constructed and released when Autolock goes out of scope.
@@ -50,11 +50,11 @@ private:
 };
 
 inline Mutex::Mutex() {
-    pthread_mutex_init(&mMutex, NULL);
+    pthread_mutex_init(&mMutex, nullptr);
 }
 
 inline Mutex::Mutex(const char* name) {
-    pthread_mutex_init(&mMutex, NULL);
+    pthread_mutex_init(&mMutex, nullptr);
 }
 
 
@@ -66,7 +66,7 @@ inline Mutex::Mutex(int type, const char* name) {
         pthread_mutex_init(&mMutex, &attr);
         pthread_mutexattr_destroy(&attr);
     } else {
-        pthread_mutex_init(&mMutex, NULL);
+        pthread_mutex_init(&mMutex, nullptr);
     }
 }
 
@@ -74,15 +74,15 @@ inline Mutex::~Mutex() {
     pthread_mutex_destroy(&mMutex);
 }
 
-inline status_t Mutex::lock() {
+inline int Mutex::lock() {
     return -pthread_mutex_lock(&mMutex);
 }
 
-inline status_t Mutex::unlock() {
+inline int Mutex::unlock() {
     return -pthread_mutex_unlock(&mMutex);
 }
 
-inline status_t Mutex::tryLock() {
+inline int Mutex::tryLock() {
     return -pthread_mutex_trylock(&mMutex);
 }
 typedef Mutex::Autolock AutoMutex;

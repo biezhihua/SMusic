@@ -35,11 +35,10 @@ private:
     int decodeVideo();
 
 private:
-    AVFormatContext *pFormatCtx;    // 解复用上下文
+    AVFormatContext *formatContext; // 解复用上下文
     FrameQueue *frameQueue;         // 帧队列
-    int mRotate;                    // 旋转角度
-
-    bool mExit;                     // 退出标志
+    int rotate;                     // 旋转角度
+    bool quit;                      // 退出标志
     Thread *decodeThread;           // 解码线程
     MediaClock *masterClock;        // 主时钟
 };

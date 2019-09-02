@@ -57,7 +57,7 @@ void AVMessageQueue::postMessage(int what, int arg1) {
     putMessage(&msg);
 }
 
-void AVMessageQueue::postMessage(int what, int arg1, int arg2) {
+void AVMessageQueue::notifyMsg(int what, int arg1, int arg2) {
     AVMessage msg;
     message_init(&msg);
     msg.what = what;

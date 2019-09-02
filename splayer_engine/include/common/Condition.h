@@ -31,9 +31,9 @@ public:
 
     ~Condition();
 
-    status_t wait(Mutex &mutex);
+    int wait(Mutex &mutex);
 
-    status_t waitRelative(Mutex &mutex, nsecs_t reltime);
+    int waitRelative(Mutex &mutex, nsecs_t reltime);
 
     void signal();
 
@@ -52,7 +52,7 @@ private:
 };
 
 inline Condition::Condition() {
-    pthread_cond_init(&mCond, NULL);
+    pthread_cond_init(&mCond, nullptr);
 }
 
 inline Condition::Condition(int type) {
@@ -63,7 +63,7 @@ inline Condition::Condition(int type) {
         pthread_cond_init(&mCond, &attr);
         pthread_condattr_destroy(&attr);
     } else {
-        pthread_cond_init(&mCond, NULL);
+        pthread_cond_init(&mCond, nullptr);
     }
 }
 
@@ -71,14 +71,14 @@ inline Condition::~Condition() {
     pthread_cond_destroy(&mCond);
 }
 
-inline status_t Condition::wait(Mutex &mutex) {
+inline int Condition::wait(Mutex &mutex) {
     return -pthread_cond_wait(&mCond, &mutex.mMutex);
 }
 
-inline status_t Condition::waitRelative(Mutex &mutex, nsecs_t reltime) {
+inline int Condition::waitRelative(Mutex &mutex, nsecs_t reltime) {
     struct timeval t;
     struct timespec ts;
-    gettimeofday(&t, NULL);
+    gettimeofday(&t, nullptr);
     ts.tv_sec = t.tv_sec;
     ts.tv_nsec = t.tv_usec * 1000;
 

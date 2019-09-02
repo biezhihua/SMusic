@@ -1,0 +1,132 @@
+#ifndef MEDIAPLAYER_H
+#define MEDIAPLAYER_H
+
+static const char *const OPT_SCALL_ALL_PMTS = "scan_all_pmts";
+
+static const char *const OPT_HEADERS = "headers";
+
+static const char *const FORMAT_OGG = "ogg";
+
+static const char *const OPT_LOW_RESOLUTION = "lowres";
+
+static const char *const OPT_THREADS = "threads";
+
+static const char *const OPT_REF_COUNTED_FRAMES = "refcounted_frames";
+
+#include <sync/MediaClock.h>
+#include <player/PlayerState.h>
+#include <decoder/AudioDecoder.h>
+#include <decoder/VideoDecoder.h>
+#include <device/AudioDevice.h>
+#include <device/VideoDevice.h>
+#include <sync/MediaSync.h>
+#include <convertor/AudioResampler.h>
+
+class MediaPlayer : public Runnable {
+
+private:
+    Mutex mutex;
+    Condition condition;
+
+    Thread *readThread;                     // 读数据包线程
+
+    PlayerState *playerState;               // 播放器状态
+
+    AudioDecoder *audioDecoder;             // 音频解码器
+    VideoDecoder *videoDecoder;             // 视频解码器
+
+    bool quit;                             // state for reading packets thread exited if not
+
+    // 解复用处理
+    AVFormatContext *formatContext;         // 解码上下文
+    int64_t duration;                       // 文件总时长
+    int lastPaused;                         // 上一次暂停状态
+    int eof;                                // 数据包读到结尾标志
+    int attachmentRequest;                  // 视频封面数据包请求
+
+    AudioDevice *audioDevice;               // 音频输出设备
+    AudioResampler *audioResampler;         // 音频重采样器
+
+    MediaSync *mediaSync;                   // 媒体同步器
+
+
+
+public:
+    MediaPlayer();
+
+    virtual ~MediaPlayer();
+
+    int reset();
+
+    void setDataSource(const char *url, int64_t offset = 0, const char *headers = NULL);
+
+    void setVideoDevice(VideoDevice *videoDevice);
+
+    int prepare();
+
+    int prepareAsync();
+
+    void start();
+
+    void pause();
+
+    void resume();
+
+    void stop();
+
+    void seekTo(float timeMs);
+
+    void setLooping(int looping);
+
+    void setVolume(float leftVolume, float rightVolume);
+
+    void setMute(int mute);
+
+    void setRate(float rate);
+
+    void setPitch(float pitch);
+
+    int getRotate();
+
+    int getVideoWidth();
+
+    int getVideoHeight();
+
+    long getCurrentPosition();
+
+    long getDuration();
+
+    int isPlaying();
+
+    int isLooping();
+
+    int getMetadata(AVDictionary **metadata);
+
+    MessageQueue *getMessageQueue();
+
+    PlayerState *getPlayerState();
+
+    void pcmQueueCallback(uint8_t *stream, int len);
+
+protected:
+    void run() override;
+
+private:
+    int readPackets();
+
+    // prepare decoder with stream_index
+    int prepareDecoder(int streamIndex);
+
+    // open an audio output device
+    int openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_channels, int wanted_sample_rate);
+
+    bool isNoReadMore() const;
+
+    bool isRetryPlay() const;
+
+    bool isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const;
+
+
+};
+
+#endif //MEDIAPLAYER_H

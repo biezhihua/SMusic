@@ -66,17 +66,17 @@ private:
 private:
     PlayerState *playerState;               // 播放器状态
     bool abortRequest;                      // 停止
-    bool mExit;
+    bool quit;
 
     MediaClock *audioClock;                 // 音频时钟
     MediaClock *videoClock;                 // 视频时钟
-    MediaClock *extClock;                   // 外部时钟
+    MediaClock *externalClock;              // 外部时钟
 
     VideoDecoder *videoDecoder;             // 视频解码器
     AudioDecoder *audioDecoder;             // 视频解码器
 
-    Mutex mMutex;
-    Condition mCondition;
+    Mutex mutex;
+    Condition condition;
     Thread *syncThread;                     // 同步线程
 
     int forceRefresh;                       // 强制刷新标志
@@ -86,8 +86,8 @@ private:
 
     VideoDevice *videoDevice;               // 视频输出设备
 
-    AVFrame *pFrameARGB;
-    uint8_t *mBuffer;
+    AVFrame *frameARGB;
+    uint8_t *buffer;
     SwsContext *swsContext;
 };
 

@@ -5,7 +5,7 @@
 #include <Condition.h>
 #include <Thread.h>
 
-#include <common/FFmpegUtils.h>
+#include <FFmpegUtils.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -19,7 +19,7 @@ extern "C" {
 #include <libavutil/avstring.h>
 };
 
-#include <player/AVMessageQueue.h>
+#include <player/MessageQueue.h>
 
 #define VIDEO_QUEUE_SIZE 3
 #define SAMPLE_QUEUE_SIZE 9
@@ -100,7 +100,7 @@ public:
     AVDictionary *format_opts;      // 解复用option参数
     AVDictionary *codec_opts;       // 解码option参数
 
-    AVMessageQueue *messageQueue;   // 播放器消息队列
+    MessageQueue *messageQueue;   // 播放器消息队列
     int64_t videoDuration;          // 视频时长
 
     AVInputFormat *iformat;         // 指定文件封装格式，也就是解复用器
@@ -123,7 +123,7 @@ public:
     int displayDisable;             // 是否禁止显示
 
     int fast;                       // 解码上下文的AV_CODEC_FLAG2_FAST标志
-    int genpts;                     // 解码上下文的AVFMT_FLAG_GENPTS标志
+    int generateMissingPts;                     // 解码上下文的AVFMT_FLAG_GENPTS标志
     int lowres;                     // 解码上下文的lowres标志
 
     float playbackRate;             // 播放速度
