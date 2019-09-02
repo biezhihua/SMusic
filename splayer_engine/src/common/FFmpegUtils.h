@@ -1,10 +1,5 @@
-//
-// Created by cain on 2018/12/29.
-//
-
 #ifndef FFMPEGUTILS_H
 #define FFMPEGUTILS_H
-
 
 #ifdef __cplusplus
 extern "C" {

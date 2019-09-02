@@ -1,6 +1,3 @@
-//
-// Created by cain on 2018/12/29.
-//
 #include "FFmpegUtils.h"
 
 #if defined(__ANDROID__)
@@ -164,7 +161,7 @@ void printError(const char *filename, int err) {
  */
 double getRotation(AVStream *st) {
     AVDictionaryEntry *rotate_tag = av_dict_get(st->metadata, "rotate", NULL, 0);
-    uint8_t* displaymatrix = av_stream_get_side_data(st,
+    uint8_t *displaymatrix = av_stream_get_side_data(st,
                                                      AV_PKT_DATA_DISPLAYMATRIX, NULL);
     double theta = 0;
 
@@ -175,13 +172,13 @@ double getRotation(AVStream *st) {
             theta = 0;
         }
     }
-    if (displaymatrix && !theta){
-        theta = -av_display_rotation_get((int32_t*) displaymatrix);
+    if (displaymatrix && !theta) {
+        theta = -av_display_rotation_get((int32_t *) displaymatrix);
     }
 
-    theta -= 360*floor(theta/360 + 0.9/360);
+    theta -= 360 * floor(theta / 360 + 0.9 / 360);
 
-    if (fabs(theta - 90 * round(theta /90)) > 2) {
+    if (fabs(theta - 90 * round(theta / 90)) > 2) {
 
 #if defined(__ANDROID__)
         ALOGW("Odd rotation angle.\n"
@@ -190,9 +187,9 @@ double getRotation(AVStream *st) {
                       "and contact the ffmpeg-devel mailing list. (ffmpeg-devel@ffmpeg.org)");
 #else
         av_log(NULL, AV_LOG_WARNING, "Odd rotation angle.\n"
-                "If you want to help, upload a sample "
-                "of this file to ftp://upload.ffmpeg.org/incoming/ "
-                "and contact the ffmpeg-devel mailing list. (ffmpeg-devel@ffmpeg.org)");
+                                     "If you want to help, upload a sample "
+                                     "of this file to ftp://upload.ffmpeg.org/incoming/ "
+                                     "and contact the ffmpeg-devel mailing list. (ffmpeg-devel@ffmpeg.org)");
 #endif
     }
 

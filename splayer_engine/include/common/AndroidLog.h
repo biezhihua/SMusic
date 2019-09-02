@@ -1,7 +1,3 @@
-//
-// Created by cain on 2018/12/28.
-//
-
 #ifndef NATIVE_LOG_H
 #define NATIVE_LOG_H
 
