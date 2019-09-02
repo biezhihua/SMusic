@@ -30,7 +30,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${DISTRIBUTION_DIR}/ffmpeg/include
         ${SPLAYER_ENGINE_DIR}/include
-        ${SPLAYER_ENGINE_DIR}/src
         ${SDL2_INCLUDE_DIRS}
         )
 
