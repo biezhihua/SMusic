@@ -57,6 +57,7 @@ private:
 
     MediaSync *mediaSync;                   // 媒体同步器
 
+    AVPacket flushPacket;                   // 刷新的包,用于在SEEK时，刷新数据队列
 
 
 public:

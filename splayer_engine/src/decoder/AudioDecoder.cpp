@@ -1,7 +1,7 @@
 #include "decoder/AudioDecoder.h"
 
-AudioDecoder::AudioDecoder(AVCodecContext *avctx, AVStream *stream, int streamIndex, PlayerState *playerState)
-        : MediaDecoder(avctx, stream, streamIndex, playerState) {
+AudioDecoder::AudioDecoder(AVCodecContext *avctx, AVStream *stream, int streamIndex, PlayerState *playerState, AVPacket *flushPacket)
+        : MediaDecoder(avctx, stream, streamIndex, playerState, flushPacket) {
     packet = av_packet_alloc();
     packetPending = false;
 }
@@ -95,7 +95,6 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
 
     return got_frame;
 }
-
 
 
 

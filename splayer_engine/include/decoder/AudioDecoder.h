@@ -6,7 +6,7 @@
 
 class AudioDecoder : public MediaDecoder {
 public:
-    AudioDecoder(AVCodecContext *avctx, AVStream *stream, int streamIndex, PlayerState *playerState);
+    AudioDecoder(AVCodecContext *avctx, AVStream *stream, int streamIndex, PlayerState *playerState, AVPacket *flushPacket);
 
     virtual ~AudioDecoder();
 

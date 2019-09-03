@@ -8,8 +8,11 @@
 #include <queue/FrameQueue.h>
 
 class MediaDecoder : public Runnable {
+    const char *const TAG = "MediaDecoder";
+
 public:
-    MediaDecoder(AVCodecContext *codecContext, AVStream *stream, int streamIndex, PlayerState *playerState);
+    MediaDecoder(AVCodecContext *codecContext, AVStream *stream, int streamIndex, PlayerState *playerState,
+                     AVPacket *flushPacket);
 
     virtual ~MediaDecoder();
 
@@ -33,17 +36,37 @@ public:
 
     int hasEnoughPackets();
 
+    virtual bool isFinished();
+
+    void pushFlushPacket();
+
+    void pushNullPacket();
+
     virtual void run();
 
 protected:
+
     Mutex mutex;
+
     Condition condition;
+
     bool abortRequest;
+
     PlayerState *playerState;
-    PacketQueue *packetQueue;       // 数据包队列
+
+    /// 数据包队列
+    PacketQueue *packetQueue;
+
     AVCodecContext *codecContext;
+
     AVStream *stream;
+
     int streamIndex;
+
+    /// 是否已结束
+    int finished;
+
+    AVPacket *flushPacket;
 };
 
 

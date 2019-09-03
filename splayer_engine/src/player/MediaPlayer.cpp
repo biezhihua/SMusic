@@ -2,6 +2,8 @@
 
 MediaPlayer::MediaPlayer() {
     avformat_network_init();
+    av_init_packet(&flushPacket);
+    flushPacket.data = (uint8_t *) &flushPacket;
     playerState = new PlayerState();
     audioDevice = new AudioDevice();
     mediaSync = new MediaSync(playerState);
@@ -17,6 +19,8 @@ MediaPlayer::MediaPlayer() {
 }
 
 MediaPlayer::~MediaPlayer() {
+    flushPacket.data = nullptr;
+    av_packet_unref(&flushPacket);
     avformat_network_deinit();
 }
 
@@ -583,9 +587,11 @@ int MediaPlayer::readPackets() {
             } else {
                 if (audioDecoder) {
                     audioDecoder->flush();
+                    audioDecoder->pushFlushPacket();
                 }
                 if (videoDecoder) {
                     videoDecoder->flush();
+                    audioDecoder->pushFlushPacket();
                 }
                 // 更新外部时钟值
                 if (playerState->seekFlags & AVSEEK_FLAG_BYTE) {
@@ -635,10 +641,17 @@ int MediaPlayer::readPackets() {
         if (ret < 0) {
             // 如果没能读出裸数据包，判断是否是结尾
             if ((ret == AVERROR_EOF || avio_feof(formatContext->pb)) && !eof) {
+                if (videoDecoder) {
+                    videoDecoder->pushNullPacket();
+                }
+                if (audioDecoder) {
+                    audioDecoder->pushNullPacket();
+                }
                 eof = 1;
             }
             // 读取出错，则直接退出
             if (formatContext->pb && formatContext->pb->error) {
+                ALOGE(TAG, "%s I/O context error ", __func__);
                 ret = ERROR_IO;
                 break;
             }
@@ -648,10 +661,13 @@ int MediaPlayer::readPackets() {
             eof = 0;
         }
 
-        bool inPlayRange = isPacketInPlayRange(formatContext, pkt);
-        if (audioDecoder && pkt->stream_index == audioDecoder->getStreamIndex() && inPlayRange) {
+        if (audioDecoder &&
+            pkt->stream_index == audioDecoder->getStreamIndex() &&
+            isPacketInPlayRange(formatContext, pkt)) {
             audioDecoder->pushPacket(pkt);
-        } else if (videoDecoder && pkt->stream_index == videoDecoder->getStreamIndex() && inPlayRange) {
+        } else if (videoDecoder &&
+                   pkt->stream_index == videoDecoder->getStreamIndex() &&
+                   isPacketInPlayRange(formatContext, pkt)) {
             videoDecoder->pushPacket(pkt);
         } else {
             av_packet_unref(pkt);
@@ -693,8 +709,8 @@ bool MediaPlayer::isPacketInPlayRange(const AVFormatContext *formatContext, cons
 
 bool MediaPlayer::isRetryPlay() const {
     bool isNoPaused = !playerState->pauseRequest;
-    bool isNoUseAudioFrame = !audioDecoder || audioDecoder->getPacketSize() == 0;
-    bool isNoUseVideoFrame = !videoDecoder || (videoDecoder->getPacketSize() == 0 && videoDecoder->getFrameSize() == 0);
+    bool isNoUseAudioFrame = !audioDecoder || audioDecoder->isFinished();
+    bool isNoUseVideoFrame = !videoDecoder || audioDecoder->isFinished();
     return isNoPaused && isNoUseAudioFrame && isNoUseVideoFrame;
 }
 
@@ -828,13 +844,13 @@ int MediaPlayer::prepareDecoder(int streamIndex) {
             audioDecoder = new AudioDecoder(codecContext,
                                             formatContext->streams[streamIndex],
                                             streamIndex,
-                                            playerState);
+                                            playerState, &flushPacket);
         } else if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
             videoDecoder = new VideoDecoder(formatContext,
                                             codecContext,
                                             formatContext->streams[streamIndex],
                                             streamIndex,
-                                            playerState);
+                                            playerState, &flushPacket);
             attachmentRequest = 1;
         }
     } while (false);

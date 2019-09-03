@@ -4,22 +4,27 @@
 #include <queue>
 #include <common/Mutex.h>
 #include <common/Condition.h>
+#include <common/Log.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
 };
 
-typedef struct PacketList {
+typedef struct PacketData {
     AVPacket pkt;
-    struct PacketList *next;
-} PacketList;
+    struct PacketData *next;
+    int serial;
+} PacketData;
 
 /**
  * 备注：这里不用std::queue是为了方便计算队列占用内存和队列的时长，在解码的时候要用到
  */
 class PacketQueue {
+
+    const char *const TAG = "PacketQueue";
+
 public:
-    PacketQueue();
+    PacketQueue(AVPacket *flushPacket);
 
     virtual ~PacketQueue();
 
@@ -27,7 +32,7 @@ public:
     int pushPacket(AVPacket *pkt);
 
     // 入队空数据包
-    int pushNullPacket(int stream_index);
+    int putNullPacket(int stream_index);
 
     // 刷新
     void flush();
@@ -52,6 +57,8 @@ public:
 
     int isAbort();
 
+    int getSeekSerial() const;
+
 private:
     int put(AVPacket *pkt);
 
@@ -61,8 +68,9 @@ private:
 
     Condition condition;
 
-    PacketList *firstPacket;
-    PacketList *lastPacket;
+    PacketData *firstPacket;
+
+    PacketData *lastPacket;
 
     /// 包数量，也就是队列元素数量
     int packetSize;
@@ -75,6 +83,14 @@ private:
 
     /// 用户退出请求标志
     bool abortRequest;
+
+    /// 序列，seek时使用，作为区分前后帧序列
+    int newSeekSerial;
+
+    /// 序列，seek时使用，当获取数据包时被更新
+    int oldSeekSerial;
+
+    AVPacket *flushPacket;
 };
 
 

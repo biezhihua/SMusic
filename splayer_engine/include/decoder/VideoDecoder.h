@@ -8,7 +8,7 @@
 class VideoDecoder : public MediaDecoder {
 public:
     VideoDecoder(AVFormatContext *pFormatCtx, AVCodecContext *avctx,
-                 AVStream *stream, int streamIndex, PlayerState *playerState);
+                 AVStream *stream, int streamIndex, PlayerState *playerState, AVPacket *flushPacket);
 
     virtual ~VideoDecoder();
 
@@ -29,6 +29,8 @@ public:
     AVFormatContext *getFormatContext();
 
     void run() override;
+
+    bool isFinished() override;
 
 private:
     // 解码视频帧

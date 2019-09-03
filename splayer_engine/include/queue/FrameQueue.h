@@ -11,14 +11,23 @@ extern "C" {
 #define FRAME_QUEUE_SIZE 10
 
 typedef struct Frame {
+
     AVFrame *frame;
+
     AVSubtitle sub;
+
     double pts;           /* presentation timestamp for the frame */
+
     double duration;      /* estimated duration of the frame */
+
     int width;
+
     int height;
+
     int format;
+
     int uploaded;
+
 } Frame;
 
 /// 解码后的帧队列

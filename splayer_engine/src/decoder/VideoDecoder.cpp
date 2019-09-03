@@ -1,8 +1,8 @@
 #include "decoder/VideoDecoder.h"
 
 VideoDecoder::VideoDecoder(AVFormatContext *pFormatCtx, AVCodecContext *avctx,
-                           AVStream *stream, int streamIndex, PlayerState *playerState)
-        : MediaDecoder(avctx, stream, streamIndex, playerState) {
+                           AVStream *stream, int streamIndex, PlayerState *playerState, AVPacket *flushPacket)
+        : MediaDecoder(avctx, stream, streamIndex, playerState, flushPacket) {
     formatContext = pFormatCtx;
     frameQueue = new FrameQueue(VIDEO_QUEUE_SIZE, 1);
     quit = true;
@@ -230,3 +230,8 @@ int VideoDecoder::decodeVideo() {
 
     return ret;
 }
+
+bool VideoDecoder::isFinished() {
+    return MediaDecoder::isFinished() && getFrameSize() == 0;
+}
+

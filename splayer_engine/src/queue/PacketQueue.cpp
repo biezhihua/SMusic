@@ -1,7 +1,9 @@
 #include "queue/PacketQueue.h"
 
-PacketQueue::PacketQueue() {
-    abortRequest = 0;
+
+PacketQueue::PacketQueue(AVPacket *flushPacket) {
+    this->flushPacket = flushPacket;
+    abortRequest = false;
     firstPacket = nullptr;
     lastPacket = nullptr;
     packetSize = 0;
@@ -12,6 +14,7 @@ PacketQueue::PacketQueue() {
 PacketQueue::~PacketQueue() {
     abort();
     flush();
+    this->flushPacket = nullptr;
 }
 
 /**
@@ -20,28 +23,33 @@ PacketQueue::~PacketQueue() {
  * @return
  */
 int PacketQueue::put(AVPacket *pkt) {
-    PacketList *pkt1;
+    PacketData *packetData;
 
     if (abortRequest) {
         return -1;
     }
 
-    pkt1 = (PacketList *) av_malloc(sizeof(PacketList));
-    if (!pkt1) {
+    packetData = (PacketData *) av_malloc(sizeof(PacketData));
+    if (!packetData) {
         return -1;
     }
-    pkt1->pkt = *pkt;
-    pkt1->next = nullptr;
+    packetData->pkt = *pkt;
+    packetData->next = nullptr;
+
+    if (pkt == flushPacket) {
+        newSeekSerial++;
+    }
+    packetData->serial = newSeekSerial;
 
     if (!lastPacket) {
-        firstPacket = pkt1;
+        firstPacket = packetData;
     } else {
-        lastPacket->next = pkt1;
+        lastPacket->next = packetData;
     }
-    lastPacket = pkt1;
+    lastPacket = packetData;
     packetSize++;
-    memorySize += pkt1->pkt.size + sizeof(*pkt1);
-    duration += pkt1->pkt.duration;
+    memorySize += packetData->pkt.size + sizeof(*packetData);
+    duration += packetData->pkt.duration;
     return SUCCESS;
 }
 
@@ -56,15 +64,13 @@ int PacketQueue::pushPacket(AVPacket *pkt) {
     ret = put(pkt);
     condition.signal();
     mutex.unlock();
-
     if (ret < 0) {
         av_packet_unref(pkt);
     }
-
     return ret;
 }
 
-int PacketQueue::pushNullPacket(int stream_index) {
+int PacketQueue::putNullPacket(int stream_index) {
     AVPacket pkt1, *pkt = &pkt1;
     av_init_packet(pkt);
     pkt->data = nullptr;
@@ -77,7 +83,7 @@ int PacketQueue::pushNullPacket(int stream_index) {
  * 刷新数据包
  */
 void PacketQueue::flush() {
-    PacketList *pkt, *pkt1;
+    PacketData *pkt, *pkt1;
     mutex.lock();
     for (pkt = firstPacket; pkt; pkt = pkt1) {
         pkt1 = pkt->next;
@@ -109,6 +115,7 @@ void PacketQueue::abort() {
 void PacketQueue::start() {
     mutex.lock();
     abortRequest = false;
+    put(flushPacket);
     condition.signal();
     mutex.unlock();
 }
@@ -129,7 +136,7 @@ int PacketQueue::getPacket(AVPacket *pkt) {
  * @return
  */
 int PacketQueue::getPacket(AVPacket *pkt, int block) {
-    PacketList *pkt1;
+    PacketData *pkt1;
     int ret;
 
     mutex.lock();
@@ -149,6 +156,7 @@ int PacketQueue::getPacket(AVPacket *pkt, int block) {
             memorySize -= pkt1->pkt.size + sizeof(*pkt1);
             duration -= pkt1->pkt.duration;
             *pkt = pkt1->pkt;
+            oldSeekSerial = pkt1->serial;
             av_free(pkt1);
             ret = 1;
             break;
@@ -178,4 +186,8 @@ int64_t PacketQueue::getDuration() {
 
 int PacketQueue::isAbort() {
     return abortRequest;
+}
+
+int PacketQueue::getSeekSerial() const {
+    return newSeekSerial;
 }

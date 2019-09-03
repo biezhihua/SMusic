@@ -1,11 +1,16 @@
+
+#include <decoder/MediaDecoder.h>
+
 #include "decoder/MediaDecoder.h"
 
-MediaDecoder::MediaDecoder(AVCodecContext *codecContext, AVStream *stream, int streamIndex, PlayerState *playerState) {
-    this->packetQueue = new PacketQueue();
+MediaDecoder::MediaDecoder(AVCodecContext *codecContext, AVStream *stream, int streamIndex, PlayerState *playerState,
+                           AVPacket *flushPacket) {
+    this->packetQueue = new PacketQueue(flushPacket);
     this->codecContext = codecContext;
     this->stream = stream;
     this->streamIndex = streamIndex;
     this->playerState = playerState;
+    this->flushPacket = flushPacket;
 }
 
 MediaDecoder::~MediaDecoder() {
@@ -44,7 +49,16 @@ void MediaDecoder::stop() {
     }
 }
 
+
+void MediaDecoder::pushFlushPacket() {
+    if (packetQueue) {
+        packetQueue->pushPacket(flushPacket);
+        ALOGD(TAG, "%s packet size = %d", __func__, getPacketSize());
+    }
+}
+
 void MediaDecoder::flush() {
+    ALOGD(TAG, "%s", __func__);
     if (packetQueue) {
         packetQueue->flush();
     }
@@ -56,9 +70,11 @@ void MediaDecoder::flush() {
 
 int MediaDecoder::pushPacket(AVPacket *pkt) {
     if (packetQueue) {
-        return packetQueue->pushPacket(pkt);
+        int ret = packetQueue->pushPacket(pkt);
+        ALOGD(TAG, "%s packet size = %d", __func__, getPacketSize());
+        return ret;
     }
-    return 0;
+    return SUCCESS;
 }
 
 int MediaDecoder::getPacketSize() {
@@ -83,14 +99,29 @@ int MediaDecoder::getMemorySize() {
 
 int MediaDecoder::hasEnoughPackets() {
     Mutex::Autolock lock(mutex);
-    return (packetQueue == nullptr) ||
+    return streamIndex < 0 || (packetQueue == nullptr) ||
            (packetQueue->isAbort() != 0) ||
            (stream->disposition & AV_DISPOSITION_ATTACHED_PIC) ||
            ((packetQueue->getPacketSize() > MIN_FRAMES) &&
             (!packetQueue->getDuration() || av_q2d(stream->time_base) * packetQueue->getDuration() > 1.0));
 }
 
+
+bool MediaDecoder::isFinished() {
+    return finished == packetQueue->getSeekSerial() && getPacketSize() == 0;
+}
+
 void MediaDecoder::run() {
     // do nothing
 }
+
+void MediaDecoder::pushNullPacket() {
+    AVPacket pkt1, *pkt = &pkt1;
+    av_init_packet(pkt);
+    pkt->data = nullptr;
+    pkt->size = 0;
+    pkt->stream_index = streamIndex;
+    pushPacket(pkt);
+}
+
 
