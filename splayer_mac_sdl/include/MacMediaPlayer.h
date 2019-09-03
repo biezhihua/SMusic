@@ -3,7 +3,7 @@
 
 #include <player/MediaPlayer.h>
 
-class MacMediaPlayer : MediaPlayer {
+class MacMediaPlayer : public MediaPlayer {
 
 public:
 

@@ -256,7 +256,7 @@ void MediaSync::refreshVideo(double *remaining_time) {
     }
 
     // 回调当前时长
-    if (playerState->messageQueue && playerState->syncType == AV_SYNC_VIDEO) {
+    if (playerState->msgQueue && playerState->syncType == AV_SYNC_VIDEO) {
         // 起始延时
         int64_t start_time = videoDecoder->getFormatContext()->start_time;
         int64_t start_diff = 0;
@@ -278,7 +278,7 @@ void MediaSync::refreshVideo(double *remaining_time) {
         if (playerState->videoDuration < 0) {
             pos = 0;
         }
-        playerState->messageQueue->notifyMsg(MSG_CURRENT_POSITON, pos, playerState->videoDuration);
+        playerState->msgQueue->notifyMsg(MSG_CURRENT_POSITON, pos, playerState->videoDuration);
     }
 
     // 显示画面

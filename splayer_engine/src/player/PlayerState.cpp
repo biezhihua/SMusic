@@ -8,10 +8,10 @@ PlayerState::PlayerState() {
 
 PlayerState::~PlayerState() {
     reset();
-    if (messageQueue) {
-        messageQueue->release();
-        delete messageQueue;
-        messageQueue = nullptr;
+    if (msgQueue) {
+        msgQueue->release();
+        delete msgQueue;
+        msgQueue = nullptr;
     }
 }
 
@@ -25,13 +25,13 @@ void PlayerState::init() {
     codec_opts = (AVDictionary *) malloc(sizeof(AVDictionary));
     memset(codec_opts, 0, sizeof(AVDictionary));
 
-    iformat = NULL;
+    inputFormat = NULL;
     url = NULL;
     headers = NULL;
 
     audioCodecName = NULL;
     videoCodecName = NULL;
-    messageQueue = new MessageQueue();
+    msgQueue = new MessageQueue();
 }
 
 void PlayerState::reset() {
@@ -157,8 +157,8 @@ void PlayerState::parse_string(const char *type, const char *option) {
             syncType = AV_SYNC_AUDIO;
         }
     } else if (!strcmp("f", type)) { // f 指定输入文件格式
-        iformat = av_find_input_format(option);
-        if (!iformat) {
+        inputFormat = av_find_input_format(option);
+        if (!inputFormat) {
             av_log(NULL, AV_LOG_FATAL, "Unknown input format: %s\n", option);
         }
     }
@@ -188,6 +188,6 @@ void PlayerState::parse_int(const char *type, int64_t option) {
     } else if (!strcmp("infbuf", type)) { // 无限缓冲区标志
         infiniteBuffer = (option > 0) ? 1 : ((option < 0) ? -1 : 0);
     } else {
-        ALOGE("unknown option - '%s'", type);
+//        ALOGE("unknown option - '%s'", type);
     }
 }

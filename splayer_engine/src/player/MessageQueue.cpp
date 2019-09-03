@@ -14,7 +14,7 @@ MessageQueue::~MessageQueue() {
 void MessageQueue::start() {
     Mutex::Autolock lock(mutex);
     abortRequest = false;
-    AVMessage msg;
+    Message msg;
     message_init(&msg);
     msg.what = MSG_FLUSH;
 }
@@ -26,7 +26,7 @@ void MessageQueue::stop() {
 }
 
 void MessageQueue::flush() {
-    AVMessage *msg, *msg1;
+    Message *msg, *msg1;
     Mutex::Autolock lock(mutex);
     for (msg = firstMsg; msg != nullptr; msg = msg1) {
         msg1 = msg->next;
@@ -42,15 +42,15 @@ void MessageQueue::release() {
     flush();
 }
 
-void MessageQueue::postMessage(int what) {
-    AVMessage msg;
+void MessageQueue::notifyMessage(int what) {
+    Message msg;
     message_init(&msg);
     msg.what = what;
     putMessage(&msg);
 }
 
-void MessageQueue::postMessage(int what, int arg1) {
-    AVMessage msg;
+void MessageQueue::notifyMessage(int what, int arg1) {
+    Message msg;
     message_init(&msg);
     msg.what = what;
     msg.arg1 = arg1;
@@ -58,7 +58,7 @@ void MessageQueue::postMessage(int what, int arg1) {
 }
 
 void MessageQueue::notifyMsg(int what, int arg1, int arg2) {
-    AVMessage msg;
+    Message msg;
     message_init(&msg);
     msg.what = what;
     msg.arg1 = arg1;
@@ -66,8 +66,8 @@ void MessageQueue::notifyMsg(int what, int arg1, int arg2) {
     putMessage(&msg);
 }
 
-void MessageQueue::postMessage(int what, int arg1, int arg2, void *obj, int len) {
-    AVMessage msg;
+void MessageQueue::notifyMessage(int what, int arg1, int arg2, void *obj, int len) {
+    Message msg;
     message_init(&msg);
     msg.what = what;
     msg.arg1 = arg1;
@@ -78,12 +78,12 @@ void MessageQueue::postMessage(int what, int arg1, int arg2, void *obj, int len)
     putMessage(&msg);
 }
 
-int MessageQueue::getMessage(AVMessage *msg) {
+int MessageQueue::getMessage(Message *msg) {
     return getMessage(msg, 1);
 }
 
-int MessageQueue::getMessage(AVMessage *msg, int block) {
-    AVMessage *msg1;
+int MessageQueue::getMessage(Message *msg, int block) {
+    Message *msg1;
     int ret;
     mutex.lock();
     for (;;) {
@@ -117,7 +117,7 @@ int MessageQueue::getMessage(AVMessage *msg, int block) {
 
 void MessageQueue::removeMessage(int what) {
     Mutex::Autolock lock(mutex);
-    AVMessage **p_msg, *msg, *last_msg;
+    Message **p_msg, *msg, *last_msg;
     last_msg = firstMsg;
     if (!abortRequest && firstMsg) {
         p_msg = &firstMsg;
@@ -143,13 +143,13 @@ void MessageQueue::removeMessage(int what) {
     condition.signal();
 }
 
-int MessageQueue::putMessage(AVMessage *msg) {
+int MessageQueue::putMessage(Message *msg) {
     Mutex::Autolock lock(mutex);
-    AVMessage *message;
+    Message *message;
     if (abortRequest) {
         return -1;
     }
-    message = (AVMessage *) av_malloc(sizeof(AVMessage));
+    message = (Message *) av_malloc(sizeof(Message));
     if (!message) {
         return -1;
     }

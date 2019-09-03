@@ -12,7 +12,7 @@ extern "C" {
 
 #include "PlayerMessage.h"
 
-typedef struct AVMessage {
+typedef struct Message {
     int what;
     int arg1;
     int arg2;
@@ -20,18 +20,18 @@ typedef struct AVMessage {
 
     void (*free)(void *obj);
 
-    struct AVMessage *next;
+    struct Message *next;
 } AVMessage;
 
-inline static void message_init(AVMessage *msg) {
-    memset(msg, 0, sizeof(AVMessage));
+inline static void message_init(Message *msg) {
+    memset(msg, 0, sizeof(Message));
 }
 
 inline static void message_free(void *obj) {
     av_free(obj);
 }
 
-inline static void message_free_resouce(AVMessage *msg) {
+inline static void message_free_resouce(Message *msg) {
     if (!msg || !msg->obj) {
         return;
     }
@@ -54,27 +54,27 @@ public:
 
     void release();
 
-    void postMessage(int what);
+    void notifyMessage(int what);
 
-    void postMessage(int what, int arg1);
+    void notifyMessage(int what, int arg1);
 
     void notifyMsg(int what, int arg1, int arg2);
 
-    void postMessage(int what, int arg1, int arg2, void *obj, int len);
+    void notifyMessage(int what, int arg1, int arg2, void *obj, int len);
 
-    int getMessage(AVMessage *msg);
+    int getMessage(Message *msg);
 
-    int getMessage(AVMessage *msg, int block);
+    int getMessage(Message *msg, int block);
 
     void removeMessage(int what);
 
 private:
-    int putMessage(AVMessage *msg);
+    int putMessage(Message *msg);
 
 private:
     Mutex mutex;
     Condition condition;
-    AVMessage *firstMsg, *lastMsg;
+    Message *firstMsg, *lastMsg;
     bool abortRequest;
     int size;
 };

@@ -17,7 +17,7 @@ endif ()
 
 
 set(SPLAYER_CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../splayer_engine)
-set(SPLAYER_MAC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../splayer_mac)
+set(SPLAYER_MAC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../splayer_mac_sdl)
 
 add_subdirectory(${SPLAYER_MAC_DIR} splayer_mac)
 

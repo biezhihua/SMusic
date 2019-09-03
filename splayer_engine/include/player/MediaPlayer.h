@@ -1,17 +1,6 @@
 #ifndef MEDIAPLAYER_H
 #define MEDIAPLAYER_H
 
-static const char *const OPT_SCALL_ALL_PMTS = "scan_all_pmts";
-
-static const char *const OPT_HEADERS = "headers";
-
-static const char *const FORMAT_OGG = "ogg";
-
-static const char *const OPT_LOW_RESOLUTION = "lowres";
-
-static const char *const OPT_THREADS = "threads";
-
-static const char *const OPT_REF_COUNTED_FRAMES = "refcounted_frames";
 
 #include <sync/MediaClock.h>
 #include <player/PlayerState.h>
@@ -21,10 +10,29 @@ static const char *const OPT_REF_COUNTED_FRAMES = "refcounted_frames";
 #include <device/VideoDevice.h>
 #include <sync/MediaSync.h>
 #include <convertor/AudioResampler.h>
+#include <common/Log.h>
+
 
 class MediaPlayer : public Runnable {
 
+    const char *const TAG = "MediaPlayer";
+
+    const char *const OPT_SCALL_ALL_PMTS = "scan_all_pmts";
+
+    const char *const OPT_HEADERS = "headers";
+
+    const char *const FORMAT_OGG = "ogg";
+
+    const char *const OPT_LOW_RESOLUTION = "lowres";
+
+    const char *const OPT_THREADS = "threads";
+
+    const char *const OPT_REF_COUNTED_FRAMES = "refcounted_frames";
+
 private:
+    Mutex waitMutex;
+    Condition waitCondition;
+
     Mutex mutex;
     Condition condition;
 
@@ -58,11 +66,7 @@ public:
 
     int reset();
 
-    void setDataSource(const char *url, int64_t offset = 0, const char *headers = NULL);
-
-    void setVideoDevice(VideoDevice *videoDevice);
-
-    int prepare();
+    void setDataSource(const char *url, int64_t offset = 0, const char *headers = nullptr);
 
     int prepareAsync();
 
@@ -114,7 +118,7 @@ protected:
 private:
     int readPackets();
 
-    // prepare decoder with stream_index
+    // prepareAsync decoder with stream_index
     int prepareDecoder(int streamIndex);
 
     // open an audio output device

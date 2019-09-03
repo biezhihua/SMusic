@@ -21,6 +21,7 @@ MediaPlayer::~MediaPlayer() {
 }
 
 int MediaPlayer::reset() {
+    ALOGD(TAG, __func__);
     stop();
     if (mediaSync) {
         mediaSync->reset();
@@ -59,6 +60,7 @@ int MediaPlayer::reset() {
 }
 
 void MediaPlayer::setDataSource(const char *url, int64_t offset, const char *headers) {
+    ALOGD(TAG, "%s url = %s offset = %lld headers = %p", __func__, url, offset, headers);
     Mutex::Autolock lock(mutex);
     playerState->url = av_strdup(url);
     playerState->offset = offset;
@@ -67,14 +69,11 @@ void MediaPlayer::setDataSource(const char *url, int64_t offset, const char *hea
     }
 }
 
-void MediaPlayer::setVideoDevice(VideoDevice *videoDevice) {
-    Mutex::Autolock lock(mutex);
-    mediaSync->setVideoDevice(videoDevice);
-}
-
-int MediaPlayer::prepare() {
+int MediaPlayer::prepareAsync() {
+    ALOGD(TAG, __func__);
     Mutex::Autolock lock(mutex);
     if (!playerState->url) {
+        ALOGE(TAG, "%s url is null", __func__);
         return ERROR_PARAMS;
     }
     playerState->abortRequest = 0;
@@ -85,19 +84,8 @@ int MediaPlayer::prepare() {
     return SUCCESS;
 }
 
-int MediaPlayer::prepareAsync() {
-    Mutex::Autolock lock(mutex);
-    if (!playerState->url) {
-        return ERROR_PARAMS;
-    }
-    // 发送消息请求准备
-    if (playerState->messageQueue) {
-        playerState->messageQueue->postMessage(MSG_REQUEST_PREPARE);
-    }
-    return SUCCESS;
-}
-
 void MediaPlayer::start() {
+    ALOGD(TAG, __func__);
     Mutex::Autolock lock(mutex);
     playerState->abortRequest = 0;
     playerState->pauseRequest = 0;
@@ -106,18 +94,21 @@ void MediaPlayer::start() {
 }
 
 void MediaPlayer::pause() {
+    ALOGD(TAG, __func__);
     Mutex::Autolock lock(mutex);
     playerState->pauseRequest = 1;
     condition.signal();
 }
 
 void MediaPlayer::resume() {
+    ALOGD(TAG, __func__);
     Mutex::Autolock lock(mutex);
     playerState->pauseRequest = 0;
     condition.signal();
 }
 
 void MediaPlayer::stop() {
+    ALOGD(TAG, __func__);
     mutex.lock();
     playerState->abortRequest = 1;
     condition.signal();
@@ -135,6 +126,7 @@ void MediaPlayer::stop() {
 }
 
 void MediaPlayer::seekTo(float timeMs) {
+    ALOGD(TAG, __func__);
     // when is a live media stream, duration is -1
     if (!playerState->realTime && duration < 0) {
         return;
@@ -274,7 +266,7 @@ int MediaPlayer::getMetadata(AVDictionary **metadata) {
     return SUCCESS;
 }
 
-static int avformat_interrupt_cb(void *ctx) {
+static int avFormatInterruptCb(void *ctx) {
     PlayerState *playerState = (PlayerState *) ctx;
     if (playerState->abortRequest) {
         return AVERROR_EOF;
@@ -284,7 +276,7 @@ static int avformat_interrupt_cb(void *ctx) {
 
 MessageQueue *MediaPlayer::getMessageQueue() {
     Mutex::Autolock lock(mutex);
-    return playerState->messageQueue;
+    return playerState->msgQueue;
 }
 
 PlayerState *MediaPlayer::getPlayerState() {
@@ -297,6 +289,8 @@ void MediaPlayer::run() {
 }
 
 int MediaPlayer::readPackets() {
+    ALOGD(TAG, __func__);
+
     AVDictionaryEntry *t;
     AVDictionary **opts;
     int scanAllProgramMapTableSet = 0;
@@ -308,13 +302,13 @@ int MediaPlayer::readPackets() {
         // 创建解复用上下文
         formatContext = avformat_alloc_context();
         if (!formatContext) {
-            av_log(nullptr, AV_LOG_FATAL, "Could not allocate context.\n");
+            ALOGE(TAG, "%s avformat could not allocate context", __func__);
             ret = ERROR_NOT_MEMORY;
             break;
         }
 
         // 设置解复用中断回调
-        formatContext->interrupt_callback.callback = avformat_interrupt_cb;
+        formatContext->interrupt_callback.callback = avFormatInterruptCb;
         formatContext->interrupt_callback.opaque = playerState;
 
         // https://zhuanlan.zhihu.com/p/43672062
@@ -338,13 +332,15 @@ int MediaPlayer::readPackets() {
         // 设置rtmp/rtsp的超时值
         if (av_stristart(playerState->url, "rtmp", nullptr) || av_stristart(playerState->url, "rtsp", nullptr)) {
             // There is total different meaning for 'timeout' option in rtmp
-            av_log(nullptr, AV_LOG_WARNING, "remove 'timeout' option for rtmp.\n");
+            ALOGD(TAG, "%s remove 'timeout' option for rtmp.", __func__);
             av_dict_set(&playerState->format_opts, "timeout", nullptr, 0);
         }
 
         // 打开文件
-        ret = avformat_open_input(&formatContext, playerState->url, playerState->iformat, &playerState->format_opts);
+        ret = avformat_open_input(&formatContext, playerState->url, playerState->inputFormat,
+                                  &playerState->format_opts);
         if (ret < 0) {
+            ALOGE(TAG, "%s avformat could not open input", __func__);
             ret = ERROR_NOT_OPEN_INPUT;
             break;
         }
@@ -355,7 +351,7 @@ int MediaPlayer::readPackets() {
         }
 
         if ((t = av_dict_get(playerState->format_opts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
-            av_log(nullptr, AV_LOG_ERROR, "Option %s not found.\n", t->key);
+            ALOGE(TAG, "%s Option %s not found", __func__, t->key);
             ret = ERROR_CODEC_OPTIONS;
             break;
         }
@@ -379,13 +375,10 @@ int MediaPlayer::readPackets() {
         }
 
         if (ret < 0) {
-            av_log(nullptr, AV_LOG_WARNING,
-                   "%s: could not find codec parameters\n", playerState->url);
+            ALOGD(TAG, "%s %s: could not find codec parameters", __func__, playerState->url);
             ret = ERROR_NOT_FOUND_STREAM_INFO;
             break;
         }
-
-        // 查找媒体流信息回调
 
         // 判断是否实时流，判断是否需要设置无限缓冲区
         playerState->realTime = isRealTime(formatContext);
@@ -410,7 +403,8 @@ int MediaPlayer::readPackets() {
         }
 
         // 判断是否以字节方式定位
-        playerState->seekByBytes = !!(formatContext->iformat->flags & AVFMT_TS_DISCONT) && strcmp(FORMAT_OGG, formatContext->iformat->name) != 0;
+        playerState->seekByBytes = !!(formatContext->iformat->flags & AVFMT_TS_DISCONT) &&
+                                   strcmp(FORMAT_OGG, formatContext->iformat->name) != 0;
 
         // 设置最大帧间隔
         mediaSync->setMaxDuration((formatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0);
@@ -426,7 +420,8 @@ int MediaPlayer::readPackets() {
             ret = avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX, 0);
             playerState->mMutex.unlock();
             if (ret < 0) {
-                av_log(nullptr, AV_LOG_WARNING, "%s: could not seek to position %0.3f\n", playerState->url, (double) timestamp / AV_TIME_BASE);
+                ALOGE(TAG, "%s %s: could not seek to position %0.3f", __func__, playerState->url,
+                      (double) timestamp / AV_TIME_BASE);
             }
         }
 
@@ -464,7 +459,7 @@ int MediaPlayer::readPackets() {
 
         // 如果音频流和视频流都没有找到，则直接退出
         if (audioIndex == -1 && videoIndex == -1) {
-            av_log(nullptr, AV_LOG_WARNING, "%s: could not find audio and video stream\n", playerState->url);
+            ALOGE(TAG, "%s could not find audio and video stream", __func__);
             ret = ERROR_DISABLE_ALL_STREAM;
             break;
         }
@@ -480,7 +475,7 @@ int MediaPlayer::readPackets() {
         }
 
         if (!audioDecoder && !videoDecoder) {
-            av_log(nullptr, AV_LOG_WARNING, "failed to create audio and video decoder\n");
+            ALOGE(TAG, "%s failed to create audio and video decoder", __func__);
             ret = ERROR_CREATE_DECODER;
             break;
         }
@@ -492,6 +487,7 @@ int MediaPlayer::readPackets() {
 
     // 出错返回
     if (ret < 0) {
+        ALOGE(TAG, "%s init context failure", __func__);
         quit = true;
         condition.signal();
         return ret;
@@ -524,7 +520,7 @@ int MediaPlayer::readPackets() {
         AVCodecContext *codecContext = audioDecoder->getCodecContext();
         ret = openAudioDevice(codecContext->channel_layout, codecContext->channels, codecContext->sample_rate);
         if (ret < 0) {
-            av_log(nullptr, AV_LOG_WARNING, "could not open audio device\n");
+            ALOGE(TAG, "%s could not open audio device", __func__);
             // 如果音频设备打开失败，则调整时钟的同步类型
             if (playerState->syncType == AV_SYNC_AUDIO) {
                 if (videoDecoder != nullptr) {
@@ -551,14 +547,6 @@ int MediaPlayer::readPackets() {
 
     // 开始同步
     mediaSync->start(videoDecoder, audioDecoder);
-
-    // 等待开始
-    if (playerState->pauseRequest) {
-        // 请求开始
-        while ((!playerState->abortRequest) && playerState->pauseRequest) {
-            av_usleep(10 * 1000);
-        }
-    }
 
     // 读数据包流程
     eof = 0;
@@ -628,7 +616,7 @@ int MediaPlayer::readPackets() {
         }
 
         if (isNoReadMore()) {
-            condition.waitRelative(mutex, 10);
+            waitCondition.waitRelative(waitMutex, 10);
             continue;
         }
 
@@ -654,7 +642,7 @@ int MediaPlayer::readPackets() {
                 ret = ERROR_IO;
                 break;
             }
-            condition.waitRelative(mutex, 10);
+            waitCondition.waitRelative(waitMutex, 10);
             continue;
         } else {
             eof = 0;
@@ -712,7 +700,9 @@ bool MediaPlayer::isRetryPlay() const {
 
 bool MediaPlayer::isNoReadMore() const {
     bool isNoInfiniteBuffer = playerState->infiniteBuffer < 1;
-    bool isNoEnoughMemory = (audioDecoder ? audioDecoder->getMemorySize() : 0) + (videoDecoder ? videoDecoder->getMemorySize() : 0) > MAX_QUEUE_SIZE;
+    bool isNoEnoughMemory =
+            (audioDecoder ? audioDecoder->getMemorySize() : 0) + (videoDecoder ? videoDecoder->getMemorySize() : 0) >
+            MAX_QUEUE_SIZE;
     bool isAudioEnoughPackets = !audioDecoder || audioDecoder->hasEnoughPackets();
     bool isVideoEnoughPackets = !videoDecoder || videoDecoder->hasEnoughPackets();
     return isNoInfiniteBuffer && (isNoEnoughMemory || (isAudioEnoughPackets && isVideoEnoughPackets));
@@ -729,12 +719,14 @@ int MediaPlayer::prepareDecoder(int streamIndex) {
 
     // 判断流索引的合法性
     if (streamIndex < 0 || streamIndex >= formatContext->nb_streams) {
+        ALOGE(TAG, "%s illegal stream index", __func__);
         return ERROR_STREAM_INDEX;
     }
 
     // 创建解码上下文
     codecContext = avcodec_alloc_context3(nullptr);
     if (!codecContext) {
+        ALOGE(TAG, "%s alloc codec context failure", __func__);
         return ERROR_NOT_MEMORY;
     }
 
@@ -742,6 +734,7 @@ int MediaPlayer::prepareDecoder(int streamIndex) {
         // 复制解码上下文参数
         ret = avcodec_parameters_to_context(codecContext, formatContext->streams[streamIndex]->codecpar);
         if (ret < 0) {
+            ALOGE(TAG, "%s copy codec params to context failure", __func__);
             ret = ERROR_COPY_CODEC_PARAM_TO_CONTEXT;
             break;
         }
@@ -750,15 +743,10 @@ int MediaPlayer::prepareDecoder(int streamIndex) {
         codecContext->pkt_timebase = formatContext->streams[streamIndex]->time_base;
 
         // 优先使用指定的解码器
-        switch (codecContext->codec_type) {
-            case AVMEDIA_TYPE_AUDIO: {
-                forcedCodecName = playerState->audioCodecName;
-                break;
-            }
-            case AVMEDIA_TYPE_VIDEO: {
-                forcedCodecName = playerState->videoCodecName;
-                break;
-            }
+        if (codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
+            forcedCodecName = playerState->audioCodecName;
+        } else if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
+            forcedCodecName = playerState->videoCodecName;
         }
 
         // 如果指定了解码器，则查找指定解码器
@@ -770,14 +758,14 @@ int MediaPlayer::prepareDecoder(int streamIndex) {
         // 如果没有找到指定的解码器，则查找默认的解码器
         if (!codec) {
             if (forcedCodecName) {
-                av_log(nullptr, AV_LOG_WARNING, "No codec could be found with name '%s'\n", forcedCodecName);
+                ALOGD(TAG, "%s No codec could be found with name '%s'", __func__, forcedCodecName);
             }
             codec = avcodec_find_decoder(codecContext->codec_id);
         }
 
         // 判断是否成功得到解码器
         if (!codec) {
-            av_log(nullptr, AV_LOG_WARNING, "No codec could be found with id %d\n", codecContext->codec_id);
+            ALOGE(TAG, "%s No codec could be found with id %d", __func__, codecContext->codec_id);
             ret = ERROR_NOT_FOUND_DCODE;
             break;
         }
@@ -786,7 +774,7 @@ int MediaPlayer::prepareDecoder(int streamIndex) {
         // 判断是否需要重新设置lowres的值
         int streamLowResolution = playerState->lowres;
         if (streamLowResolution > codec->max_lowres) {
-            ALOGD(STREAM_TAG, "%s The maximum value for low Resolution supported by the decoder is %d", __func__,
+            ALOGD(TAG, "%s The maximum value for low Resolution supported by the decoder is %d", __func__,
                   codec->max_lowres);
             streamLowResolution = codec->max_lowres;
         }
@@ -806,7 +794,8 @@ int MediaPlayer::prepareDecoder(int streamIndex) {
             codecContext->flags |= CODEC_FLAG_EMU_EDGE;
         }
 #endif
-        opts = filterCodecOptions(playerState->codec_opts, codecContext->codec_id, formatContext, formatContext->streams[streamIndex], codec);
+        opts = filterCodecOptions(playerState->codec_opts, codecContext->codec_id, formatContext,
+                                  formatContext->streams[streamIndex], codec);
         if (!av_dict_get(opts, OPT_THREADS, nullptr, 0)) {
             av_dict_set(&opts, OPT_THREADS, "auto", 0);
         }
@@ -821,36 +810,38 @@ int MediaPlayer::prepareDecoder(int streamIndex) {
 
         // 打开解码器
         if ((ret = avcodec_open2(codecContext, codec, &opts)) < 0) {
+            ALOGE(TAG, "%s open codec failure", __func__);
             ret = ERROR_NOT_OPEN_DECODE;
             break;
         }
 
         if ((t = av_dict_get(opts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
-            av_log(nullptr, AV_LOG_ERROR, "Option %s not found.\n", t->key);
+            ALOGE(TAG, "%s option %s not found", __func__, t->key);
             ret = ERROR_CODEC_OPTIONS;
             break;
         }
 
         // 根据解码器类型创建解码器
         formatContext->streams[streamIndex]->discard = AVDISCARD_DEFAULT;
-        switch (codecContext->codec_type) {
-            case AVMEDIA_TYPE_AUDIO: {
-                audioDecoder = new AudioDecoder(codecContext, formatContext->streams[streamIndex], streamIndex, playerState);
-                break;
-            }
-            case AVMEDIA_TYPE_VIDEO: {
-                videoDecoder = new VideoDecoder(formatContext, codecContext, formatContext->streams[streamIndex], streamIndex, playerState);
-                attachmentRequest = 1;
-                break;
-            }
-            default: {
-                break;
-            }
+
+        if (codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
+            audioDecoder = new AudioDecoder(codecContext,
+                                            formatContext->streams[streamIndex],
+                                            streamIndex,
+                                            playerState);
+        } else if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
+            videoDecoder = new VideoDecoder(formatContext,
+                                            codecContext,
+                                            formatContext->streams[streamIndex],
+                                            streamIndex,
+                                            playerState);
+            attachmentRequest = 1;
         }
     } while (false);
 
     // 准备失败，则需要释放创建的解码上下文
     if (ret < 0) {
+        ALOGE(TAG, "%s prepare decoder failure index = %s", __func__, streamIndex);
         avcodec_free_context(&codecContext);
     }
 
@@ -939,7 +930,7 @@ void MediaPlayer::pcmQueueCallback(uint8_t *stream, int len) {
         return;
     }
     audioResampler->pcmQueueCallback(stream, len);
-    if (playerState->messageQueue && playerState->syncType != AV_SYNC_VIDEO) {
-        playerState->messageQueue->notifyMsg(MSG_CURRENT_POSITON, getCurrentPosition(), playerState->videoDuration);
+    if (playerState->msgQueue && playerState->syncType != AV_SYNC_VIDEO) {
+        playerState->msgQueue->notifyMsg(MSG_CURRENT_POSITON, getCurrentPosition(), playerState->videoDuration);
     }
 }
