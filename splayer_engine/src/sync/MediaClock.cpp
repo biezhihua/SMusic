@@ -2,41 +2,45 @@
 #include "sync/MediaClock.h"
 
 MediaClock::MediaClock() {
-    init();
 }
 
 MediaClock::~MediaClock() {
 
 }
 
-void MediaClock::init() {
+void MediaClock::init(int *queueSeekSerial) {
     speed = 1.0;
     paused = 0;
-    setClock(NAN);
+    queueSerial = queueSeekSerial;
+    setClock(NAN, -1);
 }
 
 double MediaClock::getClock() {
+    if (*queueSerial != seekSerial) {
+        return NAN;
+    }
     if (paused) {
         return pts;
     } else {
         double time = av_gettime_relative() / 1000000.0;
-        return pts_drift + time - (time - last_updated) * (1.0 - speed);
+        return ptsDrift + time - (time - lastUpdated) * (1.0 - speed);
     }
 }
 
-void MediaClock::setClock(double pts, double time) {
+void MediaClock::setClock(double pts, double time, int serial) {
     this->pts = pts;
-    this->last_updated = time;
-    this->pts_drift = this->pts - time;
+    this->lastUpdated = time;
+    this->ptsDrift = this->pts - time;
+    this->seekSerial = serial;
 }
 
-void MediaClock::setClock(double pts) {
+void MediaClock::setClock(double pts, int serial) {
     double time = av_gettime_relative() / 1000000.0;
-    setClock(pts, time);
+    setClock(pts, time, serial);
 }
 
 void MediaClock::setSpeed(double speed) {
-    setClock(getClock());
+    setClock(getClock(), seekSerial);
     this->speed = speed;
 }
 
@@ -44,7 +48,7 @@ void MediaClock::syncToSlave(MediaClock *slave) {
     double clock = getClock();
     double slave_clock = slave->getClock();
     if (!isnan(slave_clock) && (isnan(clock) || fabs(clock - slave_clock) > AV_NOSYNC_THRESHOLD)) {
-        setClock(slave_clock);
+        setClock(slave_clock, slave->seekSerial);
     }
 }
 

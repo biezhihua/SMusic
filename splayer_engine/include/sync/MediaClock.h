@@ -15,17 +15,16 @@ public:
 
     virtual ~MediaClock();
 
-    // 初始化
-    void init();
+    void init(int *queueSeekSerial);
 
     // 获取时钟
     double getClock();
 
     // 设置时钟
-    void setClock(double pts, double time);
+    void setClock(double pts, double time, int serial);
 
     // 设置时钟
-    void setClock(double pts);
+    void setClock(double pts, int serial);
 
     // 设置速度
     void setSpeed(double speed);
@@ -37,11 +36,27 @@ public:
     double getSpeed() const;
 
 private:
+
+    /// 时钟基准
     double pts;
-    double pts_drift;
-    double last_updated;
+
+    /// 更新时钟的差值
+    double ptsDrift;
+
+    /// 上一次更新的时间
+    double lastUpdated;
+
+    /// 速度
     double speed;
+
+    /// 停止标志
     int paused;
+
+    /// 时钟基于使用该序列的包
+    int seekSerial;
+
+    /// 指向当前包队列串行的指针，用于过时的时钟检测
+    int *queueSerial;
 };
 
 

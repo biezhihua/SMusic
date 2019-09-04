@@ -224,6 +224,7 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
             do {
 
                 if (packetQueue->isAbort()) {
+                    ALOGE(TAG, "%s abort", __func__);
                     return -1;
                 }
 
@@ -267,7 +268,7 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
                 isPendingPacket = false;
             } else {
                 // 更新packetSerial
-                if (packetQueue->getPacket(&packet)) {
+                if (packetQueue->getPacket(&packet) < 0) {
                     return -1;
                 }
             }

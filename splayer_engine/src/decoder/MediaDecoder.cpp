@@ -51,7 +51,6 @@ void MediaDecoder::stop() {
 void MediaDecoder::pushFlushPacket() {
     if (packetQueue) {
         packetQueue->pushPacket(flushPacket);
-        ALOGD(TAG, "%s packet size = %d", __func__, getPacketSize());
     }
 }
 
@@ -69,7 +68,6 @@ void MediaDecoder::flush() {
 int MediaDecoder::pushPacket(AVPacket *pkt) {
     if (packetQueue) {
         int ret = packetQueue->pushPacket(pkt);
-        ALOGD(TAG, "%s packet size = %d", __func__, getPacketSize());
         return ret;
     }
     return SUCCESS;
@@ -124,6 +122,10 @@ void MediaDecoder::pushNullPacket() {
 
 bool MediaDecoder::isSamePacketSerial() {
     return packetQueue && packetQueue->getLastSeekSerial() == packetQueue->getFirstSeekSerial();
+}
+
+PacketQueue *MediaDecoder::getPacketQueue() const {
+    return packetQueue;
 }
 
 

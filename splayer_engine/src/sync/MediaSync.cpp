@@ -54,6 +54,9 @@ void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
     mutex.lock();
     this->videoDecoder = videoDecoder;
     this->audioDecoder = audioDecoder;
+    videoClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
+    audioClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
+    externalClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
     abortRequest = false;
     quit = false;
     condition.signal();
@@ -98,8 +101,8 @@ double MediaSync::getAudioDiffClock() {
     return audioClock->getClock() - getMasterClock();
 }
 
-void MediaSync::updateExternalClock(double pts) {
-    externalClock->setClock(pts);
+void MediaSync::updateExternalClock(double pts, int seekSerial) {
+    externalClock->setClock(pts, seekSerial);
 }
 
 double MediaSync::getMasterClock() {
@@ -161,10 +164,12 @@ void MediaSync::refreshVideo(double *remaining_time) {
     double time;
 
     // 检查外部时钟
-    if (!playerState->pauseRequest && playerState->realTime &&
-        playerState->syncType == AV_SYNC_EXTERNAL) {
+    if (!playerState->pauseRequest && playerState->realTime && playerState->syncType == AV_SYNC_EXTERNAL) {
         checkExternalClockSpeed();
     }
+
+    FrameQueue *frameQueue = videoDecoder->getFrameQueue();
+    PacketQueue *packetQueue = videoDecoder->getPacketQueue();
 
     for (;;) {
 
@@ -174,15 +179,33 @@ void MediaSync::refreshVideo(double *remaining_time) {
 
         // 判断是否存在帧队列是否存在数据
         if (videoDecoder->getFrameSize() > 0) {
-            double lastDuration, duration, delay;
-            Frame *currentFrame, *lastFrame;
+
+            double currentDuration, nextDuration, delay;
+
+            Frame *nextFrame, *currentFrame;
+
             // 上一帧
-            lastFrame = videoDecoder->getFrameQueue()->lastFrame();
+            currentFrame = frameQueue->lastFrame();
+
             // 当前帧
-            currentFrame = videoDecoder->getFrameQueue()->currentFrame();
+            nextFrame = frameQueue->currentFrame();
+
+            ALOGD(TAG, "currentFrame seekSerial = %d packetQueue lastSeekSerial = %d ", nextFrame->seekSerial, packetQueue->getLastSeekSerial());
+
+            if (currentFrame->seekSerial != packetQueue->getLastSeekSerial()) {
+                frameQueue->popFrame();
+                ALOGE(TAG, "goto retry, need to sync seekSerial");
+                break;
+            }
+
+            ALOGD(TAG, "currentFrame seekSerial = %d nextFrame seekSerial = %d ", currentFrame->seekSerial,
+                  nextFrame->seekSerial);
+
+            // seek操作时才会产生变化
             // 判断是否需要强制更新帧的时间
-            if (frameTimerRefresh) {
-                frameTimer = av_gettime_relative() / 1000000.0;
+            if (frameTimerRefresh || currentFrame->seekSerial != nextFrame->seekSerial) {
+                frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
+                ALOGD(TAG, "update frameTimer = %fd ", frameTimer);
                 frameTimerRefresh = 0;
             }
 
@@ -192,26 +215,19 @@ void MediaSync::refreshVideo(double *remaining_time) {
             }
 
             // 计算上一次显示时长
-            lastDuration = calculateDuration(lastFrame, currentFrame);
+            currentDuration = calculateDuration(currentFrame, nextFrame);
+
             // 根据上一次显示的时长，计算延时
-            delay = calculateDelay(lastDuration);
-            // 处理超过延时阈值的情况
-            if (fabs(delay) > AV_SYNC_THRESHOLD_MAX) {
-                if (delay > 0) {
-                    delay = AV_SYNC_THRESHOLD_MAX;
-                } else {
-                    delay = 0;
-                }
-            }
+            delay = calculateDelay(currentDuration);
+
+
             // 获取当前时间
             time = av_gettime_relative() / 1000000.0;
-            if (isnan(frameTimer) || time < frameTimer) {
-                frameTimer = time;
-            }
+
             // 如果当前时间小于帧计时器的时间 + 延时时间，则表示还没到当前帧
             if (time < frameTimer + delay) {
                 *remaining_time = FFMIN(frameTimer + delay - time, *remaining_time);
-                break;
+                continue;
             }
 
             // 更新帧计时器
@@ -223,61 +239,40 @@ void MediaSync::refreshVideo(double *remaining_time) {
 
             // 更新视频时钟的pts
             mutex.lock();
-            if (!isnan(currentFrame->pts)) {
-                videoClock->setClock(currentFrame->pts);
+            if (!isnan(nextFrame->pts)) {
+                videoClock->setClock(nextFrame->pts, nextFrame->seekSerial);
                 externalClock->syncToSlave(videoClock);
             }
             mutex.unlock();
 
             // 如果队列中还剩余超过一帧的数据时，需要拿到下一帧，然后计算间隔，并判断是否需要进行舍帧操作
             if (videoDecoder->getFrameSize() > 1) {
-                Frame *nextFrame = videoDecoder->getFrameQueue()->nextFrame();
-                duration = calculateDuration(currentFrame, nextFrame);
+                Frame *nextNextFrame = frameQueue->nextFrame();
+                nextDuration = calculateDuration(nextFrame, nextNextFrame);
+
                 // 如果不处于同步到视频状态，并且处于跳帧状态，则跳过当前帧
-                if ((time > frameTimer + duration)
+                if ((time > frameTimer + nextDuration)
                     && (playerState->frameDrop > 0
                         || (playerState->frameDrop && playerState->syncType != AV_SYNC_VIDEO))) {
-                    videoDecoder->getFrameQueue()->popFrame();
+                    frameQueue->popFrame();
+                    ALOGD(TAG, "%s drop frame late", __func__);
                     continue;
                 }
             }
 
             // 下一帧
-            videoDecoder->getFrameQueue()->popFrame();
+            frameQueue->popFrame();
             forceRefresh = 1;
+
+        } else {
+            ALOGD(TAG, "nothing to do, no picture to display in the queue");
         }
 
         break;
     }
 
-    // 回调当前时长
-    if (playerState->msgQueue && playerState->syncType == AV_SYNC_VIDEO) {
-        // 起始延时
-        int64_t start_time = videoDecoder->getFormatContext()->start_time;
-        int64_t start_diff = 0;
-        if (start_time > 0 && start_time != AV_NOPTS_VALUE) {
-            start_diff = av_rescale(start_time, 1000, AV_TIME_BASE);
-        }
-        // 计算主时钟的时间
-        int64_t pos = 0;
-        double clock = getMasterClock();
-        if (isnan(clock)) {
-            pos = playerState->seekPos;
-        } else {
-            pos = (int64_t) (clock * 1000);
-        }
-        if (pos < 0 || pos < start_diff) {
-            pos = 0;
-        }
-        pos = (long) (pos - start_diff);
-        if (playerState->videoDuration < 0) {
-            pos = 0;
-        }
-    }
-
     // 显示画面
-    if (!playerState->displayDisable && forceRefresh && videoDecoder
-        && videoDecoder->getFrameQueue()->getShowIndex()) {
+    if (!playerState->displayDisable && forceRefresh && videoDecoder && frameQueue->getShowIndex()) {
         renderVideo();
     }
     forceRefresh = 0;
@@ -302,35 +297,53 @@ void MediaSync::checkExternalClockSpeed() {
 
 double MediaSync::calculateDelay(double delay) {
     double sync_threshold, diff = 0;
+
     // 如果不是同步到视频流，则需要计算延时时间
+    // 如果不是以视频做为同步基准，则计算延时
     if (playerState->syncType != AV_SYNC_VIDEO) {
+
         // 计算差值
         diff = videoClock->getClock() - getMasterClock();
+
         // 用差值与同步阈值计算延时
+        // skip or repeat frame. We take into account the duration to compute the threshold. I still don't know
+        // if it is the best guess */
+        // 0.04 ~ 0.1
+        // 计算同步阈值
         sync_threshold = FFMAX(AV_SYNC_THRESHOLD_MIN, FFMIN(AV_SYNC_THRESHOLD_MAX, delay));
+
+        ALOGD(TAG, "%s diff = %lf syncThreshold[0.04,0.1] = %lf ", __func__, diff, sync_threshold);
+
+        // 判断时间差是否在许可范围内
         if (!isnan(diff) && fabs(diff) < maxFrameDuration) {
             if (diff <= -sync_threshold) {
+                // 滞后
                 delay = FFMAX(0, delay + diff);
             } else if (diff >= sync_threshold && delay > AV_SYNC_FRAMEDUP_THRESHOLD) {
+                // 超前
                 delay = delay + diff;
             } else if (diff >= sync_threshold) {
+                // 超出了理论阈值
                 delay = 2 * delay;
             }
         }
     }
 
-    av_log(nullptr, AV_LOG_TRACE, "video: delay=%0.3f A-V=%f\n", delay, -diff);
+    ALOGD(TAG, "%s video: delay=%0.3f A-V=%f", __func__, delay, -diff);
 
     return delay;
 }
 
-double MediaSync::calculateDuration(Frame *vp, Frame *nextvp) {
-    double duration = nextvp->pts - vp->pts;
-    if (isnan(duration) || duration <= 0 || duration > maxFrameDuration) {
-        return vp->duration;
-    } else {
-        return duration;
+double MediaSync::calculateDuration(Frame *current, Frame *next) {
+    if (current->seekSerial == next->seekSerial) {
+        double duration = next->pts - current->pts;
+        if (isnan(duration) || duration <= 0 || duration > maxFrameDuration) {
+            return current->duration;
+        } else {
+            return duration;
+        }
     }
+    return 0.0;
 }
 
 void MediaSync::renderVideo() {

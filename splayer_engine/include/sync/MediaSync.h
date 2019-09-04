@@ -42,7 +42,7 @@ public:
     double getAudioDiffClock();
 
     // 更新外部时钟
-    void updateExternalClock(double pts);
+    void updateExternalClock(double pts, int seekSerial);
 
     double getMasterClock();
 
@@ -63,7 +63,7 @@ private:
 
     double calculateDelay(double delay);
 
-    double calculateDuration(Frame *vp, Frame *nextvp);
+    double calculateDuration(Frame *current, Frame *next);
 
     void renderVideo();
 

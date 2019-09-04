@@ -57,9 +57,11 @@ public:
 
     bool isAbort();
 
-    int getLastSeekSerial() const;
+    int getLastSeekSerial();
 
-    int getFirstSeekSerial() const;
+    int *getPointLastSeekSerial();
+
+    int getFirstSeekSerial();
 
 private:
     int put(AVPacket *pkt);

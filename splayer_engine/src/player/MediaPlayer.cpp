@@ -581,21 +581,23 @@ int MediaPlayer::readPackets() {
             ret = avformat_seek_file(formatContext, -1, seek_min, seek_target, seek_max, playerState->seekFlags);
             playerState->mMutex.unlock();
             if (ret < 0) {
-                av_log(nullptr, AV_LOG_ERROR, "%s: error while seeking\n", playerState->url);
+                ALOGD(TAG, "%s %s: error while seeking", __func__, playerState->url);
             } else {
                 if (audioDecoder) {
                     audioDecoder->flush();
                     audioDecoder->pushFlushPacket();
+                    ALOGD(TAG, "%s flush audio", __func__);
                 }
                 if (videoDecoder) {
                     videoDecoder->flush();
-                    audioDecoder->pushFlushPacket();
+                    videoDecoder->pushFlushPacket();
+                    ALOGD(TAG, "%s flush video", __func__);
                 }
                 // 更新外部时钟值
                 if (playerState->seekFlags & AVSEEK_FLAG_BYTE) {
-                    mediaSync->updateExternalClock(NAN);
+                    mediaSync->updateExternalClock(NAN, 0);
                 } else {
-                    mediaSync->updateExternalClock(seek_target / (double) AV_TIME_BASE);
+                    mediaSync->updateExternalClock(seek_target / (double) AV_TIME_BASE, 0);
                 }
                 mediaSync->refreshVideoTimer();
             }
@@ -667,6 +669,7 @@ int MediaPlayer::readPackets() {
                    pkt->stream_index == videoDecoder->getStreamIndex() &&
                    isPacketInPlayRange(formatContext, pkt)) {
             videoDecoder->pushPacket(pkt);
+            ALOGD(TAG, "%s video packet size = %d", __func__, videoDecoder->getPacketSize());
         } else {
             av_packet_unref(pkt);
         }
@@ -901,14 +904,14 @@ int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_ch
 
     // 打开音频设备
     while (audioDevice->open(&wanted_spec, &spec) < 0) {
-        av_log(nullptr, AV_LOG_WARNING, "Failed to open audio device: (%d channels, %d Hz)!\n",
-               wanted_spec.channels, wanted_spec.freq);
+        ALOGD(TAG, "%s Failed to open audio device: (%d channels, %d Hz)!", __func__,
+              wanted_spec.channels, wanted_spec.freq);
         wanted_spec.channels = next_nb_channels[FFMIN(7, wanted_spec.channels)];
         if (!wanted_spec.channels) {
             wanted_spec.freq = next_sample_rates[next_sample_rate_idx--];
             wanted_spec.channels = wanted_nb_channels;
             if (!wanted_spec.freq) {
-                av_log(nullptr, AV_LOG_ERROR, "No more combinations to try, audio open failed\n");
+                ALOGE(TAG, "%s No more combinations to try, audio open failed", __func__);
                 return -1;
             }
         }
@@ -916,14 +919,14 @@ int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_ch
     }
 
     if (spec.format != AV_SAMPLE_FMT_S16) {
-        av_log(nullptr, AV_LOG_ERROR, "audio format %d is not supported!\n", spec.format);
+        ALOGE(TAG, "%s audio format %d is not supported!", __func__, spec.format);
         return -1;
     }
 
     if (spec.channels != wanted_spec.channels) {
         wanted_channel_layout = av_get_default_channel_layout(spec.channels);
         if (!wanted_channel_layout) {
-            av_log(nullptr, AV_LOG_ERROR, "channel count %d is not supported!\n", spec.channels);
+            ALOGE(TAG, "%s channel count %d is not supported!", __func__, spec.channels);
             return -1;
         }
     }

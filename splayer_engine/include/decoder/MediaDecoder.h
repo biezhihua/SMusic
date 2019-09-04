@@ -46,6 +46,8 @@ public:
 
     virtual void run();
 
+    PacketQueue *getPacketQueue() const;
+
 protected:
 
     Mutex mutex;

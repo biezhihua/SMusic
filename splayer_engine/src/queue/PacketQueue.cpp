@@ -1,3 +1,6 @@
+
+#include <queue/PacketQueue.h>
+
 #include "queue/PacketQueue.h"
 
 
@@ -188,10 +191,14 @@ bool PacketQueue::isAbort() {
     return abortRequest;
 }
 
-int PacketQueue::getLastSeekSerial() const {
+int PacketQueue::getLastSeekSerial() {
     return lastSeekSerial;
 }
 
-int PacketQueue::getFirstSeekSerial() const {
+int PacketQueue::getFirstSeekSerial() {
     return firstSekSerial;
+}
+
+int *PacketQueue::getPointLastSeekSerial() {
+    return &lastSeekSerial;
 }
