@@ -55,9 +55,11 @@ public:
 
     int64_t getDuration();
 
-    int isAbort();
+    bool isAbort();
 
-    int getSeekSerial() const;
+    int getLastSeekSerial() const;
+
+    int getFirstSeekSerial() const;
 
 private:
     int put(AVPacket *pkt);
@@ -85,10 +87,10 @@ private:
     bool abortRequest;
 
     /// 序列，seek时使用，作为区分前后帧序列
-    int newSeekSerial;
+    int lastSeekSerial;
 
     /// 序列，seek时使用，当获取数据包时被更新
-    int oldSeekSerial;
+    int firstSekSerial;
 
     AVPacket *flushPacket;
 };

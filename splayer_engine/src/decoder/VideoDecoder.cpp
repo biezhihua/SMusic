@@ -1,8 +1,8 @@
 #include "decoder/VideoDecoder.h"
 
-VideoDecoder::VideoDecoder(AVFormatContext *pFormatCtx, AVCodecContext *avctx,
-                           AVStream *stream, int streamIndex, PlayerState *playerState, AVPacket *flushPacket)
-        : MediaDecoder(avctx, stream, streamIndex, playerState, flushPacket) {
+VideoDecoder::VideoDecoder(AVFormatContext *pFormatCtx, AVCodecContext *avctx, AVStream *stream, int streamIndex,
+                           PlayerState *playerState, AVPacket *flushPacket, Condition *readWaitCond)
+        : MediaDecoder(avctx, stream, streamIndex, playerState, flushPacket, readWaitCond) {
     formatContext = pFormatCtx;
     frameQueue = new FrameQueue(VIDEO_QUEUE_SIZE, 1);
     quit = true;
@@ -99,131 +99,56 @@ void VideoDecoder::run() {
 
 /**
  * 解码视频数据包并放入帧队列
- * @return
  */
 int VideoDecoder::decodeVideo() {
     AVFrame *frame = av_frame_alloc();
-    Frame *vp;
-    int got_picture;
     int ret = 0;
+    double pts;
+    double duration;
 
-    AVRational tb = stream->time_base;
+    AVRational time_base = stream->time_base;
     AVRational frame_rate = av_guess_frame_rate(formatContext, stream, nullptr);
 
     if (!frame) {
         quit = true;
         condition.signal();
-        return AVERROR(ENOMEM);
-    }
-
-    AVPacket *packet = av_packet_alloc();
-    if (!packet) {
-        quit = true;
-        condition.signal();
-        return AVERROR(ENOMEM);
+        ALOGE(TAG, "%s not memory", __func__);
+        return ERROR_NOT_MEMORY;
     }
 
     for (;;) {
 
-        if (abortRequest || playerState->abortRequest) {
-            ret = -1;
+        ret = popFrame(frame);
+
+        if (!ret) {
+            continue;
+        }
+
+        if (ret < 0) {
+            ALOGE(TAG, "%s not get video frame ret = %d ", __func__, ret);
             break;
         }
 
-        if (playerState->seekRequest) {
-            continue;
-        }
+        // 计算帧的pts、duration等
+        duration = getFrameDuration(frame_rate);
+        pts = getFramePts(frame, time_base);
 
-        if (packetQueue->getPacket(packet) < 0) {
-            ret = -1;
-            break;
-        }
+        // 放入到已解码队列
+        ret = pushFrame(frame, pts, duration, frame->pkt_pos, packetQueue->getLastSeekSerial());
 
-        // 送去解码
-        playerState->mMutex.lock();
-        ret = avcodec_send_packet(codecContext, packet);
-        if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF) {
-            av_packet_unref(packet);
-            playerState->mMutex.unlock();
-            continue;
-        }
-
-        // 得到解码帧
-        ret = avcodec_receive_frame(codecContext, frame);
-        playerState->mMutex.unlock();
-        if (ret < 0 && ret != AVERROR_EOF) {
-            av_frame_unref(frame);
-            av_packet_unref(packet);
-            continue;
-        } else {
-            got_picture = 1;
-
-            // 是否重排pts，默认情况下需要重排pts的
-            if (playerState->reorderVideoPts == -1) {
-                frame->pts = av_frame_get_best_effort_timestamp(frame);
-            } else if (!playerState->reorderVideoPts) {
-                frame->pts = frame->pkt_dts;
-            }
-
-            // 丢帧处理
-            if (masterClock != nullptr) {
-                double dpts = NAN;
-
-                if (frame->pts != AV_NOPTS_VALUE) {
-                    dpts = av_q2d(stream->time_base) * frame->pts;
-                }
-                // 计算视频帧的长宽比
-                frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(formatContext, stream,
-                                                                          frame);
-                // 是否需要做舍帧操作
-                if (playerState->frameDrop > 0 ||
-                    (playerState->frameDrop > 0 && playerState->syncType != AV_SYNC_VIDEO)) {
-                    if (frame->pts != AV_NOPTS_VALUE) {
-                        double diff = dpts - masterClock->getClock();
-                        if (!isnan(diff) && fabs(diff) < AV_NOSYNC_THRESHOLD &&
-                            diff < 0 && packetQueue->getPacketSize() > 0) {
-                            av_frame_unref(frame);
-                            got_picture = 0;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (got_picture) {
-
-            // 取出帧
-            if (!(vp = frameQueue->peekWritable())) {
-                ret = -1;
-                break;
-            }
-
-            // 复制参数
-            vp->uploaded = 0;
-            vp->width = frame->width;
-            vp->height = frame->height;
-            vp->format = frame->format;
-            vp->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
-            vp->duration = frame_rate.num && frame_rate.den
-                           ? av_q2d((AVRational) {frame_rate.den, frame_rate.num}) : 0;
-            av_frame_move_ref(vp->frame, frame);
-
-            // 入队帧
-            frameQueue->pushFrame();
-        }
-
-        // 释放数据包和缓冲帧的引用，防止内存泄漏
+        // 重置帧
         av_frame_unref(frame);
-        av_packet_unref(packet);
+
+        if (ret < 0) {
+            av_frame_free(&frame);
+            ALOGE(TAG, "%s not queue picture", __func__);
+            break;
+        }
     }
 
     av_frame_free(&frame);
     av_free(frame);
     frame = nullptr;
-
-    av_packet_free(&packet);
-    av_free(packet);
-    packet = nullptr;
 
     quit = true;
     condition.signal();
@@ -231,7 +156,166 @@ int VideoDecoder::decodeVideo() {
     return ret;
 }
 
+double VideoDecoder::getFramePts(const AVFrame *frame, const AVRational &time_base) const {
+    return (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(time_base);
+}
+
+double VideoDecoder::getFrameDuration(const AVRational &frame_rate) const {
+    return (frame_rate.num && frame_rate.den ? av_q2d((AVRational) {frame_rate.den, frame_rate.num}) : 0);
+}
+
 bool VideoDecoder::isFinished() {
     return MediaDecoder::isFinished() && getFrameSize() == 0;
+}
+
+int VideoDecoder::popFrame(AVFrame *frame) {
+    int gotPicture;
+
+    // 解码视频帧
+    if ((gotPicture = decodeFrame(frame)) < 0) {
+        ALOGE(TAG, "%s video decodeFrame failure ret = %d", __func__, gotPicture);
+        return -1;
+    }
+
+    // 判断是否解码成功
+    if (gotPicture) {
+        double dpts = NAN;
+
+        if (frame->pts != AV_NOPTS_VALUE) {
+            dpts = av_q2d(stream->time_base) * frame->pts;
+        }
+
+        frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(formatContext, stream, frame);
+
+        // 判断是否需要舍弃该帧
+        if (playerState->frameDrop > 0 ||
+            (playerState->frameDrop && playerState->syncType != AV_SYNC_VIDEO)) {
+            if (frame->pts != AV_NOPTS_VALUE) {
+
+                // diff > 0 当前帧显示时间略超于出主时钟
+                // diff < 0 当前帧显示时间慢于主时钟
+                double diff = dpts - masterClock->getClock();
+
+                if (!isnan(diff) && // isNoNan
+                    fabs(diff) < AV_NOSYNC_THRESHOLD && // isNoSync
+                    diff < 0 && // isNeedCorrection
+                    isSamePacketSerial() && // isSameSerial
+                    getPacketSize() > 0 // isLegalSize
+                        ) {
+                    av_frame_unref(frame);
+                    gotPicture = 0;
+                }
+            }
+        }
+    }
+
+    return gotPicture;
+}
+
+int VideoDecoder::decodeFrame(AVFrame *frame) {
+
+    int ret = AVERROR(EAGAIN);
+
+    for (;;) {
+        AVPacket packet;
+
+        if (isSamePacketSerial()) {
+            // 接收一帧解码后的数据
+            do {
+
+                if (packetQueue->isAbort()) {
+                    return -1;
+                }
+
+                if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
+                    ret = avcodec_receive_frame(codecContext, frame);
+                    if (ret >= 0) {
+                        // 是否使用通过解码器估算过的时间
+                        if (playerState->reorderVideoPts == -1) {
+                            // frame timestamp estimated using various heuristics, in stream time base
+                            frame->pts = frame->best_effort_timestamp;
+                        } else if (!playerState->reorderVideoPts) {
+                            // This is also the Presentation time of this AVFrame calculated from
+                            // only AVPacket.dts values without pts values.
+                            frame->pts = frame->pkt_dts;
+                        }
+                    }
+                    break;
+                }
+
+                if (ret == AVERROR_EOF) {
+                    finished = packetQueue->getLastSeekSerial();
+                    avcodec_flush_buffers(codecContext);
+                    return 0;
+                }
+
+                if (ret >= 0) {
+                    return 1;
+                }
+
+            } while (ret != AVERROR(EAGAIN));
+        }
+
+        do {
+            // 同步读取序列
+            if (getPacketSize() == 0) {
+                readWaitCond->signal();
+            }
+
+            if (isPendingPacket) {
+                av_packet_move_ref(&packet, &pendingPacket);
+                isPendingPacket = false;
+            } else {
+                // 更新packetSerial
+                if (packetQueue->getPacket(&packet)) {
+                    return -1;
+                }
+            }
+        } while (!isSamePacketSerial());
+
+        if (packet.data == flushPacket->data) {
+            avcodec_flush_buffers(codecContext);
+            finished = 0;
+            nextPts = startPts;
+            nextPtsTb = startPtsTb;
+        } else {
+            if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
+                if (avcodec_send_packet(codecContext, &packet) == AVERROR(EAGAIN)) {
+                    ALOGE(TAG, "%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
+                          __func__);
+                    isPendingPacket = true;
+                    av_packet_move_ref(&pendingPacket, &packet);
+                }
+            }
+            av_packet_unref(&packet);
+        }
+    }
+
+    return ret;
+}
+
+int VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
+    Frame *frame;
+
+    if (!(frame = frameQueue->peekWritable())) {
+        return -1;
+    }
+
+    frame->sar = srcFrame->sample_aspect_ratio;
+    frame->uploaded = 0;
+
+    frame->width = srcFrame->width;
+    frame->height = srcFrame->height;
+    frame->format = srcFrame->format;
+
+    frame->pts = pts;
+    frame->duration = duration;
+    frame->pos = pos;
+    frame->seekSerial = serial;
+
+    av_frame_move_ref(frame->frame, srcFrame);
+
+    frameQueue->pushFrame();
+    return 0;
 }
 

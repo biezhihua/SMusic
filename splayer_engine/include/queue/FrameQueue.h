@@ -16,9 +16,13 @@ typedef struct Frame {
 
     AVSubtitle sub;
 
+    int seekSerial;
+
     double pts;           /* presentation timestamp for the frame */
 
     double duration;      /* estimated duration of the frame */
+
+    int64_t pos;          /* byte position of the frame in the input file */
 
     int width;
 
@@ -26,7 +30,11 @@ typedef struct Frame {
 
     int format;
 
+    AVRational sar;
+
     int uploaded;
+
+    int flip_v;
 
 } Frame;
 

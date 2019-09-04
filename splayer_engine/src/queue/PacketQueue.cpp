@@ -37,9 +37,9 @@ int PacketQueue::put(AVPacket *pkt) {
     packetData->next = nullptr;
 
     if (pkt == flushPacket) {
-        newSeekSerial++;
+        lastSeekSerial++;
     }
-    packetData->serial = newSeekSerial;
+    packetData->serial = lastSeekSerial;
 
     if (!lastPacket) {
         firstPacket = packetData;
@@ -156,7 +156,7 @@ int PacketQueue::getPacket(AVPacket *pkt, int block) {
             memorySize -= pkt1->pkt.size + sizeof(*pkt1);
             duration -= pkt1->pkt.duration;
             *pkt = pkt1->pkt;
-            oldSeekSerial = pkt1->serial;
+            firstSekSerial = pkt1->serial;
             av_free(pkt1);
             ret = 1;
             break;
@@ -184,10 +184,14 @@ int64_t PacketQueue::getDuration() {
     return duration;
 }
 
-int PacketQueue::isAbort() {
+bool PacketQueue::isAbort() {
     return abortRequest;
 }
 
-int PacketQueue::getSeekSerial() const {
-    return newSeekSerial;
+int PacketQueue::getLastSeekSerial() const {
+    return lastSeekSerial;
+}
+
+int PacketQueue::getFirstSeekSerial() const {
+    return firstSekSerial;
 }

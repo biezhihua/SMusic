@@ -12,7 +12,7 @@ class MediaDecoder : public Runnable {
 
 public:
     MediaDecoder(AVCodecContext *codecContext, AVStream *stream, int streamIndex, PlayerState *playerState,
-                     AVPacket *flushPacket);
+                 AVPacket *flushPacket, Condition *readWaitCond);
 
     virtual ~MediaDecoder();
 
@@ -42,6 +42,8 @@ public:
 
     void pushNullPacket();
 
+    bool isSamePacketSerial();
+
     virtual void run();
 
 protected:
@@ -67,6 +69,25 @@ protected:
     int finished;
 
     AVPacket *flushPacket;
+
+    Condition *readWaitCond;
+
+    bool isPendingPacket;
+
+    /// 包数据
+    AVPacket pendingPacket;
+
+    /// 开始的间戳
+    int64_t startPts;
+
+    /// 开始的额外参数
+    AVRational startPtsTb;
+
+    /// 下一帧时间戳
+    int64_t nextPts;
+
+    /// 下一阵额外参数
+    AVRational nextPtsTb;
 };
 
 

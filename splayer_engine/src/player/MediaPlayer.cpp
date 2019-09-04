@@ -844,13 +844,13 @@ int MediaPlayer::prepareDecoder(int streamIndex) {
             audioDecoder = new AudioDecoder(codecContext,
                                             formatContext->streams[streamIndex],
                                             streamIndex,
-                                            playerState, &flushPacket);
+                                            playerState, &flushPacket, &waitCondition);
         } else if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
             videoDecoder = new VideoDecoder(formatContext,
                                             codecContext,
                                             formatContext->streams[streamIndex],
                                             streamIndex,
-                                            playerState, &flushPacket);
+                                            playerState, &flushPacket, &waitCondition);
             attachmentRequest = 1;
         }
     } while (false);

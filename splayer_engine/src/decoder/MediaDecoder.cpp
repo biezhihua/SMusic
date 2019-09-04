@@ -1,16 +1,14 @@
-
 #include <decoder/MediaDecoder.h>
 
-#include "decoder/MediaDecoder.h"
-
 MediaDecoder::MediaDecoder(AVCodecContext *codecContext, AVStream *stream, int streamIndex, PlayerState *playerState,
-                           AVPacket *flushPacket) {
+                           AVPacket *flushPacket, Condition *readWaitCond) {
     this->packetQueue = new PacketQueue(flushPacket);
     this->codecContext = codecContext;
     this->stream = stream;
     this->streamIndex = streamIndex;
     this->playerState = playerState;
     this->flushPacket = flushPacket;
+    this->readWaitCond = readWaitCond;
 }
 
 MediaDecoder::~MediaDecoder() {
@@ -108,7 +106,7 @@ int MediaDecoder::hasEnoughPackets() {
 
 
 bool MediaDecoder::isFinished() {
-    return finished == packetQueue->getSeekSerial() && getPacketSize() == 0;
+    return packetQueue && finished == packetQueue->getLastSeekSerial() && getPacketSize() == 0;
 }
 
 void MediaDecoder::run() {
@@ -122,6 +120,10 @@ void MediaDecoder::pushNullPacket() {
     pkt->size = 0;
     pkt->stream_index = streamIndex;
     pushPacket(pkt);
+}
+
+bool MediaDecoder::isSamePacketSerial() {
+    return packetQueue && packetQueue->getLastSeekSerial() == packetQueue->getFirstSeekSerial();
 }
 
 
