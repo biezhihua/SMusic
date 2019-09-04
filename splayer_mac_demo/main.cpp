@@ -1,14 +1,14 @@
-
 #include <MacMediaPlayer.h>
+#include <MacAudioDevice.h>
 
 int main() {
-    auto *mediaPlayer = new MacMediaPlayer();
+    MacMediaPlayer *mediaPlayer = MacMediaPlayer::Builder{}
+            .withMediaSync(new MacMediaSync())
+            .withAudioDevice(new MacAudioDevice())
+            .withDebug(true)
+            .build();
     mediaPlayer->setDataSource("/Users/biezhihua/Downloads/寄生虫.mp4");
     mediaPlayer->prepareAsync();
     mediaPlayer->start();
-
-    while (true) {
-
-    }
-    return 0;
+    return mediaPlayer->eventLoop();
 }

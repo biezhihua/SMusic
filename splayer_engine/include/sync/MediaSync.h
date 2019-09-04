@@ -13,8 +13,10 @@
  */
 class MediaSync : public Runnable {
 
+    const char *const TAG = "MediaSync";
+
 public:
-    MediaSync(PlayerState *playerState);
+    MediaSync();
 
     virtual ~MediaSync();
 
@@ -52,6 +54,8 @@ public:
 
     MediaClock *getExternalClock();
 
+    void setPlayerState(PlayerState *playerState);
+
 private:
     void refreshVideo(double *remaining_time);
 
@@ -62,6 +66,12 @@ private:
     double calculateDuration(Frame *vp, Frame *nextvp);
 
     void renderVideo();
+
+protected:
+
+    void resetRemainingTime();
+
+    void refreshVideo();
 
 private:
     PlayerState *playerState;               // 播放器状态
@@ -77,7 +87,6 @@ private:
 
     Mutex mutex;
     Condition condition;
-    Thread *syncThread;                     // 同步线程
 
     int forceRefresh;                       // 强制刷新标志
     double maxFrameDuration;                // 最大帧延时
@@ -89,6 +98,8 @@ private:
     AVFrame *frameARGB;
     uint8_t *buffer;
     SwsContext *swsContext;
+
+    double remainingTime = 0.0;            // 帧间隔时间
 };
 
 

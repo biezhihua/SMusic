@@ -15,16 +15,15 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "iOS")
     set(DISTRIBUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../distribution/ios)
 endif ()
 
-
 set(SPLAYER_CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../splayer_engine)
-set(SPLAYER_MAC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../splayer_mac_sdl)
+set(SPLAYER_MAC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../splayer_mac)
 
 add_subdirectory(${SPLAYER_MAC_DIR} splayer_mac)
 
 set(SDL2_FOUND TRUE)
 find_package(SDL2 REQUIRED)
 
-add_executable(splayer_mac_demo main.cpp)
+add_executable(${PROJECT_NAME} main.cpp)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${SPLAYER_CORE_DIR}/include

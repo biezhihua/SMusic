@@ -1,7 +1,9 @@
+
+#include <sync/MediaSync.h>
+
 #include "sync/MediaSync.h"
 
-MediaSync::MediaSync(PlayerState *playerState) {
-    this->playerState = playerState;
+MediaSync::MediaSync() {
     audioDecoder = nullptr;
     videoDecoder = nullptr;
     audioClock = new MediaClock();
@@ -10,7 +12,6 @@ MediaSync::MediaSync(PlayerState *playerState) {
 
     quit = true;
     abortRequest = true;
-    syncThread = nullptr;
 
     forceRefresh = 0;
     maxFrameDuration = 10.0;
@@ -57,10 +58,6 @@ void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
     quit = false;
     condition.signal();
     mutex.unlock();
-    if (videoDecoder && !syncThread) {
-        syncThread = new Thread(this);
-        syncThread->start();
-    }
 }
 
 void MediaSync::stop() {
@@ -74,11 +71,6 @@ void MediaSync::stop() {
         condition.wait(mutex);
     }
     mutex.unlock();
-    if (syncThread) {
-        syncThread->join();
-        delete syncThread;
-        syncThread = nullptr;
-    }
 }
 
 void MediaSync::setVideoDevice(VideoDevice *device) {
@@ -142,24 +134,27 @@ MediaClock *MediaSync::getExternalClock() {
 }
 
 void MediaSync::run() {
-    double remaining_time = 0.0;
-    while (true) {
-        if (abortRequest || playerState->abortRequest) {
-            if (videoDevice != nullptr) {
-                videoDevice->terminate();
-            }
-            break;
+
+}
+
+void MediaSync::refreshVideo() {
+    if (abortRequest || playerState->abortRequest) {
+        if (videoDevice != nullptr) {
+            videoDevice->terminate();
         }
-        if (remaining_time > 0.0) {
-            av_usleep((int64_t) (remaining_time * 1000000.0));
-        }
-        remaining_time = REFRESH_RATE;
-        if (!playerState->pauseRequest || forceRefresh) {
-            refreshVideo(&remaining_time);
-        }
+        return;
     }
-    quit = true;
-    condition.signal();
+    ALOGD(TAG, "===== refreshVideo =====");
+    ALOGD(TAG, "%s while remainingTime = %lf pauseRequest = %d forceRefresh = %d", __func__, remainingTime,
+          playerState->pauseRequest, forceRefresh);
+    if (remainingTime > 0.0) {
+        av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
+    }
+    remainingTime = REFRESH_RATE;
+    if (!playerState->pauseRequest || forceRefresh) {
+        refreshVideo(&remainingTime);
+    }
+    ALOGD(TAG, "===== end =====");
 }
 
 void MediaSync::refreshVideo(double *remaining_time) {
@@ -278,7 +273,6 @@ void MediaSync::refreshVideo(double *remaining_time) {
         if (playerState->videoDuration < 0) {
             pos = 0;
         }
-        playerState->msgQueue->notifyMsg(MSG_CURRENT_POSITON, pos, playerState->videoDuration);
     }
 
     // 显示画面
@@ -420,4 +414,12 @@ void MediaSync::renderVideo() {
         videoDevice->onRequestRender(vp->frame->linesize[0] < 0);
     }
     mutex.unlock();
+}
+
+void MediaSync::setPlayerState(PlayerState *playerState) {
+    MediaSync::playerState = playerState;
+}
+
+void MediaSync::resetRemainingTime() {
+    remainingTime = 0.0f;
 }

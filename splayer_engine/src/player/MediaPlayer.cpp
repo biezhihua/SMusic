@@ -5,8 +5,6 @@ MediaPlayer::MediaPlayer() {
     av_init_packet(&flushPacket);
     flushPacket.data = (uint8_t *) &flushPacket;
     playerState = new PlayerState();
-    audioDevice = new AudioDevice();
-    mediaSync = new MediaSync(playerState);
     duration = -1;
     audioDecoder = nullptr;
     videoDecoder = nullptr;
@@ -949,4 +947,19 @@ void MediaPlayer::pcmQueueCallback(uint8_t *stream, int len) {
     if (playerState->msgQueue && playerState->syncType != AV_SYNC_VIDEO) {
         playerState->msgQueue->notifyMsg(MSG_CURRENT_POSITON, getCurrentPosition(), playerState->videoDuration);
     }
+}
+
+void MediaPlayer::setAudioDevice(AudioDevice *audioDevice) {
+    MediaPlayer::audioDevice = audioDevice;
+}
+
+void MediaPlayer::setMediaSync(MediaSync *mediaSync) {
+    this->mediaSync = mediaSync;
+    if (this->mediaSync) {
+        this->mediaSync->setPlayerState(playerState);
+    }
+}
+
+MediaSync *MediaPlayer::getMediaSync() const {
+    return mediaSync;
 }

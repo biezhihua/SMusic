@@ -1,7 +1,6 @@
 #ifndef MEDIAPLAYER_H
 #define MEDIAPLAYER_H
 
-
 #include <sync/MediaClock.h>
 #include <player/PlayerState.h>
 #include <decoder/AudioDecoder.h>
@@ -11,7 +10,6 @@
 #include <sync/MediaSync.h>
 #include <convertor/AudioResampler.h>
 #include <common/Log.h>
-
 
 class MediaPlayer : public Runnable {
 
@@ -58,7 +56,6 @@ private:
     MediaSync *mediaSync;                   // 媒体同步器
 
     AVPacket flushPacket;                   // 刷新的包,用于在SEEK时，刷新数据队列
-
 
 public:
     MediaPlayer();
@@ -113,6 +110,11 @@ public:
 
     void pcmQueueCallback(uint8_t *stream, int len);
 
+    void setAudioDevice(AudioDevice *audioDevice);
+
+    void setMediaSync(MediaSync *mediaSync);
+
+    MediaSync *getMediaSync() const;
 protected:
     void run() override;
 
@@ -131,7 +133,8 @@ private:
 
     bool isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const;
 
-
 };
+
+
 
 #endif //MEDIAPLAYER_H
