@@ -1,6 +1,6 @@
-#include "MacMediaSync.h"
+#include "SDLMediaSync.h"
 
-void MacMediaSync::run() {
+void SDLMediaSync::run() {
     bool quit = false;
     SDL_Event event;
     while (!quit) {

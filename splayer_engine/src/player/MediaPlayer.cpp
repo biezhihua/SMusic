@@ -669,7 +669,6 @@ int MediaPlayer::readPackets() {
                    pkt->stream_index == videoDecoder->getStreamIndex() &&
                    isPacketInPlayRange(formatContext, pkt)) {
             videoDecoder->pushPacket(pkt);
-            ALOGD(TAG, "%s video packet size = %d", __func__, videoDecoder->getPacketSize());
         } else {
             av_packet_unref(pkt);
         }

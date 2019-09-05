@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4.1)
-project(splayer_mac)
+project(splayer_sdl)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -24,7 +24,7 @@ aux_source_directory(src src_source)
 set(SDL2_FOUND TRUE)
 find_package(SDL2 REQUIRED)
 
-add_library(splayer_mac ${src_source})
+add_library(splayer_sdl ${src_source})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include

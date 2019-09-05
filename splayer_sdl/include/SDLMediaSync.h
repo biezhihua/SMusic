@@ -4,7 +4,7 @@
 #include <sync/MediaSync.h>
 #include <SDL.h>
 
-class MacMediaSync : public MediaSync {
+class SDLMediaSync : public MediaSync {
 
 public:
     void run() override;

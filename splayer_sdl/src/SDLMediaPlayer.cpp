@@ -1,6 +1,6 @@
-#include <MacMediaPlayer.h>
+#include <SDLMediaPlayer.h>
 
-int MacMediaPlayer::eventLoop() {
+int SDLMediaPlayer::eventLoop() {
     if (getMediaSync() != nullptr) {
         getMediaSync()->run();
     }

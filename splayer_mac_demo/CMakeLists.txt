@@ -16,9 +16,9 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "iOS")
 endif ()
 
 set(SPLAYER_CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../splayer_engine)
-set(SPLAYER_MAC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../splayer_mac)
+set(SPLAYER_MAC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../splayer_sdl)
 
-add_subdirectory(${SPLAYER_MAC_DIR} splayer_mac)
+add_subdirectory(${SPLAYER_MAC_DIR} splayer_sdl)
 
 set(SDL2_FOUND TRUE)
 find_package(SDL2 REQUIRED)
@@ -31,4 +31,4 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         ${DISTRIBUTION_DIR}/ffmpeg/include
         ${SDL2_INCLUDE_DIRS}
         )
-target_link_libraries(${PROJECT_NAME} splayer_mac)
+target_link_libraries(${PROJECT_NAME} splayer_sdl)

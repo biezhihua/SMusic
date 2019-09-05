@@ -2,9 +2,9 @@
 #define SPLAYER_MAC_MACMEDIAPLAYER_H
 
 #include <player/MediaPlayer.h>
-#include "MacMediaSync.h"
+#include "SDLMediaSync.h"
 
-class MacMediaPlayer : public MediaPlayer {
+class SDLMediaPlayer : public MediaPlayer {
 
 public:
     class Builder;
@@ -13,7 +13,7 @@ public:
 
 };
 
-class MacMediaPlayer::Builder {
+class SDLMediaPlayer::Builder {
 private:
 
     bool debug = true;
@@ -37,9 +37,9 @@ public:
         return *this;
     }
 
-    MacMediaPlayer *build() {
+    SDLMediaPlayer *build() {
         DEBUG = debug;
-        MacMediaPlayer *mediaPlayer = new MacMediaPlayer();
+        SDLMediaPlayer *mediaPlayer = new SDLMediaPlayer();
         mediaPlayer->setMediaSync(mediaSync);
         mediaPlayer->setAudioDevice(audioDevice);
         return mediaPlayer;

@@ -8,6 +8,6 @@ CMakeFiles
 splayer_core.cbp
 splayer_command
 splayer_core
-splayer_mac
-splayer_mac.cbp
+splayer_sdl
+splayer_sdl.cbp
 .idea/workspace.xml

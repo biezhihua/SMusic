@@ -1,10 +1,10 @@
-#include <MacMediaPlayer.h>
-#include <MacAudioDevice.h>
+#include <SDLMediaPlayer.h>
+#include <SDLAudioDevice.h>
 
 int main() {
-    MacMediaPlayer *mediaPlayer = MacMediaPlayer::Builder{}
-            .withMediaSync(new MacMediaSync())
-            .withAudioDevice(new MacAudioDevice())
+    SDLMediaPlayer *mediaPlayer = SDLMediaPlayer::Builder{}
+            .withMediaSync(new SDLMediaSync())
+            .withAudioDevice(new SDLAudioDevice())
             .withDebug(true)
             .build();
     mediaPlayer->setDataSource("/Users/biezhihua/Downloads/寄生虫.mp4");

@@ -5,7 +5,7 @@
 
 #include <device/AudioDevice.h>
 
-class MacAudioDevice : public AudioDevice {
+class SDLAudioDevice : public AudioDevice {
 
 };
 

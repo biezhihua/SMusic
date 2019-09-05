@@ -74,6 +74,7 @@ protected:
 
     Condition *readWaitCond;
 
+    /// 发送解码失败，延迟处理数据包
     bool isPendingPacket;
 
     /// 包数据
