@@ -185,55 +185,58 @@ void MediaSync::refreshVideo(double *remaining_time) {
             Frame *nextFrame, *currentFrame;
 
             // 上一帧
-            currentFrame = frameQueue->lastFrame();
+            currentFrame = frameQueue->currentFrame();
 
             // 当前帧
-            nextFrame = frameQueue->currentFrame();
+            nextFrame = frameQueue->nextFrame();
 
-            ALOGD(TAG, "currentFrame seekSerial = %d packetQueue lastSeekSerial = %d ", nextFrame->seekSerial, packetQueue->getLastSeekSerial());
+            ALOGD(TAG, "nextFrame seekSerial = %d packetQueue lastSeekSerial = %d ", nextFrame->seekSerial,
+                  packetQueue->getLastSeekSerial());
 
+            // 如果不是相同序列，丢掉seek之前的帧
             if (currentFrame->seekSerial != packetQueue->getLastSeekSerial()) {
                 frameQueue->popFrame();
-                ALOGE(TAG, "goto retry, need to sync seekSerial");
-                break;
+                ALOGE(TAG, "%s drop no same serial of frame", __func__);
+                continue;
             }
 
-            ALOGD(TAG, "currentFrame seekSerial = %d nextFrame seekSerial = %d ", currentFrame->seekSerial,
+            ALOGD(TAG, "nextFrame.seekSerial = %d next2Frame.seekSerial = %d ", currentFrame->seekSerial,
                   nextFrame->seekSerial);
 
-            // seek操作时才会产生变化
-            // 判断是否需要强制更新帧的时间
-            if (frameTimerRefresh || currentFrame->seekSerial != nextFrame->seekSerial) {
+            // 判断是否需要强制更新帧的时间(seek操作时才会产生变化)
+            if (currentFrame->seekSerial != nextFrame->seekSerial || frameTimerRefresh) {
                 frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
-                ALOGD(TAG, "update frameTimer = %fd ", frameTimer);
+                ALOGD(TAG, "%s force reset frameTimer = %fd ", __func__, frameTimer);
                 frameTimerRefresh = 0;
             }
 
             // 如果处于暂停状态，则直接显示
             if (playerState->abortRequest || playerState->pauseRequest) {
+                // to display
                 break;
             }
 
-            // 计算上一次显示时长
+            // 计算帧显示时长
             currentDuration = calculateDuration(currentFrame, nextFrame);
 
-            // 根据上一次显示的时长，计算延时
+            // 根据帧显示的时长，计算延时
             delay = calculateDelay(currentDuration);
-
 
             // 获取当前时间
             time = av_gettime_relative() / 1000000.0;
 
             // 如果当前时间小于帧计时器的时间 + 延时时间，则表示还没到当前帧
-            if (time < frameTimer + delay) {
+            if (time < (frameTimer + delay)) {
                 *remaining_time = FFMIN(frameTimer + delay - time, *remaining_time);
-                continue;
+                ALOGD(TAG, "%s need display pre frame, diff time = %lf remainingTime = %lf", __func__,
+                      (frameTimer + delay - time), *remaining_time);
+                break;
             }
 
             // 更新帧计时器
             frameTimer += delay;
             // 帧计时器落后当前时间超过了阈值，则用当前的时间作为帧计时器时间
-            if (delay > 0 && time - frameTimer > AV_SYNC_THRESHOLD_MAX) {
+            if (delay > 0 && (time - frameTimer) > AV_SYNC_THRESHOLD_MAX) {
                 frameTimer = time;
             }
 
@@ -247,15 +250,15 @@ void MediaSync::refreshVideo(double *remaining_time) {
 
             // 如果队列中还剩余超过一帧的数据时，需要拿到下一帧，然后计算间隔，并判断是否需要进行舍帧操作
             if (videoDecoder->getFrameSize() > 1) {
-                Frame *nextNextFrame = frameQueue->nextFrame();
-                nextDuration = calculateDuration(nextFrame, nextNextFrame);
+                Frame *next2Frame = frameQueue->next2Frame();
+                nextDuration = calculateDuration(nextFrame, next2Frame);
 
                 // 如果不处于同步到视频状态，并且处于跳帧状态，则跳过当前帧
                 if ((time > frameTimer + nextDuration)
                     && (playerState->frameDrop > 0
                         || (playerState->frameDrop && playerState->syncType != AV_SYNC_VIDEO))) {
                     frameQueue->popFrame();
-                    ALOGD(TAG, "%s drop frame late", __func__);
+                    ALOGD(TAG, "%s drop same frame", __func__);
                     continue;
                 }
             }
@@ -347,85 +350,102 @@ double MediaSync::calculateDuration(Frame *current, Frame *next) {
 }
 
 void MediaSync::renderVideo() {
+
     mutex.lock();
     if (!videoDecoder || !videoDevice) {
         mutex.unlock();
         return;
     }
-    Frame *vp = videoDecoder->getFrameQueue()->lastFrame();
+
+    Frame *currentFrame = videoDecoder->getFrameQueue()->currentFrame();
+
+    // 请求渲染视频
+    videoDevice->onRequestRenderStart();
+
     int ret = 0;
-    if (!vp->uploaded) {
-        // 根据图像格式更新纹理数据
-        switch (vp->frame->format) {
-            // YUV420P 和 YUVJ420P 除了色彩空间不一样之外，其他的没什么区别
-            // YUV420P表示的范围是 16 ~ 235，而YUVJ420P表示的范围是0 ~ 255
-            // 这里做了兼容处理，后续可以优化，shader已经过验证
-            case AV_PIX_FMT_YUVJ420P:
-            case AV_PIX_FMT_YUV420P: {
 
-                // 初始化纹理
-                videoDevice->onInitTexture(vp->frame->width, vp->frame->height,
-                                           FMT_YUV420P, BLEND_NONE);
+    if (!currentFrame->uploaded) {
 
-                if (vp->frame->linesize[0] < 0 || vp->frame->linesize[1] < 0 || vp->frame->linesize[2] < 0) {
-                    av_log(nullptr, AV_LOG_ERROR, "Negative linesize is not supported for YUV.\n");
-                    return;
-                }
-                ret = videoDevice->onUpdateYUV(vp->frame->data[0], vp->frame->linesize[0],
-                                               vp->frame->data[1], vp->frame->linesize[1],
-                                               vp->frame->data[2], vp->frame->linesize[2]);
-                if (ret < 0) {
-                    return;
+        AVFrame *frame = currentFrame->frame;
+
+        TextureFormat format = videoDevice->getTextureFormat(currentFrame->frame->format);
+        BlendMode blendMode = videoDevice->getBlendMode(format);
+
+        // 初始化纹理
+        if (!videoDevice->onInitTexture(0, currentFrame->frame->width, currentFrame->frame->height,
+                                        format, blendMode, videoDecoder->getRotate())) {
+            return;
+        }
+
+        switch (format) {
+            case FMT_YUV420P:
+                // 根据图像格式更新纹理数据
+                if (frame->linesize[0] > 0 && frame->linesize[1] > 0 && frame->linesize[2] > 0) {
+                    ret = videoDevice->onUpdateYUV(frame->data[0], frame->linesize[0],
+                                                   frame->data[1], frame->linesize[1],
+                                                   frame->data[2], frame->linesize[2]);
+                    if (ret < 0) {
+                        ALOGE(TAG, "%s update FMT_YUV420P error", __func__);
+                        return;
+                    }
+                } else if (frame->linesize[0] < 0 && frame->linesize[1] < 0 && frame->linesize[2] < 0) {
+                    ret = videoDevice->onUpdateYUV(frame->data[0] + frame->linesize[0] * (frame->height - 1),
+                                                   -frame->linesize[0],
+                                                   frame->data[1] +
+                                                   frame->linesize[1] * (AV_CEIL_RSHIFT(frame->height, 1) - 1),
+                                                   -frame->linesize[1],
+                                                   frame->data[2] +
+                                                   frame->linesize[2] * (AV_CEIL_RSHIFT(frame->height, 1) - 1),
+                                                   -frame->linesize[2]);
+                    if (ret < 0) {
+                        ALOGE(TAG, "%s update negative FMT_YUV420P error", __func__);
+                        return;
+                    }
                 }
                 break;
-            }
-
+            case FMT_ARGB:
                 // 直接渲染BGRA，对应的是shader->argb格式
-            case AV_PIX_FMT_BGRA: {
-                videoDevice->onInitTexture(vp->frame->width, vp->frame->height,
-                                           FMT_ARGB, BLEND_NONE);
-                ret = videoDevice->onUpdateARGB(vp->frame->data[0], vp->frame->linesize[0]);
+                ret = videoDevice->onUpdateARGB(frame->data[0], frame->linesize[0]);
                 if (ret < 0) {
+                    ALOGE(TAG, "%s update FMT_ARGB error", __func__);
                     return;
                 }
                 break;
-            }
 
                 // 其他格式转码成BGRA格式再做渲染
-            default: {
+            case FMT_NONE:
                 swsContext = sws_getCachedContext(swsContext,
-                                                  vp->frame->width, vp->frame->height,
-                                                  (AVPixelFormat) vp->frame->format,
-                                                  vp->frame->width, vp->frame->height,
-                                                  AV_PIX_FMT_BGRA, SWS_BICUBIC, nullptr, nullptr, nullptr);
+                                                  frame->width, frame->height,
+                                                  (AVPixelFormat) frame->format,
+                                                  frame->width, frame->height,
+                                                  AV_PIX_FMT_BGRA, SWS_BICUBIC,
+                                                  nullptr, nullptr, nullptr);
                 if (!buffer) {
-                    int numBytes = av_image_get_buffer_size(AV_PIX_FMT_BGRA, vp->frame->width, vp->frame->height, 1);
+                    int numBytes = av_image_get_buffer_size(AV_PIX_FMT_BGRA, frame->width, frame->height, 1);
                     buffer = (uint8_t *) av_malloc(numBytes * sizeof(uint8_t));
                     frameARGB = av_frame_alloc();
-                    av_image_fill_arrays(frameARGB->data, frameARGB->linesize, buffer, AV_PIX_FMT_BGRA,
-                                         vp->frame->width, vp->frame->height, 1);
+                    av_image_fill_arrays(frameARGB->data, frameARGB->linesize, buffer, AV_PIX_FMT_BGRA, frame->width,
+                                         frame->height, 1);
                 }
                 if (swsContext != nullptr) {
-                    sws_scale(swsContext, (uint8_t const *const *) vp->frame->data,
-                              vp->frame->linesize, 0, vp->frame->height,
+                    sws_scale(swsContext, (uint8_t const *const *) frame->data, frame->linesize, 0, frame->height,
                               frameARGB->data, frameARGB->linesize);
                 }
 
-                videoDevice->onInitTexture(vp->frame->width, vp->frame->height,
-                                           FMT_ARGB, BLEND_NONE, videoDecoder->getRotate());
                 ret = videoDevice->onUpdateARGB(frameARGB->data[0], frameARGB->linesize[0]);
+
                 if (ret < 0) {
+                    ALOGE(TAG, "%s update FMT_NONE error", __func__);
                     return;
                 }
                 break;
-            }
+            default:
+                return;
         }
-        vp->uploaded = 1;
+        currentFrame->uploaded = 1;
     }
     // 请求渲染视频
-    if (videoDevice != nullptr) {
-        videoDevice->onRequestRender(vp->frame->linesize[0] < 0);
-    }
+    videoDevice->onRequestRenderEnd(currentFrame, currentFrame->frame->linesize[0] < 0);
     mutex.unlock();
 }
 
@@ -436,3 +456,4 @@ void MediaSync::setPlayerState(PlayerState *playerState) {
 void MediaSync::resetRemainingTime() {
     remainingTime = 0.0f;
 }
+

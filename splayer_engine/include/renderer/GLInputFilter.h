@@ -10,8 +10,26 @@
  */
 typedef enum {
     FMT_NONE = -1,
+    FMT_ARGB,
+    FMT_RGB8,
+    FMT_RGB444,
+    FMT_RGB555,
+    FMT_BGR555,
+    FMT_RGB565,
+    FMT_BGR565,
+    FMT_RGB24,
+    FMT_BGR24,
+    FMT_0RGB32,
+    FMT_0BGR32,
+    FMT_NE,
+    FMT_RGB32,
+    FMT_RGB32_1,
+    FMT_BGR32,
+    FMT_BGR32_1,
     FMT_YUV420P,
-    FMT_ARGB
+    FMT_YUYV422,
+    FMT_UYVY422,
+    FMT_YUVJ420P,
 } TextureFormat;
 
 /**
@@ -27,10 +45,26 @@ typedef enum {
  * 设置混合模式
  */
 typedef enum {
+
+    /// no blending dstRGBA = srcRGBA
     BLEND_NONE = 0x00,
-    BLEND_NORMAL = 0x01,
+
+    /// alpha blending
+    /// dstRGB = (srcRGB * srcA) + (dstRGB * (1-srcA))
+    /// dstA = srcA + (dstA * (1-srcA))
+    BLEND_BLEND = 0x01,
+
+    /// additive blending
+    /// dstRGB = (srcRGB * srcA) + dstRGB
     BLEND_ADD = 0x02,
-    BLEND_MODULATE = 0x04,
+
+    /// color modulate
+    /// dstRGB = srcRGB * dstRGB
+    /// dstA = dstA
+    BLEND_MOD = 0x04,
+
+    BLEND_INVALID = 0x7FFFFFFF
+
 } BlendMode;
 
 #define NUM_DATA_POINTERS 3

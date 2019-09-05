@@ -50,6 +50,8 @@ private:
     int eof;                                // 数据包读到结尾标志
     int attachmentRequest;                  // 视频封面数据包请求
 
+    VideoDevice *videoDevice;               // 视频输出设备
+
     AudioDevice *audioDevice;               // 音频输出设备
     AudioResampler *audioResampler;         // 音频重采样器
 
@@ -115,6 +117,9 @@ public:
     void setMediaSync(MediaSync *mediaSync);
 
     MediaSync *getMediaSync() const;
+
+    void setVideoDevice(VideoDevice *videoDevice);
+
 protected:
     void run() override;
 
@@ -134,7 +139,6 @@ private:
     bool isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const;
 
 };
-
 
 
 #endif //MEDIAPLAYER_H

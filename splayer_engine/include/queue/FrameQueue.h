@@ -51,11 +51,11 @@ public:
 
     void abort();
 
-    Frame *currentFrame();
-
     Frame *nextFrame();
 
-    Frame *lastFrame();
+    Frame *next2Frame();
+
+    Frame *currentFrame();
 
     Frame *peekWritable();
 

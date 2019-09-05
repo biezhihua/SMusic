@@ -952,6 +952,7 @@ void MediaPlayer::pcmQueueCallback(uint8_t *stream, int len) {
 }
 
 void MediaPlayer::setAudioDevice(AudioDevice *audioDevice) {
+    Mutex::Autolock lock(mutex);
     MediaPlayer::audioDevice = audioDevice;
 }
 
@@ -964,4 +965,10 @@ void MediaPlayer::setMediaSync(MediaSync *mediaSync) {
 
 MediaSync *MediaPlayer::getMediaSync() const {
     return mediaSync;
+}
+
+void MediaPlayer::setVideoDevice(VideoDevice *videoDevice) {
+    Mutex::Autolock lock(mutex);
+    MediaPlayer::videoDevice = videoDevice;
+    mediaSync->setVideoDevice(videoDevice);
 }

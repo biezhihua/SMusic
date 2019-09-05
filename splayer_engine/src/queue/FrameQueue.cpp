@@ -36,15 +36,15 @@ void FrameQueue::abort() {
     mutex.unlock();
 }
 
-Frame *FrameQueue::currentFrame() {
+Frame *FrameQueue::nextFrame() {
     return &queue[(readIndex + readIndexShown) % maxSize];
 }
 
-Frame *FrameQueue::nextFrame() {
+Frame *FrameQueue::next2Frame() {
     return &queue[(readIndex + readIndexShown + 1) % maxSize];
 }
 
-Frame *FrameQueue::lastFrame() {
+Frame *FrameQueue::currentFrame() {
     return &queue[readIndex];
 }
 

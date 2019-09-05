@@ -19,6 +19,7 @@ private:
     bool debug = true;
     MediaSync *mediaSync = nullptr;
     AudioDevice *audioDevice = nullptr;
+    VideoDevice *videoDevice = nullptr;
 
 public:
 
@@ -37,11 +38,17 @@ public:
         return *this;
     }
 
+    Builder &withVideoDevice(VideoDevice *videoDevice) {
+        this->videoDevice = videoDevice;
+        return *this;
+    }
+
     SDLMediaPlayer *build() {
         DEBUG = debug;
         SDLMediaPlayer *mediaPlayer = new SDLMediaPlayer();
         mediaPlayer->setMediaSync(mediaSync);
         mediaPlayer->setAudioDevice(audioDevice);
+        mediaPlayer->setVideoDevice(videoDevice);
         return mediaPlayer;
     }
 };
