@@ -25,12 +25,13 @@ void PlayerState::init() {
     codec_opts = (AVDictionary *) malloc(sizeof(AVDictionary));
     memset(codec_opts, 0, sizeof(AVDictionary));
 
-    inputFormat = NULL;
-    url = NULL;
-    headers = NULL;
+    inputFormat = nullptr;
+    url = nullptr;
+    headers = nullptr;
+    videoTitle = nullptr;
 
-    audioCodecName = NULL;
-    videoCodecName = NULL;
+    audioCodecName = nullptr;
+    videoCodecName = nullptr;
     msgQueue = new MessageQueue();
 }
 
@@ -51,7 +52,7 @@ void PlayerState::reset() {
     }
     if (url) {
         av_freep(&url);
-        url = NULL;
+        url = nullptr;
     }
     offset = 0;
     abortRequest = 1;
@@ -159,7 +160,7 @@ void PlayerState::parse_string(const char *type, const char *option) {
     } else if (!strcmp("f", type)) { // f 指定输入文件格式
         inputFormat = av_find_input_format(option);
         if (!inputFormat) {
-            av_log(NULL, AV_LOG_FATAL, "Unknown input format: %s\n", option);
+            av_log(nullptr, AV_LOG_FATAL, "Unknown input format: %s\n", option);
         }
     }
 }

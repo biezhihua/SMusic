@@ -107,9 +107,10 @@ public:
     const char *url;                // 文件路径
     int64_t offset;                 // 文件偏移量
     const char *headers;            // 文件头信息
+    const char *videoTitle;         // 视频名称
 
-    const char *audioCodecName;     // 指定音频解码器名称
-    const char *videoCodecName;     // 指定视频解码器名称
+    char *audioCodecName;           // 指定音频解码器名称
+    char *videoCodecName;           // 指定视频解码器名称
 
     int abortRequest;               // 退出标志
     int pauseRequest;               // 暂停标志

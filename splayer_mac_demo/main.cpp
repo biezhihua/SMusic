@@ -1,10 +1,12 @@
 #include <SDLMediaPlayer.h>
 #include <SDLAudioDevice.h>
+#include <SDLVideoDevice.h>
 
 int main() {
     SDLMediaPlayer *mediaPlayer = SDLMediaPlayer::Builder{}
             .withMediaSync(new SDLMediaSync())
             .withAudioDevice(new SDLAudioDevice())
+            .withVideoDevice(new SDLVideoDevice())
             .withDebug(true)
             .build();
     mediaPlayer->setDataSource("/Users/biezhihua/Downloads/寄生虫.mp4");

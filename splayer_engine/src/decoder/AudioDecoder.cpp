@@ -12,6 +12,11 @@ AudioDecoder::~AudioDecoder() {
     mutex.unlock();
 }
 
+void AudioDecoder::start() {
+    ALOGD(TAG, __func__);
+    MediaDecoder::start();
+}
+
 int AudioDecoder::getAudioFrame(AVFrame *frame) {
     return -1;
 }

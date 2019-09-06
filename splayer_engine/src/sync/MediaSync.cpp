@@ -360,7 +360,7 @@ void MediaSync::renderVideo() {
     Frame *currentFrame = videoDecoder->getFrameQueue()->currentFrame();
 
     // 请求渲染视频
-    videoDevice->onRequestRenderStart();
+    videoDevice->onRequestRenderStart(currentFrame);
 
     int ret = 0;
 

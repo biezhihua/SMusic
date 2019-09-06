@@ -135,7 +135,12 @@ int SDLVideoDevice::onUpdateARGB(uint8_t *rgba, int pitch) {
     return VideoDevice::onUpdateARGB(rgba, pitch);
 }
 
-void SDLVideoDevice::onRequestRenderStart() {
+void SDLVideoDevice::onRequestRenderStart(Frame *frame) {
+    setDeviceSize(frame);
+    if (!isDisplayWindow) {
+        displayWindow();
+        isDisplayWindow = true;
+    }
     if (renderer != nullptr) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -268,6 +273,46 @@ TextureFormat SDLVideoDevice::getSDLFormat(Uint32 format) {
         default:
             return FMT_NONE;
     }
+}
+
+void SDLVideoDevice::displayWindow() {
+
+    if (!playerState->videoTitle) {
+        playerState->videoTitle = playerState->url;
+    }
+
+    int width = surfaceWidth ? surfaceWidth : defaultWidth;
+    int height = surfaceHeight ? surfaceHeight : defaultHeight;
+
+    if (window) {
+        SDL_SetWindowTitle(window, playerState->videoTitle);
+        SDL_SetWindowSize(window, width, height);
+        SDL_SetWindowPosition(window, surfaceLeftOffset, surfaceTopOffset);
+        SDL_ShowWindow(window);
+        ALOGD(TAG,
+              "%s videoTitle = %s videoWidth = %d videoHeight = %d surfaceLeftOffset = %d surfaceTopOffset = %d",
+              __func__,
+              playerState->videoTitle,
+              width, height,
+              surfaceLeftOffset, surfaceTopOffset
+        );
+    }
+}
+
+void SDLVideoDevice::setDeviceSize(Frame *frame) {
+    int width = frame->width;
+    int height = frame->height;
+    AVRational rational = frame->sar;
+    SDL_Rect rect;
+    int maxWidth = surfaceWidth ? surfaceWidth : INT_MAX;
+    int maxHeight = surfaceHeight ? surfaceHeight : INT_MAX;
+    if (maxWidth == INT_MAX && maxHeight == INT_MAX) {
+        maxHeight = height;
+    }
+    calculateDisplayRect(&rect, 0, 0, maxWidth, maxHeight, width, height, rational);
+    surfaceWidth = rect.w;
+    surfaceHeight = rect.h;
+    ALOGD(TAG, "%s x = %d y = %d w = %d h = %d", __func__, rect.x, rect.y, rect.w, rect.h);
 }
 
 

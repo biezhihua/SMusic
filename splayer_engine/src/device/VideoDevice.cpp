@@ -85,6 +85,14 @@ BlendMode VideoDevice::getBlendMode(TextureFormat format) {
     return BLEND_NONE;
 }
 
-void VideoDevice::onRequestRenderStart() {
+void VideoDevice::onRequestRenderStart(Frame *frame) {
 
+}
+
+void VideoDevice::setFormatContext(AVFormatContext *formatContext) {
+    this->formatContext = formatContext;
+}
+
+void VideoDevice::setPlayerState(PlayerState *playerState) {
+    this->playerState = playerState;
 }

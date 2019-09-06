@@ -35,6 +35,7 @@ void VideoDecoder::setMasterClock(MediaClock *masterClock) {
 }
 
 void VideoDecoder::start() {
+    ALOGD(TAG, __func__);
     MediaDecoder::start();
     if (frameQueue) {
         frameQueue->start();
@@ -120,7 +121,8 @@ int VideoDecoder::decodeVideo() {
 
         ret = popFrame(frame);
 
-        if (!ret) {
+        if (ret == 0) {
+            ALOGD(TAG, "%s drop frame", __func__);
             continue;
         }
 
@@ -241,7 +243,6 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
                             frame->pts = frame->pkt_dts;
                         }
                     }
-                    break;
                 }
 
                 if (ret == AVERROR_EOF) {

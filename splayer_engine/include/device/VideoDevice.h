@@ -9,6 +9,12 @@ class VideoDevice {
 
     const char *const TAG = "VideoDevice";
 
+protected:
+
+    AVFormatContext *formatContext;
+
+    PlayerState *playerState;
+
 public:
     VideoDevice();
 
@@ -29,7 +35,7 @@ public:
     virtual int onUpdateARGB(uint8_t *rgba, int pitch);
 
     // 请求渲染
-    virtual void onRequestRenderStart();
+    virtual void onRequestRenderStart(Frame *frame);
 
     // 请求渲染
     virtual int onRequestRenderEnd(Frame *frame, bool flip);
@@ -39,6 +45,11 @@ public:
 
     // 获取混合模式
     virtual BlendMode getBlendMode(TextureFormat format);
+
+    void setFormatContext(AVFormatContext *formatContext);
+
+    void setPlayerState(PlayerState *playerState);
+
 
 };
 

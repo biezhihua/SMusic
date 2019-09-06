@@ -13,11 +13,20 @@ class SDLVideoDevice : public VideoDevice {
 
 private:
 
+    /// 设置窗口
+    bool isDisplayWindow;
+
+    /// 默认宽度
+    int defaultWidth = 640;
+
+    /// 默认高度
+    int defaultHeight = 480;
+
     /// 画布宽度
-    int surfaceWidth = 640;
+    int surfaceWidth = 0;
 
     /// 画布高度
-    int surfaceHeight = 480;
+    int surfaceHeight = 0;
 
     /// 画布X轴偏移位置
     int surfaceLeftOffset = 0;
@@ -44,13 +53,14 @@ public:
 
     ~SDLVideoDevice() override;
 
-    int onInitTexture(int initTexture,int width, int height, TextureFormat format, BlendMode blendMode, int rotate) override;
+    int onInitTexture(int initTexture, int width, int height, TextureFormat format, BlendMode blendMode,
+                      int rotate) override;
 
     int onUpdateYUV(uint8_t *yData, int yPitch, uint8_t *uData, int uPitch, uint8_t *vData, int vPitch) override;
 
     int onUpdateARGB(uint8_t *rgba, int pitch) override;
 
-    void onRequestRenderStart() override;
+    void onRequestRenderStart(Frame *frame) override;
 
     void terminate() override;
 
@@ -67,6 +77,12 @@ public:
     SDL_BlendMode getSDLBlendMode(BlendMode mode);
 
     TextureFormat getSDLFormat(Uint32 format);
+
+    void displayWindow();
+
+    void setDeviceSize(Frame *pFrame);
+
+
 };
 
 

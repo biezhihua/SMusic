@@ -408,6 +408,11 @@ int MediaPlayer::readPackets() {
         playerState->seekByBytes = !!(formatContext->iformat->flags & AVFMT_TS_DISCONT) &&
                                    strcmp(FORMAT_OGG, formatContext->iformat->name) != 0;
 
+        // get window title from metadata
+        if (!playerState->videoTitle && (t = av_dict_get(formatContext->metadata, "title", nullptr, 0))) {
+            playerState->videoTitle = av_asprintf("%s - %s", t->value, playerState->url);
+        }
+
         // 设置最大帧间隔
         mediaSync->setMaxDuration((formatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0);
 
@@ -554,10 +559,12 @@ int MediaPlayer::readPackets() {
     eof = 0;
     ret = 0;
     AVPacket pkt1, *pkt = &pkt1;
+    bool isNoReadMoreLog;
     for (;;) {
 
         // 退出播放器
         if (playerState->abortRequest) {
+            ALOGD(TAG, "%s exit read packet", __func__);
             break;
         }
 
@@ -623,14 +630,21 @@ int MediaPlayer::readPackets() {
 
         if (isNoReadMore()) {
             waitCondition.waitRelative(waitMutex, 10);
+            if (!isNoReadMoreLog) {
+                isNoReadMoreLog = true;
+                ALOGD(TAG, "%s not need read more, wait 10", __func__);
+            }
             continue;
         }
+
+        isNoReadMoreLog = false;
 
         if (isRetryPlay()) {
             if (playerState->loop) {
                 seekTo(playerState->startTime != AV_NOPTS_VALUE ? playerState->startTime : 0);
             } else if (playerState->autoExit) {
                 ret = ERROR_EOF;
+                ALOGD(TAG, "%s exit eof", __func__);
                 break;
             }
         }
@@ -731,7 +745,7 @@ int MediaPlayer::prepareDecoder(int streamIndex) {
     AVDictionary *opts = nullptr;
     AVDictionaryEntry *t = nullptr;
     int ret = 0;
-    const char *forcedCodecName = nullptr;
+    char *forcedCodecName = nullptr;
 
     // 判断流索引的合法性
     if (streamIndex < 0 || streamIndex >= formatContext->nb_streams) {
@@ -857,7 +871,7 @@ int MediaPlayer::prepareDecoder(int streamIndex) {
 
     // 准备失败，则需要释放创建的解码上下文
     if (ret < 0) {
-        ALOGE(TAG, "%s prepare decoder failure index = %s", __func__, streamIndex);
+        ALOGE(TAG, "%s prepare decoder failure index = %d", __func__, streamIndex);
         avcodec_free_context(&codecContext);
     }
 
@@ -971,4 +985,6 @@ void MediaPlayer::setVideoDevice(VideoDevice *videoDevice) {
     Mutex::Autolock lock(mutex);
     MediaPlayer::videoDevice = videoDevice;
     mediaSync->setVideoDevice(videoDevice);
+    videoDevice->setFormatContext(formatContext);
+    videoDevice->setPlayerState(playerState);
 }
