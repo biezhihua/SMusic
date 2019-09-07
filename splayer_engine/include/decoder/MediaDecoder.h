@@ -48,11 +48,16 @@ public:
 
     PacketQueue *getPacketQueue() const;
 
-protected:
+    Mutex &getMutex();
+
+public:
 
     Mutex mutex;
 
     Condition condition;
+
+protected:
+
 
     bool abortRequest;
 

@@ -606,7 +606,6 @@ int MediaPlayer::readPackets() {
                 } else {
                     mediaSync->updateExternalClock(seek_target / (double) AV_TIME_BASE, 0);
                 }
-                mediaSync->refreshVideoTimer();
             }
             attachmentRequest = 1;
             playerState->seekRequest = 0;

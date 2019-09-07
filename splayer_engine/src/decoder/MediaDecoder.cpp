@@ -128,4 +128,8 @@ PacketQueue *MediaDecoder::getPacketQueue() const {
     return packetQueue;
 }
 
+Mutex &MediaDecoder::getMutex() {
+    return mutex;
+}
+
 

@@ -15,7 +15,6 @@ MediaSync::MediaSync() {
 
     forceRefresh = 0;
     maxFrameDuration = 10.0;
-    frameTimerRefresh = 1;
     frameTimer = 0;
 
     videoDevice = nullptr;
@@ -85,13 +84,6 @@ void MediaSync::setMaxDuration(double maxDuration) {
     this->maxFrameDuration = maxDuration;
 }
 
-void MediaSync::refreshVideoTimer() {
-    mutex.lock();
-    this->frameTimerRefresh = 1;
-    condition.signal();
-    mutex.unlock();
-}
-
 void MediaSync::updateAudioClock(double pts, double time) {
     audioClock->setClock(pts, time);
     externalClock->syncToSlave(audioClock);
@@ -141,13 +133,11 @@ void MediaSync::run() {
 }
 
 void MediaSync::refreshVideo() {
-    if (abortRequest || playerState->abortRequest) {
-        if (videoDevice != nullptr) {
-            videoDevice->terminate();
-        }
+    ALOGD(TAG, "===== refreshVideo =====");
+    if (playerState == nullptr) {
+        ALOGD(TAG, "===== terminate =====");
         return;
     }
-    ALOGD(TAG, "===== refreshVideo =====");
     ALOGD(TAG, "%s while remainingTime = %lf pauseRequest = %d forceRefresh = %d", __func__, remainingTime,
           playerState->pauseRequest, forceRefresh);
     if (remainingTime > 0.0) {
@@ -200,14 +190,14 @@ void MediaSync::refreshVideo(double *remaining_time) {
                 continue;
             }
 
-            ALOGD(TAG, "nextFrame.seekSerial = %d next2Frame.seekSerial = %d ", currentFrame->seekSerial,
+            ALOGD(TAG, "nextFrame.seekSerial = %d next2Frame.seekSerial = %d",
+                  currentFrame->seekSerial,
                   nextFrame->seekSerial);
 
             // 判断是否需要强制更新帧的时间(seek操作时才会产生变化)
-            if (currentFrame->seekSerial != nextFrame->seekSerial || frameTimerRefresh) {
+            if (currentFrame->seekSerial != nextFrame->seekSerial) {
                 frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
-                ALOGD(TAG, "%s force reset frameTimer = %fd ", __func__, frameTimer);
-                frameTimerRefresh = 0;
+                ALOGD(TAG, "%s not same serial, force reset frameTimer = %fd ", __func__, frameTimer);
             }
 
             // 如果处于暂停状态，则直接显示
@@ -225,6 +215,7 @@ void MediaSync::refreshVideo(double *remaining_time) {
             // 获取当前时间
             time = av_gettime_relative() / 1000000.0;
 
+            // 若上一帧持续显示时间超过当前帧的时间，那么代表上一帧还没显示结束，则继续显示当前帧
             // 如果当前时间小于帧计时器的时间 + 延时时间，则表示还没到当前帧
             if (time < (frameTimer + delay)) {
                 *remaining_time = FFMIN(frameTimer + delay - time, *remaining_time);
@@ -238,6 +229,7 @@ void MediaSync::refreshVideo(double *remaining_time) {
             // 帧计时器落后当前时间超过了阈值，则用当前的时间作为帧计时器时间
             if (delay > 0 && (time - frameTimer) > AV_SYNC_THRESHOLD_MAX) {
                 frameTimer = time;
+                ALOGD(TAG, "%s fall behind, force reset frameTimer = %fd ", __func__, frameTimer);
             }
 
             // 更新视频时钟的pts
@@ -276,6 +268,7 @@ void MediaSync::refreshVideo(double *remaining_time) {
 
     // 显示画面
     if (!playerState->displayDisable && forceRefresh && videoDecoder && frameQueue->getShowIndex()) {
+        ALOGD(TAG, "%s render video", __func__);
         renderVideo();
     }
     forceRefresh = 0;
@@ -372,8 +365,8 @@ void MediaSync::renderVideo() {
         BlendMode blendMode = videoDevice->getBlendMode(format);
 
         // 初始化纹理
-        if (!videoDevice->onInitTexture(0, currentFrame->frame->width, currentFrame->frame->height,
-                                        format, blendMode, videoDecoder->getRotate())) {
+        if (videoDevice->onInitTexture(0, currentFrame->frame->width, currentFrame->frame->height,
+                                       format, blendMode, videoDecoder->getRotate()) < 0) {
             return;
         }
 

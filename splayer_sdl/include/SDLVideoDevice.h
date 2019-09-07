@@ -11,7 +11,7 @@ class SDLVideoDevice : public VideoDevice {
 
     const char *const TAG = "VideoDevice";
 
-private:
+public:
 
     /// 设置窗口
     bool isDisplayWindow;
@@ -76,13 +76,16 @@ public:
 
     SDL_BlendMode getSDLBlendMode(BlendMode mode);
 
-    TextureFormat getSDLFormat(Uint32 format);
+    TextureFormat getTextureFormat(Uint32 format);
 
     void displayWindow();
 
-    void setDeviceSize(Frame *pFrame);
+    void setSurfaceSize(Frame *pFrame);
 
 
+    Uint32 getSDLFormat(TextureFormat format);
+
+    void destroyVideoTexture();
 };
 
 

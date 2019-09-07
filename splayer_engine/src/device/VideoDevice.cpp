@@ -54,9 +54,9 @@ TextureFormat VideoDevice::getTextureFormat(int format) {
         case AV_PIX_FMT_0BGR32:
             return FMT_0BGR32;
         case AV_PIX_FMT_NE(RGB0, 0BGR):
-            return FMT_NE;
+            return FMT_NE_RGBX;
         case AV_PIX_FMT_NE(BGR0, 0RGB):
-            return FMT_NE;
+            return FMT_NE_BGRX;
         case AV_PIX_FMT_RGB32:
             return FMT_RGB32;
         case AV_PIX_FMT_RGB32_1:

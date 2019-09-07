@@ -100,14 +100,17 @@ SDLVideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight, Text
     int access;
     int width;
     int height;
-    if (!videoTexture || SDL_QueryTexture(videoTexture, &format, &access, &width, &height) < 0 || newWidth != width ||
-        newHeight != height || newFormat != getSDLFormat(format)) {
+    if (!videoTexture ||
+        (SDL_QueryTexture(videoTexture, &format, &access, &width, &height) < 0) ||
+        (newWidth != width) ||
+        (newHeight != height) ||
+        (newFormat != getTextureFormat(format))) {
         void *pixels;
         int pitch;
         if (videoTexture) {
             SDL_DestroyTexture(videoTexture);
         }
-        if (!(videoTexture = SDL_CreateTexture(renderer, newFormat, SDL_TEXTUREACCESS_STREAMING, newWidth,
+        if (!(videoTexture = SDL_CreateTexture(renderer, getSDLFormat(newFormat), SDL_TEXTUREACCESS_STREAMING, newWidth,
                                                newHeight))) {
             return -1;
         }
@@ -136,8 +139,8 @@ int SDLVideoDevice::onUpdateARGB(uint8_t *rgba, int pitch) {
 }
 
 void SDLVideoDevice::onRequestRenderStart(Frame *frame) {
-    setDeviceSize(frame);
     if (!isDisplayWindow) {
+        setSurfaceSize(frame);
         displayWindow();
         isDisplayWindow = true;
     }
@@ -150,9 +153,10 @@ void SDLVideoDevice::onRequestRenderStart(Frame *frame) {
 int SDLVideoDevice::onRequestRenderEnd(Frame *frame, bool flip) {
     if (frame) {
         SDL_Rect rect;
-        calculateDisplayRect(&rect, surfaceLeftOffset, surfaceTopOffset, surfaceWidth, surfaceHeight,
-                             frame->width, frame->height, frame->sar);
+        calculateDisplayRect(&rect, surfaceLeftOffset, surfaceTopOffset, surfaceWidth, surfaceHeight, frame->width,
+                             frame->height, frame->sar);
         setYuvConversionMode(frame->frame);
+        ALOGD(TAG, "%s x=%d y=%d w=%d h=%d", __func__, rect.x, rect.y, rect.w, rect.h);
         SDL_RenderCopyEx(renderer, videoTexture, nullptr, &rect, 0, nullptr, flip ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
         setYuvConversionMode(nullptr);
     }
@@ -165,6 +169,9 @@ void SDLVideoDevice::calculateDisplayRect(SDL_Rect *rect,
                                           int srcWidth, int scrHeight,
                                           int picWidth, int picHeight,
                                           AVRational picSar) {
+
+    ALOGD(TAG, "%s srcWidth = %d scrHeight = %d picWidth = %d picHeight = %d", __func__, srcWidth, scrHeight, picWidth,
+          picHeight);
     AVRational aspectRatio = picSar;
     int64_t width, height, x, y;
 
@@ -228,7 +235,7 @@ SDL_BlendMode SDLVideoDevice::getSDLBlendMode(BlendMode mode) {
     return SDL_BLENDMODE_NONE;
 }
 
-TextureFormat SDLVideoDevice::getSDLFormat(Uint32 format) {
+TextureFormat SDLVideoDevice::getTextureFormat(Uint32 format) {
     switch (format) {
         case SDL_PIXELFORMAT_RGB332:
             return FMT_RGB8;
@@ -251,9 +258,9 @@ TextureFormat SDLVideoDevice::getSDLFormat(Uint32 format) {
         case SDL_PIXELFORMAT_BGR888:
             return FMT_0BGR32;
         case SDL_PIXELFORMAT_RGBX8888:
-            return FMT_NE;
+            return FMT_NE_RGBX;
         case SDL_PIXELFORMAT_BGRX8888:
-            return FMT_NE;
+            return FMT_NE_BGRX;
         case SDL_PIXELFORMAT_ARGB8888:
             return FMT_RGB32;
         case SDL_PIXELFORMAT_RGBA8888:
@@ -299,7 +306,7 @@ void SDLVideoDevice::displayWindow() {
     }
 }
 
-void SDLVideoDevice::setDeviceSize(Frame *frame) {
+void SDLVideoDevice::setSurfaceSize(Frame *frame) {
     int width = frame->width;
     int height = frame->height;
     AVRational rational = frame->sar;
@@ -312,7 +319,60 @@ void SDLVideoDevice::setDeviceSize(Frame *frame) {
     calculateDisplayRect(&rect, 0, 0, maxWidth, maxHeight, width, height, rational);
     surfaceWidth = rect.w;
     surfaceHeight = rect.h;
-    ALOGD(TAG, "%s x = %d y = %d w = %d h = %d", __func__, rect.x, rect.y, rect.w, rect.h);
+}
+
+Uint32 SDLVideoDevice::getSDLFormat(TextureFormat format) {
+    switch (format) {
+        case FMT_RGB8:
+            return SDL_PIXELFORMAT_RGB332;
+        case FMT_RGB444:
+            return SDL_PIXELFORMAT_RGB444;
+        case FMT_RGB555:
+            return SDL_PIXELFORMAT_RGB555;
+        case FMT_BGR555:
+            return SDL_PIXELFORMAT_BGR555;
+        case FMT_RGB565:
+            return SDL_PIXELFORMAT_RGB565;
+        case FMT_BGR565:
+            return SDL_PIXELFORMAT_BGR565;
+        case FMT_RGB24:
+            return SDL_PIXELFORMAT_RGB24;
+        case FMT_BGR24:
+            return SDL_PIXELFORMAT_BGR24;
+        case FMT_0RGB32:
+            return SDL_PIXELFORMAT_RGB888;
+        case FMT_0BGR32:
+            return SDL_PIXELFORMAT_BGR888;
+        case FMT_NE_RGBX:
+            return SDL_PIXELFORMAT_RGBX8888;
+        case FMT_NE_BGRX:
+            return SDL_PIXELFORMAT_BGRX8888;
+        case FMT_RGB32:
+            return SDL_PIXELFORMAT_ARGB8888;
+        case FMT_RGB32_1:
+            return SDL_PIXELFORMAT_RGBA8888;
+        case FMT_BGR32:
+            return SDL_PIXELFORMAT_ABGR8888;
+        case FMT_BGR32_1:
+            return SDL_PIXELFORMAT_BGRA8888;
+        case FMT_YUV420P:
+            return SDL_PIXELFORMAT_IYUV;
+        case FMT_YUYV422:
+            return SDL_PIXELFORMAT_YUY2;
+        case FMT_UYVY422:
+            return SDL_PIXELFORMAT_UYVY;
+        case FMT_NONE:
+            return SDL_PIXELFORMAT_UNKNOWN;
+        default:
+            return SDL_PIXELFORMAT_UNKNOWN;
+    }
+}
+
+void SDLVideoDevice::destroyVideoTexture() {
+    if (videoTexture) {
+        SDL_DestroyTexture(videoTexture);
+        videoTexture = nullptr;
+    }
 }
 
 

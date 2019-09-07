@@ -9,5 +9,6 @@ splayer_core.cbp
 splayer_command
 splayer_core
 splayer_sdl
+splayer_engine
 splayer_sdl.cbp
 .idea/workspace.xml

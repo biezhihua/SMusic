@@ -32,9 +32,6 @@ public:
     // 设置帧最大间隔
     void setMaxDuration(double maxDuration);
 
-    // 更新视频帧的计时器
-    void refreshVideoTimer();
-
     // 更新音频时钟
     void updateAudioClock(double pts, double time);
 
@@ -73,7 +70,7 @@ protected:
 
     void refreshVideo();
 
-private:
+protected:
     PlayerState *playerState;               // 播放器状态
     bool abortRequest;                      // 停止
     bool quit;
@@ -90,7 +87,6 @@ private:
 
     int forceRefresh;                       // 强制刷新标志
     double maxFrameDuration;                // 最大帧延时
-    int frameTimerRefresh;                  // 刷新时钟
     double frameTimer;                      // 视频时钟
 
     VideoDevice *videoDevice;               // 视频输出设备
