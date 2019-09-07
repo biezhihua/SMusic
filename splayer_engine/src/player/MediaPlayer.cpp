@@ -98,14 +98,14 @@ void MediaPlayer::start() {
 void MediaPlayer::pause() {
     ALOGD(TAG, __func__);
     Mutex::Autolock lock(mutex);
-    playerState->pauseRequest = 1;
+    togglePause();
     condition.signal();
 }
 
 void MediaPlayer::resume() {
     ALOGD(TAG, __func__);
     Mutex::Autolock lock(mutex);
-    playerState->pauseRequest = 0;
+    togglePause();
     condition.signal();
 }
 
@@ -572,7 +572,7 @@ int MediaPlayer::readPackets() {
         if (playerState->pauseRequest != lastPaused) {
             lastPaused = playerState->pauseRequest;
             if (playerState->pauseRequest) {
-                av_read_pause(formatContext);
+                playerState->readPauseReturn = av_read_pause(formatContext);
             } else {
                 av_read_play(formatContext);
             }
@@ -986,4 +986,10 @@ void MediaPlayer::setVideoDevice(VideoDevice *videoDevice) {
     mediaSync->setVideoDevice(videoDevice);
     videoDevice->setFormatContext(formatContext);
     videoDevice->setPlayerState(playerState);
+}
+
+void MediaPlayer::togglePause() {
+    if (mediaSync) {
+        mediaSync->togglePause();
+    }
 }

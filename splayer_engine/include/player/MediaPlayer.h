@@ -138,6 +138,7 @@ private:
 
     bool isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const;
 
+    void togglePause();
 };
 
 

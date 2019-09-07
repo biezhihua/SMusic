@@ -8,6 +8,7 @@ void SDLMediaSync::run() {
         resetRemainingTime();
         SDL_PumpEvents();
         while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
+            hideCursor();
             refreshVideo();
             SDL_PumpEvents();
         }
@@ -24,13 +25,13 @@ void SDLMediaSync::run() {
                 doKeySystem(event);
                 break;
             case SDL_MOUSEBUTTONDOWN:
-//                if (stream && event.button.button == SDL_BUTTON_LEFT && !IS_NEGATIVE(isFullScreenClick())) {
-//                    if (surface) {
-//                        auto macSurface = (MacSurface *) surface;
-//                        macSurface->toggleFullScreen();
-//                    }
-//                    stream->forceRefresh();
-//                }
+                if (event.button.button == SDL_BUTTON_LEFT && isFullScreenClick() >= 0) {
+                    if (videoDevice) {
+                        auto *device = (SDLVideoDevice *) (videoDevice);
+                        device->toggleFullScreen();
+                    }
+                    forceRefresh = 1;
+                }
             case SDL_MOUSEMOTION:
                 showCursor();
                 break;
@@ -49,24 +50,24 @@ void SDLMediaSync::run() {
 
 
 void SDLMediaSync::hideCursor() const {
-//    if (options) {
-//        auto *macOptions = (MacOptions * )(options);
-//        if (!macOptions->cursorHidden && (av_gettime_relative() - macOptions->cursorLastShown) > CURSOR_HIDE_DELAY) {
-//            SDL_ShowCursor(0);
-//            macOptions->cursorHidden = 1;
-//        }
-//    }
+    if (videoDevice) {
+        auto *device = (SDLVideoDevice *) (videoDevice);
+        if (!device->cursorHidden && (av_gettime_relative() - device->cursorLastShown) > CURSOR_HIDE_DELAY) {
+            SDL_ShowCursor(0);
+            device->cursorHidden = 1;
+        }
+    }
 }
 
 void SDLMediaSync::showCursor() const {
-//    if (options) {
-//        auto *macOptions = (MacOptions * )(options);
-//        if (macOptions->cursorHidden) {
-//            SDL_ShowCursor(1);
-//            macOptions->cursorHidden = 0;
-//        }
-//        macOptions->cursorLastShown = av_gettime_relative();
-//    }
+    if (videoDevice) {
+        auto *device = (SDLVideoDevice *) (videoDevice);
+        if (device->cursorHidden) {
+            SDL_ShowCursor(1);
+            device->cursorHidden = 0;
+        }
+        device->cursorLastShown = av_gettime_relative();
+    }
 }
 
 void SDLMediaSync::doWindowEvent(const SDL_Event &event) {
@@ -110,19 +111,20 @@ bool SDLMediaSync::isNotHaveWindow() const {
     return true;
 }
 
-void SDLMediaSync::doKeySystem(const SDL_Event &event) const {
+void SDLMediaSync::doKeySystem(const SDL_Event &event)  {
     switch (event.key.keysym.sym) {
         case SDLK_f:
-//            if (stream) {
-//                ((MacSurface *) surface)->toggleFullScreen();
-//                stream->forceRefresh();
-//            }
+            if (videoDevice) {
+                auto *device = (SDLVideoDevice *) (videoDevice);
+                device->toggleFullScreen();
+                forceRefresh = 1;
+            }
             break;
         case SDLK_p:
         case SDLK_SPACE:
-//            if (stream) {
-//                stream->togglePause();
-//            }
+            if (stream) {
+                stream->togglePause();
+            }
             break;
         case SDLK_m:
             break;

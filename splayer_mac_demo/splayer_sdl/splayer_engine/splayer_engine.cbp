@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="splayer_engine"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\splayer_engine\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\usr\local\;CMake Files\..\..\..\..\..\usr\local\lib\;CMake Files\..\..\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\..\..\usr\local\lib\cmake\SDL2\;CMake Files\..\splayer_sdl\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="splayer_engine">
+				<Option output="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/libsplayer_engine.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/../distribution/macos/ffmpeg/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/Makefile&quot;  VERBOSE=1 splayer_engine"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="splayer_engine/fast">
+				<Option output="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/libsplayer_engine.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/../distribution/macos/ffmpeg/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/Makefile&quot;  VERBOSE=1 splayer_engine/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/splayer_sdl/splayer_engine/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/common/FFmpegUtils.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/common/Log.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/convertor/AudioResampler.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/decoder/AudioDecoder.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/decoder/MediaDecoder.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/decoder/VideoDecoder.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/device/AudioDevice.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/device/VideoDevice.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/player/MediaPlayer.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/player/MessageQueue.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/player/PlayerState.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/queue/FrameQueue.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/queue/PacketQueue.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/sync/MediaClock.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/sync/MediaSync.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../splayer_engine/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\..\splayer_engine\"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../../../../../usr/local/lib/cmake/SDL2/sdl2-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\local\lib\cmake\SDL2\"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac_demo/../splayer_sdl/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\..\splayer_sdl\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

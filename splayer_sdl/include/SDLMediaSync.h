@@ -15,7 +15,7 @@ private:
 
     int64_t lastMouseLeftClick = 0;
 
-    void doKeySystem(const SDL_Event &event) const;
+    void doKeySystem(const SDL_Event &event);
 
     bool isNotHaveWindow() const;
 

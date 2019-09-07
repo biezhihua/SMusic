@@ -53,6 +53,8 @@ public:
 
     void setPlayerState(PlayerState *playerState);
 
+    void togglePause();
+
 private:
     void refreshVideo(double *remaining_time);
 

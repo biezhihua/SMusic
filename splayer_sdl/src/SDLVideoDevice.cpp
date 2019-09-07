@@ -375,5 +375,12 @@ void SDLVideoDevice::destroyVideoTexture() {
     }
 }
 
+void SDLVideoDevice::toggleFullScreen() {
+    if (window) {
+        isFullScreen = !isFullScreen;
+        SDL_SetWindowFullscreen(window, isFullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+    }
+}
+
 
 

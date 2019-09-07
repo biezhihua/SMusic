@@ -35,6 +35,14 @@ public:
     // 获取时钟速度
     double getSpeed() const;
 
+    int getPaused() const;
+
+    void setPaused(int paused);
+
+    int getSeekSerial() const;
+
+    double getLastUpdated() const;
+
 private:
 
     /// 时钟基准

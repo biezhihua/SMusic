@@ -450,3 +450,20 @@ void MediaSync::resetRemainingTime() {
     remainingTime = 0.0f;
 }
 
+void MediaSync::togglePause() {
+    if (playerState) {
+        if (playerState->pauseRequest) {
+            frameTimer += (av_gettime_relative() * 1.0F / AV_TIME_BASE - videoClock->getLastUpdated());
+            if (playerState->readPauseReturn != AVERROR(ENOSYS)) {
+                videoClock->setPaused(0);
+            }
+            videoClock->setClock(videoClock->getClock(), videoClock->getSeekSerial());
+        }
+        externalClock->setClock(externalClock->getClock(), externalClock->getSeekSerial());
+        playerState->pauseRequest = !playerState->pauseRequest;
+        audioClock->setPaused(playerState->pauseRequest);
+        videoClock->setPaused(playerState->pauseRequest);
+        externalClock->setPaused(playerState->pauseRequest);
+    }
+}
+

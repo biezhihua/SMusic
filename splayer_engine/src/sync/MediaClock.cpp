@@ -56,3 +56,18 @@ double MediaClock::getSpeed() const {
     return speed;
 }
 
+int MediaClock::getPaused() const {
+    return paused;
+}
+
+void MediaClock::setPaused(int paused) {
+    MediaClock::paused = paused;
+}
+
+int MediaClock::getSeekSerial() const {
+    return seekSerial;
+}
+
+double MediaClock::getLastUpdated() const {
+    return lastUpdated;
+}

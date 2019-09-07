@@ -7,11 +7,29 @@
 #include <SDL.h>
 #include <queue/FrameQueue.h>
 
+/// 一秒
+/// 1 second
+#define CURSOR_HIDE_DELAY                   (1000000*1.0F)
+
 class SDLVideoDevice : public VideoDevice {
 
     const char *const TAG = "VideoDevice";
 
 public:
+
+    /// 窗口无边框
+    int borderLess = 0; // borderLess window
+
+    int alwaysOntop = 0;
+
+    /// 光标是否隐藏
+    int cursorHidden = 0;
+
+    /// 光标最后显示时间
+    int64_t cursorLastShown = 0;
+
+    /// 是否全屏
+    int isFullScreen = 0;
 
     /// 设置窗口
     bool isDisplayWindow;
@@ -86,6 +104,9 @@ public:
     Uint32 getSDLFormat(TextureFormat format);
 
     void destroyVideoTexture();
+
+
+    void toggleFullScreen();
 };
 
 

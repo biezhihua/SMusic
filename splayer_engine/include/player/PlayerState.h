@@ -141,6 +141,8 @@ public:
     int mute;                       // 静音播放
     int frameDrop;                  // 舍帧操作
     int reorderVideoPts;            // 视频帧重排pts
+
+    int readPauseReturn;            // 暂停基于网络的流状态
 };
 
 
