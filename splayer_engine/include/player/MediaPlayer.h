@@ -10,6 +10,7 @@
 #include <sync/MediaSync.h>
 #include <convertor/AudioResampler.h>
 #include <common/Log.h>
+#include <message/MessageDevice.h>
 
 class MediaPlayer : public Runnable {
 
@@ -35,13 +36,16 @@ private:
     Condition condition;
 
     Thread *readThread;                     // 读数据包线程
+    Thread *msgThread;
 
     PlayerState *playerState;               // 播放器状态
 
     AudioDecoder *audioDecoder;             // 音频解码器
     VideoDecoder *videoDecoder;             // 视频解码器
 
-    bool quit;                             // state for reading packets thread exited if not
+    MessageDevice *msgDevice;               // 消息处理
+
+    bool quit;                              // state for reading packets thread exited if not
 
     // 解复用处理
     AVFormatContext *formatContext;         // 解码上下文
@@ -119,6 +123,8 @@ public:
     MediaSync *getMediaSync() const;
 
     void setVideoDevice(VideoDevice *videoDevice);
+
+    void setMessageDevice(MessageDevice *msgDevice);
 
 protected:
     void run() override;

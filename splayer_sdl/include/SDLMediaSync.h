@@ -3,6 +3,7 @@
 
 #include <sync/MediaSync.h>
 #include <SDL.h>
+#include <SDLVideoDevice.h>
 
 class SDLMediaSync : public MediaSync {
 

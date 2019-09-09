@@ -12,3 +12,6 @@ splayer_sdl
 splayer_engine
 splayer_sdl.cbp
 .idea/workspace.xml
+splayer_sdl/libsplayer_sdl.a
+splayer_sdl/splayer_engine/libsplayer_engine.a
+splayer_sdl/splayer_engine

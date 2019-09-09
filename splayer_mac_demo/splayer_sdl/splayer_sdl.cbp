@@ -141,9 +141,6 @@
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/player/MediaPlayer.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/player/MessageQueue.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/player/PlayerState.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>

@@ -1,7 +1,4 @@
-
 #include <SDLVideoDevice.h>
-
-#include "SDLVideoDevice.h"
 
 SDLVideoDevice::SDLVideoDevice() : VideoDevice() {
     create();

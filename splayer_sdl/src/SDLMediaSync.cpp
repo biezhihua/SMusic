@@ -1,5 +1,4 @@
-#include <SDLVideoDevice.h>
-#include "SDLMediaSync.h"
+#include <SDLMediaSync.h>
 
 void SDLMediaSync::run() {
     bool quit = false;
@@ -111,7 +110,7 @@ bool SDLMediaSync::isNotHaveWindow() const {
     return true;
 }
 
-void SDLMediaSync::doKeySystem(const SDL_Event &event)  {
+void SDLMediaSync::doKeySystem(const SDL_Event &event) {
     switch (event.key.keysym.sym) {
         case SDLK_f:
             if (videoDevice) {
@@ -122,8 +121,8 @@ void SDLMediaSync::doKeySystem(const SDL_Event &event)  {
             break;
         case SDLK_p:
         case SDLK_SPACE:
-            if (stream) {
-                stream->togglePause();
+            if (playerState) {
+                playerState->notifyMsg(Msg::MSG_REQUEST_PAUSE);
             }
             break;
         case SDLK_m:

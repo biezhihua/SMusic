@@ -6,6 +6,7 @@
 #include <common/Thread.h>
 #include <common/FFmpegUtils.h>
 #include <common/Log.h>
+#include <message/MessageQueue.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -19,7 +20,7 @@ extern "C" {
 #include <libavutil/avstring.h>
 };
 
-#include <player/MessageQueue.h>
+
 
 #define VIDEO_QUEUE_SIZE 3
 #define SAMPLE_QUEUE_SIZE 9
@@ -85,6 +86,14 @@ public:
     void setOption(int category, const char *type, const char *option);
 
     void setOptionLong(int category, const char *type, int64_t option);
+
+    int notifyMsg(int what);
+
+    int notifyMsg(int what, int arg1);
+
+    int notifyMsg(int what, int arg1, int arg2);
+
+    int removeMsg(int what);
 
 private:
     void init();

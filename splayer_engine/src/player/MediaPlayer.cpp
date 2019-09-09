@@ -1,4 +1,5 @@
-#include "player/MediaPlayer.h"
+
+#include <player/MediaPlayer.h>
 
 MediaPlayer::MediaPlayer() {
     avformat_network_init();
@@ -79,6 +80,10 @@ int MediaPlayer::prepareAsync() {
         return ERROR_PARAMS;
     }
     playerState->abortRequest = 0;
+    if (!msgThread) {
+        msgThread = new Thread(msgDevice);
+        msgThread->start();
+    }
     if (!readThread) {
         readThread = new Thread(this);
         readThread->start();
@@ -91,6 +96,7 @@ void MediaPlayer::start() {
     Mutex::Autolock lock(mutex);
     playerState->abortRequest = 0;
     playerState->pauseRequest = 0;
+    playerState->msgQueue->setAbortRequest(false);
     quit = false;
     condition.signal();
 }
@@ -112,6 +118,7 @@ void MediaPlayer::resume() {
 void MediaPlayer::stop() {
     ALOGD(TAG, __func__);
     mutex.lock();
+    playerState->msgQueue->setAbortRequest(true);
     playerState->abortRequest = 1;
     condition.signal();
     mutex.unlock();
@@ -960,7 +967,6 @@ void MediaPlayer::pcmQueueCallback(uint8_t *stream, int len) {
     }
     audioResampler->pcmQueueCallback(stream, len);
     if (playerState->msgQueue && playerState->syncType != AV_SYNC_VIDEO) {
-        playerState->msgQueue->notifyMsg(MSG_CURRENT_POSITON, getCurrentPosition(), playerState->videoDuration);
     }
 }
 
@@ -993,3 +999,11 @@ void MediaPlayer::togglePause() {
         mediaSync->togglePause();
     }
 }
+
+void MediaPlayer::setMessageDevice(MessageDevice *msgDevice) {
+    this->msgDevice = msgDevice;
+    if (msgDevice && playerState) {
+        msgDevice->setMsgQueue(playerState->msgQueue);
+    }
+}
+

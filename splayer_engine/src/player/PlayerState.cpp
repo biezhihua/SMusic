@@ -1,5 +1,4 @@
-
-#include "player/PlayerState.h"
+#include <player/PlayerState.h>
 
 PlayerState::PlayerState() {
     init();
@@ -9,7 +8,6 @@ PlayerState::PlayerState() {
 PlayerState::~PlayerState() {
     reset();
     if (msgQueue) {
-        msgQueue->release();
         delete msgQueue;
         msgQueue = nullptr;
     }
@@ -191,4 +189,33 @@ void PlayerState::parse_int(const char *type, int64_t option) {
     } else {
 //        ALOGE("unknown option - '%s'", type);
     }
+}
+
+
+int PlayerState::notifyMsg(int what) {
+    if (msgQueue) {
+        return msgQueue->notifyMsg(what);
+    }
+    return -1;
+}
+
+int PlayerState::notifyMsg(int what, int arg1) {
+    if (msgQueue) {
+        return msgQueue->notifyMsg(what, arg1);
+    }
+    return -1;
+}
+
+int PlayerState::notifyMsg(int what, int arg1, int arg2) {
+    if (msgQueue) {
+        return msgQueue->notifyMsg(what, arg1, arg2);
+    }
+    return -1;
+}
+
+int PlayerState::removeMsg(int what) {
+    if (msgQueue) {
+        return msgQueue->removeMsg(what);
+    }
+    return -1;
 }

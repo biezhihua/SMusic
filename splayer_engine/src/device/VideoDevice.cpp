@@ -15,7 +15,7 @@ void VideoDevice::terminate() {
 
 int VideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight, TextureFormat format, BlendMode blendMode,
                                int rotate) {
-
+    return 0;
 }
 
 int VideoDevice::onUpdateYUV(uint8_t *yData, int yPitch, uint8_t *uData, int uPitch,

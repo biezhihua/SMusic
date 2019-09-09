@@ -24,6 +24,7 @@ aux_source_directory(src/player player)
 aux_source_directory(src/queue queue)
 aux_source_directory(src/renderer renderer)
 aux_source_directory(src/sync sync)
+aux_source_directory(src/message message)
 
 add_library(${PROJECT_NAME}
         ${common}
@@ -34,6 +35,8 @@ add_library(${PROJECT_NAME}
         ${queue}
         ${renderer}
         ${sync}
+        ${message}
+        ${message}
         )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

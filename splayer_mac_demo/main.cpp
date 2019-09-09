@@ -1,6 +1,10 @@
 #include <SDLMediaPlayer.h>
 #include <SDLAudioDevice.h>
 #include <SDLVideoDevice.h>
+#include <message/MessageDevice.h>
+#include <SDLMediaSync.h>
+
+SDLMediaPlayer *mediaPlayer = nullptr;
 
 int main() {
     SDLMediaPlayer *mediaPlayer = SDLMediaPlayer::Builder{}
