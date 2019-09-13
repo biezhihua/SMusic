@@ -60,7 +60,7 @@ int Stream::readPackets() {
 
     AVPacket pkt1, *pkt = &pkt1;
 
-    bool isNoReadMoreLog;
+    bool isNoReadMoreLog = false;
 
     for (;;) {
 
@@ -129,6 +129,7 @@ int Stream::readPackets() {
             attachmentRequest = 0;
         }
 
+        // 队列满，等待消耗
         if (isNoReadMore()) {
             waitCondition.waitRelative(waitMutex, 10);
             if (!isNoReadMoreLog) {
@@ -137,7 +138,6 @@ int Stream::readPackets() {
             }
             continue;
         }
-
         isNoReadMoreLog = false;
 
         if (isRetryPlay()) {
