@@ -53,7 +53,7 @@ LOG_MUTEX->lock();\
 (void)printf("\033[0m"); \
 (void)printf(" "); \
 (void)printf("\x1B[32m"); \
-(void)printf("%-13s",TAG); \
+(void)printf("%-15s",TAG); \
 (void)printf("\033[0m: "); \
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
@@ -69,7 +69,7 @@ LOG_MUTEX->lock();\
 (void)printf("\033[0m"); \
 (void)printf(" "); \
 (void)printf("\x1B[30;1m"); \
-(void)printf("%-13s",TAG); \
+(void)printf("%-15s",TAG); \
 (void)printf("\033[0m: "); \
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
@@ -85,7 +85,7 @@ LOG_MUTEX->lock();\
 (void)printf("\033[0m"); \
 (void)printf(" "); \
 (void)printf("\x1B[31m"); \
-(void)printf("%-13s",TAG); \
+(void)printf("%-15s",TAG); \
 (void)printf("\033[0m: "); \
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
@@ -101,7 +101,7 @@ LOG_MUTEX->lock();\
 (void)printf("\033[0m"); \
 (void)printf(" "); \
 (void)printf("\x1B[33m"); \
-(void)printf("%-13s",TAG); \
+(void)printf("%-15s",TAG); \
 (void)printf("\033[0m: "); \
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \

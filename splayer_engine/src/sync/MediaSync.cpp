@@ -133,9 +133,9 @@ void MediaSync::run() {
 }
 
 void MediaSync::refreshVideo() {
-    ALOGD(TAG, "===== refreshVideo =====");
-    if (playerState == nullptr) {
-        ALOGD(TAG, "===== terminate =====");
+    // ALOGD(TAG, "===== refreshVideo =====");
+    if (playerState == nullptr || true) {
+        // ALOGD(TAG, "===== terminate =====");
         return;
     }
     ALOGD(TAG, "%s while remainingTime = %lf pauseRequest = %d forceRefresh = %d", __func__, remainingTime,

@@ -21,7 +21,6 @@ extern "C" {
 };
 
 
-
 #define VIDEO_QUEUE_SIZE 3
 #define SAMPLE_QUEUE_SIZE 9
 
@@ -123,6 +122,7 @@ public:
 
     int abortRequest;               // 退出标志
     int pauseRequest;               // 暂停标志
+    int lastPaused;                 // 上一次暂停状态
     SyncType syncType;              // 同步类型
     int64_t startTime;              // 播放起始位置
     int64_t duration;               // 播放时长
@@ -152,6 +152,8 @@ public:
     int reorderVideoPts;            // 视频帧重排pts
 
     int readPauseReturn;            // 暂停基于网络的流状态
+
+    const char *getSyncType() ;
 };
 
 

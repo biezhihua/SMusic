@@ -2,10 +2,10 @@
 #define SPLAYER_MAC_MACMEDIAPLAYER_H
 
 #include <player/MediaPlayer.h>
-#include <message/MessageDevice.h>
+#include <message/MessageCenter.h>
 #include <message/IMessageListener.h>
 
-class SDLMediaPlayer : public MediaPlayer, IMessageListener {
+class SDLMediaPlayer : public MediaPlayer {
 
     const char *const TAG = "SDLMediaPlayer";
 
@@ -13,10 +13,6 @@ public:
     class Builder;
 
     int eventLoop();
-
-private:
-    void onMessage(Msg *msg) override;
-
 };
 
 class SDLMediaPlayer::Builder {
@@ -26,7 +22,8 @@ private:
     MediaSync *mediaSync = nullptr;
     AudioDevice *audioDevice = nullptr;
     VideoDevice *videoDevice = nullptr;
-    MessageDevice *messageDevice = nullptr;
+    MessageCenter *messageCenter = nullptr;
+    IMessageListener *messageListener = nullptr;
 
 public:
 
@@ -50,8 +47,13 @@ public:
         return *this;
     }
 
-    Builder &withMessageDevice(MessageDevice *messageDevice) {
-        this->messageDevice = messageDevice;
+    Builder &withMessageCenter(MessageCenter *messageCenter) {
+        this->messageCenter = messageCenter;
+        return *this;
+    }
+
+    Builder &withMessageListener(IMessageListener *messageListener) {
+        this->messageListener = messageListener;
         return *this;
     }
 
@@ -61,11 +63,8 @@ public:
         mediaPlayer->setMediaSync(mediaSync);
         mediaPlayer->setAudioDevice(audioDevice);
         mediaPlayer->setVideoDevice(videoDevice);
-        if (messageDevice == nullptr) {
-            this->messageDevice = new MessageDevice();
-        }
-        mediaPlayer->setMessageDevice(messageDevice);
-        this->messageDevice->setMsgListener(mediaPlayer);
+        mediaPlayer->setMessageCenter(messageCenter);
+        mediaPlayer->setMessageListener(messageListener);
         return mediaPlayer;
     }
 };

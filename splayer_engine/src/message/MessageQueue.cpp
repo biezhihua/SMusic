@@ -10,8 +10,7 @@ MessageQueue::~MessageQueue() {
 }
 
 int MessageQueue::putMsg(Msg *msg) {
-    ALOGD(TAG, "%s abort = %d what = %s arg1 = %d arg2 = %d", __func__, abortRequest,
-          Msg::getMsgSimpleName(msg->what), msg->arg1, msg->arg2);
+    // ALOGD(TAG, "%s what = %d arg1 = %d arg2 = %d", __func__, msg->what, msg->arg1, msg->arg2);
     int ret;
     mutex.lock();
     ret = _putMsg(msg);
@@ -20,21 +19,12 @@ int MessageQueue::putMsg(Msg *msg) {
 }
 
 int MessageQueue::_putMsg(Msg *msg) {
-    if (abortRequest || !msg) {
-        return -1;
+    if (!msg) {
+        return ERROR_PARAMS;
     }
     queue->push_back(msg);
     condition.signal();
-    return 0;
-}
-
-int MessageQueue::setAbortRequest(bool abortRequest) {
-    ALOGD(TAG, "%s abortRequest=%d", __func__, abortRequest);
-    mutex.lock();
-    MessageQueue::abortRequest = abortRequest;
-    condition.signal();
-    mutex.unlock();
-    return 0;
+    return SUCCESS;
 }
 
 int MessageQueue::clearMsgQueue() {
@@ -50,17 +40,13 @@ int MessageQueue::clearMsgQueue() {
         }
     }
     mutex.unlock();
-    return 0;
+    return SUCCESS;
 }
 
 int MessageQueue::getMsg(Msg *msg, bool block) {
-    int ret;
+    int ret = SUCCESS;
     mutex.lock();
     while (true) {
-        if (abortRequest) {
-            ret = -1;
-            break;
-        }
         if (queue) {
             Msg *message = queue->front();
             if (message) {
@@ -98,25 +84,24 @@ int MessageQueue::removeMsg(int what) {
     queue->remove(message);
     delete message;
     mutex.unlock();
-    return 0;
+    return SUCCESS;
 }
 
 int MessageQueue::startMsgQueue() {
     ALOGD(TAG, __func__);
     mutex.lock();
-    abortRequest = false;
     auto *message = new Msg();
     message->what = Msg::MSG_FLUSH;
     _putMsg(message);
     mutex.unlock();
-    return 0;
+    return SUCCESS;
 }
 
 int MessageQueue::notifyMsg(int what) {
     auto *message = new Msg();
     message->what = what;
     putMsg(message);
-    return 0;
+    return SUCCESS;
 }
 
 int MessageQueue::notifyMsg(int what, int arg1) {
@@ -124,7 +109,7 @@ int MessageQueue::notifyMsg(int what, int arg1) {
     message->what = what;
     message->arg1 = arg1;
     putMsg(message);
-    return 0;
+    return SUCCESS;
 }
 
 int MessageQueue::notifyMsg(int what, int arg1, int arg2) {
@@ -133,9 +118,6 @@ int MessageQueue::notifyMsg(int what, int arg1, int arg2) {
     message->arg1 = arg1;
     message->arg2 = arg2;
     putMsg(message);
-    return 0;
+    return SUCCESS;
 }
 
-bool MessageQueue::isAbortRequest() const {
-    return abortRequest;
-}

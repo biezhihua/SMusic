@@ -138,6 +138,15 @@
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/device/VideoDevice.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/message/MessageCenter.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/message/MessageQueue.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/message/Msg.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/player/MediaPlayer.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
@@ -148,6 +157,9 @@
 			<Option target="splayer_engine"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/queue/PacketQueue.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/stream/Stream.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/sync/MediaClock.cpp">

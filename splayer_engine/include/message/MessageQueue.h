@@ -22,15 +22,11 @@ private:
 
     list<Msg *> *queue = nullptr;
 
-    bool abortRequest = false;
-
 private:
 
     int _putMsg(Msg *msg);
 
 public:
-
-    bool isAbortRequest() const;
 
     MessageQueue();
 
@@ -45,11 +41,6 @@ public:
      * get first message from queue, will block thread
      */
     int getMsg(Msg *msg, bool block);
-
-    /**
-     * abort message queue
-     */
-    int setAbortRequest(bool abortRequest);
 
     int removeMsg(int what);
 

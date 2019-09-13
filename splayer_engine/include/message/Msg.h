@@ -20,16 +20,16 @@ public:
     /// 默认
     static const int MSG_FLUSH = 0;
 
-    /// 出错回调
+    /// 出错
     static const int MSG_ERROR = 1;
 
-    /// 准备完成回调
+    /// 准备完成
     static const int MSG_PREPARED = 2;
 
     /// 已经开始
     static const int MSG_STARTED = 3;
 
-    /// 播放完成回调
+    /// 播放完成
     static const int MSG_COMPLETED = 4;
 
     /// 打开文件
@@ -83,6 +83,8 @@ public:
     /// 字幕
     static const int MSG_TIMED_TEXT = 21;
 
+    /// 播放自已创建
+    static const int MSG_CREATE = 22;
 
     /////////////////////////////////////////////
     /////////////////////////////////////////////
@@ -109,6 +111,26 @@ public:
 
     /// 当前时钟
     static const int MSG_CURRENT_POSITON = 30000;
+
+    /// 视频解码线程已启动
+    static const int MSG_VIDEO_DECODER_THREAD_STARTED = 30001;
+
+    /// 音频解码线程已启动
+    static const int MSG_AUDIO_DECODER_THREAD_STARTED = 30002;
+
+    /// 打开音视频设备失败
+    static const int MSG_NOT_OPEN_AUDIO_DEVICE = 30003;
+
+    /// 音频设备已启动
+    static const int MSG_AUDIO_DEVICE_STARTED = 30004;
+
+    /// 视频设备已启动
+    static const int MSG_VIDEO_DEVICE_STARTED = 30005;
+
+
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+    ///  错误消息范围 40000 ~ 49999
 
     static const char *getMsgSimpleName(int what);
 };

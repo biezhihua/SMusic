@@ -219,3 +219,10 @@ int PlayerState::removeMsg(int what) {
     }
     return -1;
 }
+
+const char* PlayerState::getSyncType()  {
+    if (syncType == AV_SYNC_AUDIO) {
+        return "AV_SYNC_AUDIO";
+    }
+    return "NONE";
+}

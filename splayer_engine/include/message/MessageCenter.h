@@ -5,29 +5,37 @@
 #include <message/IMessageListener.h>
 #include <message/MessageQueue.h>
 
-class MessageDevice : public Runnable {
+class MessageCenter : public Runnable {
 
-    const char *const TAG = "MessageDevice";
+    const char *const TAG = "MessageCenter";
 
-public:
+private:
+
+    Mutex mutex;
+    Condition condition;
+
+    /// 消息线程
+    Thread *msgThread = nullptr;
 
 protected:
 
-    MessageQueue *msgQueue;
+    MessageQueue *msgQueue = nullptr;
 
-    IMessageListener *msgListener;
+    IMessageListener *msgListener = nullptr;
 
 public:
 
-    MessageDevice();
+    MessageCenter();
 
-    ~MessageDevice() override;
+    ~MessageCenter() override;
 
     void run() override;
 
     void setMsgQueue(MessageQueue *msgQueue);
 
     void setMsgListener(IMessageListener *msgListener);
+
+    int start();
 };
 
 
