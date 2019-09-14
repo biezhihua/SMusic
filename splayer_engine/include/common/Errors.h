@@ -6,6 +6,7 @@
 
 #define  SUCCESS                            1
 #define  ERROR                              -1
+
 #define  ERROR_PARAMS                       -2
 #define  ERROR_NOT_MEMORY                   -3
 #define  ERROR_NOT_OPEN_INPUT               -4
@@ -22,5 +23,7 @@
 #define  ERROR_CREATE_VIDEO_DECODER         -15
 #define  ERROR_CREATE_AUDIO_DECODER         -16
 #define  ERROR_ABORT_REQUEST                -17
+#define  ERROR_FRAME_QUEUE_NOT_WRITABLE     -19
+
 
 #endif //ERRORS_H

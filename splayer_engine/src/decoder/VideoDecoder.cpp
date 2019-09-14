@@ -4,7 +4,7 @@ VideoDecoder::VideoDecoder(AVFormatContext *pFormatCtx, AVCodecContext *avctx, A
                            PlayerState *playerState, AVPacket *flushPacket, Condition *readWaitCond)
         : MediaDecoder(avctx, stream, streamIndex, playerState, flushPacket, readWaitCond) {
     formatContext = pFormatCtx;
-    frameQueue = new FrameQueue(VIDEO_QUEUE_SIZE, 1);
+    frameQueue = new FrameQueue(VIDEO_QUEUE_SIZE, 1, packetQueue);
     quit = true;
     decodeThread = nullptr;
     masterClock = nullptr;
@@ -88,7 +88,6 @@ FrameQueue *VideoDecoder::getFrameQueue() {
     Mutex::Autolock lock(mutex);
     return frameQueue;
 }
-
 
 
 AVFormatContext *VideoDecoder::getFormatContext() {
@@ -244,6 +243,12 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
                             // only AVPacket.dts values without pts values.
                             frame->pts = frame->pkt_dts;
                         }
+                    } else {
+                        ALOGD(TAG, "%s receive frame error = %d", __func__, ret);
+                        if (ret == AVERROR(EAGAIN)) {
+                            ALOGD(TAG, "%s output is not available in this state - user must try to send new input",
+                                  __func__);
+                        }
                     }
                 }
 
@@ -302,7 +307,7 @@ int VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int6
     Frame *frame;
 
     if (!(frame = frameQueue->peekWritable())) {
-        return -1;
+        return ERROR_FRAME_QUEUE_NOT_WRITABLE;
     }
 
     frame->sar = srcFrame->sample_aspect_ratio;
@@ -320,6 +325,8 @@ int VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int6
     av_frame_move_ref(frame->frame, srcFrame);
 
     frameQueue->pushFrame();
-    return 0;
+
+
+    return SUCCESS;
 }
 

@@ -49,12 +49,6 @@ private:
     /// 文件总时长
     int64_t duration;
 
-    /// 数据包读到结尾标志
-    int eof;
-
-    /// 视频封面数据包请求
-    int attachmentRequest;
-
     /// state for reading packets thread exited if not
     bool quit;
 
@@ -63,10 +57,6 @@ private:
     Mutex waitMutex;
 
     Condition waitCondition;
-
-    Mutex mutex;
-
-    Condition condition;
 
 public:
 
@@ -80,8 +70,6 @@ public:
 
     int stop();
 
-    void setAttachmentRequest(int attachmentRequest);
-
     void setAudioDecoder(AudioDecoder *audioDecoder);
 
     void setVideoDecoder(VideoDecoder *videoDecoder);
@@ -94,17 +82,11 @@ public:
 
     AVPacket *getFlushPacket();
 
-    void setFormatContext(AVFormatContext *formatContext);
-
     void setStreamListener(IStreamListener *streamListener);
-
-    void setEof(int eof);
 
 private:
 
     int readPackets();
-
-    bool isNoReadMore() const;
 
     bool isRetryPlay() const;
 

@@ -3,6 +3,8 @@
 
 #include <common/Mutex.h>
 #include <common/Condition.h>
+#include <common/Log.h>
+#include <queue/PacketQueue.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -41,9 +43,14 @@ typedef struct Frame {
 /// 解码后的帧队列
 /// https://www.jianshu.com/p/6014de9c47ea
 class FrameQueue {
+    const char *const TAG = "FrameQueue";
+
+private:
+    bool _condWriteableWait = false;
+    bool _condReadableWait = false;
 
 public:
-    FrameQueue(int max_size, int keep_last);
+    FrameQueue(int max_size, int keep_last, PacketQueue *packetQueue);
 
     virtual ~FrameQueue();
 
@@ -58,6 +65,8 @@ public:
     Frame *currentFrame();
 
     Frame *peekWritable();
+
+    Frame *peekReadable();
 
     void pushFrame();
 
@@ -102,6 +111,9 @@ private:
 
     /// 表示当前是否有帧在显示
     int readIndexShown;
+
+    /// 指向各自数据包(ES包)的队列
+    PacketQueue *packetQueue;
 };
 
 

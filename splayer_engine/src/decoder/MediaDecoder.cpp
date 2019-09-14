@@ -95,8 +95,7 @@ int MediaDecoder::getMemorySize() {
 
 int MediaDecoder::hasEnoughPackets() {
     Mutex::Autolock lock(mutex);
-    return streamIndex < 0 || (packetQueue == nullptr) ||
-           (packetQueue->isAbort() != 0) ||
+    return streamIndex < 0 || (packetQueue == nullptr) || packetQueue->isAbort() ||
            (stream->disposition & AV_DISPOSITION_ATTACHED_PIC) ||
            ((packetQueue->getPacketSize() > MIN_FRAMES) &&
             (!packetQueue->getDuration() || av_q2d(stream->time_base) * packetQueue->getDuration() > 1.0));

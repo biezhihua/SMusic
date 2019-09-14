@@ -1,6 +1,7 @@
-#include "queue/FrameQueue.h"
+#include <queue/FrameQueue.h>
 
-FrameQueue::FrameQueue(int max_size, int keep_last) {
+FrameQueue::FrameQueue(int max_size, int keep_last, PacketQueue *packetQueue) {
+    this->packetQueue = packetQueue;
     memset(queue, 0, sizeof(Frame) * FRAME_QUEUE_SIZE);
     maxSize = FFMIN(max_size, FRAME_QUEUE_SIZE);
     keepLast = (keep_last != 0);
@@ -51,8 +52,13 @@ Frame *FrameQueue::currentFrame() {
 Frame *FrameQueue::peekWritable() {
     mutex.lock();
     while (size >= maxSize && !abortRequest) {
+        if (!_condWriteableWait) {
+            _condWriteableWait = true;
+            ALOGD(TAG, "%s size = %d maxSize = %d do waiting", __func__, size, maxSize);
+        }
         condition.wait(mutex);
     }
+    _condWriteableWait = false;
     mutex.unlock();
 
     if (abortRequest) {
@@ -104,4 +110,27 @@ void FrameQueue::unrefFrame(Frame *vp) {
 
 int FrameQueue::getShowIndex() const {
     return readIndexShown;
+}
+
+Frame *FrameQueue::peekReadable() {
+    // wait until we have a readable a new frame
+    mutex.lock();
+    while ((size - readIndexShown) <= 0 && !packetQueue->isAbort()) {
+        if (!_condReadableWait) {
+            _condReadableWait = true;
+            ALOGW(TAG, "%s size = %d maxSize = %d do waiting", __func__, size, maxSize);
+        }
+        condition.wait(mutex);
+    }
+    _condReadableWait = false;
+    mutex.unlock();
+
+    // abort
+    if (packetQueue->isAbort()) {
+        return nullptr;
+    }
+
+    // 获取queue中一块Frame大小的可写内存
+    // 这方法和frameQueuePeek的作用一样， 都是获取待显示的第一帧
+    return &queue[(readIndex + readIndexShown) % maxSize];
 }

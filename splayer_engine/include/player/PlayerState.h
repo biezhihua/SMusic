@@ -153,6 +153,10 @@ public:
 
     int readPauseReturn;            // 暂停基于网络的流状态
 
+    int eof;                        // 数据包读到结尾标志
+
+    int attachmentRequest;          // 视频封面数据包请求
+
     const char *getSyncType() ;
 };
 

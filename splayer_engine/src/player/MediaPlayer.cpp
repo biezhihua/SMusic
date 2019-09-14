@@ -462,7 +462,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
         return ERROR_CODEC_OPTIONS;
     }
 
-    mediaStream->setEof(0);
+    playerState->eof = 0;
 
     // 根据解码器类型创建解码器
     formatContext->streams[streamIndex]->discard = AVDISCARD_DEFAULT;
@@ -482,7 +482,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
                                         playerState, mediaStream->getFlushPacket(),
                                         mediaStream->getWaitCondition());
         mediaStream->setVideoDecoder(videoDecoder);
-        mediaStream->setAttachmentRequest(1);
+        playerState->attachmentRequest = 1;
     }
 
     return SUCCESS;

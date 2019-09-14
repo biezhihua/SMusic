@@ -46,14 +46,15 @@ void Stream::run() {
         }
         notifyMsg(Msg::MSG_PREPARED);
         ALOGD(TAG, "%s start prepare read packets", __func__);
-        readPackets();
+        if (readPackets() < 0) {
+            ALOGD(TAG, "%s read packets exit", __func__);
+        }
     } else {
         ALOGE(TAG, "%s media player is null", __func__);
     }
 }
 
 int Stream::readPackets() {
-    ALOGD(TAG, __func__);
 
     // 读数据包流程
     int ret = 0;
@@ -67,7 +68,7 @@ int Stream::readPackets() {
         // 退出播放器
         if (playerState->abortRequest) {
             ALOGD(TAG, "%s exit read packet", __func__);
-            break;
+            return ERROR_ABORT_REQUEST;
         }
 
         // 是否暂停
@@ -109,14 +110,13 @@ int Stream::readPackets() {
                     mediaSync->updateExternalClock(seek_target / (double) AV_TIME_BASE, 0);
                 }
             }
-            attachmentRequest = 1;
+            playerState->attachmentRequest = 1;
             playerState->seekRequest = 0;
-            condition.signal();
-            eof = 0;
+            playerState->eof = 0;
         }
 
         // 取得封面数据包
-        if (attachmentRequest) {
+        if (playerState->attachmentRequest) {
             // https://segmentfault.com/a/1190000018373504?utm_source=tag-newest
             // 它和mp3文件有关，是一个流的标志
             if (videoDecoder && (videoDecoder->getStream()->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
@@ -126,27 +126,48 @@ int Stream::readPackets() {
                 }
                 videoDecoder->pushPacket(&copy);
             }
-            attachmentRequest = 0;
+            playerState->attachmentRequest = 0;
         }
 
         // 队列满，等待消耗
-        if (isNoReadMore()) {
+        bool isNoInfiniteBuffer = playerState->infiniteBuffer < 1;
+        bool isNoEnoughMemory = (audioDecoder ? audioDecoder->getMemorySize() : 0) +
+                                (videoDecoder ? videoDecoder->getMemorySize() : 0) > MAX_QUEUE_SIZE;
+        bool isAudioEnoughPackets = !audioDecoder || audioDecoder->hasEnoughPackets();
+        bool isVideoEnoughPackets = !videoDecoder || videoDecoder->hasEnoughPackets();
+        bool isNotReadMore = isNoInfiniteBuffer && (isNoEnoughMemory || (isAudioEnoughPackets && isVideoEnoughPackets));
+        if (isNotReadMore) {
+            waitMutex.lock();
             waitCondition.waitRelative(waitMutex, 10);
+            waitMutex.unlock();
             if (!isNoReadMoreLog) {
                 isNoReadMoreLog = true;
                 ALOGD(TAG, "%s not need read more, wait 10", __func__);
+//                ALOGD(TAG, "%s "
+//                           "isNoInfiniteBuffer = %d "
+//                           "isNoEnoughMemory = %d "
+//                           "isAudioEnoughPackets = %d "
+//                           "isVideoEnoughPackets = %d "
+//                           "videoPacketSize = %d", __func__,
+//                      isNoInfiniteBuffer,
+//                      isNoEnoughMemory,
+//                      isAudioEnoughPackets,
+//                      isVideoEnoughPackets, videoDecoder->getPacketSize());
+
             }
             continue;
         }
-        isNoReadMoreLog = false;
+        if (isNoReadMoreLog) {
+            isNoReadMoreLog = false;
+        }
 
         if (isRetryPlay()) {
+            // TODO
             if (playerState->loop) {
 //                seekTo(playerState->startTime != AV_NOPTS_VALUE ? playerState->startTime : 0);
             } else if (playerState->autoExit) {
-                ret = ERROR_EOF;
                 ALOGD(TAG, "%s exit eof", __func__);
-                break;
+                return ERROR_EOF;
             }
         }
 
@@ -155,25 +176,26 @@ int Stream::readPackets() {
 
         if (ret < 0) {
             // 如果没能读出裸数据包，判断是否是结尾
-            if ((ret == AVERROR_EOF || avio_feof(formatContext->pb)) && !eof) {
+            if ((ret == AVERROR_EOF || avio_feof(formatContext->pb)) && !playerState->eof) {
                 if (videoDecoder) {
                     videoDecoder->pushNullPacket();
                 }
                 if (audioDecoder) {
                     audioDecoder->pushNullPacket();
                 }
-                eof = 1;
+                playerState->eof = 1;
             }
             // 读取出错，则直接退出
             if (formatContext->pb && formatContext->pb->error) {
                 ALOGE(TAG, "%s I/O context error ", __func__);
-                ret = ERROR_IO;
-                break;
+                return ERROR_IO;
             }
+            waitMutex.lock();
             waitCondition.waitRelative(waitMutex, 10);
+            waitMutex.unlock();
             continue;
         } else {
-            eof = 0;
+            playerState->eof = 0;
         }
 
         if (audioDecoder &&
@@ -187,30 +209,16 @@ int Stream::readPackets() {
         } else {
             av_packet_unref(pkt);
         }
-    } // end for
-
-//    if (audioDecoder) {
-//        audioDecoder->stop();
-//    }
-//    if (videoDecoder) {
-//        videoDecoder->stop();
-//    }
-//    if (audioDevice) {
-//        audioDevice->stop();
-//    }
-//    if (mediaSync) {
-//        mediaSync->stop();
-//    }
-//    quit = true;
-    condition.signal();
+    }
     return ret;
 }
 
 static int avFormatInterruptCb(void *ctx) {
-    PlayerState *playerState = (PlayerState *) ctx;
+    auto *playerState = (PlayerState *) ctx;
     if (playerState->abortRequest) {
         return AVERROR_EOF;
     }
+    // not modify
     return 0;
 }
 
@@ -227,7 +235,7 @@ int Stream::openStream() {
 
     // 创建解复用上下文
     formatContext = avformat_alloc_context();
-    if (!formatContext) {
+    if (formatContext == nullptr) {
         ALOGE(TAG, "%s avformat could not allocate context", __func__);
         closeStream();
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_MEMORY);
@@ -436,20 +444,6 @@ bool Stream::isRetryPlay() const {
     return isNoPaused && isNoUseAudioFrame && isNoUseVideoFrame;
 }
 
-bool Stream::isNoReadMore() const {
-    bool isNoInfiniteBuffer = playerState->infiniteBuffer < 1;
-    bool isNoEnoughMemory =
-            (audioDecoder ? audioDecoder->getMemorySize() : 0) + (videoDecoder ? videoDecoder->getMemorySize() : 0) >
-            MAX_QUEUE_SIZE;
-    bool isAudioEnoughPackets = !audioDecoder || audioDecoder->hasEnoughPackets();
-    bool isVideoEnoughPackets = !videoDecoder || videoDecoder->hasEnoughPackets();
-    return isNoInfiniteBuffer && (isNoEnoughMemory || (isAudioEnoughPackets && isVideoEnoughPackets));
-}
-
-void Stream::setAttachmentRequest(int attachmentRequest) {
-    Stream::attachmentRequest = attachmentRequest;
-}
-
 void Stream::setAudioDecoder(AudioDecoder *audioDecoder) {
     Stream::audioDecoder = audioDecoder;
 }
@@ -474,9 +468,6 @@ AVPacket *Stream::getFlushPacket() {
     return &flushPacket;
 }
 
-void Stream::setFormatContext(AVFormatContext *formatContext) {
-    Stream::formatContext = formatContext;
-}
 
 int Stream::notifyMsg(int what) {
     if (playerState) {
@@ -503,13 +494,9 @@ int Stream::notifyMsg(int what, int arg1, int arg2) {
 }
 
 void Stream::closeStream() {
-
+    ALOGD(TAG, __func__);
 }
 
 void Stream::setStreamListener(IStreamListener *streamListener) {
     Stream::streamListener = streamListener;
-}
-
-void Stream::setEof(int eof) {
-    Stream::eof = eof;
 }
