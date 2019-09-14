@@ -143,17 +143,6 @@ int Stream::readPackets() {
             if (!isNoReadMoreLog) {
                 isNoReadMoreLog = true;
                 ALOGD(TAG, "%s not need read more, wait 10", __func__);
-//                ALOGD(TAG, "%s "
-//                           "isNoInfiniteBuffer = %d "
-//                           "isNoEnoughMemory = %d "
-//                           "isAudioEnoughPackets = %d "
-//                           "isVideoEnoughPackets = %d "
-//                           "videoPacketSize = %d", __func__,
-//                      isNoInfiniteBuffer,
-//                      isNoEnoughMemory,
-//                      isAudioEnoughPackets,
-//                      isVideoEnoughPackets, videoDecoder->getPacketSize());
-
             }
             continue;
         }

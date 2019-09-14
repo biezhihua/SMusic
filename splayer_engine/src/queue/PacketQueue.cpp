@@ -1,8 +1,4 @@
-
 #include <queue/PacketQueue.h>
-
-#include "queue/PacketQueue.h"
-
 
 PacketQueue::PacketQueue(AVPacket *flushPacket) {
     this->flushPacket = flushPacket;
@@ -29,12 +25,12 @@ int PacketQueue::put(AVPacket *pkt) {
     PacketData *packetData;
 
     if (abortRequest) {
-        return -1;
+        return ERROR_ABORT_REQUEST;
     }
 
     packetData = (PacketData *) av_malloc(sizeof(PacketData));
     if (!packetData) {
-        return -1;
+        return ERROR_NOT_MEMORY;
     }
     packetData->pkt = *pkt;
     packetData->next = nullptr;
@@ -145,7 +141,7 @@ int PacketQueue::getPacket(AVPacket *pkt, int block) {
     mutex.lock();
     for (;;) {
         if (abortRequest) {
-            ret = -1;
+            ret = ERROR_ABORT_REQUEST;
             break;
         }
 
@@ -161,10 +157,10 @@ int PacketQueue::getPacket(AVPacket *pkt, int block) {
             *pkt = pkt1->pkt;
             firstSekSerial = pkt1->serial;
             av_free(pkt1);
-            ret = 1;
+            ret = SUCCESS;
             break;
         } else if (!block) {
-            ret = 0;
+            ret = SUCCESS;
             break;
         } else {
             condition.wait(mutex);

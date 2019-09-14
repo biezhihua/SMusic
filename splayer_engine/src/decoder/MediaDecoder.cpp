@@ -67,10 +67,9 @@ void MediaDecoder::flush() {
 
 int MediaDecoder::pushPacket(AVPacket *pkt) {
     if (packetQueue) {
-        int ret = packetQueue->pushPacket(pkt);
-        return ret;
+        return packetQueue->pushPacket(pkt);
     }
-    return SUCCESS;
+    return ERROR;
 }
 
 int MediaDecoder::getPacketSize() {
