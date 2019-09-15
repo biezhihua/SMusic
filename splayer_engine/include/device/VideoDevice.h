@@ -11,8 +11,6 @@ class VideoDevice {
 
 protected:
 
-    AVFormatContext *formatContext;
-
     PlayerState *playerState;
 
 public:
@@ -20,7 +18,9 @@ public:
 
     virtual ~VideoDevice();
 
-    virtual void terminate();
+    virtual int create();
+
+    virtual int destroy();
 
     // 初始化视频纹理
     virtual int onInitTexture(int initTexture,
@@ -45,8 +45,6 @@ public:
 
     // 获取混合模式
     virtual BlendMode getBlendMode(TextureFormat format);
-
-    void setFormatContext(AVFormatContext *formatContext);
 
     void setPlayerState(PlayerState *playerState);
 

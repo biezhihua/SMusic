@@ -6,25 +6,55 @@ MediaPlayer::~MediaPlayer() = default;
 
 int MediaPlayer::create() {
     ALOGD(TAG, __func__);
-    Mutex::Autolock lock(mutex);
     // INIT_STATE || DESTROY_STATE
-    playerState = new PlayerState();
-    playerState->msgQueue->startMsgQueue();
-    if (messageCenter) {
-        messageCenter->setMsgQueue(playerState->msgQueue);
+
+
+    // Message
+    if (!messageCenter) {
+        messageCenter = new MessageCenter();
+        if (!messageCenter) {
+            return ERROR_NOT_MEMORY;
+        }
     }
+    messageCenter->startMsgQueue();
+    messageCenter->setMsgListener(messageListener);
+
+    // Player State
+    playerState = new PlayerState();
+    if (!playerState) {
+        return ERROR_NOT_MEMORY;
+    }
+    playerState->setMsgQueue(messageCenter->getMsgQueue());
+
+    // Media Stream
     mediaStream = new Stream(this, playerState);
+    if (!mediaStream) {
+        return ERROR_NOT_MEMORY;
+    }
     if (mediaStream) {
         mediaStream->setStreamListener(this);
         mediaStream->setMediaSync(mediaSync);
     }
+
+    // Media Sync
+    mediaSync->setPlayerState(playerState);
+
+    // Video Device
+    if (videoDevice) {
+        videoDevice->setPlayerState(playerState);
+        if (videoDevice->create()) {
+            mediaSync->setVideoDevice(videoDevice);
+        } else {
+            ALOGE(TAG, "%s video device create failure", __func__);
+        }
+    }
+
     notifyMsg(Msg::MSG_CREATE);
     return SUCCESS;
 }
 
 int MediaPlayer::start() {
     ALOGD(TAG, __func__);
-    Mutex::Autolock lock(mutex);
     // CREATE_STATE || STOP_STATE
     if (checkParams() < 0) {
         notifyMsg(Msg::MSG_ERROR, ERROR_PARAMS);
@@ -43,7 +73,7 @@ void MediaPlayer::pause() {
     condition.signal();
 }
 
-void MediaPlayer::resume() {
+void MediaPlayer::play() {
     ALOGD(TAG, __func__);
     Mutex::Autolock lock(mutex);
     togglePause();
@@ -287,7 +317,7 @@ void MediaPlayer::pcmQueueCallback(uint8_t *stream, int len) {
 
 void MediaPlayer::setMessageListener(IMessageListener *messageListener) {
     if (messageListener) {
-        this->messageCenter->setMsgListener(messageListener);
+        this->messageListener = messageListener;
     } else {
         ALOGE(TAG, "%s message listener is null", __func__);
     }
@@ -304,7 +334,6 @@ void MediaPlayer::setAudioDevice(AudioDevice *audioDevice) {
 void MediaPlayer::setMediaSync(MediaSync *mediaSync) {
     this->mediaSync = mediaSync;
     if (this->mediaSync) {
-        this->mediaSync->setPlayerState(playerState);
     } else {
         ALOGE(TAG, "%s media sync is null", __func__);
     }
@@ -330,15 +359,7 @@ void MediaPlayer::togglePause() {
 }
 
 void MediaPlayer::setMessageCenter(MessageCenter *msgCenter) {
-    ALOGD(TAG, "%s msgCenter = %p", __func__, msgCenter);
-    if (msgCenter == nullptr) {
-        messageCenter = new MessageCenter();
-    } else {
-        messageCenter = msgCenter;
-    }
-    if (messageCenter) {
-        messageCenter->start();
-    }
+    messageCenter = msgCenter;
 }
 
 int MediaPlayer::openDecoder(int streamIndex) {

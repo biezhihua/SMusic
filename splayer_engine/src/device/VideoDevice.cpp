@@ -1,3 +1,6 @@
+
+#include <device/VideoDevice.h>
+
 #include "device/VideoDevice.h"
 
 VideoDevice::VideoDevice() {
@@ -5,10 +8,6 @@ VideoDevice::VideoDevice() {
 }
 
 VideoDevice::~VideoDevice() {
-
-}
-
-void VideoDevice::terminate() {
 
 }
 
@@ -88,10 +87,14 @@ void VideoDevice::onRequestRenderStart(Frame *frame) {
 
 }
 
-void VideoDevice::setFormatContext(AVFormatContext *formatContext) {
-    this->formatContext = formatContext;
-}
-
 void VideoDevice::setPlayerState(PlayerState *playerState) {
     this->playerState = playerState;
+}
+
+int VideoDevice::create() {
+    return 0;
+}
+
+int VideoDevice::destroy() {
+    return 0;
 }

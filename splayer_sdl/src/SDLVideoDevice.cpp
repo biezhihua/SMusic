@@ -1,11 +1,9 @@
 #include <SDLVideoDevice.h>
 
 SDLVideoDevice::SDLVideoDevice() : VideoDevice() {
-    create();
 }
 
 SDLVideoDevice::~SDLVideoDevice() {
-    destroy();
 }
 
 int SDLVideoDevice::create() {
@@ -24,7 +22,7 @@ int SDLVideoDevice::create() {
 
     windowFlags |= SDL_WINDOW_RESIZABLE;
 
-    window = SDL_CreateWindow("测试", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+    window = SDL_CreateWindow("SPlayer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                               surfaceWidth, surfaceHeight,
                               windowFlags);
 
@@ -33,7 +31,7 @@ int SDLVideoDevice::create() {
     if (window == nullptr) {
         ALOGE(TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
         destroy();
-        return -1;
+        return ERROR_NOT_MEMORY;
     }
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (renderer == nullptr) {
@@ -44,7 +42,7 @@ int SDLVideoDevice::create() {
     if (renderer == nullptr) {
         ALOGE(TAG, "%s create renderer fail: %s", __func__, SDL_GetError());
         destroy();
-        return -1;
+        return ERROR_NOT_MEMORY;
     }
 
     if (!SDL_GetRendererInfo(renderer, &rendererInfo)) {
@@ -54,9 +52,9 @@ int SDLVideoDevice::create() {
     if (!window || !renderer || !rendererInfo.num_texture_formats) {
         ALOGD(TAG, "%s failed to create window or renderer: %s", __func__, SDL_GetError());
         destroy();
-        return -1;
+        return ERROR_NOT_MEMORY;
     }
-    return 0;
+    return SUCCESS;
 }
 
 int SDLVideoDevice::destroy() {
@@ -82,12 +80,7 @@ int SDLVideoDevice::destroy() {
     }
     SDL_Quit();
     rendererInfo = {nullptr};
-    return 0;
-}
-
-void SDLVideoDevice::terminate() {
-    VideoDevice::terminate();
-    destroy();
+    return SUCCESS;
 }
 
 int
@@ -316,6 +309,8 @@ void SDLVideoDevice::setSurfaceSize(Frame *frame) {
     calculateDisplayRect(&rect, 0, 0, maxWidth, maxHeight, width, height, rational);
     surfaceWidth = rect.w;
     surfaceHeight = rect.h;
+
+    ALOGD(TAG, "%s surfaceWidth = %d surfaceHeight = %d", __func__, surfaceWidth, surfaceHeight);
 }
 
 Uint32 SDLVideoDevice::getSDLFormat(TextureFormat format) {

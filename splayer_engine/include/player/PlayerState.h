@@ -158,6 +158,8 @@ public:
     int attachmentRequest;          // 视频封面数据包请求
 
     const char *getSyncType() ;
+
+    void setMsgQueue(MessageQueue *msgQueue);
 };
 
 

@@ -32,7 +32,7 @@ public:
     int isFullScreen = 0;
 
     /// 设置窗口
-    bool isDisplayWindow;
+    bool isDisplayWindow = false;
 
     /// 默认宽度
     int defaultWidth = 640;
@@ -60,16 +60,16 @@ public:
     SDL_Texture *subtitleTexture;
     SDL_Texture *visTexture;
 
-private:
-    int create();
-
-    int destroy();
 
 public:
 
     SDLVideoDevice();
 
     ~SDLVideoDevice() override;
+
+    int create() override;
+
+    int destroy() override;
 
     int onInitTexture(int initTexture, int width, int height, TextureFormat format, BlendMode blendMode,
                       int rotate) override;
@@ -79,8 +79,6 @@ public:
     int onUpdateARGB(uint8_t *rgba, int pitch) override;
 
     void onRequestRenderStart(Frame *frame) override;
-
-    void terminate() override;
 
     int onRequestRenderEnd(Frame *frame, bool flip) override;
 

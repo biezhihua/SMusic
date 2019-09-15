@@ -17,7 +17,7 @@ public:
                 if (mediaPlayer->isPlaying()) {
                     mediaPlayer->pause();
                 } else {
-                    mediaPlayer->resume();
+                    mediaPlayer->play();
                 }
             } else {
                 ALOGE(TAG, "%s media player is null", __func__);

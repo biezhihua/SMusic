@@ -1,7 +1,4 @@
-
 #include <sync/MediaSync.h>
-
-#include "sync/MediaSync.h"
 
 MediaSync::MediaSync() {
     audioDecoder = nullptr;
@@ -50,6 +47,7 @@ void MediaSync::reset() {
 }
 
 void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
+    ALOGD(TAG, "%s videoDecoder = %p audioDecoder = %p", __func__, videoDecoder, audioDecoder);
     mutex.lock();
     this->videoDecoder = videoDecoder;
     this->audioDecoder = audioDecoder;
@@ -133,17 +131,24 @@ void MediaSync::run() {
 }
 
 void MediaSync::refreshVideo() {
-    // ALOGD(TAG, "===== refreshVideo =====");
-    if (playerState == nullptr || true) {
-        // ALOGD(TAG, "===== terminate =====");
-        return;
-    }
-    ALOGD(TAG, "%s while remainingTime = %lf pauseRequest = %d forceRefresh = %d", __func__, remainingTime,
-          playerState->pauseRequest, forceRefresh);
     if (remainingTime > 0.0) {
         av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
     }
+
     remainingTime = REFRESH_RATE;
+
+    if (playerState == nullptr || videoDecoder == nullptr || audioDecoder == nullptr) {
+        return;
+    }
+
+    ALOGD(TAG, "===== refreshVideo =====");
+    ALOGD(TAG, "%s while "
+               "remainingTime = %lf "
+               "pauseRequest = %d "
+               "forceRefresh = %d", __func__,
+          remainingTime,
+          playerState->pauseRequest, forceRefresh);
+
     if (!playerState->pauseRequest || forceRefresh) {
         refreshVideo(&remainingTime);
     }
@@ -180,7 +185,7 @@ void MediaSync::refreshVideo(double *remaining_time) {
             // 当前帧
             nextFrame = frameQueue->nextFrame();
 
-            ALOGD(TAG, "nextFrame seekSerial = %d packetQueue lastSeekSerial = %d ", nextFrame->seekSerial,
+            ALOGD(TAG, "nextFrame.seekSerial = %d packetQueue.lastSeekSerial = %d ", nextFrame->seekSerial,
                   packetQueue->getLastSeekSerial());
 
             // 如果不是相同序列，丢掉seek之前的帧
@@ -260,7 +265,7 @@ void MediaSync::refreshVideo(double *remaining_time) {
             forceRefresh = 1;
 
         } else {
-            ALOGD(TAG, "nothing to do, no picture to display in the queue");
+            ALOGW(TAG, "nothing to do, no picture to display in the queue");
         }
 
         break;
@@ -344,9 +349,8 @@ double MediaSync::calculateDuration(Frame *current, Frame *next) {
 
 void MediaSync::renderVideo() {
 
-    mutex.lock();
-    if (!videoDecoder || !videoDevice) {
-        mutex.unlock();
+    if (videoDecoder == nullptr || videoDevice == nullptr) {
+        ALOGE(TAG, "%s videoDecoder is null or videoDevice is null", __func__);
         return;
     }
 
@@ -439,7 +443,6 @@ void MediaSync::renderVideo() {
     }
     // 请求渲染视频
     videoDevice->onRequestRenderEnd(currentFrame, currentFrame->frame->linesize[0] < 0);
-    mutex.unlock();
 }
 
 void MediaSync::setPlayerState(PlayerState *playerState) {

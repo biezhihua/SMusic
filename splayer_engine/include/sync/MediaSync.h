@@ -73,31 +73,52 @@ protected:
     void refreshVideo();
 
 protected:
-    PlayerState *playerState;               // 播放器状态
-    bool abortRequest;                      // 停止
+
+    /// 播放器状态
+    PlayerState *playerState = nullptr;
+
+    /// 停止
+    bool abortRequest;
+
     bool quit;
 
-    MediaClock *audioClock;                 // 音频时钟
-    MediaClock *videoClock;                 // 视频时钟
-    MediaClock *externalClock;              // 外部时钟
+    /// 音频时钟
+    MediaClock *audioClock = nullptr;
 
-    VideoDecoder *videoDecoder;             // 视频解码器
-    AudioDecoder *audioDecoder;             // 视频解码器
+    /// 视频时钟
+    MediaClock *videoClock = nullptr;
+
+    /// 外部时钟
+    MediaClock *externalClock = nullptr;
+
+    /// 视频解码器
+    VideoDecoder *videoDecoder = nullptr;
+
+    /// 视频解码器
+    AudioDecoder *audioDecoder = nullptr;
 
     Mutex mutex;
+
     Condition condition;
 
-    int forceRefresh;                       // 强制刷新标志
-    double maxFrameDuration;                // 最大帧延时
-    double frameTimer;                      // 视频时钟
+    /// 强制刷新标志
+    int forceRefresh;
 
-    VideoDevice *videoDevice;               // 视频输出设备
+    /// 最大帧延时
+    double maxFrameDuration;
 
-    AVFrame *frameARGB;
-    uint8_t *buffer;
-    SwsContext *swsContext;
+    /// 视频时钟
+    double frameTimer;
 
-    double remainingTime = 0.0;            // 帧间隔时间
+    /// 视频输出设备
+    VideoDevice *videoDevice = nullptr;
+
+    AVFrame *frameARGB = nullptr;
+    uint8_t *buffer = nullptr;
+    SwsContext *swsContext = nullptr;
+
+    /// 帧间隔时间
+    double remainingTime = 0.0;
 };
 
 

@@ -1,9 +1,13 @@
 #include <message/MessageCenter.h>
 
 MessageCenter::MessageCenter() {
+    msgQueue = new MessageQueue();
 }
 
 MessageCenter::~MessageCenter() {
+    msgQueue->clearMsgQueue();
+    delete msgQueue;
+    msgQueue = nullptr;
 }
 
 void MessageCenter::run() {
@@ -33,6 +37,10 @@ void MessageCenter::run() {
     }
 }
 
+MessageQueue *MessageCenter::getMsgQueue() const {
+    return msgQueue;
+}
+
 void MessageCenter::setMsgQueue(MessageQueue *msgQueue) {
     ALOGD(TAG, __func__);
     MessageCenter::msgQueue = msgQueue;
@@ -56,4 +64,11 @@ int MessageCenter::start() {
     }
     ALOGD(TAG, "%s message center already started", __func__);
     return SUCCESS;
+}
+
+void MessageCenter::startMsgQueue() {
+    start();
+    if (msgQueue) {
+        msgQueue->startMsgQueue();
+    }
 }

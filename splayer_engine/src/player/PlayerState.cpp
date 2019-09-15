@@ -7,10 +7,6 @@ PlayerState::PlayerState() {
 
 PlayerState::~PlayerState() {
     reset();
-    if (msgQueue) {
-        delete msgQueue;
-        msgQueue = nullptr;
-    }
 }
 
 void PlayerState::init() {
@@ -30,7 +26,6 @@ void PlayerState::init() {
 
     audioCodecName = nullptr;
     videoCodecName = nullptr;
-    msgQueue = new MessageQueue();
 }
 
 void PlayerState::reset() {
@@ -196,33 +191,37 @@ int PlayerState::notifyMsg(int what) {
     if (msgQueue) {
         return msgQueue->notifyMsg(what);
     }
-    return -1;
+    return ERROR;
 }
 
 int PlayerState::notifyMsg(int what, int arg1) {
     if (msgQueue) {
         return msgQueue->notifyMsg(what, arg1);
     }
-    return -1;
+    return ERROR;
 }
 
 int PlayerState::notifyMsg(int what, int arg1, int arg2) {
     if (msgQueue) {
         return msgQueue->notifyMsg(what, arg1, arg2);
     }
-    return -1;
+    return ERROR;
 }
 
 int PlayerState::removeMsg(int what) {
     if (msgQueue) {
         return msgQueue->removeMsg(what);
     }
-    return -1;
+    return ERROR;
 }
 
-const char* PlayerState::getSyncType()  {
+const char *PlayerState::getSyncType() {
     if (syncType == AV_SYNC_AUDIO) {
         return "AV_SYNC_AUDIO";
     }
     return "NONE";
+}
+
+void PlayerState::setMsgQueue(MessageQueue *msgQueue) {
+    this->msgQueue = msgQueue;
 }

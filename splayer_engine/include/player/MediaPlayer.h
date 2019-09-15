@@ -61,6 +61,8 @@ private:
     // 解码上下文
     AVFormatContext *formatContext = nullptr;
 
+    IMessageListener *messageListener = nullptr;
+
 public:
     MediaPlayer();
 
@@ -72,7 +74,7 @@ public:
 
     int start();
 
-    void resume();
+    void play();
 
     void pause();
 

@@ -75,7 +75,6 @@ void VideoDecoder::flush() {
 }
 
 int VideoDecoder::getFrameSize() {
-    Mutex::Autolock lock(mutex);
     return frameQueue ? frameQueue->getFrameSize() : 0;
 }
 
@@ -85,7 +84,6 @@ int VideoDecoder::getRotate() {
 }
 
 FrameQueue *VideoDecoder::getFrameQueue() {
-    Mutex::Autolock lock(mutex);
     return frameQueue;
 }
 
@@ -326,6 +324,9 @@ int VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int6
 
     frameQueue->pushFrame();
 
+    ALOGD(TAG, "%s frame = %p ptd = %lf duration = %lf pos = %lld serial = %d", __func__, srcFrame, pts, duration,
+          pos,
+          serial);
 
     return SUCCESS;
 }

@@ -36,6 +36,10 @@ public:
     void setMsgListener(IMessageListener *msgListener);
 
     int start();
+
+    MessageQueue *getMsgQueue() const;
+
+    void startMsgQueue();
 };
 
 
