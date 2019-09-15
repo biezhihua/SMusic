@@ -90,14 +90,14 @@ public:
     /////////////////////////////////////////////
     ///  请求消息范围 20000 ~ 29999
 
-    /// 异步请求准备
-    static const int MSG_REQUEST_PREPARE = 20000;
+    /// 异步请求开始
+    static const int MSG_REQUEST_START_OR_STOP = 20001;
+
+    /// 请求播放或者暂停
+    static const int MSG_REQUEST_PLAY_OR_PAUSE = 20002;
 
     /// 异步请求开始
-    static const int MSG_REQUEST_START = 20001;
-
-    /// 请求暂停
-    static const int MSG_REQUEST_PAUSE = 20002;
+    static const int MSG_REQUEST_CREATE_OR_DESTROY = 20003;
 
     /// 请求定位
     static const int MSG_REQUEST_SEEK = 20004;

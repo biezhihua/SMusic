@@ -27,8 +27,6 @@ public:
 
     FrameQueue *getFrameQueue();
 
-    AVFormatContext *getFormatContext();
-
     void run() override;
 
     bool isFinished() override;
@@ -39,8 +37,6 @@ private:
     FrameQueue *frameQueue;         // 帧队列
 
     int rotate;                     // 旋转角度
-
-    bool quit;                      // 退出标志
 
     Thread *decodeThread;           // 解码线程
 

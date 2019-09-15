@@ -8,7 +8,6 @@ int MediaPlayer::create() {
     ALOGD(TAG, __func__);
     // INIT_STATE || DESTROY_STATE
 
-
     // Message
     if (!messageCenter) {
         messageCenter = new MessageCenter();
@@ -36,6 +35,9 @@ int MediaPlayer::create() {
         mediaStream->setMediaSync(mediaSync);
     }
 
+    if (!mediaSync) {
+        mediaSync = new MediaSync();
+    }
     // Media Sync
     mediaSync->setPlayerState(playerState);
 
@@ -68,72 +70,80 @@ int MediaPlayer::start() {
 
 void MediaPlayer::pause() {
     ALOGD(TAG, __func__);
-    Mutex::Autolock lock(mutex);
+    mutex.lock();
     togglePause();
-    condition.signal();
+    mutex.unlock();
 }
 
 void MediaPlayer::play() {
     ALOGD(TAG, __func__);
-    Mutex::Autolock lock(mutex);
+    mutex.lock();
     togglePause();
-    condition.signal();
+    mutex.unlock();
 }
 
 void MediaPlayer::stop() {
     ALOGD(TAG, __func__);
-    mutex.lock();
     playerState->abortRequest = 1;
-    condition.signal();
-    mutex.unlock();
-    mutex.lock();
-//    while (!quit) {
-//        condition.wait(mutex);
-//    }
-    mutex.unlock();
-    mediaStream->stop();
-}
 
-int MediaPlayer::destroy() {
-
-    return 0;
-}
-
-int MediaPlayer::reset() {
-    ALOGD(TAG, __func__);
-    stop();
-    if (mediaSync) {
-        mediaSync->reset();
-        delete mediaSync;
-        mediaSync = nullptr;
+    if (audioDevice != nullptr) {
+        audioDevice->stop();
     }
+
+    if (mediaSync) {
+        mediaSync->stop();
+    }
+
     if (audioDecoder != nullptr) {
         audioDecoder->stop();
         delete audioDecoder;
         audioDecoder = nullptr;
     }
+
     if (videoDecoder != nullptr) {
         videoDecoder->stop();
         delete videoDecoder;
         videoDecoder = nullptr;
     }
-    if (audioDevice != nullptr) {
-        audioDevice->stop();
-        delete audioDevice;
-        audioDevice = nullptr;
+
+    if (mediaStream) {
+        mediaStream->stop();
     }
+
     if (audioResampler) {
         delete audioResampler;
         audioResampler = nullptr;
     }
+
     if (formatContext != nullptr) {
-        avformat_close_input(&formatContext);
-        avformat_free_context(formatContext);
         formatContext = nullptr;
+    }
+
+    if (playerState) {
+        playerState->reset();
+    }
+}
+
+int MediaPlayer::destroy() {
+    if (mediaSync) {
+        delete mediaSync;
+        mediaSync = nullptr;
+    }
+    if (mediaStream) {
+        mediaStream->setStreamListener(nullptr);
+        mediaStream->setMediaSync(nullptr);
+        delete mediaStream;
+        mediaStream = nullptr;
     }
     if (playerState) {
         delete playerState;
         playerState = nullptr;
+    }
+    if (messageCenter) {
+        messageCenter->setMsgListener(nullptr);
+        messageCenter->stopMsgQueue();
+        delete messageCenter;
+        messageCenter = nullptr;
     }
     return SUCCESS;
 }
@@ -141,10 +151,12 @@ int MediaPlayer::reset() {
 void MediaPlayer::setDataSource(const char *url, int64_t offset, const char *headers) {
     ALOGD(TAG, "%s url = %s offset = %lld headers = %p", __func__, url, offset, headers);
     Mutex::Autolock lock(mutex);
-    playerState->url = av_strdup(url);
-    playerState->offset = offset;
-    if (headers) {
-        playerState->headers = av_strdup(headers);
+    if (playerState) {
+        playerState->url = av_strdup(url);
+        playerState->offset = offset;
+        if (headers) {
+            playerState->headers = av_strdup(headers);
+        }
     }
 }
 
@@ -635,7 +647,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
         }
     }
 
-    ALOGD(TAG, "%s change sync type = %s", __func__, playerState->getSyncType());
+    ALOGD(TAG, "%s sync type = %s", __func__, playerState->getSyncType());
 
     // 打开视频输出设备
     if (videoDevice != nullptr) {

@@ -7,6 +7,7 @@ PlayerState::PlayerState() {
 
 PlayerState::~PlayerState() {
     reset();
+    msgQueue = nullptr;
 }
 
 void PlayerState::init() {
@@ -75,6 +76,8 @@ void PlayerState::reset() {
     frameDrop = 1;
     reorderVideoPts = -1;
     videoDuration = 0;
+    eof = 0;
+    attachmentRequest = 0;
 }
 
 void PlayerState::setOption(int category, const char *type, const char *option) {

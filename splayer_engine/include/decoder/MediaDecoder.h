@@ -58,9 +58,6 @@ public:
 
 protected:
 
-
-    bool abortRequest;
-
     PlayerState *playerState;
 
     /// 数据包队列

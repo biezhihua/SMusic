@@ -49,9 +49,6 @@ private:
     /// 文件总时长
     int64_t duration;
 
-    /// state for reading packets thread exited if not
-    bool quit;
-
     IStreamListener *streamListener = nullptr;
 
     Mutex waitMutex;

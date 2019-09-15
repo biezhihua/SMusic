@@ -20,8 +20,6 @@ public:
 
     virtual ~MediaSync();
 
-    void reset();
-
     void start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder);
 
     void stop();
@@ -55,6 +53,13 @@ public:
 
     void togglePause();
 
+    int notifyMsg(int what);
+
+    int notifyMsg(int what, int arg1);
+
+    int notifyMsg(int what, int arg1, int arg2);
+
+
 private:
     void refreshVideo(double *remaining_time);
 
@@ -74,13 +79,11 @@ protected:
 
 protected:
 
-    /// 播放器状态
-    PlayerState *playerState = nullptr;
-
     /// 停止
     bool abortRequest;
 
-    bool quit;
+    /// 播放器状态
+    PlayerState *playerState = nullptr;
 
     /// 音频时钟
     MediaClock *audioClock = nullptr;
@@ -114,7 +117,9 @@ protected:
     VideoDevice *videoDevice = nullptr;
 
     AVFrame *frameARGB = nullptr;
+
     uint8_t *buffer = nullptr;
+
     SwsContext *swsContext = nullptr;
 
     /// 帧间隔时间

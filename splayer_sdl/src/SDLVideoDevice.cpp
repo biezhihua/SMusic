@@ -3,8 +3,7 @@
 SDLVideoDevice::SDLVideoDevice() : VideoDevice() {
 }
 
-SDLVideoDevice::~SDLVideoDevice() {
-}
+SDLVideoDevice::~SDLVideoDevice() = default;
 
 int SDLVideoDevice::create() {
     unsigned int initFlags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
@@ -117,7 +116,7 @@ SDLVideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight, Text
         ALOGD(TAG, "%s Created %dx%d texture with %s", __func__, newWidth, newHeight,
               SDL_GetPixelFormatName(newFormat));
     }
-    return 0;
+    return SUCCESS;
 }
 
 int SDLVideoDevice::onUpdateYUV(uint8_t *yData, int yPitch, uint8_t *uData, int uPitch, uint8_t *vData, int vPitch) {
@@ -141,17 +140,21 @@ void SDLVideoDevice::onRequestRenderStart(Frame *frame) {
 }
 
 int SDLVideoDevice::onRequestRenderEnd(Frame *frame, bool flip) {
-    if (frame) {
-        SDL_Rect rect;
-        calculateDisplayRect(&rect, surfaceLeftOffset, surfaceTopOffset, surfaceWidth, surfaceHeight, frame->width,
-                             frame->height, frame->sar);
-        setYuvConversionMode(frame->frame);
-        ALOGD(TAG, "%s x=%d y=%d w=%d h=%d", __func__, rect.x, rect.y, rect.w, rect.h);
-        SDL_RenderCopyEx(renderer, videoTexture, nullptr, &rect, 0, nullptr, flip ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
-        setYuvConversionMode(nullptr);
+    if (renderer != nullptr) {
+        if (frame) {
+            SDL_Rect rect;
+            calculateDisplayRect(&rect, surfaceLeftOffset, surfaceTopOffset, surfaceWidth, surfaceHeight, frame->width,
+                                 frame->height, frame->sar);
+            setYuvConversionMode(frame->frame);
+            ALOGD(TAG, "%s x = %d y = %d w = %d h = %d", __func__, rect.x, rect.y, rect.w, rect.h);
+            SDL_RenderCopyEx(renderer, videoTexture, nullptr, &rect, 0, nullptr,
+                             flip ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
+            setYuvConversionMode(nullptr);
+        }
+        SDL_RenderPresent(renderer);
+        return SUCCESS;
     }
-    SDL_RenderPresent(renderer);
-    return 0;
+    return ERROR;
 }
 
 void SDLVideoDevice::calculateDisplayRect(SDL_Rect *rect,

@@ -37,9 +37,13 @@ public:
 
     int start();
 
+    int stop();
+
     MessageQueue *getMsgQueue() const;
 
     void startMsgQueue();
+
+    void stopMsgQueue();
 };
 
 

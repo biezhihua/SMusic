@@ -198,3 +198,10 @@ int PacketQueue::getFirstSeekSerial() {
 int *PacketQueue::getPointLastSeekSerial() {
     return &lastSeekSerial;
 }
+
+int PacketQueue::signal() {
+    mutex.lock();
+    condition.signal();
+    mutex.unlock();
+    return SUCCESS;
+}

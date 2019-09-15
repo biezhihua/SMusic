@@ -2,10 +2,11 @@
 #include "sync/MediaClock.h"
 
 MediaClock::MediaClock() {
+    queueSerial = nullptr;
 }
 
 MediaClock::~MediaClock() {
-
+    queueSerial = nullptr;
 }
 
 void MediaClock::init(int *queueSeekSerial) {

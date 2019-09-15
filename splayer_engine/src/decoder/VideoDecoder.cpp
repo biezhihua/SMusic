@@ -5,7 +5,6 @@ VideoDecoder::VideoDecoder(AVFormatContext *pFormatCtx, AVCodecContext *avctx, A
         : MediaDecoder(avctx, stream, streamIndex, playerState, flushPacket, readWaitCond) {
     formatContext = pFormatCtx;
     frameQueue = new FrameQueue(VIDEO_QUEUE_SIZE, 1, packetQueue);
-    quit = true;
     decodeThread = nullptr;
     masterClock = nullptr;
     // 旋转角度
@@ -43,7 +42,6 @@ void VideoDecoder::start() {
     if (!decodeThread) {
         decodeThread = new Thread(this);
         decodeThread->start();
-        quit = false;
     }
 }
 
@@ -52,12 +50,8 @@ void VideoDecoder::stop() {
     if (frameQueue) {
         frameQueue->abort();
     }
-    mutex.lock();
-    while (!quit) {
-        condition.wait(mutex);
-    }
-    mutex.unlock();
     if (decodeThread) {
+        // https://baike.baidu.com/item/pthread_join
         decodeThread->join();
         delete decodeThread;
         decodeThread = nullptr;
@@ -88,13 +82,10 @@ FrameQueue *VideoDecoder::getFrameQueue() {
 }
 
 
-AVFormatContext *VideoDecoder::getFormatContext() {
-    Mutex::Autolock lock(mutex);
-    return formatContext;
-}
-
 void VideoDecoder::run() {
+    ALOGD(TAG, "start video decoder");
     decodeVideo();
+    ALOGD(TAG, "end video decoder");
 }
 
 /**
@@ -110,7 +101,6 @@ int VideoDecoder::decodeVideo() {
     AVRational frame_rate = av_guess_frame_rate(formatContext, stream, nullptr);
 
     if (!frame) {
-        quit = true;
         condition.signal();
         ALOGE(TAG, "%s not memory", __func__);
         return ERROR_NOT_MEMORY;
@@ -150,9 +140,6 @@ int VideoDecoder::decodeVideo() {
     av_frame_free(&frame);
     av_free(frame);
     frame = nullptr;
-
-    quit = true;
-    condition.signal();
 
     return ret;
 }

@@ -12,7 +12,6 @@ MediaDecoder::MediaDecoder(AVCodecContext *codecContext, AVStream *stream, int s
 }
 
 MediaDecoder::~MediaDecoder() {
-    mutex.lock();
     if (packetQueue) {
         packetQueue->flush();
         delete packetQueue;
@@ -24,29 +23,19 @@ MediaDecoder::~MediaDecoder() {
         codecContext = nullptr;
     }
     playerState = nullptr;
-    mutex.unlock();
 }
 
 void MediaDecoder::start() {
     if (packetQueue) {
         packetQueue->start();
     }
-    mutex.lock();
-    abortRequest = false;
-    condition.signal();
-    mutex.unlock();
 }
 
 void MediaDecoder::stop() {
-    mutex.lock();
-    abortRequest = true;
-    condition.signal();
-    mutex.unlock();
     if (packetQueue) {
         packetQueue->abort();
     }
 }
-
 
 void MediaDecoder::pushFlushPacket() {
     if (packetQueue) {

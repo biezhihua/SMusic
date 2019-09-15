@@ -13,6 +13,11 @@ Stream::~Stream() {
     flushPacket.data = nullptr;
     av_packet_unref(&flushPacket);
     avformat_network_deinit();
+
+    mediaPlayer = nullptr;
+    playerState = nullptr;
+    streamListener = nullptr;
+    mediaSync = nullptr;
 }
 
 int Stream::start() {
@@ -30,6 +35,15 @@ int Stream::start() {
 
 int Stream::stop() {
     ALOGD(TAG, __func__);
+    audioDecoder = nullptr;
+
+    videoDecoder = nullptr;
+
+    if (formatContext != nullptr) {
+        avformat_close_input(&formatContext);
+        avformat_free_context(formatContext);
+        formatContext = nullptr;
+    }
     if (readThread != nullptr) {
         readThread->join();
         delete readThread;
@@ -213,8 +227,8 @@ static int avFormatInterruptCb(void *ctx) {
 
 int Stream::openStream() {
 
-    if (mediaPlayer) {
-        mediaPlayer->onStartOpenStream();
+    if (streamListener) {
+        streamListener->onStartOpenStream();
     }
 
     AVDictionaryEntry *t;
@@ -393,8 +407,8 @@ int Stream::openStream() {
         audioIndex = -1;
     }
 
-    if (mediaPlayer) {
-        mediaPlayer->onEndOpenStream(videoIndex, audioIndex);
+    if (streamListener) {
+        streamListener->onEndOpenStream(videoIndex, audioIndex);
     }
 
     // 如果音频流和视频流都没有找到，则直接退出

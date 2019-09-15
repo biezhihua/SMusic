@@ -1,7 +1,4 @@
-
 #include <device/VideoDevice.h>
-
-#include "device/VideoDevice.h"
 
 VideoDevice::VideoDevice() {
 

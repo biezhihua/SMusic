@@ -119,11 +119,14 @@ void SDLMediaSync::doKeySystem(const SDL_Event &event) {
                 forceRefresh = 1;
             }
             break;
+        case SDLK_o:
+            notifyMsg(Msg::MSG_REQUEST_CREATE_OR_DESTROY);
+            break;
         case SDLK_p:
+            notifyMsg(Msg::MSG_REQUEST_START_OR_STOP);
+            break;
         case SDLK_SPACE:
-            if (playerState) {
-                playerState->notifyMsg(Msg::MSG_REQUEST_PAUSE);
-            }
+            notifyMsg(Msg::MSG_REQUEST_PLAY_OR_PAUSE);
             break;
         case SDLK_m:
             break;

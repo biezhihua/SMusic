@@ -1,36 +1,40 @@
 #include <sync/MediaSync.h>
 
 MediaSync::MediaSync() {
-    audioDecoder = nullptr;
-    videoDecoder = nullptr;
     audioClock = new MediaClock();
     videoClock = new MediaClock();
     externalClock = new MediaClock();
-
-    quit = true;
     abortRequest = true;
-
     forceRefresh = 0;
     maxFrameDuration = 10.0;
     frameTimer = 0;
-
-    videoDevice = nullptr;
-    swsContext = nullptr;
-    buffer = nullptr;
-    frameARGB = nullptr;
 }
 
 MediaSync::~MediaSync() {
-
+    delete audioClock;
+    audioClock = nullptr;
+    delete (videoClock);
+    videoClock = nullptr;
+    delete (externalClock);
+    externalClock = nullptr;
 }
 
-void MediaSync::reset() {
-    stop();
+void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
+    ALOGD(TAG, "%s videoDecoder = %p audioDecoder = %p", __func__, videoDecoder, audioDecoder);
+    this->videoDecoder = videoDecoder;
+    this->audioDecoder = audioDecoder;
+    videoClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
+    audioClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
+    externalClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
+    abortRequest = false;
+}
+
+void MediaSync::stop() {
+    abortRequest = true;
     playerState = nullptr;
     videoDecoder = nullptr;
     audioDecoder = nullptr;
     videoDevice = nullptr;
-
     if (frameARGB) {
         av_frame_free(&frameARGB);
         av_free(frameARGB);
@@ -44,33 +48,6 @@ void MediaSync::reset() {
         sws_freeContext(swsContext);
         swsContext = nullptr;
     }
-}
-
-void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
-    ALOGD(TAG, "%s videoDecoder = %p audioDecoder = %p", __func__, videoDecoder, audioDecoder);
-    mutex.lock();
-    this->videoDecoder = videoDecoder;
-    this->audioDecoder = audioDecoder;
-    videoClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
-    audioClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
-    externalClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
-    abortRequest = false;
-    quit = false;
-    condition.signal();
-    mutex.unlock();
-}
-
-void MediaSync::stop() {
-    mutex.lock();
-    abortRequest = true;
-    condition.signal();
-    mutex.unlock();
-
-    mutex.lock();
-    while (!quit) {
-        condition.wait(mutex);
-    }
-    mutex.unlock();
 }
 
 void MediaSync::setVideoDevice(VideoDevice *device) {
@@ -137,7 +114,7 @@ void MediaSync::refreshVideo() {
 
     remainingTime = REFRESH_RATE;
 
-    if (playerState == nullptr || videoDecoder == nullptr || audioDecoder == nullptr) {
+    if (playerState == nullptr || videoDecoder == nullptr || audioDecoder == nullptr || videoDevice == nullptr) {
         return;
     }
 
@@ -470,3 +447,24 @@ void MediaSync::togglePause() {
     }
 }
 
+
+int MediaSync::notifyMsg(int what) {
+    if (playerState) {
+        return playerState->notifyMsg(what);
+    }
+    return ERROR;
+}
+
+int MediaSync::notifyMsg(int what, int arg1) {
+    if (playerState) {
+        return playerState->notifyMsg(what, arg1);
+    }
+    return ERROR;
+}
+
+int MediaSync::notifyMsg(int what, int arg1, int arg2) {
+    if (playerState) {
+        return playerState->notifyMsg(what, arg1, arg2);
+    }
+    return ERROR;
+}

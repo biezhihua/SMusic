@@ -63,6 +63,8 @@ public:
 
     int getFirstSeekSerial();
 
+    int signal();
+
 private:
     int put(AVPacket *pkt);
 

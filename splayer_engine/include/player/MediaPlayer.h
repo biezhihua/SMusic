@@ -68,8 +68,6 @@ public:
 
     virtual ~MediaPlayer();
 
-    int reset();
-
     int create();
 
     int start();

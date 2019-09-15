@@ -66,9 +66,28 @@ int MessageCenter::start() {
     return SUCCESS;
 }
 
+int MessageCenter::stop() {
+    if (msgThread) {
+        // https://baike.baidu.com/item/pthread_join
+        msgThread->join();
+        delete msgThread;
+        msgThread = nullptr;
+    }
+    return SUCCESS;
+}
+
+
 void MessageCenter::startMsgQueue() {
     start();
     if (msgQueue) {
         msgQueue->startMsgQueue();
     }
 }
+
+void MessageCenter::stopMsgQueue() {
+    stop();
+    if (msgQueue) {
+        msgQueue->clearMsgQueue();
+    }
+}
+
