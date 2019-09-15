@@ -89,11 +89,12 @@ SDLVideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight, Text
     int access;
     int width;
     int height;
-    if (!videoTexture ||
-        (SDL_QueryTexture(videoTexture, &format, &access, &width, &height) < 0) ||
-        (newWidth != width) ||
-        (newHeight != height) ||
-        (newFormat != getTextureFormat(format))) {
+    bool cond1 = videoTexture != nullptr;
+    bool cond2 = SDL_QueryTexture(videoTexture, &format, &access, &width, &height) < 0;
+    bool cond3 = newWidth != width;
+    bool cond4 = newHeight != height;
+    bool cond5 = newFormat != getTextureFormat(format);
+    if (cond1 || cond2 || cond3 || cond4 || cond5) {
         void *pixels;
         int pitch;
         if (videoTexture) {

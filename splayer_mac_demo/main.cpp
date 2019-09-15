@@ -1,7 +1,6 @@
 #include <SDLMediaPlayer.h>
 #include <SDLAudioDevice.h>
 #include <SDLVideoDevice.h>
-#include <SDLMediaSync.h>
 #include <message/MessageCenter.h>
 
 SDLMediaPlayer *mediaPlayer = nullptr;
@@ -21,9 +20,11 @@ public:
                 } else {
                     mediaPlayer->play();
                 }
-            } else if (msg->what == Msg::MSG_REQUEST_CREATE_OR_DESTROY) {
-
-            } else if (msg->what == Msg::MSG_REQUEST_START_OR_STOP) {
+            } else if (msg->what == Msg::MSG_REQUEST_DESTROY) {
+                if (mediaPlayer) {
+                    mediaPlayer->destroy();
+                }
+            } else if (msg->what == Msg::MSG_REQUEST_START) {
 
             }
         } else {
@@ -34,7 +35,6 @@ public:
 
 int main() {
     mediaPlayer = SDLMediaPlayer::Builder{}
-            .withMediaSync(new SDLMediaSync())
             .withAudioDevice(new SDLAudioDevice())
             .withVideoDevice(new SDLVideoDevice())
             .withMessageListener(new MessageListener())
@@ -43,6 +43,5 @@ int main() {
     mediaPlayer->create();
     mediaPlayer->setDataSource("/Users/biezhihua/Downloads/寄生虫.mp4");
     mediaPlayer->start();
-    mediaPlayer->stop();
     return mediaPlayer->eventLoop();
 }

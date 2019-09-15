@@ -11,6 +11,8 @@ class MessageCenter : public Runnable {
 
 private:
 
+    bool abortRequest = false;
+
     Mutex mutex;
     Condition condition;
 
@@ -44,6 +46,8 @@ public:
     void startMsgQueue();
 
     void stopMsgQueue();
+
+
 };
 
 

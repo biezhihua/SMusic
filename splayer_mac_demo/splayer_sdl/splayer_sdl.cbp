@@ -174,9 +174,6 @@
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_sdl/src/SDLMediaPlayer.cpp">
 			<Option target="splayer_sdl"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_sdl/src/SDLMediaSync.cpp">
-			<Option target="splayer_sdl"/>
-		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_sdl/src/SDLVideoDevice.cpp">
 			<Option target="splayer_sdl"/>
 		</Unit>

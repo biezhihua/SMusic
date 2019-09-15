@@ -25,7 +25,8 @@ class MediaPlayer : public IStreamListener {
     const char *const OPT_THREADS = "threads";
 
     const char *const OPT_REF_COUNTED_FRAMES = "refcounted_frames";
-private:
+
+protected:
 
     Mutex mutex;
 
@@ -76,9 +77,9 @@ public:
 
     void pause();
 
-    void stop();
+    int stop();
 
-    int destroy();
+    virtual int destroy();
 
     void setDataSource(const char *url, int64_t offset = 0, const char *headers = nullptr);
 
@@ -146,13 +147,24 @@ private:
     // open an audio output device
     int openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_channels, int wanted_sample_rate);
 
+    int checkParams();
+
+protected:
     int notifyMsg(int what);
 
     int notifyMsg(int what, int arg1);
 
     int notifyMsg(int what, int arg1, int arg2);
 
-    int checkParams();
+    int _stop();
+
+    int _destroy();
+
+    int _create();
+
+    int _start();
+
+    void _setDataSource(const char *url, int64_t offset, const char *headers) const;
 };
 
 

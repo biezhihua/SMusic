@@ -21,7 +21,6 @@ Stream::~Stream() {
 }
 
 int Stream::start() {
-    ALOGD(TAG, __func__);
     if (!readThread) {
         readThread = new Thread(this);
         if (readThread) {
@@ -34,11 +33,8 @@ int Stream::start() {
 }
 
 int Stream::stop() {
-    ALOGD(TAG, __func__);
     audioDecoder = nullptr;
-
     videoDecoder = nullptr;
-
     if (formatContext != nullptr) {
         avformat_close_input(&formatContext);
         avformat_free_context(formatContext);

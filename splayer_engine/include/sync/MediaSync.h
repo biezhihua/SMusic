@@ -5,7 +5,6 @@
 #include <player/PlayerState.h>
 #include <decoder/VideoDecoder.h>
 #include <decoder/AudioDecoder.h>
-
 #include <device/VideoDevice.h>
 
 /**
@@ -59,6 +58,11 @@ public:
 
     int notifyMsg(int what, int arg1, int arg2);
 
+    void resetRemainingTime();
+
+    void refreshVideo();
+
+    void setForceRefresh(int forceRefresh);
 
 private:
     void refreshVideo(double *remaining_time);
@@ -70,12 +74,6 @@ private:
     double calculateDuration(Frame *current, Frame *next);
 
     void renderVideo();
-
-protected:
-
-    void resetRemainingTime();
-
-    void refreshVideo();
 
 protected:
 
@@ -124,6 +122,8 @@ protected:
 
     /// 帧间隔时间
     double remainingTime = 0.0;
+
+
 };
 
 

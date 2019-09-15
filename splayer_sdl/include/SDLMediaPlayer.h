@@ -4,15 +4,51 @@
 #include <player/MediaPlayer.h>
 #include <message/MessageCenter.h>
 #include <message/IMessageListener.h>
+#include <sync/MediaSync.h>
+#include <SDL.h>
+#include <SDLVideoDevice.h>
 
 class SDLMediaPlayer : public MediaPlayer {
 
     const char *const TAG = "SDLMediaPlayer";
 
+private:
+
+    bool quit = false;
+
+    int64_t lastMouseLeftClick = 0;
+
+    void doKeySystem(const SDL_Event &event);
+
+    bool isNotHaveWindow() const;
+
+    bool isQuitKey(const SDL_Event &event) const;
+
 public:
+
     class Builder;
 
     int eventLoop();
+
+    void doWindowEvent(const SDL_Event &event);
+
+    void showCursor() const;
+
+    void hideCursor() const;
+
+    int isFullScreenClick();
+
+    void doExit();
+
+    void doSeek(double increment) const;
+
+    int destroy() override;
+
+    void resetRemainingTime();
+
+    void refreshVideo();
+
+    void toggleFullScreen();
 };
 
 class SDLMediaPlayer::Builder {
@@ -68,6 +104,5 @@ public:
         return mediaPlayer;
     }
 };
-
 
 #endif

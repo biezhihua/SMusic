@@ -5,7 +5,6 @@ MessageQueue::MessageQueue() {
 }
 
 MessageQueue::~MessageQueue() {
-    clearMsgQueue();
     delete queue;
 }
 

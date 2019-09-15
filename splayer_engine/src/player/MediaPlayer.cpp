@@ -5,41 +5,38 @@ MediaPlayer::MediaPlayer() = default;
 MediaPlayer::~MediaPlayer() = default;
 
 int MediaPlayer::create() {
-    ALOGD(TAG, __func__);
+    ALOGD(TAG, "create media player - start");
     // INIT_STATE || DESTROY_STATE
+    mutex.lock();
+    _create();
+    mutex.unlock();
+    ALOGD(TAG, "create media player - end");
+    return SUCCESS;
+}
 
-    // Message
+int MediaPlayer::_create() {// Message
     if (!messageCenter) {
         messageCenter = new MessageCenter();
-        if (!messageCenter) {
-            return ERROR_NOT_MEMORY;
-        }
     }
     messageCenter->startMsgQueue();
     messageCenter->setMsgListener(messageListener);
 
     // Player State
     playerState = new PlayerState();
-    if (!playerState) {
-        return ERROR_NOT_MEMORY;
-    }
     playerState->setMsgQueue(messageCenter->getMsgQueue());
+
+    // Media Sync
+    if (mediaSync == nullptr) {
+        mediaSync = new MediaSync();
+    }
+    mediaSync->setPlayerState(playerState);
 
     // Media Stream
     mediaStream = new Stream(this, playerState);
-    if (!mediaStream) {
-        return ERROR_NOT_MEMORY;
-    }
     if (mediaStream) {
         mediaStream->setStreamListener(this);
         mediaStream->setMediaSync(mediaSync);
     }
-
-    if (!mediaSync) {
-        mediaSync = new MediaSync();
-    }
-    // Media Sync
-    mediaSync->setPlayerState(playerState);
 
     // Video Device
     if (videoDevice) {
@@ -50,14 +47,21 @@ int MediaPlayer::create() {
             ALOGE(TAG, "%s video device create failure", __func__);
         }
     }
-
     notifyMsg(Msg::MSG_CREATE);
     return SUCCESS;
 }
 
 int MediaPlayer::start() {
-    ALOGD(TAG, __func__);
     // CREATE_STATE || STOP_STATE
+    ALOGD(TAG, "start media player - start");
+    mutex.lock();
+    _start();
+    mutex.unlock();
+    ALOGD(TAG, "start media player - end");
+    return SUCCESS;
+}
+
+int MediaPlayer::_start() {
     if (checkParams() < 0) {
         notifyMsg(Msg::MSG_ERROR, ERROR_PARAMS);
         return ERROR_PARAMS;
@@ -82,8 +86,16 @@ void MediaPlayer::play() {
     mutex.unlock();
 }
 
-void MediaPlayer::stop() {
-    ALOGD(TAG, __func__);
+int MediaPlayer::stop() {
+    ALOGD(TAG, "stop media player - start");
+    mutex.lock();
+    _stop();
+    mutex.unlock();
+    ALOGD(TAG, "stop media player - end");
+    return SUCCESS;
+}
+
+int MediaPlayer::_stop() {
     playerState->abortRequest = 1;
 
     if (audioDevice != nullptr) {
@@ -122,9 +134,20 @@ void MediaPlayer::stop() {
     if (playerState) {
         playerState->reset();
     }
+    return SUCCESS;
 }
 
 int MediaPlayer::destroy() {
+    ALOGD(TAG, "destroy media player - start");
+    mutex.lock();
+    _destroy();
+    mutex.unlock();
+    ALOGD(TAG, "destroy media player - end");
+    return SUCCESS;
+}
+
+int MediaPlayer::_destroy() {
+    _stop();
     if (mediaSync) {
         delete mediaSync;
         mediaSync = nullptr;
@@ -150,7 +173,12 @@ int MediaPlayer::destroy() {
 
 void MediaPlayer::setDataSource(const char *url, int64_t offset, const char *headers) {
     ALOGD(TAG, "%s url = %s offset = %lld headers = %p", __func__, url, offset, headers);
-    Mutex::Autolock lock(mutex);
+    mutex.lock();
+    _setDataSource(url, offset, headers);
+    mutex.unlock();
+}
+
+void MediaPlayer::_setDataSource(const char *url, int64_t offset, const char *headers) const {
     if (playerState) {
         playerState->url = av_strdup(url);
         playerState->offset = offset;

@@ -13,9 +13,9 @@ MediaSync::MediaSync() {
 MediaSync::~MediaSync() {
     delete audioClock;
     audioClock = nullptr;
-    delete (videoClock);
+    delete videoClock;
     videoClock = nullptr;
-    delete (externalClock);
+    delete externalClock;
     externalClock = nullptr;
 }
 
@@ -30,6 +30,7 @@ void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
 }
 
 void MediaSync::stop() {
+    mutex.lock();
     abortRequest = true;
     playerState = nullptr;
     videoDecoder = nullptr;
@@ -48,6 +49,7 @@ void MediaSync::stop() {
         sws_freeContext(swsContext);
         swsContext = nullptr;
     }
+    mutex.unlock();
 }
 
 void MediaSync::setVideoDevice(VideoDevice *device) {
@@ -108,25 +110,17 @@ void MediaSync::run() {
 }
 
 void MediaSync::refreshVideo() {
+    ALOGD(TAG, "===== refreshVideo =====");
+    if (playerState == nullptr || videoDecoder == nullptr || audioDecoder == nullptr || videoDevice == nullptr) {
+        ALOGD(TAG, "===== end break =====");
+        return;
+    }
     if (remainingTime > 0.0) {
         av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
     }
-
     remainingTime = REFRESH_RATE;
-
-    if (playerState == nullptr || videoDecoder == nullptr || audioDecoder == nullptr || videoDevice == nullptr) {
-        return;
-    }
-
-    ALOGD(TAG, "===== refreshVideo =====");
-    ALOGD(TAG, "%s while "
-               "remainingTime = %lf "
-               "pauseRequest = %d "
-               "forceRefresh = %d", __func__,
-          remainingTime,
-          playerState->pauseRequest, forceRefresh);
-
-    if (!playerState->pauseRequest || forceRefresh) {
+    if (playerState != nullptr && videoDecoder != nullptr && audioDecoder != nullptr && videoDevice != nullptr &&
+        (!playerState->pauseRequest || forceRefresh)) {
         refreshVideo(&remainingTime);
     }
     ALOGD(TAG, "===== end =====");
@@ -468,3 +462,8 @@ int MediaSync::notifyMsg(int what, int arg1, int arg2) {
     }
     return ERROR;
 }
+
+void MediaSync::setForceRefresh(int forceRefresh) {
+    MediaSync::forceRefresh = forceRefresh;
+}
+

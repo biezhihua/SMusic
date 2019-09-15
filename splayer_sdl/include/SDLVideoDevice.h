@@ -52,13 +52,13 @@ public:
     /// 画布Y轴偏移位置
     int surfaceTopOffset = 0;
 
-    SDL_Window *window;
-    SDL_Renderer *renderer;
+    SDL_Window *window = nullptr;
+    SDL_Renderer *renderer = nullptr;
     SDL_RendererInfo rendererInfo = {nullptr};
 
-    SDL_Texture *videoTexture;
-    SDL_Texture *subtitleTexture;
-    SDL_Texture *visTexture;
+    SDL_Texture *videoTexture = nullptr;
+    SDL_Texture *subtitleTexture = nullptr;
+    SDL_Texture *visTexture = nullptr;
 
 
 public:

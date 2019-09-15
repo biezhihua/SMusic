@@ -91,19 +91,24 @@ public:
     ///  请求消息范围 20000 ~ 29999
 
     /// 异步请求开始
-    static const int MSG_REQUEST_START_OR_STOP = 20001;
+    static const int MSG_REQUEST_START = 20001;
+
+    static const int MSG_REQUEST_SOP = 20002;
 
     /// 请求播放或者暂停
-    static const int MSG_REQUEST_PLAY_OR_PAUSE = 20002;
+    static const int MSG_REQUEST_PLAY_OR_PAUSE = 20003;
 
-    /// 异步请求开始
-    static const int MSG_REQUEST_CREATE_OR_DESTROY = 20003;
+    ///
+    static const int MSG_REQUEST_CREATE = 20004;
+
+    ///
+    static const int MSG_REQUEST_DESTROY = 20005;
 
     /// 请求定位
-    static const int MSG_REQUEST_SEEK = 20004;
+    static const int MSG_REQUEST_SEEK = 20006;
 
     /// 请求退出
-    static const int MSG_REQUEST_QUIT = 20005;
+    static const int MSG_REQUEST_QUIT = 20007;
 
     /////////////////////////////////////////////
     /////////////////////////////////////////////

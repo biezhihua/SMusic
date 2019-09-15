@@ -5,7 +5,6 @@ MessageCenter::MessageCenter() {
 }
 
 MessageCenter::~MessageCenter() {
-    msgQueue->clearMsgQueue();
     delete msgQueue;
     msgQueue = nullptr;
 }
@@ -13,7 +12,7 @@ MessageCenter::~MessageCenter() {
 void MessageCenter::run() {
     ALOGD(TAG, "%s start message center", __func__);
     Msg msg;
-    for (;;) {
+    while (!abortRequest) {
 
         if (!msgQueue) {
             ALOGD(TAG, "%s msgQueue is null, wait set msgQueue", __func__);
@@ -54,6 +53,7 @@ void MessageCenter::setMsgListener(IMessageListener *msgListener) {
 
 int MessageCenter::start() {
     ALOGD(TAG, __func__);
+    abortRequest = false;
     if (!msgThread) {
         msgThread = new Thread(this);
         if (msgThread) {
@@ -67,6 +67,7 @@ int MessageCenter::start() {
 }
 
 int MessageCenter::stop() {
+    abortRequest = true;
     if (msgThread) {
         // https://baike.baidu.com/item/pthread_join
         msgThread->join();
