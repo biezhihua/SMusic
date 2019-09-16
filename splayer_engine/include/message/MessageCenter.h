@@ -11,6 +11,8 @@ class MessageCenter : public Runnable {
 
 private:
 
+    Msg msg;
+
     bool abortRequest = false;
 
     Mutex mutex;
@@ -33,21 +35,27 @@ public:
 
     void run() override;
 
-    void setMsgQueue(MessageQueue *msgQueue);
-
     void setMsgListener(IMessageListener *msgListener);
 
     int start();
 
     int stop();
 
-    MessageQueue *getMsgQueue() const;
+    MessageQueue *getMsgQueue();
 
     void startMsgQueue();
 
     void stopMsgQueue();
 
+    int notifyMsg(int what);
 
+    int notifyMsg(int what, int arg1);
+
+    int notifyMsg(int what, int arg1, int arg2);
+
+    int removeMsg(int what);
+
+    void executeMsg(bool block);
 };
 
 

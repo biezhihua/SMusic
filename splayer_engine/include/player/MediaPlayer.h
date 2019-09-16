@@ -59,9 +59,10 @@ protected:
     /// 消息事件处理
     MessageCenter *messageCenter = nullptr;
 
-    // 解码上下文
+    /// 解码上下文
     AVFormatContext *formatContext = nullptr;
 
+    /// 消息监听回调
     IMessageListener *messageListener = nullptr;
 
 public:
@@ -73,9 +74,9 @@ public:
 
     int start();
 
-    void play();
+    int play();
 
-    void pause();
+    int pause();
 
     int stop();
 
@@ -121,8 +122,6 @@ public:
 
     void setMediaSync(MediaSync *mediaSync);
 
-    MediaSync *getMediaSync() const;
-
     void setVideoDevice(VideoDevice *videoDevice);
 
     void setMessageCenter(MessageCenter *msgCenter);
@@ -139,12 +138,10 @@ private:
 
     void togglePause();
 
-    // prepareAsync decoder with stream_index
     int openDecoder(int streamIndex);
 
-    int closeDecoder(int streamIndex, AVCodecContext *pContext, AVDictionary *pDictionary);
+    int closeDecoder(int streamIndex, AVCodecContext *codecContext, AVDictionary *opts);
 
-    // open an audio output device
     int openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_channels, int wanted_sample_rate);
 
     int checkParams();
@@ -164,7 +161,7 @@ protected:
 
     int _start();
 
-    void _setDataSource(const char *url, int64_t offset, const char *headers) const;
+    int _setDataSource(const char *url, int64_t offset, const char *headers) const;
 };
 
 

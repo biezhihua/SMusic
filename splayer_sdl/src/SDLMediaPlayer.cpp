@@ -69,18 +69,21 @@ void SDLMediaPlayer::resetRemainingTime() {
 }
 
 
-void SDLMediaPlayer::hideCursor() const {
-    if (videoDevice) {
+void SDLMediaPlayer::hideCursor() {
+    mutex.lock();
+    if (videoDevice != nullptr) {
         auto *device = (SDLVideoDevice *) (videoDevice);
         if (!device->cursorHidden && (av_gettime_relative() - device->cursorLastShown) > CURSOR_HIDE_DELAY) {
             SDL_ShowCursor(0);
             device->cursorHidden = 1;
         }
     }
+    mutex.unlock();
 }
 
-void SDLMediaPlayer::showCursor() const {
-    if (videoDevice) {
+void SDLMediaPlayer::showCursor() {
+    mutex.lock();
+    if (videoDevice != nullptr) {
         auto *device = (SDLVideoDevice *) (videoDevice);
         if (device->cursorHidden) {
             SDL_ShowCursor(1);
@@ -88,6 +91,7 @@ void SDLMediaPlayer::showCursor() const {
         }
         device->cursorLastShown = av_gettime_relative();
     }
+    mutex.unlock();
 }
 
 void SDLMediaPlayer::doWindowEvent(const SDL_Event &event) {
@@ -120,20 +124,23 @@ int SDLMediaPlayer::isFullScreenClick() {
 }
 
 
-bool SDLMediaPlayer::isQuitKey(const SDL_Event &event) const {
+bool SDLMediaPlayer::isQuitKey(const SDL_Event &event) {
     return event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q;
 }
 
-bool SDLMediaPlayer::isNotHaveWindow() const {
+bool SDLMediaPlayer::isNotHaveWindow() {
     // If we don't yet have a window, skip all lowres events, because read_thread might still be initializing...
+    mutex.lock();
+    bool ret = false;
     if (videoDevice) {
         auto *device = dynamic_cast<SDLVideoDevice *>(videoDevice);
-        return !device->isDisplayWindow;
+        ret = !device->isDisplayWindow;
     }
-    return true;
+    mutex.unlock();
+    return ret;
 }
 
-void SDLMediaPlayer::doKeySystem(const SDL_Event &event) {
+void SDLMediaPlayer:: doKeySystem(const SDL_Event &event) {
     switch (event.key.keysym.sym) {
         case SDLK_f:
             if (videoDevice && mediaSync) {
@@ -210,7 +217,7 @@ void SDLMediaPlayer::doExit() {
     notifyMsg(Msg::MSG_REQUEST_DESTROY);
 }
 
-void SDLMediaPlayer::doSeek(double increment) const {
+void SDLMediaPlayer::doSeek(double increment) {
 //    double pos;
 //    if (options && stream && stream->getVideoState()) {
 //        PlayerState *videoState = stream->getVideoState();
@@ -249,11 +256,11 @@ void SDLMediaPlayer::doSeek(double increment) const {
 
 int SDLMediaPlayer::destroy() {
     ALOGD(TAG, "destroy sdl media player - start");
-    int ret = MediaPlayer::destroy();
     mutex.lock();
+    MediaPlayer::_destroy();
     quit = true;
     mutex.unlock();
     ALOGD(TAG, "destroy sdl media player - end");
-    return ret;
+    return SUCCESS;
 }
 

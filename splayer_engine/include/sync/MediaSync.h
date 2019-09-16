@@ -19,6 +19,10 @@ public:
 
     virtual ~MediaSync();
 
+    int create();
+
+    int destroy();
+
     void start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder);
 
     void stop();

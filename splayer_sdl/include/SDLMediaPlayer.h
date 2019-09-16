@@ -20,9 +20,9 @@ private:
 
     void doKeySystem(const SDL_Event &event);
 
-    bool isNotHaveWindow() const;
+    bool isNotHaveWindow();
 
-    bool isQuitKey(const SDL_Event &event) const;
+    bool isQuitKey(const SDL_Event &event);
 
 public:
 
@@ -32,15 +32,15 @@ public:
 
     void doWindowEvent(const SDL_Event &event);
 
-    void showCursor() const;
+    void showCursor();
 
-    void hideCursor() const;
+    void hideCursor();
 
     int isFullScreenClick();
 
     void doExit();
 
-    void doSeek(double increment) const;
+    void doSeek(double increment);
 
     int destroy() override;
 

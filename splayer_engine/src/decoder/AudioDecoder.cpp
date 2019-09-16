@@ -13,7 +13,6 @@ AudioDecoder::~AudioDecoder() {
 }
 
 void AudioDecoder::start() {
-    ALOGD(TAG, __func__);
     MediaDecoder::start();
 }
 

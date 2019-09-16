@@ -3,17 +3,9 @@
 Stream::Stream(MediaPlayer *mediaPlayer, PlayerState *playerState) {
     this->mediaPlayer = mediaPlayer;
     this->playerState = playerState;
-
-    avformat_network_init();
-    av_init_packet(&flushPacket);
-    flushPacket.data = (uint8_t *) &flushPacket;
 }
 
 Stream::~Stream() {
-    flushPacket.data = nullptr;
-    av_packet_unref(&flushPacket);
-    avformat_network_deinit();
-
     mediaPlayer = nullptr;
     playerState = nullptr;
     streamListener = nullptr;
@@ -51,10 +43,11 @@ int Stream::stop() {
 void Stream::run() {
     if (mediaPlayer) {
         if (openStream() < 0) {
+            closeStream();
             ALOGE(TAG, "%s open stream failure", __func__);
             return;
         }
-        notifyMsg(Msg::MSG_PREPARED);
+        notifyMsg(Msg::MSG_STARTED);
         ALOGD(TAG, "%s start prepare read packets", __func__);
         if (readPackets() < 0) {
             ALOGD(TAG, "%s read packets exit", __func__);
@@ -279,7 +272,6 @@ int Stream::openStream() {
                               &playerState->format_opts);
     if (ret < 0) {
         ALOGE(TAG, "%s avformat could not open input", __func__);
-        closeStream();
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_OPEN_INPUT);
         return ERROR_NOT_OPEN_INPUT;
     }
@@ -291,7 +283,6 @@ int Stream::openStream() {
 
     if ((t = av_dict_get(playerState->format_opts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
         ALOGE(TAG, "%s Option %s not found", __func__, t->key);
-        closeStream();
         notifyMsg(Msg::MSG_ERROR, ERROR_CODEC_OPTIONS);
         return ERROR_CODEC_OPTIONS;
     }
@@ -316,7 +307,6 @@ int Stream::openStream() {
 
     if (ret < 0) {
         ALOGE(TAG, "%s %s: could not find codec parameters", __func__, playerState->url);
-        closeStream();
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_FOUND_STREAM_INFO);
         return ERROR_NOT_FOUND_STREAM_INFO;
     }
@@ -410,8 +400,6 @@ int Stream::openStream() {
     // 如果音频流和视频流都没有找到，则直接退出
     if (audioIndex == -1 && videoIndex == -1) {
         ALOGE(TAG, "%s could not find audio and video stream", __func__);
-
-        closeStream();
         notifyMsg(Msg::MSG_ERROR, ERROR_DISABLE_ALL_STREAM);
         return ERROR_DISABLE_ALL_STREAM;
     }
@@ -499,3 +487,21 @@ void Stream::closeStream() {
 void Stream::setStreamListener(IStreamListener *streamListener) {
     Stream::streamListener = streamListener;
 }
+
+int Stream::create() {
+    avformat_network_init();
+    av_init_packet(&flushPacket);
+    flushPacket.data = (uint8_t *) &flushPacket;
+    return SUCCESS;
+}
+
+int Stream::destroy() {
+    flushPacket.data = nullptr;
+    av_packet_unref(&flushPacket);
+    avformat_network_deinit();
+    streamListener = nullptr;
+    mediaSync = nullptr;
+    return SUCCESS;
+}
+
+

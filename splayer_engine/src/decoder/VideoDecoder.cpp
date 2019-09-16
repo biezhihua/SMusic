@@ -34,7 +34,6 @@ void VideoDecoder::setMasterClock(MediaClock *masterClock) {
 }
 
 void VideoDecoder::start() {
-    ALOGD(TAG, __func__);
     MediaDecoder::start();
     if (frameQueue) {
         frameQueue->start();

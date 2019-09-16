@@ -9,10 +9,10 @@ MessageQueue::~MessageQueue() {
 }
 
 int MessageQueue::putMsg(Msg *msg) {
-    // ALOGD(TAG, "%s what = %d arg1 = %d arg2 = %d", __func__, msg->what, msg->arg1, msg->arg2);
     int ret;
     mutex.lock();
     ret = _putMsg(msg);
+    condition.signal();
     mutex.unlock();
     return ret;
 }
@@ -22,18 +22,19 @@ int MessageQueue::_putMsg(Msg *msg) {
         return ERROR_PARAMS;
     }
     queue->push_back(msg);
-    condition.signal();
     return SUCCESS;
 }
 
-int MessageQueue::clearMsgQueue() {
-    ALOGD(TAG, __func__);
+int MessageQueue::clearMsgQueue(IMessageListener *messageListener) {
     mutex.lock();
     if (queue != nullptr) {
         while (!queue->empty()) {
             Msg *message = queue->front();
             if (message != nullptr) {
                 queue->pop_front();
+                if (messageListener) {
+                    messageListener->onMessage(message);
+                }
                 delete message;
             }
         }
@@ -70,7 +71,6 @@ int MessageQueue::getMsg(Msg *msg, bool block) {
 
 
 int MessageQueue::removeMsg(int what) {
-    ALOGD(TAG, "%s what=%s", __func__, Msg::getMsgSimpleName(what));
     mutex.lock();
     std::list<Msg *>::iterator it;
     Msg *message = nullptr;

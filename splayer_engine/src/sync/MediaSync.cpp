@@ -1,26 +1,14 @@
 #include <sync/MediaSync.h>
 
 MediaSync::MediaSync() {
-    audioClock = new MediaClock();
-    videoClock = new MediaClock();
-    externalClock = new MediaClock();
-    abortRequest = true;
-    forceRefresh = 0;
-    maxFrameDuration = 10.0;
-    frameTimer = 0;
+
 }
 
 MediaSync::~MediaSync() {
-    delete audioClock;
-    audioClock = nullptr;
-    delete videoClock;
-    videoClock = nullptr;
-    delete externalClock;
-    externalClock = nullptr;
+
 }
 
 void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
-    ALOGD(TAG, "%s videoDecoder = %p audioDecoder = %p", __func__, videoDecoder, audioDecoder);
     this->videoDecoder = videoDecoder;
     this->audioDecoder = audioDecoder;
     videoClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
@@ -30,7 +18,7 @@ void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
 }
 
 void MediaSync::stop() {
-    mutex.lock();
+    ALOGD(TAG, "stop media sync");
     abortRequest = true;
     playerState = nullptr;
     videoDecoder = nullptr;
@@ -49,7 +37,6 @@ void MediaSync::stop() {
         sws_freeContext(swsContext);
         swsContext = nullptr;
     }
-    mutex.unlock();
 }
 
 void MediaSync::setVideoDevice(VideoDevice *device) {
@@ -110,15 +97,14 @@ void MediaSync::run() {
 }
 
 void MediaSync::refreshVideo() {
-    ALOGD(TAG, "===== refreshVideo =====");
-    if (playerState == nullptr || videoDecoder == nullptr || audioDecoder == nullptr || videoDevice == nullptr) {
-        ALOGD(TAG, "===== end break =====");
-        return;
-    }
     if (remainingTime > 0.0) {
         av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
     }
     remainingTime = REFRESH_RATE;
+    if (playerState == nullptr || videoDecoder == nullptr || audioDecoder == nullptr || videoDevice == nullptr) {
+        return;
+    }
+    ALOGD(TAG, "===== refreshVideo =====");
     if (playerState != nullptr && videoDecoder != nullptr && audioDecoder != nullptr && videoDevice != nullptr &&
         (!playerState->pauseRequest || forceRefresh)) {
         refreshVideo(&remainingTime);
@@ -465,5 +451,26 @@ int MediaSync::notifyMsg(int what, int arg1, int arg2) {
 
 void MediaSync::setForceRefresh(int forceRefresh) {
     MediaSync::forceRefresh = forceRefresh;
+}
+
+int MediaSync::create() {
+    audioClock = new MediaClock();
+    videoClock = new MediaClock();
+    externalClock = new MediaClock();
+    abortRequest = true;
+    forceRefresh = 0;
+    maxFrameDuration = 10.0;
+    frameTimer = 0;
+    return SUCCESS;
+}
+
+int MediaSync::destroy() {
+    delete audioClock;
+    audioClock = nullptr;
+    delete videoClock;
+    videoClock = nullptr;
+    delete externalClock;
+    externalClock = nullptr;
+    return SUCCESS;
 }
 

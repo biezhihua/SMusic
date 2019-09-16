@@ -10,59 +10,47 @@ MessageCenter::~MessageCenter() {
 }
 
 void MessageCenter::run() {
-    ALOGD(TAG, "%s start message center", __func__);
-    Msg msg;
+    ALOGD(TAG, "start message center thread");
     while (!abortRequest) {
-
+        mutex.lock();
         if (!msgQueue) {
-            ALOGD(TAG, "%s msgQueue is null, wait set msgQueue", __func__);
             condition.wait(mutex);
-            ALOGD(TAG, "%s msgQueue is not null, start message loop", __func__);
         }
-
-        msg.free();
-
-        int ret = msgQueue->getMsg(&msg, true);
-
-        if (ret >= 0 && msg.what != -1) {
-            if (msgListener != nullptr) {
-                msgListener->onMessage(&msg);
-            }
-        }
-
-        if (msg.what == Msg::MSG_REQUEST_QUIT) {
-            break;
-        }
+        mutex.unlock();
+        executeMsg(true);
     }
+    ALOGD(TAG, "end message center thread");
 }
 
-MessageQueue *MessageCenter::getMsgQueue() const {
+void MessageCenter::executeMsg(bool block) {
+    int ret = msgQueue->getMsg(&msg, block);
+    if (ret >= 0 && msg.what != -1) {
+        if (msgListener != nullptr) {
+            msgListener->onMessage(&msg);
+        }
+    }
+    msg.free();
+}
+
+MessageQueue *MessageCenter::getMsgQueue() {
     return msgQueue;
 }
 
-void MessageCenter::setMsgQueue(MessageQueue *msgQueue) {
-    ALOGD(TAG, __func__);
-    MessageCenter::msgQueue = msgQueue;
-    condition.signal();
-}
-
 void MessageCenter::setMsgListener(IMessageListener *msgListener) {
-    ALOGD(TAG, __func__);
+    ALOGD(TAG, "%s listener = %p", __func__, msgListener);
     MessageCenter::msgListener = msgListener;
 }
 
 int MessageCenter::start() {
-    ALOGD(TAG, __func__);
     abortRequest = false;
     if (!msgThread) {
-        msgThread = new Thread(this);
+        msgThread = new Thread(this, Priority_High);
         if (msgThread) {
             msgThread->start();
             return SUCCESS;
         }
         return ERROR_NOT_MEMORY;
     }
-    ALOGD(TAG, "%s message center already started", __func__);
     return SUCCESS;
 }
 
@@ -79,6 +67,7 @@ int MessageCenter::stop() {
 
 
 void MessageCenter::startMsgQueue() {
+    ALOGD(TAG, __func__);
     start();
     if (msgQueue) {
         msgQueue->startMsgQueue();
@@ -86,9 +75,42 @@ void MessageCenter::startMsgQueue() {
 }
 
 void MessageCenter::stopMsgQueue() {
+    ALOGD(TAG, __func__);
     stop();
     if (msgQueue) {
-        msgQueue->clearMsgQueue();
+        msgQueue->clearMsgQueue(msgListener);
     }
+}
+
+int MessageCenter::notifyMsg(int what) {
+    condition.signal();
+    if (msgQueue) {
+        return msgQueue->notifyMsg(what);
+    }
+    return ERROR;
+}
+
+int MessageCenter::notifyMsg(int what, int arg1) {
+    condition.signal();
+    if (msgQueue) {
+        return msgQueue->notifyMsg(what, arg1);
+    }
+    return ERROR;
+}
+
+int MessageCenter::notifyMsg(int what, int arg1, int arg2) {
+    condition.signal();
+    if (msgQueue) {
+        return msgQueue->notifyMsg(what, arg1, arg2);
+    }
+    return ERROR;
+}
+
+int MessageCenter::removeMsg(int what) {
+    condition.signal();
+    if (msgQueue) {
+        return msgQueue->removeMsg(what);
+    }
+    return ERROR;
 }
 

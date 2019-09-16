@@ -6,7 +6,6 @@ MediaPlayer::~MediaPlayer() = default;
 
 int MediaPlayer::create() {
     ALOGD(TAG, "create media player - start");
-    // INIT_STATE || DESTROY_STATE
     mutex.lock();
     _create();
     mutex.unlock();
@@ -14,12 +13,13 @@ int MediaPlayer::create() {
     return SUCCESS;
 }
 
-int MediaPlayer::_create() {// Message
-    if (!messageCenter) {
+int MediaPlayer::_create() {
+    // Message
+    if (messageCenter == nullptr) {
         messageCenter = new MessageCenter();
     }
-    messageCenter->startMsgQueue();
     messageCenter->setMsgListener(messageListener);
+    messageCenter->startMsgQueue();
 
     // Player State
     playerState = new PlayerState();
@@ -29,17 +29,25 @@ int MediaPlayer::_create() {// Message
     if (mediaSync == nullptr) {
         mediaSync = new MediaSync();
     }
+    if (mediaSync->create() < 0) {
+        ALOGE(TAG, "media stream create failure");
+        notifyMsg(Msg::MSG_ERROR, ERROR);
+        return ERROR;
+    }
     mediaSync->setPlayerState(playerState);
 
     // Media Stream
     mediaStream = new Stream(this, playerState);
-    if (mediaStream) {
-        mediaStream->setStreamListener(this);
-        mediaStream->setMediaSync(mediaSync);
+    mediaStream->setStreamListener(this);
+    mediaStream->setMediaSync(mediaSync);
+    if (mediaStream->create() < 0) {
+        ALOGE(TAG, "media stream create failure");
+        notifyMsg(Msg::MSG_ERROR, ERROR);
+        return ERROR;
     }
 
     // Video Device
-    if (videoDevice) {
+    if (videoDevice != nullptr) {
         videoDevice->setPlayerState(playerState);
         if (videoDevice->create()) {
             mediaSync->setVideoDevice(videoDevice);
@@ -47,12 +55,13 @@ int MediaPlayer::_create() {// Message
             ALOGE(TAG, "%s video device create failure", __func__);
         }
     }
+
     notifyMsg(Msg::MSG_CREATE);
+
     return SUCCESS;
 }
 
 int MediaPlayer::start() {
-    // CREATE_STATE || STOP_STATE
     ALOGD(TAG, "start media player - start");
     mutex.lock();
     _start();
@@ -68,22 +77,31 @@ int MediaPlayer::_start() {
     }
     playerState->abortRequest = 0;
     playerState->pauseRequest = 0;
+    ALOGD(TAG, "start media stream");
     mediaStream->start();
+    notifyMsg(Msg::MSG_START);
+    notifyMsg(Msg::MSG_MEDIA_STREAM_START);
     return SUCCESS;
 }
 
-void MediaPlayer::pause() {
-    ALOGD(TAG, __func__);
+int MediaPlayer::pause() {
+    ALOGD(TAG, "pause media player - start");
     mutex.lock();
     togglePause();
+    notifyMsg(Msg::MSG_PAUSE);
     mutex.unlock();
+    ALOGD(TAG, "pause media player - end");
+    return SUCCESS;
 }
 
-void MediaPlayer::play() {
-    ALOGD(TAG, __func__);
+int MediaPlayer::play() {
+    ALOGD(TAG, "play media player - start");
     mutex.lock();
     togglePause();
+    notifyMsg(Msg::MSG_PLAY);
     mutex.unlock();
+    ALOGD(TAG, "play media player - end");
+    return SUCCESS;
 }
 
 int MediaPlayer::stop() {
@@ -98,28 +116,43 @@ int MediaPlayer::stop() {
 int MediaPlayer::_stop() {
     playerState->abortRequest = 1;
 
-    if (audioDevice != nullptr) {
-        audioDevice->stop();
+    if (mediaSync) {
+        ALOGD(TAG, "stop media sync");
+        mediaSync->stop();
+        notifyMsg(Msg::MSG_MEDIA_SYNC_STOP);
     }
 
-    if (mediaSync) {
-        mediaSync->stop();
+    if (audioDevice != nullptr) {
+        ALOGD(TAG, "stop audio device");
+        audioDevice->stop();
+        notifyMsg(Msg::MSG_AUDIO_DEVICE_STOP);
+    }
+
+    if (videoDevice != nullptr) {
+        ALOGD(TAG, "stop video device");
+        notifyMsg(Msg::MSG_VIDEO_DEVICE_STOP);
     }
 
     if (audioDecoder != nullptr) {
+        ALOGD(TAG, "stop audio decoder");
         audioDecoder->stop();
+        notifyMsg(Msg::MSG_AUDIO_DECODER_STOP);
         delete audioDecoder;
         audioDecoder = nullptr;
     }
 
     if (videoDecoder != nullptr) {
+        ALOGD(TAG, "stop video decoder");
         videoDecoder->stop();
+        notifyMsg(Msg::MSG_VIDEO_DECODER_STOP);
         delete videoDecoder;
         videoDecoder = nullptr;
     }
 
     if (mediaStream) {
+        ALOGD(TAG, "stop media stream");
         mediaStream->stop();
+        notifyMsg(Msg::MSG_MEDIA_STREAM_STOP);
     }
 
     if (audioResampler) {
@@ -134,6 +167,8 @@ int MediaPlayer::_stop() {
     if (playerState) {
         playerState->reset();
     }
+
+    notifyMsg(Msg::MSG_STOP);
     return SUCCESS;
 }
 
@@ -148,26 +183,46 @@ int MediaPlayer::destroy() {
 
 int MediaPlayer::_destroy() {
     _stop();
-    if (mediaSync) {
-        delete mediaSync;
-        mediaSync = nullptr;
+
+    if (videoDevice != nullptr) {
+        videoDevice->setPlayerState(nullptr);
+        if (mediaSync != nullptr) {
+            mediaSync->setVideoDevice(nullptr);
+        }
+        videoDevice->destroy();
+        delete videoDevice;
+        videoDevice = nullptr;
     }
-    if (mediaStream) {
+
+    if (mediaStream != nullptr) {
         mediaStream->setStreamListener(nullptr);
         mediaStream->setMediaSync(nullptr);
+        mediaStream->destroy();
         delete mediaStream;
         mediaStream = nullptr;
     }
+
+    if (mediaSync != nullptr) {
+        mediaSync->setPlayerState(nullptr);
+        mediaSync->destroy();
+        delete mediaSync;
+        mediaSync = nullptr;
+    }
+
     if (playerState) {
         delete playerState;
         playerState = nullptr;
     }
+
+    notifyMsg(Msg::MSG_DESTROY);
+
     if (messageCenter) {
-        messageCenter->setMsgListener(nullptr);
         messageCenter->stopMsgQueue();
+        messageCenter->setMsgListener(nullptr);
         delete messageCenter;
         messageCenter = nullptr;
     }
+
     return SUCCESS;
 }
 
@@ -178,14 +233,16 @@ void MediaPlayer::setDataSource(const char *url, int64_t offset, const char *hea
     mutex.unlock();
 }
 
-void MediaPlayer::_setDataSource(const char *url, int64_t offset, const char *headers) const {
+int MediaPlayer::_setDataSource(const char *url, int64_t offset, const char *headers) const {
     if (playerState) {
         playerState->url = av_strdup(url);
         playerState->offset = offset;
         if (headers) {
             playerState->headers = av_strdup(headers);
         }
+        return SUCCESS;
     }
+    return ERROR;
 }
 
 void MediaPlayer::seekTo(float timeMs) {
@@ -388,9 +445,6 @@ void MediaPlayer::setVideoDevice(VideoDevice *videoDevice) {
     }
 }
 
-MediaSync *MediaPlayer::getMediaSync() const {
-    return mediaSync;
-}
 
 void MediaPlayer::togglePause() {
     if (mediaSync) {
@@ -628,7 +682,6 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 根据媒体流索引准备解码器
 
-
     // 准备视频解码器
     if (videoIndex >= 0) {
         if (openDecoder(videoIndex) < 0) {
@@ -653,9 +706,9 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 视频解码器开始解码
     if (videoDecoder != nullptr) {
+        ALOGD(TAG, "start video decoder");
         videoDecoder->start();
-        ALOGD(TAG, "%s start video decoder thread", __func__);
-        notifyMsg(Msg::MSG_VIDEO_DECODER_THREAD_STARTED);
+        notifyMsg(Msg::MSG_VIDEO_DECODER_START);
     } else {
         if (playerState->syncType == AV_SYNC_VIDEO) {
             playerState->syncType = AV_SYNC_AUDIO;
@@ -665,9 +718,9 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 音频解码器开始解码
     if (audioDecoder != nullptr) {
+        ALOGD(TAG, "start audio decoder");
         audioDecoder->start();
-        ALOGD(TAG, "%s start audio decoder thread", __func__);
-        notifyMsg(Msg::MSG_AUDIO_DECODER_THREAD_STARTED);
+        notifyMsg(Msg::MSG_AUDIO_DECODER_START);
     } else {
         if (playerState->syncType == AV_SYNC_AUDIO) {
             playerState->syncType = AV_SYNC_EXTERNAL;
@@ -679,12 +732,12 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 打开视频输出设备
     if (videoDevice != nullptr) {
-        ALOGD(TAG, "%s start video device thread", __func__);
-        notifyMsg(Msg::MSG_VIDEO_DEVICE_STARTED);
+        ALOGD(TAG, "start video device");
+        notifyMsg(Msg::MSG_VIDEO_DEVICE_START);
     }
 
     // 打开音频输出设备
-    if (audioDecoder != nullptr) {
+    if (audioDevice != nullptr && audioDecoder != nullptr) {
         AVCodecContext *codecContext = audioDecoder->getCodecContext();
         ret = openAudioDevice(codecContext->channel_layout,
                               codecContext->channels,
@@ -702,9 +755,9 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
             }
         } else {
             // 启动音频输出设备
-            ALOGD(TAG, "%s start audio device thread", __func__);
+            ALOGD(TAG, "start audio device");
             audioDevice->start();
-            notifyMsg(Msg::MSG_AUDIO_DEVICE_STARTED);
+            notifyMsg(Msg::MSG_AUDIO_DEVICE_START);
         }
     }
 
@@ -723,30 +776,31 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 开始同步
     if (mediaSync) {
-        ALOGD(TAG, "%s start media sync thread", __func__);
+        ALOGD(TAG, "start media sync");
         mediaSync->start(videoDecoder, audioDecoder);
+        notifyMsg(Msg::MSG_MEDIA_SYNC_START);
     }
 }
 
 int MediaPlayer::notifyMsg(int what) {
-    if (playerState) {
-        playerState->notifyMsg(what);
+    if (messageCenter) {
+        messageCenter->notifyMsg(what);
         return SUCCESS;
     }
     return ERROR;
 }
 
 int MediaPlayer::notifyMsg(int what, int arg1) {
-    if (playerState) {
-        playerState->notifyMsg(what, arg1);
+    if (messageCenter) {
+        messageCenter->notifyMsg(what, arg1);
         return SUCCESS;
     }
     return ERROR;
 }
 
 int MediaPlayer::notifyMsg(int what, int arg1, int arg2) {
-    if (playerState) {
-        playerState->notifyMsg(what, arg1, arg2);
+    if (messageCenter) {
+        messageCenter->notifyMsg(what, arg1, arg2);
         return SUCCESS;
     }
     return ERROR;

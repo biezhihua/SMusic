@@ -7,12 +7,13 @@
 #include <common/Condition.h>
 #include <common/Log.h>
 #include <message/Msg.h>
+#include "IMessageListener.h"
 
 using namespace std;
 
 class MessageQueue {
 
-    const char *const TAG = "MessageQueue";
+    const char *const TAG = "MessageCenter";
 
 private:
 
@@ -32,22 +33,13 @@ public:
 
     ~MessageQueue();
 
-    /**
-     * push message to queue
-     */
     int putMsg(Msg *msg);
 
-    /**
-     * get first message from queue, will block thread
-     */
     int getMsg(Msg *msg, bool block);
 
     int removeMsg(int what);
 
-    /**
-     * clear queue
-     */
-    int clearMsgQueue();
+    int clearMsgQueue(IMessageListener *pListener);
 
     int startMsgQueue();
 

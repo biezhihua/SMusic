@@ -63,9 +63,13 @@ public:
 
     void run() override;
 
+    int create();
+
     int start();
 
     int stop();
+
+    int destroy();
 
     void setAudioDecoder(AudioDecoder *audioDecoder);
 
