@@ -11,7 +11,7 @@ class VideoDevice {
 
 protected:
 
-    PlayerState *playerState;
+    PlayerState *playerState = nullptr;
 
 public:
     VideoDevice();

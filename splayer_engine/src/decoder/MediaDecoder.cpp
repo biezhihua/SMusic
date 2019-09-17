@@ -12,12 +12,10 @@ MediaDecoder::MediaDecoder(AVCodecContext *codecContext, AVStream *stream, int s
 }
 
 MediaDecoder::~MediaDecoder() {
-    if (packetQueue) {
-        packetQueue->flush();
-        delete packetQueue;
-        packetQueue = nullptr;
-    }
-    if (codecContext) {
+    packetQueue->flush();
+    delete packetQueue;
+    packetQueue = nullptr;
+    if (codecContext != nullptr) {
         avcodec_close(codecContext);
         avcodec_free_context(&codecContext);
         codecContext = nullptr;
@@ -26,28 +24,20 @@ MediaDecoder::~MediaDecoder() {
 }
 
 void MediaDecoder::start() {
-    if (packetQueue) {
-        packetQueue->start();
-    }
+    packetQueue->start();
 }
 
 void MediaDecoder::stop() {
-    if (packetQueue) {
-        packetQueue->abort();
-    }
+    packetQueue->abort();
 }
 
 void MediaDecoder::pushFlushPacket() {
-    if (packetQueue) {
-        packetQueue->pushPacket(flushPacket);
-    }
+    packetQueue->pushPacket(flushPacket);
 }
 
 void MediaDecoder::flush() {
     ALOGD(TAG, "%s", __func__);
-    if (packetQueue) {
-        packetQueue->flush();
-    }
+    packetQueue->flush();
     // 定位时，音视频均需要清空缓冲区
     playerState->mMutex.lock();
     avcodec_flush_buffers(getCodecContext());
@@ -55,17 +45,11 @@ void MediaDecoder::flush() {
 }
 
 int MediaDecoder::pushPacket(AVPacket *pkt) {
-    if (packetQueue) {
-        return packetQueue->pushPacket(pkt);
-    }
-    return ERROR;
+    return packetQueue->pushPacket(pkt);
 }
 
 int MediaDecoder::getPacketSize() {
-    if (packetQueue) {
-        return packetQueue->getPacketSize();
-    }
-    return 0;
+    return packetQueue->getPacketSize();
 }
 
 int MediaDecoder::getStreamIndex() {
@@ -81,14 +65,10 @@ AVCodecContext *MediaDecoder::getCodecContext() {
 }
 
 int MediaDecoder::getMemorySize() {
-    if (packetQueue) {
-        return packetQueue->getSize();
-    }
-    return 0;
+    return packetQueue->getSize();
 }
 
 int MediaDecoder::hasEnoughPackets() {
-    Mutex::Autolock lock(mutex);
     return streamIndex < 0 || (packetQueue == nullptr) || packetQueue->isAbort() ||
            (stream->disposition & AV_DISPOSITION_ATTACHED_PIC) ||
            ((packetQueue->getPacketSize() > MIN_FRAMES) &&
@@ -97,7 +77,7 @@ int MediaDecoder::hasEnoughPackets() {
 
 
 bool MediaDecoder::isFinished() {
-    return packetQueue && finished == packetQueue->getLastSeekSerial() && getPacketSize() == 0;
+    return finished == packetQueue->getLastSeekSerial() && getPacketSize() == 0;
 }
 
 void MediaDecoder::run() {
@@ -114,15 +94,12 @@ void MediaDecoder::pushNullPacket() {
 }
 
 bool MediaDecoder::isSamePacketSerial() {
-    return packetQueue && packetQueue->getLastSeekSerial() == packetQueue->getFirstSeekSerial();
+    return packetQueue->getLastSeekSerial() == packetQueue->getFirstSeekSerial();
 }
 
-PacketQueue *MediaDecoder::getPacketQueue() const {
+PacketQueue *MediaDecoder::getPacketQueue() {
     return packetQueue;
 }
 
-Mutex &MediaDecoder::getMutex() {
-    return mutex;
-}
 
 

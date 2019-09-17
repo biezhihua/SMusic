@@ -17,28 +17,21 @@ VideoDecoder::VideoDecoder(AVFormatContext *pFormatCtx, AVCodecContext *avctx, A
 }
 
 VideoDecoder::~VideoDecoder() {
-    mutex.lock();
     formatContext = nullptr;
-    if (frameQueue) {
-        frameQueue->flush();
-        delete frameQueue;
-        frameQueue = nullptr;
-    }
+    frameQueue->flush();
+    delete frameQueue;
+    frameQueue = nullptr;
     masterClock = nullptr;
-    mutex.unlock();
 }
 
 void VideoDecoder::setMasterClock(MediaClock *masterClock) {
-    Mutex::Autolock lock(mutex);
     this->masterClock = masterClock;
 }
 
 void VideoDecoder::start() {
     MediaDecoder::start();
-    if (frameQueue) {
-        frameQueue->start();
-    }
-    if (!decodeThread) {
+    frameQueue->start();
+    if (decodeThread == nullptr) {
         decodeThread = new Thread(this);
         decodeThread->start();
     }
@@ -46,10 +39,8 @@ void VideoDecoder::start() {
 
 void VideoDecoder::stop() {
     MediaDecoder::stop();
-    if (frameQueue) {
-        frameQueue->abort();
-    }
-    if (decodeThread) {
+    frameQueue->abort();
+    if (decodeThread != nullptr) {
         // https://baike.baidu.com/item/pthread_join
         decodeThread->join();
         delete decodeThread;
@@ -58,28 +49,21 @@ void VideoDecoder::stop() {
 }
 
 void VideoDecoder::flush() {
-    mutex.lock();
     MediaDecoder::flush();
-    if (frameQueue) {
-        frameQueue->flush();
-    }
-    condition.signal();
-    mutex.unlock();
+    frameQueue->flush();
 }
 
 int VideoDecoder::getFrameSize() {
-    return frameQueue ? frameQueue->getFrameSize() : 0;
+    return frameQueue->getFrameSize();
 }
 
 int VideoDecoder::getRotate() {
-    Mutex::Autolock lock(mutex);
     return rotate;
 }
 
 FrameQueue *VideoDecoder::getFrameQueue() {
     return frameQueue;
 }
-
 
 void VideoDecoder::run() {
     ALOGD(TAG, "start video decoder");
@@ -100,7 +84,6 @@ int VideoDecoder::decodeVideo() {
     AVRational frame_rate = av_guess_frame_rate(formatContext, stream, nullptr);
 
     if (!frame) {
-        condition.signal();
         ALOGE(TAG, "%s not memory", __func__);
         return ERROR_NOT_MEMORY;
     }

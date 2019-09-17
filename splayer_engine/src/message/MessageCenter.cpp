@@ -12,11 +12,6 @@ MessageCenter::~MessageCenter() {
 void MessageCenter::run() {
     ALOGD(TAG, "start message center thread");
     while (!abortRequest) {
-        mutex.lock();
-        if (!msgQueue) {
-            condition.wait(mutex);
-        }
-        mutex.unlock();
         executeMsg(true);
     }
     ALOGD(TAG, "end message center thread");
@@ -32,10 +27,6 @@ void MessageCenter::executeMsg(bool block) {
     msg.free();
 }
 
-MessageQueue *MessageCenter::getMsgQueue() {
-    return msgQueue;
-}
-
 void MessageCenter::setMsgListener(IMessageListener *msgListener) {
     ALOGD(TAG, "%s listener = %p", __func__, msgListener);
     MessageCenter::msgListener = msgListener;
@@ -43,10 +34,9 @@ void MessageCenter::setMsgListener(IMessageListener *msgListener) {
 
 int MessageCenter::start() {
     abortRequest = false;
-    if (!msgThread) {
+    if (msgThread == nullptr) {
         msgThread = new Thread(this, Priority_High);
         if (!msgThread) {
-            mutex.unlock();
             return ERROR_NOT_MEMORY;
         }
         msgThread->start();
@@ -56,7 +46,7 @@ int MessageCenter::start() {
 
 int MessageCenter::stop() {
     abortRequest = true;
-    if (msgThread) {
+    if (msgThread != nullptr) {
         // https://baike.baidu.com/item/pthread_join
         msgThread->join();
         delete msgThread;
@@ -69,48 +59,28 @@ int MessageCenter::stop() {
 void MessageCenter::startMsgQueue() {
     ALOGD(TAG, __func__);
     start();
-    if (msgQueue) {
-        msgQueue->startMsgQueue();
-    }
+    msgQueue->startMsgQueue();
 }
 
 void MessageCenter::stopMsgQueue() {
     ALOGD(TAG, __func__);
     stop();
-    if (msgQueue) {
-        msgQueue->clearMsgQueue(nullptr);
-    }
+    msgQueue->clearMsgQueue(nullptr);
 }
 
 int MessageCenter::notifyMsg(int what) {
-    condition.signal();
-    if (msgQueue) {
-        return msgQueue->notifyMsg(what);
-    }
-    return ERROR;
+    return msgQueue->notifyMsg(what);
 }
 
 int MessageCenter::notifyMsg(int what, int arg1) {
-    condition.signal();
-    if (msgQueue) {
-        return msgQueue->notifyMsg(what, arg1);
-    }
-    return ERROR;
+    return msgQueue->notifyMsg(what, arg1);
 }
 
 int MessageCenter::notifyMsg(int what, int arg1, int arg2) {
-    condition.signal();
-    if (msgQueue) {
-        return msgQueue->notifyMsg(what, arg1, arg2);
-    }
-    return ERROR;
+    return msgQueue->notifyMsg(what, arg1, arg2);
 }
 
 int MessageCenter::removeMsg(int what) {
-    condition.signal();
-    if (msgQueue) {
-        return msgQueue->removeMsg(what);
-    }
-    return ERROR;
+    return msgQueue->removeMsg(what);
 }
 

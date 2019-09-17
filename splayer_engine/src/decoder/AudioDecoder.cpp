@@ -7,9 +7,7 @@ AudioDecoder::AudioDecoder(AVCodecContext *avctx, AVStream *stream, int streamIn
 }
 
 AudioDecoder::~AudioDecoder() {
-    mutex.lock();
     isPendingPacket = false;
-    mutex.unlock();
 }
 
 void AudioDecoder::start() {

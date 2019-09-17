@@ -140,7 +140,7 @@ bool SDLMediaPlayer::isNotHaveWindow() {
     return ret;
 }
 
-void SDLMediaPlayer:: doKeySystem(const SDL_Event &event) {
+void SDLMediaPlayer::doKeySystem(const SDL_Event &event) {
     switch (event.key.keysym.sym) {
         case SDLK_f:
             if (videoDevice && mediaSync) {
@@ -150,7 +150,6 @@ void SDLMediaPlayer:: doKeySystem(const SDL_Event &event) {
             }
             break;
         case SDLK_o:
-            notifyMsg(Msg::MSG_REQUEST_DESTROY);
             break;
         case SDLK_p:
             notifyMsg(Msg::MSG_REQUEST_START);

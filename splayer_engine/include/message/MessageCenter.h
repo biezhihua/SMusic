@@ -15,10 +15,6 @@ private:
 
     bool abortRequest = false;
 
-    Mutex mutex;
-    Condition condition;
-
-    /// 消息线程
     Thread *msgThread = nullptr;
 
 protected:
@@ -40,8 +36,6 @@ public:
     int start();
 
     int stop();
-
-    MessageQueue *getMsgQueue();
 
     void startMsgQueue();
 
