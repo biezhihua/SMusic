@@ -1,8 +1,17 @@
 #include <player/MediaPlayer.h>
 
-MediaPlayer::MediaPlayer() = default;
+MediaPlayer::MediaPlayer() {
+    messageCenter = new MessageCenter();
+    messageCenter->startMsgQueue();
+};
 
-MediaPlayer::~MediaPlayer() = default;
+MediaPlayer::~MediaPlayer() {
+    if (messageCenter) {
+        messageCenter->stopMsgQueue();
+        delete messageCenter;
+        messageCenter = nullptr;
+    }
+}
 
 int MediaPlayer::create() {
     ALOGD(TAG, "create media player - start");
@@ -14,12 +23,10 @@ int MediaPlayer::create() {
 }
 
 int MediaPlayer::_create() {
-    // Message
-    if (messageCenter == nullptr) {
-        messageCenter = new MessageCenter();
+
+    if (messageCenter) {
+        messageCenter->setMsgListener(messageListener);
     }
-    messageCenter->setMsgListener(messageListener);
-    messageCenter->startMsgQueue();
 
     // Player State
     playerState = new PlayerState();
@@ -114,7 +121,9 @@ int MediaPlayer::stop() {
 }
 
 int MediaPlayer::_stop() {
-    playerState->abortRequest = 1;
+    if (playerState) {
+        playerState->abortRequest = 1;
+    }
 
     if (mediaSync) {
         ALOGD(TAG, "stop media sync");
@@ -215,14 +224,6 @@ int MediaPlayer::_destroy() {
     }
 
     notifyMsg(Msg::MSG_DESTROY);
-
-    if (messageCenter) {
-        messageCenter->stopMsgQueue();
-        messageCenter->setMsgListener(nullptr);
-        delete messageCenter;
-        messageCenter = nullptr;
-    }
-
     return SUCCESS;
 }
 
@@ -450,10 +451,6 @@ void MediaPlayer::togglePause() {
     if (mediaSync) {
         mediaSync->togglePause();
     }
-}
-
-void MediaPlayer::setMessageCenter(MessageCenter *msgCenter) {
-    messageCenter = msgCenter;
 }
 
 int MediaPlayer::openDecoder(int streamIndex) {

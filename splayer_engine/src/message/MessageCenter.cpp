@@ -42,19 +42,22 @@ void MessageCenter::setMsgListener(IMessageListener *msgListener) {
 }
 
 int MessageCenter::start() {
+    mutex.lock();
     abortRequest = false;
     if (!msgThread) {
         msgThread = new Thread(this, Priority_High);
-        if (msgThread) {
-            msgThread->start();
-            return SUCCESS;
+        if (!msgThread) {
+            mutex.unlock();
+            return ERROR_NOT_MEMORY;
         }
-        return ERROR_NOT_MEMORY;
+        msgThread->start();
     }
+    mutex.unlock();
     return SUCCESS;
 }
 
 int MessageCenter::stop() {
+    mutex.lock();
     abortRequest = true;
     if (msgThread) {
         // https://baike.baidu.com/item/pthread_join
@@ -62,6 +65,7 @@ int MessageCenter::stop() {
         delete msgThread;
         msgThread = nullptr;
     }
+    mutex.unlock();
     return SUCCESS;
 }
 
@@ -78,7 +82,7 @@ void MessageCenter::stopMsgQueue() {
     ALOGD(TAG, __func__);
     stop();
     if (msgQueue) {
-        msgQueue->clearMsgQueue(msgListener);
+        msgQueue->clearMsgQueue(nullptr);
     }
 }
 

@@ -58,7 +58,6 @@ private:
     MediaSync *mediaSync = nullptr;
     AudioDevice *audioDevice = nullptr;
     VideoDevice *videoDevice = nullptr;
-    MessageCenter *messageCenter = nullptr;
     IMessageListener *messageListener = nullptr;
 
 public:
@@ -83,11 +82,6 @@ public:
         return *this;
     }
 
-    Builder &withMessageCenter(MessageCenter *messageCenter) {
-        this->messageCenter = messageCenter;
-        return *this;
-    }
-
     Builder &withMessageListener(IMessageListener *messageListener) {
         this->messageListener = messageListener;
         return *this;
@@ -99,7 +93,6 @@ public:
         mediaPlayer->setMediaSync(mediaSync);
         mediaPlayer->setAudioDevice(audioDevice);
         mediaPlayer->setVideoDevice(videoDevice);
-        mediaPlayer->setMessageCenter(messageCenter);
         mediaPlayer->setMessageListener(messageListener);
         return mediaPlayer;
     }

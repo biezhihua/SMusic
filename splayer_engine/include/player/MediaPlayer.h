@@ -124,8 +124,6 @@ public:
 
     void setVideoDevice(VideoDevice *videoDevice);
 
-    void setMessageCenter(MessageCenter *msgCenter);
-
     void onStartOpenStream() override;
 
     void onEndOpenStream(int videoIndex, int audioIndex) override;
