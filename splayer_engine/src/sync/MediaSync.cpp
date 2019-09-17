@@ -1,12 +1,8 @@
 #include <sync/MediaSync.h>
 
-MediaSync::MediaSync() {
+MediaSync::MediaSync() = default;
 
-}
-
-MediaSync::~MediaSync() {
-
-}
+MediaSync::~MediaSync() = default;
 
 void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
     this->videoDecoder = videoDecoder;
@@ -427,22 +423,22 @@ void MediaSync::togglePause() {
 
 
 int MediaSync::notifyMsg(int what) {
-    if (playerState) {
-        return playerState->notifyMsg(what);
+    if (messageCenter) {
+        return messageCenter->notifyMsg(what);
     }
     return ERROR;
 }
 
 int MediaSync::notifyMsg(int what, int arg1) {
-    if (playerState) {
-        return playerState->notifyMsg(what, arg1);
+    if (messageCenter) {
+        return messageCenter->notifyMsg(what, arg1);
     }
     return ERROR;
 }
 
 int MediaSync::notifyMsg(int what, int arg1, int arg2) {
-    if (playerState) {
-        return playerState->notifyMsg(what, arg1, arg2);
+    if (messageCenter) {
+        return messageCenter->notifyMsg(what, arg1, arg2);
     }
     return ERROR;
 }
@@ -470,5 +466,9 @@ int MediaSync::destroy() {
     delete externalClock;
     externalClock = nullptr;
     return SUCCESS;
+}
+
+void MediaSync::setMessageCenter(MessageCenter *messageCenter) {
+    MediaSync::messageCenter = messageCenter;
 }
 

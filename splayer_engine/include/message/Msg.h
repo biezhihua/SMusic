@@ -85,18 +85,19 @@ public:
     /////////////////////////////////////////////
     ///  请求消息范围 20000 ~ 29999
 
-    /// 异步请求开始
+    /// 请求开始
     static const int MSG_REQUEST_START = 20001;
 
-    static const int MSG_REQUEST_SOP = 20002;
+    /// 请求停止
+    static const int MSG_REQUEST_STOP = 20002;
 
     /// 请求播放或者暂停
     static const int MSG_REQUEST_PLAY_OR_PAUSE = 20003;
 
-    ///
+    /// 请求创建
     static const int MSG_REQUEST_CREATE = 20004;
 
-    ///
+    /// 请求销毁
     static const int MSG_REQUEST_DESTROY = 20005;
 
     /// 请求定位

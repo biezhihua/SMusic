@@ -7,7 +7,6 @@ PlayerState::PlayerState() {
 
 PlayerState::~PlayerState() {
     reset();
-    msgQueue = nullptr;
 }
 
 void PlayerState::init() {
@@ -189,42 +188,9 @@ void PlayerState::parse_int(const char *type, int64_t option) {
     }
 }
 
-
-int PlayerState::notifyMsg(int what) {
-    if (msgQueue) {
-        return msgQueue->notifyMsg(what);
-    }
-    return ERROR;
-}
-
-int PlayerState::notifyMsg(int what, int arg1) {
-    if (msgQueue) {
-        return msgQueue->notifyMsg(what, arg1);
-    }
-    return ERROR;
-}
-
-int PlayerState::notifyMsg(int what, int arg1, int arg2) {
-    if (msgQueue) {
-        return msgQueue->notifyMsg(what, arg1, arg2);
-    }
-    return ERROR;
-}
-
-int PlayerState::removeMsg(int what) {
-    if (msgQueue) {
-        return msgQueue->removeMsg(what);
-    }
-    return ERROR;
-}
-
 const char *PlayerState::getSyncType() {
     if (syncType == AV_SYNC_AUDIO) {
         return "AV_SYNC_AUDIO";
     }
     return "NONE";
-}
-
-void PlayerState::setMsgQueue(MessageQueue *msgQueue) {
-    this->msgQueue = msgQueue;
 }

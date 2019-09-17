@@ -44,8 +44,5 @@ int main() {
     mediaPlayer->setDataSource("/Users/biezhihua/Downloads/寄生虫.mp4");
     mediaPlayer->start();
     mediaPlayer->eventLoop();
-
-//    delete mediaPlayer;
-//    mediaPlayer = nullptr;
-    return 0;
+    return SUCCESS;
 }

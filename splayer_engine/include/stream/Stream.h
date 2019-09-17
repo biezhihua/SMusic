@@ -40,6 +40,8 @@ private:
     /// 媒体同步器
     MediaSync *mediaSync = nullptr;
 
+    MessageCenter *messageCenter = nullptr;
+
     /// 解码上下文
     AVFormatContext *formatContext = nullptr;
 
@@ -77,13 +79,13 @@ public:
 
     void setMediaSync(MediaSync *mediaSync);
 
-    Mutex *getWaitMutex();
-
     Condition *getWaitCondition();
 
     AVPacket *getFlushPacket();
 
     void setStreamListener(IStreamListener *streamListener);
+
+    void setMessageCenter(MessageCenter *messageCenter);
 
 private:
 

@@ -6,6 +6,7 @@
 #include <decoder/VideoDecoder.h>
 #include <decoder/AudioDecoder.h>
 #include <device/VideoDevice.h>
+#include <message/MessageCenter.h>
 
 /**
  * 视频同步器
@@ -68,7 +69,10 @@ public:
 
     void setForceRefresh(int forceRefresh);
 
+    void setMessageCenter(MessageCenter *messageCenter);
+
 private:
+
     void refreshVideo(double *remaining_time);
 
     void checkExternalClockSpeed();
@@ -101,6 +105,9 @@ protected:
 
     /// 视频解码器
     AudioDecoder *audioDecoder = nullptr;
+
+    ///
+    MessageCenter *messageCenter = nullptr;
 
     Mutex mutex;
 

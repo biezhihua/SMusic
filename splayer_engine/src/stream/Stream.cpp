@@ -450,35 +450,27 @@ Condition *Stream::getWaitCondition() {
     return &waitCondition;
 }
 
-Mutex *Stream::getWaitMutex() {
-    return &waitMutex;
-}
-
 AVPacket *Stream::getFlushPacket() {
     return &flushPacket;
 }
 
-
 int Stream::notifyMsg(int what) {
-    if (playerState) {
-        playerState->notifyMsg(what);
-        return SUCCESS;
+    if (messageCenter) {
+        return messageCenter->notifyMsg(what);
     }
     return ERROR;
 }
 
 int Stream::notifyMsg(int what, int arg1) {
-    if (playerState) {
-        playerState->notifyMsg(what, arg1);
-        return SUCCESS;
+    if (messageCenter) {
+        return messageCenter->notifyMsg(what, arg1);
     }
     return ERROR;
 }
 
 int Stream::notifyMsg(int what, int arg1, int arg2) {
-    if (playerState) {
-        playerState->notifyMsg(what, arg1, arg2);
-        return SUCCESS;
+    if (messageCenter) {
+        return messageCenter->notifyMsg(what, arg1, arg2);
     }
     return ERROR;
 }
@@ -505,6 +497,10 @@ int Stream::destroy() {
     streamListener = nullptr;
     mediaSync = nullptr;
     return SUCCESS;
+}
+
+void Stream::setMessageCenter(MessageCenter *messageCenter) {
+    Stream::messageCenter = messageCenter;
 }
 
 

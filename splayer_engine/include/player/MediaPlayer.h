@@ -82,7 +82,7 @@ public:
 
     virtual int destroy();
 
-    void setDataSource(const char *url, int64_t offset = 0, const char *headers = nullptr);
+    int setDataSource(const char *url, int64_t offset = 0, const char *headers = nullptr);
 
     void seekTo(float timeMs);
 
@@ -112,10 +112,6 @@ public:
 
     int getMetadata(AVDictionary **metadata);
 
-    MessageQueue *getMessageQueue();
-
-    PlayerState *getPlayerState();
-
     void pcmQueueCallback(uint8_t *stream, int len);
 
     void setAudioDevice(AudioDevice *audioDevice);
@@ -132,9 +128,9 @@ public:
 
     void setFormatContext(AVFormatContext *formatContext);
 
-private:
+protected:
 
-    void togglePause();
+    int togglePause();
 
     int openDecoder(int streamIndex);
 
@@ -144,7 +140,6 @@ private:
 
     int checkParams();
 
-protected:
     int notifyMsg(int what);
 
     int notifyMsg(int what, int arg1);

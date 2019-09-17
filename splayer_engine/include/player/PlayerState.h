@@ -86,15 +86,8 @@ public:
 
     void setOptionLong(int category, const char *type, int64_t option);
 
-    int notifyMsg(int what);
-
-    int notifyMsg(int what, int arg1);
-
-    int notifyMsg(int what, int arg1, int arg2);
-
-    int removeMsg(int what);
-
 private:
+
     void init();
 
     void parse_string(const char *type, const char *option);
@@ -108,7 +101,6 @@ public:
     AVDictionary *format_opts;      // 解复用option参数
     AVDictionary *codec_opts;       // 解码option参数
 
-    MessageQueue *msgQueue;         // 播放器消息队列
     int64_t videoDuration;          // 视频时长
 
     AVInputFormat *inputFormat;     // 指定文件封装格式，也就是解复用器
@@ -157,9 +149,8 @@ public:
 
     int attachmentRequest;          // 视频封面数据包请求
 
-    const char *getSyncType() ;
+    const char *getSyncType();
 
-    void setMsgQueue(MessageQueue *msgQueue);
 };
 
 
