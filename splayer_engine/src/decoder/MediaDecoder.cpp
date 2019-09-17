@@ -62,7 +62,10 @@ int MediaDecoder::pushPacket(AVPacket *pkt) {
 }
 
 int MediaDecoder::getPacketSize() {
-    return packetQueue ? packetQueue->getPacketSize() : 0;
+    if (packetQueue) {
+        return packetQueue->getPacketSize();
+    }
+    return 0;
 }
 
 int MediaDecoder::getStreamIndex() {
@@ -78,7 +81,10 @@ AVCodecContext *MediaDecoder::getCodecContext() {
 }
 
 int MediaDecoder::getMemorySize() {
-    return packetQueue ? packetQueue->getSize() : 0;
+    if (packetQueue) {
+        return packetQueue->getSize();
+    }
+    return 0;
 }
 
 int MediaDecoder::hasEnoughPackets() {

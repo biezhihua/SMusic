@@ -680,7 +680,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     // 根据媒体流索引准备解码器
 
     // 准备视频解码器
-    if (videoIndex >= 0) {
+    if (videoIndex >= 0 && videoDevice != nullptr) {
         if (openDecoder(videoIndex) < 0) {
             ALOGE(TAG, "%s failed to create video decoder", __func__);
             notifyMsg(Msg::MSG_ERROR, ERROR_CREATE_AUDIO_DECODER);
@@ -688,7 +688,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     }
 
     // 准备音频解码器
-    if (audioIndex >= 0) {
+    if (audioIndex >= 0 && audioDevice != nullptr) {
         if (openDecoder(audioIndex) < 0) {
             ALOGE(TAG, "%s failed to create audio decoder", __func__);
             notifyMsg(Msg::MSG_ERROR, ERROR_CREATE_VIDEO_DECODER);

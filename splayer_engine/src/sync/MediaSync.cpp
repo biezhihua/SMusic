@@ -101,15 +101,12 @@ void MediaSync::refreshVideo() {
         av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
     }
     remainingTime = REFRESH_RATE;
-    if (playerState == nullptr || videoDecoder == nullptr || audioDecoder == nullptr || videoDevice == nullptr) {
-        return;
-    }
-    ALOGD(TAG, "===== refreshVideo =====");
-    if (playerState != nullptr && videoDecoder != nullptr && audioDecoder != nullptr && videoDevice != nullptr &&
+    if (playerState != nullptr && videoDecoder != nullptr && videoDevice != nullptr &&
         (!playerState->pauseRequest || forceRefresh)) {
+        ALOGD(TAG, "===== refreshVideo =====");
         refreshVideo(&remainingTime);
+        ALOGD(TAG, "===== end =====");
     }
-    ALOGD(TAG, "===== end =====");
 }
 
 void MediaSync::refreshVideo(double *remaining_time) {
@@ -125,7 +122,8 @@ void MediaSync::refreshVideo(double *remaining_time) {
 
     for (;;) {
 
-        if (playerState->abortRequest || !videoDecoder) {
+        if (playerState->abortRequest) {
+            ALOGI(TAG, "%s abort request", __func__);
             break;
         }
 

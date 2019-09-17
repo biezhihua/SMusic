@@ -42,7 +42,6 @@ void MessageCenter::setMsgListener(IMessageListener *msgListener) {
 }
 
 int MessageCenter::start() {
-    mutex.lock();
     abortRequest = false;
     if (!msgThread) {
         msgThread = new Thread(this, Priority_High);
@@ -52,12 +51,10 @@ int MessageCenter::start() {
         }
         msgThread->start();
     }
-    mutex.unlock();
     return SUCCESS;
 }
 
 int MessageCenter::stop() {
-    mutex.lock();
     abortRequest = true;
     if (msgThread) {
         // https://baike.baidu.com/item/pthread_join
@@ -65,7 +62,6 @@ int MessageCenter::stop() {
         delete msgThread;
         msgThread = nullptr;
     }
-    mutex.unlock();
     return SUCCESS;
 }
 

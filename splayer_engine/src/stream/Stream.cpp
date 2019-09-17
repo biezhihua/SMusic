@@ -146,6 +146,9 @@ int Stream::readPackets() {
             if (!isNoReadMoreLog) {
                 isNoReadMoreLog = true;
                 ALOGD(TAG, "%s not need read more, wait 10", __func__);
+                ALOGD(TAG,
+                      "%s isNoInfiniteBuffer = %d isNoEnoughMemory = %d isAudioEnoughPackets = %d isVideoEnoughPackets = %d",
+                      __func__, isNoInfiniteBuffer, isNoEnoughMemory, isAudioEnoughPackets, isVideoEnoughPackets);
             }
             continue;
         }
@@ -427,7 +430,7 @@ bool Stream::isPacketInPlayRange(const AVFormatContext *formatContext, const AVP
 bool Stream::isRetryPlay() const {
     bool isNoPaused = !playerState->pauseRequest;
     bool isNoUseAudioFrame = !audioDecoder || audioDecoder->isFinished();
-    bool isNoUseVideoFrame = !videoDecoder || audioDecoder->isFinished();
+    bool isNoUseVideoFrame = !videoDecoder || videoDecoder->isFinished();
     return isNoPaused && isNoUseAudioFrame && isNoUseVideoFrame;
 }
 

@@ -210,9 +210,11 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
             // 接收一帧解码后的数据
             do {
 
+                ALOGD(TAG, "%s receive frame", __func__);
+
                 if (packetQueue->isAbort()) {
                     ALOGE(TAG, "%s abort", __func__);
-                    return -1;
+                    return ERROR_ABORT_REQUEST;
                 }
 
                 if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
@@ -239,17 +241,19 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
                 if (ret == AVERROR_EOF) {
                     finished = packetQueue->getLastSeekSerial();
                     avcodec_flush_buffers(codecContext);
-                    return 0;
+                    return SUCCESS;
                 }
 
                 if (ret >= 0) {
-                    return 1;
+                    return SUCCESS;
                 }
 
             } while (ret != AVERROR(EAGAIN));
         }
 
         do {
+            ALOGD(TAG, "%s sync packet serial", __func__);
+
             // 同步读取序列
             if (getPacketSize() == 0) {
                 readWaitCond->signal();
@@ -261,7 +265,7 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
             } else {
                 // 更新packetSerial
                 if (packetQueue->getPacket(&packet) < 0) {
-                    return -1;
+                    return ERROR_ABORT_REQUEST;
                 }
             }
         } while (!isSamePacketSerial());
@@ -273,6 +277,7 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
             nextPtsTb = startPtsTb;
         } else {
             if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
+                ALOGD(TAG, "%s send frame", __func__);
                 if (avcodec_send_packet(codecContext, &packet) == AVERROR(EAGAIN)) {
                     ALOGE(TAG, "%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
                           __func__);
