@@ -79,7 +79,7 @@ int MediaPlayer::setDataSource(const char *url, int64_t offset, const char *head
 
 int MediaPlayer::_create() {
 
-    if (messageCenter) {
+    if (messageCenter != nullptr) {
         messageCenter->setMsgListener(messageListener);
     }
 
@@ -139,11 +139,12 @@ int MediaPlayer::_start() {
 }
 
 int MediaPlayer::_stop() {
-    if (playerState) {
+
+    if (playerState != nullptr) {
         playerState->abortRequest = 1;
     }
 
-    if (mediaSync) {
+    if (mediaSync != nullptr) {
         ALOGD(TAG, "stop media sync");
         mediaSync->stop();
         notifyMsg(Msg::MSG_MEDIA_SYNC_STOP);
@@ -176,13 +177,13 @@ int MediaPlayer::_stop() {
         videoDecoder = nullptr;
     }
 
-    if (mediaStream) {
+    if (mediaStream != nullptr) {
         ALOGD(TAG, "stop media stream");
         mediaStream->stop();
         notifyMsg(Msg::MSG_MEDIA_STREAM_STOP);
     }
 
-    if (audioResampler) {
+    if (audioResampler != nullptr) {
         delete audioResampler;
         audioResampler = nullptr;
     }
@@ -191,7 +192,7 @@ int MediaPlayer::_stop() {
         formatContext = nullptr;
     }
 
-    if (playerState) {
+    if (playerState != nullptr) {
         playerState->reset();
     }
 
@@ -229,7 +230,7 @@ int MediaPlayer::_destroy() {
         mediaSync = nullptr;
     }
 
-    if (playerState) {
+    if (playerState != nullptr) {
         delete playerState;
         playerState = nullptr;
     }
@@ -239,10 +240,10 @@ int MediaPlayer::_destroy() {
 }
 
 int MediaPlayer::_setDataSource(const char *url, int64_t offset, const char *headers) const {
-    if (playerState) {
+    if (playerState != nullptr) {
         playerState->url = av_strdup(url);
         playerState->offset = offset;
-        if (headers) {
+        if (headers != nullptr) {
             playerState->headers = av_strdup(headers);
         }
         return SUCCESS;
@@ -689,7 +690,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
         }
     }
 
-    if (!audioDecoder && !videoDecoder) {
+    if (audioDecoder == nullptr && videoDecoder == nullptr) {
         ALOGE(TAG, "%s failed to create audio and video decoder", __func__);
         notifyMsg(Msg::MSG_ERROR, ERROR_CREATE_VIDEO_AUDIO_DECODER);
         return;
@@ -752,7 +753,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
         }
     }
 
-    if (videoDecoder) {
+    if (videoDecoder != nullptr) {
         if (playerState->syncType == AV_SYNC_AUDIO) {
             ALOGD(TAG, "%s change master clock to audio clock", __func__);
             videoDecoder->setMasterClock(mediaSync->getAudioClock());
@@ -766,7 +767,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     }
 
     // 开始同步
-    if (mediaSync) {
+    if (mediaSync != nullptr) {
         ALOGD(TAG, "start media sync");
         mediaSync->start(videoDecoder, audioDecoder);
         notifyMsg(Msg::MSG_MEDIA_SYNC_START);
@@ -774,7 +775,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 }
 
 int MediaPlayer::notifyMsg(int what) {
-    if (messageCenter) {
+    if (messageCenter != nullptr) {
         messageCenter->notifyMsg(what);
         return SUCCESS;
     }
@@ -782,7 +783,7 @@ int MediaPlayer::notifyMsg(int what) {
 }
 
 int MediaPlayer::notifyMsg(int what, int arg1) {
-    if (messageCenter) {
+    if (messageCenter != nullptr) {
         messageCenter->notifyMsg(what, arg1);
         return SUCCESS;
     }
@@ -790,7 +791,7 @@ int MediaPlayer::notifyMsg(int what, int arg1) {
 }
 
 int MediaPlayer::notifyMsg(int what, int arg1, int arg2) {
-    if (messageCenter) {
+    if (messageCenter != nullptr) {
         messageCenter->notifyMsg(what, arg1, arg2);
         return SUCCESS;
     }
