@@ -36,7 +36,6 @@ void MediaSync::stop() {
 }
 
 void MediaSync::setVideoDevice(VideoDevice *device) {
-    Mutex::Autolock lock(mutex);
     this->videoDevice = device;
 }
 
@@ -189,12 +188,13 @@ void MediaSync::refreshVideo(double *remaining_time) {
             }
 
             // 更新视频时钟的pts
-            mutex.lock();
+
+            videoDecoder->getFrameQueue()->getMutex()->lock();
             if (!isnan(nextFrame->pts)) {
                 videoClock->setClock(nextFrame->pts, nextFrame->seekSerial);
                 externalClock->syncToSlave(videoClock);
             }
-            mutex.unlock();
+            videoDecoder->getFrameQueue()->getMutex()->unlock();
 
             // 如果队列中还剩余超过一帧的数据时，需要拿到下一帧，然后计算间隔，并判断是否需要进行舍帧操作
             if (videoDecoder->getFrameSize() > 1) {

@@ -109,10 +109,6 @@ protected:
     ///
     MessageCenter *messageCenter = nullptr;
 
-    Mutex mutex;
-
-    Condition condition;
-
     /// 强制刷新标志
     int forceRefresh;
 

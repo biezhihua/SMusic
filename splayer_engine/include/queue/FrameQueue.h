@@ -78,6 +78,8 @@ public:
 
     int getShowIndex() const;
 
+    Mutex *getMutex();
+
 private:
     void unrefFrame(Frame *vp);
 

@@ -134,3 +134,7 @@ Frame *FrameQueue::peekReadable() {
     // 这方法和frameQueuePeek的作用一样， 都是获取待显示的第一帧
     return &queue[(readIndex + readIndexShown) % maxSize];
 }
+
+Mutex *FrameQueue::getMutex() {
+    return &mutex;
+}
