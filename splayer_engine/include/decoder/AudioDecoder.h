@@ -6,6 +6,7 @@
 
 class AudioDecoder : public MediaDecoder {
     const char *const TAG = "AudioDecoder";
+
 public:
     AudioDecoder(AVCodecContext *avctx, AVStream *stream, int streamIndex, PlayerState *playerState,
                  AVPacket *flushPacket, Condition *pCondition);
@@ -13,9 +14,6 @@ public:
     virtual ~AudioDecoder();
 
     int getAudioFrame(AVFrame *frame);
-
-    void start() override;
-
 
 };
 

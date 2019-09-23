@@ -11,7 +11,7 @@ class Stream;
 #include <device/AudioDevice.h>
 #include <device/VideoDevice.h>
 #include <sync/MediaSync.h>
-#include <convertor/AudioResampler.h>
+#include <convertor/AudioReSampler.h>
 #include <common/Log.h>
 #include <message/MessageCenter.h>
 #include <stream/IStreamListener.h>
@@ -54,7 +54,7 @@ protected:
     AudioDevice *audioDevice = nullptr;
 
     /// 音频重采样器
-    AudioResampler *audioResampler = nullptr;
+    AudioReSampler *audioResampler = nullptr;
 
     /// 消息事件处理
     MessageCenter *messageCenter = nullptr;

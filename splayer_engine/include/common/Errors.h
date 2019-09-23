@@ -24,6 +24,14 @@
 #define  ERROR_CREATE_AUDIO_DECODER         -16
 #define  ERROR_ABORT_REQUEST                -17
 #define  ERROR_FRAME_QUEUE_NOT_WRITABLE     -19
+#define  ERROR_AUDIO_SPEC                   -20
+#define  ERROR_AUDIO_FORMAT                 -21
+#define  ERROR_AUDIO_CHANNEL_LAYOUT         -22
+#define  ERROR_AUDIO_DECODE                 -23
+#define  ERROR_AUDIO_SWR                    -24
+#define  ERROR_AUDIO_OUT_SIZE               -25
+#define  ERROR_AUDIO_SWR_COMPENSATION       -26
+#define  ERROR_AUDIO_SWR_CONVERT            -27
 
 
 #endif //ERRORS_H

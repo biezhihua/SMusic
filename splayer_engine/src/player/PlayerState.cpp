@@ -77,6 +77,7 @@ void PlayerState::reset() {
     videoDuration = 0;
     eof = 0;
     attachmentRequest = 0;
+    formatContext = nullptr;
 }
 
 void PlayerState::setOption(int category, const char *type, const char *option) {
@@ -193,4 +194,8 @@ const char *PlayerState::getSyncType() {
         return "AV_SYNC_AUDIO";
     }
     return "NONE";
+}
+
+void PlayerState::setFormatContext(AVFormatContext *formatContext) {
+    PlayerState::formatContext = formatContext;
 }

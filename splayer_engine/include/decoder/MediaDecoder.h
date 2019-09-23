@@ -91,6 +91,11 @@ protected:
 
     /// 下一阵额外参数
     AVRational nextPtsTb;
+
+public:
+    void setStartPts(int64_t startPts);
+
+    void setStartPtsTb(const AVRational &startPtsTb);
 };
 
 

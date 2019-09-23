@@ -43,8 +43,8 @@ void MediaSync::setMaxDuration(double maxDuration) {
     this->maxFrameDuration = maxDuration;
 }
 
-void MediaSync::updateAudioClock(double pts, double time) {
-    audioClock->setClock(pts, time);
+void MediaSync::updateAudioClock(double pts, int serial, double time) {
+    audioClock->setClock(pts, time, serial);
     externalClock->syncToSlave(audioClock);
 }
 

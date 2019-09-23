@@ -92,6 +92,10 @@ private:
 
     void parse_string(const char *type, const char *option);
 
+public:
+    void setFormatContext(AVFormatContext *formatContext);
+
+private:
     void parse_int(const char *type, int64_t option);
 
 public:
@@ -148,6 +152,13 @@ public:
     int eof;                        // 数据包读到结尾标志
 
     int attachmentRequest;          // 视频封面数据包请求
+
+    /// 解码上下文
+    AVFormatContext *formatContext = nullptr;
+
+    int videoIndex;
+
+    int audioIndex;
 
     const char *getSyncType();
 

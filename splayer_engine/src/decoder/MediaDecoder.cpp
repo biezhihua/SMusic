@@ -101,5 +101,13 @@ PacketQueue *MediaDecoder::getPacketQueue() {
     return packetQueue;
 }
 
+void MediaDecoder::setStartPts(int64_t startPts) {
+    MediaDecoder::startPts = startPts;
+}
+
+void MediaDecoder::setStartPtsTb(const AVRational &startPtsTb) {
+    MediaDecoder::startPtsTb = startPtsTb;
+}
+
 
 

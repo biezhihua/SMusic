@@ -38,6 +38,7 @@ int SDLMediaPlayer::eventLoop() {
                 break;
         }
     }
+    return SUCCESS;
 }
 
 void SDLMediaPlayer::toggleFullScreen() {

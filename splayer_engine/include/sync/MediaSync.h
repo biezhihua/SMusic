@@ -35,7 +35,7 @@ public:
     void setMaxDuration(double maxDuration);
 
     // 更新音频时钟
-    void updateAudioClock(double pts, double time);
+    void updateAudioClock(double pts,int serial, double time);
 
     // 获取音频时钟与主时钟的差值
     double getAudioDiffClock();

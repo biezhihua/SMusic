@@ -236,6 +236,7 @@ int Stream::openStream() {
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_MEMORY);
         return ERROR_NOT_MEMORY;
     }
+    playerState->setFormatContext(formatContext);
     mediaPlayer->setFormatContext(formatContext);
 
     // 设置解复用中断回调

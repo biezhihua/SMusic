@@ -596,45 +596,51 @@ int MediaPlayer::openDecoder(int streamIndex) {
 }
 
 int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_channels, int wanted_sample_rate) {
+
     AudioDeviceSpec wanted_spec, spec;
     const int next_nb_channels[] = {0, 0, 1, 6, 2, 6, 4, 6};
     const int next_sample_rates[] = {0, 44100, 48000, 96000, 192000};
     int next_sample_rate_idx = FF_ARRAY_ELEMS(next_sample_rates) - 1;
 
-    if (wanted_nb_channels != av_get_channel_layout_nb_channels(wanted_channel_layout) || !wanted_channel_layout) {
+    if (!wanted_channel_layout ||
+        wanted_nb_channels != av_get_channel_layout_nb_channels((uint64_t) wanted_channel_layout)) {
         wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
         wanted_channel_layout &= ~AV_CH_LAYOUT_STEREO_DOWNMIX;
     }
+    wanted_nb_channels = av_get_channel_layout_nb_channels((uint64_t) wanted_channel_layout);
 
-    wanted_nb_channels = av_get_channel_layout_nb_channels(wanted_channel_layout);
-    wanted_spec.channels = wanted_nb_channels;
+    wanted_spec.channels = (uint8_t) wanted_nb_channels;
     wanted_spec.freq = wanted_sample_rate;
 
+    // 校验采样率和声道数量合法性
     if (wanted_spec.freq <= 0 || wanted_spec.channels <= 0) {
-        av_log(nullptr, AV_LOG_ERROR, "Invalid sample rate or channel count!\n");
-        return -1;
+        ALOGE(TAG, "%s Invalid sample rate or channel count!", __func__);
+        return ERROR_AUDIO_SPEC;
     }
 
+    // 找到合适的采样率
     while (next_sample_rate_idx && next_sample_rates[next_sample_rate_idx] >= wanted_spec.freq) {
         next_sample_rate_idx--;
     }
 
     wanted_spec.format = AV_SAMPLE_FMT_S16;
-    wanted_spec.samples = FFMAX(AUDIO_MIN_BUFFER_SIZE, 2 << av_log2(wanted_spec.freq / AUDIO_MAX_CALLBACKS_PER_SEC));
+    wanted_spec.samples = (uint16_t) FFMAX(AUDIO_MIN_BUFFER_SIZE,
+                                           2 << av_log2((unsigned int) wanted_spec.freq / AUDIO_MAX_CALLBACKS_PER_SEC));
     wanted_spec.callback = audioPCMQueueCallback;
     wanted_spec.userdata = this;
 
     // 打开音频设备
     while (audioDevice->open(&wanted_spec, &spec) < 0) {
-        ALOGD(TAG, "%s Failed to open audio device: (%d channels, %d Hz)!", __func__,
-              wanted_spec.channels, wanted_spec.freq);
-        wanted_spec.channels = next_nb_channels[FFMIN(7, wanted_spec.channels)];
+        ALOGD(TAG, "%s failed to open audio device: (%d channels, %d Hz)!", __func__,
+              wanted_spec.channels,
+              wanted_spec.freq);
+        wanted_spec.channels = (uint8_t) next_nb_channels[FFMIN(7, wanted_spec.channels)];
         if (!wanted_spec.channels) {
             wanted_spec.freq = next_sample_rates[next_sample_rate_idx--];
-            wanted_spec.channels = wanted_nb_channels;
+            wanted_spec.channels = (uint8_t) wanted_nb_channels;
             if (!wanted_spec.freq) {
                 ALOGE(TAG, "%s No more combinations to try, audio open failed", __func__);
-                return -1;
+                return ERROR_AUDIO_SPEC;
             }
         }
         wanted_channel_layout = av_get_default_channel_layout(wanted_spec.channels);
@@ -642,23 +648,24 @@ int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_ch
 
     if (spec.format != AV_SAMPLE_FMT_S16) {
         ALOGE(TAG, "%s audio format %d is not supported!", __func__, spec.format);
-        return -1;
+        return ERROR_AUDIO_FORMAT;
     }
 
     if (spec.channels != wanted_spec.channels) {
         wanted_channel_layout = av_get_default_channel_layout(spec.channels);
         if (!wanted_channel_layout) {
             ALOGE(TAG, "%s channel count %d is not supported!", __func__, spec.channels);
-            return -1;
+            return ERROR_AUDIO_CHANNEL_LAYOUT;
         }
     }
 
     // 初始化音频重采样器
-    if (!audioResampler) {
-        audioResampler = new AudioResampler(playerState, audioDecoder, mediaSync);
+    if (audioResampler == nullptr) {
+        audioResampler = new AudioReSampler(playerState, audioDecoder, mediaSync);
     }
+
     // 设置需要重采样的参数
-    audioResampler->setResampleParams(&spec, wanted_channel_layout);
+    audioResampler->setReSampleParams(&spec, wanted_channel_layout);
 
     return spec.size;
 }
@@ -676,6 +683,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 准备视频解码器
     if (videoIndex >= 0 && videoDevice != nullptr) {
+        playerState->videoIndex = videoIndex;
         if (openDecoder(videoIndex) < 0) {
             ALOGE(TAG, "%s failed to create video decoder", __func__);
             notifyMsg(Msg::MSG_ERROR, ERROR_CREATE_AUDIO_DECODER);
@@ -684,6 +692,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 准备音频解码器
     if (audioIndex >= 0 && audioDevice != nullptr) {
+        playerState->audioIndex = audioIndex;
         if (openDecoder(audioIndex) < 0) {
             ALOGE(TAG, "%s failed to create audio decoder", __func__);
             notifyMsg(Msg::MSG_ERROR, ERROR_CREATE_VIDEO_DECODER);
