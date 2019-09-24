@@ -32,6 +32,7 @@
 #define  ERROR_AUDIO_OUT_SIZE               -25
 #define  ERROR_AUDIO_SWR_COMPENSATION       -26
 #define  ERROR_AUDIO_SWR_CONVERT            -27
+#define  ERROR_AUDIO_OPEN                   -28
 
 
 #endif //ERRORS_H

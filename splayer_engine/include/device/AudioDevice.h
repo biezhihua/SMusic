@@ -30,12 +30,17 @@ typedef struct AudioDeviceSpec {
 } AudioDeviceSpec;
 
 class AudioDevice : public Runnable {
+    const char *const TAG = "AudioDevice";
 public:
     AudioDevice();
 
     virtual ~AudioDevice();
 
     virtual int open(const AudioDeviceSpec *desired, AudioDeviceSpec *obtained);
+
+    virtual void create();
+
+    virtual void destroy();
 
     virtual void start();
 

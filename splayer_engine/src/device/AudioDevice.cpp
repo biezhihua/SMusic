@@ -1,3 +1,6 @@
+
+#include <device/AudioDevice.h>
+
 #include "device/AudioDevice.h"
 
 AudioDevice::AudioDevice() {
@@ -38,4 +41,12 @@ void AudioDevice::setStereoVolume(float left_volume, float right_volume) {
 
 void AudioDevice::run() {
     // do nothing
+}
+
+void AudioDevice::create() {
+
+}
+
+void AudioDevice::destroy() {
+
 }

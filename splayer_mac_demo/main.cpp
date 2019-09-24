@@ -35,7 +35,7 @@ public:
 
 int main() {
     mediaPlayer = SDLMediaPlayer::Builder{}
-//            .withAudioDevice(new SDLAudioDevice())
+            .withAudioDevice(new SDLAudioDevice())
             .withVideoDevice(new SDLVideoDevice())
             .withMessageListener(new MessageListener())
             .withDebug(true)

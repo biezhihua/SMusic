@@ -1,35 +1,16 @@
+
+#include <convertor/AudioReSampler.h>
+
 #include "convertor/AudioReSampler.h"
 
-AudioReSampler::AudioReSampler(PlayerState *playerState, AudioDecoder *audioDecoder, MediaSync *mediaSync) {
-    this->playerState = playerState;
-    this->audioDecoder = audioDecoder;
-    this->mediaSync = mediaSync;
-    audioState = (AudioState *) av_mallocz(sizeof(AudioState));
-    memset(audioState, 0, sizeof(AudioState));
-    soundTouchWrapper = new SoundTouchWrapper();
-    frame = av_frame_alloc();
+AudioReSampler::AudioReSampler() {
+
 }
 
 AudioReSampler::~AudioReSampler() {
     playerState = nullptr;
     audioDecoder = nullptr;
     mediaSync = nullptr;
-    if (soundTouchWrapper) {
-        delete soundTouchWrapper;
-        soundTouchWrapper = nullptr;
-    }
-    if (audioState) {
-        swr_free(&audioState->swr_ctx);
-        av_freep(&audioState->reSampleBuffer);
-        memset(audioState, 0, sizeof(AudioState));
-        av_free(audioState);
-        audioState = nullptr;
-    }
-    if (frame) {
-        av_frame_unref(frame);
-        av_frame_free(&frame);
-        frame = nullptr;
-    }
 }
 
 int AudioReSampler::setReSampleParams(AudioDeviceSpec *spec, int64_t wanted_channel_layout) {
@@ -114,9 +95,8 @@ void AudioReSampler::pcmQueueCallback(uint8_t *stream, int len) {
         double pts = audioState->audioClock -
                      (double) (2 * audioState->audioHardwareBufSize + audioState->writeBufferSize)
                      / audioState->audioParamsTarget.bytes_per_sec;
-        int serial = audioState->audioSeekSerial;
         double time = audioState->audio_callback_time / 1000000.0;
-        mediaSync->updateAudioClock(pts, serial, time);
+        mediaSync->updateAudioClock(pts, 1, time);
     }
 }
 
@@ -303,10 +283,46 @@ int AudioReSampler::audioFrameReSample() {
         audioState->audioClock = NAN;
     }
 
-//    audioState->audioSeekSerial = frame.
-
     // 使用完成释放引用，防止内存泄漏
     av_frame_unref(frame);
 
     return resampled_data_size;
+}
+
+void AudioReSampler::create() {
+    audioState = (AudioState *) av_mallocz(sizeof(AudioState));
+    memset(audioState, 0, sizeof(AudioState));
+    soundTouchWrapper = new SoundTouchWrapper();
+    frame = av_frame_alloc();
+}
+
+void AudioReSampler::destroy() {
+    if (soundTouchWrapper) {
+        delete soundTouchWrapper;
+        soundTouchWrapper = nullptr;
+    }
+    if (audioState) {
+        swr_free(&audioState->swr_ctx);
+        av_freep(&audioState->reSampleBuffer);
+        memset(audioState, 0, sizeof(AudioState));
+        av_free(audioState);
+        audioState = nullptr;
+    }
+    if (frame) {
+        av_frame_unref(frame);
+        av_frame_free(&frame);
+        frame = nullptr;
+    }
+}
+
+void AudioReSampler::setPlayerState(PlayerState *playerState) {
+    AudioReSampler::playerState = playerState;
+}
+
+void AudioReSampler::setMediaSync(MediaSync *mediaSync) {
+    AudioReSampler::mediaSync = mediaSync;
+}
+
+void AudioReSampler::setAudioDecoder(AudioDecoder *audioDecoder) {
+    AudioReSampler::audioDecoder = audioDecoder;
 }

@@ -6,6 +6,18 @@ MediaPlayer::MediaPlayer() {
 };
 
 MediaPlayer::~MediaPlayer() {
+    if (audioDevice != nullptr) {
+        delete audioDevice;
+        audioDevice = nullptr;
+    }
+    if (videoDevice != nullptr) {
+        delete videoDevice;
+        videoDevice = nullptr;
+    }
+    if (mediaSync != nullptr) {
+        delete mediaSync;
+        mediaSync = nullptr;
+    }
     if (messageCenter) {
         messageCenter->stopMsgQueue();
         delete messageCenter;
@@ -109,6 +121,16 @@ int MediaPlayer::_create() {
         return ERROR;
     }
 
+    // Audio Device
+    if (audioDevice != nullptr) {
+        audioDevice->create();
+        if (audioResampler != nullptr) {
+            audioResampler->setPlayerState(playerState);
+            audioResampler->setMediaSync(mediaSync);
+            audioResampler->create();
+        }
+    }
+
     // Video Device
     if (videoDevice != nullptr) {
         videoDevice->setPlayerState(playerState);
@@ -209,8 +231,14 @@ int MediaPlayer::_destroy() {
             mediaSync->setVideoDevice(nullptr);
         }
         videoDevice->destroy();
-        delete videoDevice;
-        videoDevice = nullptr;
+    }
+
+    if (audioDevice != nullptr) {
+        if (audioResampler != nullptr) {
+            audioResampler->destroy();
+            audioResampler = nullptr;
+        }
+        audioDevice->destroy();
     }
 
     if (mediaStream != nullptr) {
@@ -226,8 +254,6 @@ int MediaPlayer::_destroy() {
         mediaSync->setMessageCenter(nullptr);
         mediaSync->setPlayerState(nullptr);
         mediaSync->destroy();
-        delete mediaSync;
-        mediaSync = nullptr;
     }
 
     if (playerState != nullptr) {
@@ -403,8 +429,6 @@ void MediaPlayer::pcmQueueCallback(uint8_t *stream, int len) {
         return;
     }
     audioResampler->pcmQueueCallback(stream, len);
-//    if (playerState->msgQueue && playerState->syncType != AV_SYNC_VIDEO) {
-//    }
 }
 
 void MediaPlayer::setMessageListener(IMessageListener *messageListener) {
@@ -418,6 +442,8 @@ void MediaPlayer::setMessageListener(IMessageListener *messageListener) {
 void MediaPlayer::setAudioDevice(AudioDevice *audioDevice) {
     this->audioDevice = audioDevice;
     if (this->audioDevice) {
+        // 初始化音频重采样器
+        audioResampler = new AudioReSampler();
     } else {
         ALOGE(TAG, "%s audio device is null", __func__);
     }
@@ -659,11 +685,6 @@ int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_ch
         }
     }
 
-    // 初始化音频重采样器
-    if (audioResampler == nullptr) {
-        audioResampler = new AudioReSampler(playerState, audioDecoder, mediaSync);
-    }
-
     // 设置需要重采样的参数
     audioResampler->setReSampleParams(&spec, wanted_channel_layout);
 
@@ -720,6 +741,9 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     // 音频解码器开始解码
     if (audioDecoder != nullptr) {
         ALOGD(TAG, "start audio decoder");
+        if (audioResampler != nullptr) {
+            audioResampler->setAudioDecoder(audioDecoder);
+        }
         audioDecoder->start();
         notifyMsg(Msg::MSG_AUDIO_DECODER_START);
     } else {

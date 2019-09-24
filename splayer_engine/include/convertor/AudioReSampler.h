@@ -52,8 +52,6 @@ typedef struct AudioState {
     int64_t audio_callback_time;            // 音频回调时间
     AudioParams audioParamsSrc;             // 音频原始参数
     AudioParams audioParamsTarget;          // 音频目标参数
-
-    int audioSeekSerial;                    // 音频时钟seek序列
 } AudioState;
 
 /**
@@ -63,13 +61,23 @@ class AudioReSampler {
     const char *const TAG = "AudioReSampler";
 
 public:
-    AudioReSampler(PlayerState *playerState, AudioDecoder *audioDecoder, MediaSync *mediaSync);
+    AudioReSampler();
 
     virtual ~AudioReSampler();
 
     int setReSampleParams(AudioDeviceSpec *spec, int64_t wanted_channel_layout);
 
     void pcmQueueCallback(uint8_t *stream, int len);
+
+    virtual void create();
+
+    virtual void destroy();
+
+    void setPlayerState(PlayerState *playerState);
+
+    void setMediaSync(MediaSync *mediaSync);
+
+    void setAudioDecoder(AudioDecoder *audioDecoder);
 
 private:
     int audioSynchronize(int nbSamples);
