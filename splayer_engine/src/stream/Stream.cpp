@@ -323,14 +323,14 @@ int Stream::openStream() {
 
     // Gets the duration of the file, -1 if no duration available.
     if (playerState->realTime) {
-        duration = -1;
+        playerState->duration = -1;
     } else {
-        duration = -1;
-        if (formatContext->duration != AV_NOPTS_VALUE) {
-            duration = av_rescale(formatContext->duration, 1000, AV_TIME_BASE);
+        playerState->duration = -1;
+        if (formatContext->duration) {
+            playerState->duration = formatContext->duration;
+            playerState->durationSec = av_rescale(formatContext->duration, 1000, AV_TIME_BASE);
         }
     }
-    playerState->videoDuration = duration;
 
     // I/O context.
     if (formatContext->pb) {
@@ -338,7 +338,7 @@ int Stream::openStream() {
     }
 
     // 判断是否以字节方式定位
-    playerState->seekByBytes = !!(formatContext->iformat->flags & AVFMT_TS_DISCONT) &&
+    playerState->seekByBytes = (formatContext->iformat->flags & AVFMT_TS_DISCONT) != 0 &&
                                strcmp(FORMAT_OGG, formatContext->iformat->name) != 0;
 
     // get window title from metadata
@@ -413,6 +413,10 @@ int Stream::openStream() {
 
 
 bool Stream::isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const {
+
+    if (playerState->duration == AV_NOPTS_VALUE) {
+        return SUCCESS;
+    }
 
     /* check if packet playerState in stream range specified by user, then packetQueue, otherwise discard */
     int64_t streamStartTime = formatContext->streams[packet->stream_index]->start_time;

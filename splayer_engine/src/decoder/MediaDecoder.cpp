@@ -36,12 +36,7 @@ void MediaDecoder::pushFlushPacket() {
 }
 
 void MediaDecoder::flush() {
-    ALOGD(TAG, "%s", __func__);
     packetQueue->flush();
-    // 定位时，音视频均需要清空缓冲区
-    playerState->mMutex.lock();
-    avcodec_flush_buffers(getCodecContext());
-    playerState->mMutex.unlock();
 }
 
 int MediaDecoder::pushPacket(AVPacket *pkt) {

@@ -42,7 +42,7 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
             isPendingPacket = false;
         } else {
             if (packetQueue->getPacket(&pkt) < 0) {
-                ret = -1;
+                ret = ERROR_ABORT_REQUEST;
                 break;
             }
         }
@@ -89,7 +89,7 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
     } while (!got_frame);
 
     if (ret < 0) {
-        return -1;
+        return ERROR;
     }
 
     return got_frame;

@@ -305,3 +305,7 @@ int VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int6
     return SUCCESS;
 }
 
+int64_t VideoDecoder::getFrameQueueLastPos() {
+    return frameQueue->lastPos();
+}
+

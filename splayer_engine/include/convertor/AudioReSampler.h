@@ -80,18 +80,19 @@ public:
     void setAudioDecoder(AudioDecoder *audioDecoder);
 
 private:
+
     int audioSynchronize(int nbSamples);
 
     int audioFrameReSample();
 
 private:
-    PlayerState *playerState;
-    MediaSync *mediaSync;
+    PlayerState *playerState = nullptr;
+    MediaSync *mediaSync = nullptr;
 
-    AVFrame *frame;
-    AudioDecoder *audioDecoder;             // 音频解码器
-    AudioState *audioState;                 // 音频重采样状态
-    SoundTouchWrapper *soundTouchWrapper;   // 变速变调处理
+    AVFrame *frame = nullptr;
+    AudioDecoder *audioDecoder = nullptr;             // 音频解码器
+    AudioState *audioState = nullptr;                 // 音频重采样状态
+    SoundTouchWrapper *soundTouchWrapper = nullptr;   // 变速变调处理
 };
 
 

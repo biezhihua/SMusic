@@ -48,9 +48,6 @@ private:
     /// 刷新的包,用于在SEEK时，刷新数据队列
     AVPacket flushPacket;
 
-    /// 文件总时长
-    int64_t duration;
-
     IStreamListener *streamListener = nullptr;
 
     Mutex waitMutex;

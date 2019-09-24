@@ -84,7 +84,7 @@ public:
 
     int setDataSource(const char *url, int64_t offset = 0, const char *headers = nullptr);
 
-    void seekTo(float timeMs);
+    int seekTo(float timeMs);
 
     void setLooping(int looping);
 
@@ -129,6 +129,8 @@ public:
     void setFormatContext(AVFormatContext *formatContext);
 
 protected:
+
+    int seek(int64_t pos, int64_t rel, int seekByBytes);
 
     int togglePause();
 

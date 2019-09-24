@@ -105,8 +105,6 @@ public:
     AVDictionary *format_opts;      // 解复用option参数
     AVDictionary *codec_opts;       // 解码option参数
 
-    int64_t videoDuration;          // 视频时长
-
     AVInputFormat *inputFormat;     // 指定文件封装格式，也就是解复用器
     const char *url;                // 文件路径
     int64_t offset;                 // 文件偏移量
@@ -121,7 +119,8 @@ public:
     int lastPaused;                 // 上一次暂停状态
     SyncType syncType;              // 同步类型
     int64_t startTime;              // 播放起始位置
-    int64_t duration;               // 播放时长
+    int64_t duration;               // 流时长
+    int64_t durationSec;            // 流市场秒
     int realTime;                   // 判断是否实时流
     int infiniteBuffer;             // 是否无限缓冲区，默认为-1
     int audioDisable;               // 是否禁止音频流
@@ -161,6 +160,7 @@ public:
     int audioIndex;
 
     const char *getSyncType();
+
 
 };
 

@@ -80,6 +80,8 @@ public:
 
     Mutex *getMutex();
 
+    int64_t lastPos();
+
 private:
     void unrefFrame(Frame *vp);
 

@@ -14,18 +14,27 @@ public:
               msg->arg1,
               msg->arg2);
         if (mediaPlayer) {
-            if (msg->what == Msg::MSG_REQUEST_PLAY_OR_PAUSE) {
-                if (mediaPlayer->isPlaying()) {
-                    mediaPlayer->pause();
-                } else {
-                    mediaPlayer->play();
-                }
-            } else if (msg->what == Msg::MSG_REQUEST_DESTROY) {
-                if (mediaPlayer) {
-                    mediaPlayer->destroy();
-                }
-            } else if (msg->what == Msg::MSG_REQUEST_START) {
-
+            switch (msg->what) {
+                case Msg::MSG_REQUEST_PLAY_OR_PAUSE:
+                    if (mediaPlayer->isPlaying()) {
+                        mediaPlayer->pause();
+                    } else {
+                        mediaPlayer->play();
+                    }
+                    break;
+                case Msg::MSG_REQUEST_DESTROY:
+                    if (mediaPlayer) {
+                        mediaPlayer->destroy();
+                    }
+                    break;
+                case Msg::MSG_REQUEST_START:
+                    break;
+                case Msg::MSG_REQUEST_SEEK:
+                    int increment = msg->arg1;
+                    if (mediaPlayer) {
+                        mediaPlayer->seekTo(increment);
+                    }
+                    break;
             }
         } else {
             ALOGE(TAG, "%s media player is null", __func__);

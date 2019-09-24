@@ -192,20 +192,16 @@ void SDLMediaPlayer::doKeySystem(const SDL_Event &event) {
         case SDLK_PAGEDOWN:
             break;
         case SDLK_LEFT:
-//            if (options) {
-//                doSeek(options->seekInterval != 0 ? -options->seekInterval : -10.0);
-//            }
+            doSeek(-10);
             break;
         case SDLK_RIGHT:
-//            if (options) {
-//                doSeek(options->seekInterval != 0 ? options->seekInterval : 10.0);
-//            }
+            doSeek(10);
             break;
         case SDLK_UP:
-            doSeek(-60.0f);
+            doSeek(-60);
             break;
         case SDLK_DOWN:
-            doSeek(60.0f);
+            doSeek(60);
             break;
         default:
             break;
@@ -217,41 +213,8 @@ void SDLMediaPlayer::doExit() {
     notifyMsg(Msg::MSG_REQUEST_DESTROY);
 }
 
-void SDLMediaPlayer::doSeek(double increment) {
-//    double pos;
-//    if (options && stream && stream->getVideoState()) {
-//        PlayerState *videoState = stream->getVideoState();
-//        if (options->seekByBytes) {
-//            pos = -1;
-//            if (pos < 0 && videoState->videoStreamIndex >= 0) {
-//                pos = videoState->videoFrameQueue.lastPos();
-//            }
-//            if (pos < 0 && videoState->audioStreamIndex >= 0) {
-//                pos = videoState->audioFrameQueue.lastPos();
-//            }
-//            if (pos < 0) {
-//                pos = avio_tell(videoState->formatContext->pb);
-//            }
-//            if (videoState->formatContext->bit_rate) {
-//                increment *= videoState->formatContext->bit_rate / 8.0;
-//            } else {
-//                increment *= 180000.0;
-//            }
-//            pos += increment;
-//            stream->streamSeek((int64_t) pos, (int64_t) increment, 1);
-//        } else {
-//            pos = stream->getMasterClock();
-//            if (isnan(pos)) {
-//                pos = (double) videoState->seekPos / AV_TIME_BASE;
-//            }
-//            pos += increment;
-//            if (videoState->formatContext->start_time != AV_NOPTS_VALUE &&
-//                pos < videoState->formatContext->start_time / (double) AV_TIME_BASE) {
-//                pos = videoState->formatContext->start_time / (double) AV_TIME_BASE;
-//            }
-//            stream->streamSeek((int64_t) (pos * AV_TIME_BASE), (int64_t) (increment * AV_TIME_BASE), 0);
-//        }
-//    }
+void SDLMediaPlayer::doSeek(int increment) {
+    notifyMsg(Msg::MSG_REQUEST_SEEK, increment);
 }
 
 int SDLMediaPlayer::destroy() {

@@ -40,7 +40,7 @@ public:
 
     void doExit();
 
-    void doSeek(double increment);
+    void doSeek(int increment);
 
     int destroy() override;
 

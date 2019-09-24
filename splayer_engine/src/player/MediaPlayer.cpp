@@ -236,6 +236,7 @@ int MediaPlayer::_destroy() {
     if (audioDevice != nullptr) {
         if (audioResampler != nullptr) {
             audioResampler->destroy();
+            delete audioResampler;
             audioResampler = nullptr;
         }
         audioDevice->destroy();
@@ -277,33 +278,48 @@ int MediaPlayer::_setDataSource(const char *url, int64_t offset, const char *hea
     return ERROR;
 }
 
-void MediaPlayer::seekTo(float timeMs) {
-    ALOGD(TAG, __func__);
-    // when is a live media stream, duration is -1
-//    if (!playerState->realTime && duration < 0) {
-//        return;
-//    }
-
-    // 等待上一次操作完成
-    mutex.lock();
-    while (playerState->seekRequest) {
-        condition.wait(mutex);
+int MediaPlayer::seekTo(float increment) {
+    ALOGD(TAG, "%s increment = %lf", __func__, increment);
+    if (!playerState) {
+        ALOGE(TAG, "%s player state is null", __func__);
+        return ERROR;
     }
-    mutex.unlock();
-
-    if (!playerState->seekRequest) {
-        int64_t start_time = 0;
-        int64_t seek_pos = av_rescale(timeMs, AV_TIME_BASE, 1000);
-        start_time = formatContext ? formatContext->start_time : 0;
-        if (start_time > 0 && start_time != AV_NOPTS_VALUE) {
-            seek_pos += start_time;
+    if (!playerState->realTime && playerState->duration < 0) {
+        return ERROR_DURATION;
+    }
+    if (playerState->seekRequest) {
+        return ERROR_LAST_SEEK_REQUEST;
+    }
+    double pos;
+    if (playerState->seekByBytes) {
+        pos = -1;
+        if (pos < 0 && playerState->videoIndex >= 0) {
+            pos = videoDecoder->getFrameQueueLastPos();
         }
-        playerState->seekPos = seek_pos;
-        playerState->seekRel = 0;
-        playerState->seekFlags &= ~AVSEEK_FLAG_BYTE;
-        playerState->seekRequest = 1;
-        condition.signal();
+        if (pos < 0) {
+            pos = avio_tell(playerState->formatContext->pb);
+        }
+        if (playerState->formatContext->bit_rate) {
+            increment *= playerState->formatContext->bit_rate / 8.0;
+        } else {
+            increment *= 180000.0;
+        }
+        pos += increment;
+        seek((int64_t) pos, (int64_t) increment, 1);
+    } else {
+        pos = mediaSync->getMasterClock();
+        if (isnan(pos)) {
+            pos = (double) playerState->seekPos / AV_TIME_BASE;
+        }
+        pos += increment;
+        if (playerState->formatContext->start_time != AV_NOPTS_VALUE &&
+            pos < playerState->formatContext->start_time / (double) AV_TIME_BASE) {
+            pos = playerState->formatContext->start_time / (double) AV_TIME_BASE;
+        }
+        seek((int64_t) (pos * AV_TIME_BASE), (int64_t) (increment * AV_TIME_BASE), 0);
     }
+
+    return SUCCESS;
 }
 
 void MediaPlayer::setLooping(int looping) {
@@ -851,6 +867,23 @@ int MediaPlayer::checkParams() {
 void MediaPlayer::setFormatContext(AVFormatContext *formatContext) {
     ALOGD(TAG, "%s format context = %p", __func__, formatContext);
     this->formatContext = formatContext;
+}
+
+int MediaPlayer::seek(int64_t pos, int64_t rel, int seekByBytes) {
+    // * seek in the stream
+    if (playerState && !playerState->seekRequest) {
+        playerState->seekPos = pos;
+        playerState->seekRel = rel;
+        playerState->seekFlags &= ~AVSEEK_FLAG_BYTE;
+        if (seekByBytes) {
+            playerState->seekFlags |= AVSEEK_FLAG_BYTE;
+        }
+        playerState->seekRequest = true;
+        if (mediaStream) {
+            mediaStream->getWaitCondition()->signal();
+        }
+    }
+    return SUCCESS;
 }
 
 

@@ -8,9 +8,9 @@ AudioReSampler::AudioReSampler() {
 }
 
 AudioReSampler::~AudioReSampler() {
-    playerState = nullptr;
     audioDecoder = nullptr;
     mediaSync = nullptr;
+    playerState = nullptr;
 }
 
 int AudioReSampler::setReSampleParams(AudioDeviceSpec *spec, int64_t wanted_channel_layout) {
@@ -136,7 +136,7 @@ int AudioReSampler::audioFrameReSample() {
     int64_t dec_channel_layout;
     int wanted_nb_samples;
     int translate_time = 1;
-    int ret = -1;
+    int ret;
 
     // 处于暂停状态
     if (!audioDecoder || playerState->abortRequest || playerState->pauseRequest) {
@@ -242,7 +242,7 @@ int AudioReSampler::audioFrameReSample() {
                 !playerState->abortRequest) {
                 int bytes_per_sample = av_get_bytes_per_sample(audioState->audioParamsTarget.fmt);
                 av_fast_malloc(&audioState->soundTouchBuffer, &audioState->soundTouchBufferSize,
-                               out_size * translate_time);
+                               (size_t) out_size * translate_time);
                 for (int i = 0; i < (resampled_data_size / 2); i++) {
                     audioState->soundTouchBuffer[i] = (audioState->reSampleBuffer[i * 2] |
                                                        (audioState->reSampleBuffer[i * 2 + 1] << 8));

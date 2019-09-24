@@ -138,3 +138,14 @@ Frame *FrameQueue::peekReadable() {
 Mutex *FrameQueue::getMutex() {
     return &mutex;
 }
+
+int64_t FrameQueue::lastPos() {
+    /* return last shown position */
+    Frame *frame = &queue[readIndex];
+    if (readIndexShown && packetQueue && frame->seekSerial == packetQueue->getLastSeekSerial()) {
+        // 返回正在显示的帧的position
+        return frame->pos;
+    } else {
+        return -1;
+    }
+}

@@ -74,7 +74,6 @@ void PlayerState::reset() {
     mute = 0;
     frameDrop = 1;
     reorderVideoPts = -1;
-    videoDuration = 0;
     eof = 0;
     attachmentRequest = 0;
     formatContext = nullptr;

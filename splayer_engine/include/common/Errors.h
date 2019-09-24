@@ -33,6 +33,8 @@
 #define  ERROR_AUDIO_SWR_COMPENSATION       -26
 #define  ERROR_AUDIO_SWR_CONVERT            -27
 #define  ERROR_AUDIO_OPEN                   -28
+#define  ERROR_DURATION                     -29
+#define  ERROR_LAST_SEEK_REQUEST            -30
 
 
 #endif //ERRORS_H

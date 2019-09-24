@@ -31,6 +31,8 @@ public:
 
     bool isFinished() override;
 
+    int64_t getFrameQueueLastPos();
+
 private:
     AVFormatContext *formatContext; // 解复用上下文
 
