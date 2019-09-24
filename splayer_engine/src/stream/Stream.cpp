@@ -90,9 +90,9 @@ int Stream::readPackets() {
             int64_t seek_min = playerState->seekRel > 0 ? seek_target - playerState->seekRel + 2 : INT64_MIN;
             int64_t seek_max = playerState->seekRel < 0 ? seek_target - playerState->seekRel - 2 : INT64_MAX;
             // 定位
-            playerState->mMutex.lock();
+            playerState->mutex.lock();
             ret = avformat_seek_file(formatContext, -1, seek_min, seek_target, seek_max, playerState->seekFlags);
-            playerState->mMutex.unlock();
+            playerState->mutex.unlock();
             if (ret < 0) {
                 ALOGD(TAG, "%s %s: error while seeking", __func__, playerState->url);
             } else {
@@ -158,7 +158,7 @@ int Stream::readPackets() {
 
         if (isRetryPlay()) {
             // TODO
-            if (playerState->loop) {
+            if (playerState->loopTimes) {
 //                seekTo(playerState->startTime != AV_NOPTS_VALUE ? playerState->startTime : 0);
             } else if (playerState->autoExit) {
                 ALOGD(TAG, "%s exit eof", __func__);
@@ -246,14 +246,14 @@ int Stream::openStream() {
     // https://zhuanlan.zhihu.com/p/43672062
     // scan_all_pmts, 是mpegts的一个选项，这里在没有设定该选项的时候，强制设为1
     // scan_all_pmts, 扫描全部的ts流的"Program Map Table"表。
-    if (!av_dict_get(playerState->format_opts, OPT_SCALL_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE)) {
-        av_dict_set(&playerState->format_opts, OPT_SCALL_ALL_PMTS, "1", AV_DICT_DONT_OVERWRITE);
+    if (!av_dict_get(playerState->formatOpts, OPT_SCALL_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE)) {
+        av_dict_set(&playerState->formatOpts, OPT_SCALL_ALL_PMTS, "1", AV_DICT_DONT_OVERWRITE);
         scanAllProgramMapTableSet = 1;
     }
 
     // 处理文件头
     if (playerState->headers) {
-        av_dict_set(&playerState->format_opts, OPT_HEADERS, playerState->headers, 0);
+        av_dict_set(&playerState->formatOpts, OPT_HEADERS, playerState->headers, 0);
     }
 
     // 处理文件偏移量
@@ -266,14 +266,14 @@ int Stream::openStream() {
         av_stristart(playerState->url, "rtsp", nullptr)) {
         // There is total different meaning for 'timeout' option in rtmp
         ALOGD(TAG, "%s remove 'timeout' option for rtmp.", __func__);
-        av_dict_set(&playerState->format_opts, "timeout", nullptr, 0);
+        av_dict_set(&playerState->formatOpts, "timeout", nullptr, 0);
     }
 
     // 打开文件
     ret = avformat_open_input(&formatContext,
                               playerState->url,
                               playerState->inputFormat,
-                              &playerState->format_opts);
+                              &playerState->formatOpts);
     if (ret < 0) {
         ALOGE(TAG, "%s avformat could not open input", __func__);
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_OPEN_INPUT);
@@ -282,10 +282,10 @@ int Stream::openStream() {
 
     // 还原MPEGTS的特殊处理标记
     if (scanAllProgramMapTableSet) {
-        av_dict_set(&playerState->format_opts, OPT_SCALL_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE);
+        av_dict_set(&playerState->formatOpts, OPT_SCALL_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE);
     }
 
-    if ((t = av_dict_get(playerState->format_opts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
+    if ((t = av_dict_get(playerState->formatOpts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
         ALOGE(TAG, "%s Option %s not found", __func__, t->key);
         notifyMsg(Msg::MSG_ERROR, ERROR_CODEC_OPTIONS);
         return ERROR_CODEC_OPTIONS;
@@ -296,7 +296,7 @@ int Stream::openStream() {
     }
     av_format_inject_global_side_data(formatContext);
 
-    opts = setupStreamInfoOptions(formatContext, playerState->codec_opts);
+    opts = setupStreamInfoOptions(formatContext, playerState->codecOpts);
 
     // 查找媒体流信息
     ret = avformat_find_stream_info(formatContext, opts);
@@ -356,9 +356,9 @@ int Stream::openStream() {
         if (formatContext->start_time != AV_NOPTS_VALUE) {
             timestamp += formatContext->start_time;
         }
-        playerState->mMutex.lock();
+        playerState->mutex.lock();
         ret = avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX, 0);
-        playerState->mMutex.unlock();
+        playerState->mutex.unlock();
         if (ret < 0) {
             ALOGE(TAG, "%s %s: could not seek to position %0.3f", __func__, playerState->url,
                   (double) timestamp / AV_TIME_BASE);

@@ -20,7 +20,7 @@ class MediaPlayer : public IStreamListener {
 
     const char *const TAG = "MediaPlayer";
 
-    const char *const OPT_LOW_RESOLUTION = "lowres";
+    const char *const OPT_LOW_RESOLUTION = "lowResolution";
 
     const char *const OPT_THREADS = "threads";
 

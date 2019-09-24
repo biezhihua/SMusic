@@ -12,46 +12,75 @@
 typedef struct AudioParams {
 
     /// 采样率
-    int freq;
+    int sampleRate;
 
     /// 声道数
     int channels;
 
     /// 声道设计，单声道，双声道还是立体声
-    int64_t channel_layout;
+    int64_t channelLayout;
 
     /// 采样格式
-    enum AVSampleFormat fmt;
+    AVSampleFormat sampleFormat;
 
     /// 采样大小
-    int frame_size;
+    int frameSize;
 
     /// 每秒多少字节
-    int bytes_per_sec;
+    int bytesPerSec;
 } AudioParams;
 
 /**
  * 音频重采样状态结构体
  */
 typedef struct AudioState {
-    double audioClock;                      // 音频时钟
+    /// 音频时钟
+    double audioClock;
+
     double audio_diff_cum;
+
     double audio_diff_avg_coef;
+
     double audio_diff_threshold;
+
     int audio_diff_avg_count;
+
     int audioHardwareBufSize;
-    uint8_t *outputBuffer;                  // 输出缓冲大小
-    uint8_t *reSampleBuffer;                // 重采样大小
-    short *soundTouchBuffer;                // SoundTouch缓冲
-    unsigned int bufferSize;                // 缓冲大小
-    unsigned int reSampleSize;              // 重采样大小
-    unsigned int soundTouchBufferSize;      // SoundTouch处理后的缓冲大小大小
+
+    /// 输出缓冲大小
+    uint8_t *outputBuffer = nullptr;
+
+    /// 重采样大小
+    uint8_t *reSampleBuffer = nullptr;
+
+    /// SoundTouch缓冲
+    short *soundTouchBuffer = nullptr;
+
+    /// 缓冲大小
+    unsigned int bufferSize;
+
+    /// 重采样大小
+    unsigned int reSampleSize;
+
+    /// SoundTouch处理后的缓冲大小大小
+    unsigned int soundTouchBufferSize;
+
     int bufferIndex;
-    int writeBufferSize;                    // 写入大小
-    SwrContext *swr_ctx;                    // 音频转码上下文
-    int64_t audio_callback_time;            // 音频回调时间
-    AudioParams audioParamsSrc;             // 音频原始参数
-    AudioParams audioParamsTarget;          // 音频目标参数
+
+    /// 写入大小
+    int writeBufferSize;
+
+    /// 音频转码上下文
+    SwrContext *swr_ctx = nullptr;
+
+    /// 音频回调时间
+    int64_t audio_callback_time;
+
+    /// 音频原始参数
+    AudioParams audioParamsSrc;
+
+    /// 音频目标参数
+    AudioParams audioParamsTarget;
 } AudioState;
 
 /**
@@ -86,13 +115,21 @@ private:
     int audioFrameReSample();
 
 private:
+
     PlayerState *playerState = nullptr;
+
     MediaSync *mediaSync = nullptr;
 
     AVFrame *frame = nullptr;
-    AudioDecoder *audioDecoder = nullptr;             // 音频解码器
-    AudioState *audioState = nullptr;                 // 音频重采样状态
-    SoundTouchWrapper *soundTouchWrapper = nullptr;   // 变速变调处理
+
+    /// 音频解码器
+    AudioDecoder *audioDecoder = nullptr;
+
+    /// 音频重采样状态
+    AudioState *audioState = nullptr;
+
+    /// 变速变调处理
+    SoundTouchWrapper *soundTouchWrapper = nullptr;
 };
 
 

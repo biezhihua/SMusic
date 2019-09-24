@@ -104,7 +104,7 @@ uint FIRFilter::evaluateFilterStereo(SAMPLETYPE *dest, const SAMPLETYPE *src, ui
 
         for (i = 0; i < length; i += 4) 
         {
-            // loop audioState unrolled by factor of 4 here for efficiency
+            // loopTimes audioState unrolled by factor of 4 here for efficiency
             suml += ptr[2 * i + 0] * filterCoeffs[i + 0] +
                     ptr[2 * i + 2] * filterCoeffs[i + 1] +
                     ptr[2 * i + 4] * filterCoeffs[i + 2] +
@@ -158,7 +158,7 @@ uint FIRFilter::evaluateFilterMono(SAMPLETYPE *dest, const SAMPLETYPE *src, uint
         sum = 0;
         for (i = 0; i < length; i += 4) 
         {
-            // loop audioState unrolled by factor of 4 here for efficiency
+            // loopTimes audioState unrolled by factor of 4 here for efficiency
             sum += pSrc[i + 0] * filterCoeffs[i + 0] + 
                    pSrc[i + 1] * filterCoeffs[i + 1] + 
                    pSrc[i + 2] * filterCoeffs[i + 2] + 

@@ -145,7 +145,7 @@ int SDLVideoDevice::onRequestRenderEnd(Frame *frame, bool flip) {
         if (frame) {
             SDL_Rect rect;
             calculateDisplayRect(&rect, surfaceLeftOffset, surfaceTopOffset, surfaceWidth, surfaceHeight, frame->width,
-                                 frame->height, frame->sar);
+                                 frame->height, frame->sampleAspectRatio);
             setYuvConversionMode(frame->frame);
             ALOGD(TAG, "%s x = %d y = %d w = %d h = %d", __func__, rect.x, rect.y, rect.w, rect.h);
             SDL_RenderCopyEx(renderer, videoTexture, nullptr, &rect, 0, nullptr,
@@ -303,7 +303,7 @@ void SDLVideoDevice::displayWindow() {
 void SDLVideoDevice::setSurfaceSize(Frame *frame) {
     int width = frame->width;
     int height = frame->height;
-    AVRational rational = frame->sar;
+    AVRational rational = frame->sampleAspectRatio;
     SDL_Rect rect;
     int maxWidth = surfaceWidth ? surfaceWidth : INT_MAX;
     int maxHeight = surfaceHeight ? surfaceHeight : INT_MAX;

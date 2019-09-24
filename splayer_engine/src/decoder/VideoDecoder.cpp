@@ -158,8 +158,8 @@ int VideoDecoder::popFrame(AVFrame *frame) {
         frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(formatContext, stream, frame);
 
         // 判断是否需要舍弃该帧
-        if (playerState->frameDrop > 0 ||
-            (playerState->frameDrop && playerState->syncType != AV_SYNC_VIDEO)) {
+        if (playerState->dropFrameWhenSlow > 0 ||
+            (playerState->dropFrameWhenSlow && playerState->syncType != AV_SYNC_VIDEO)) {
             if (frame->pts != AV_NOPTS_VALUE) {
 
                 // diff > 0 当前帧显示时间略超于出主时钟
@@ -204,10 +204,10 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
                     ret = avcodec_receive_frame(codecContext, frame);
                     if (ret >= 0) {
                         // 是否使用通过解码器估算过的时间
-                        if (playerState->reorderVideoPts == -1) {
+                        if (playerState->decoderReorderPts == -1) {
                             // frame timestamp estimated using various heuristics, in stream time base
                             frame->pts = frame->best_effort_timestamp;
-                        } else if (!playerState->reorderVideoPts) {
+                        } else if (!playerState->decoderReorderPts) {
                             // This is also the Presentation time of this AVFrame calculated from
                             // only AVPacket.dts values without pts values.
                             frame->pts = frame->pkt_dts;
@@ -282,7 +282,7 @@ int VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int6
         return ERROR_FRAME_QUEUE_NOT_WRITABLE;
     }
 
-    frame->sar = srcFrame->sample_aspect_ratio;
+    frame->sampleAspectRatio = srcFrame->sample_aspect_ratio;
     frame->uploaded = 0;
 
     frame->width = srcFrame->width;

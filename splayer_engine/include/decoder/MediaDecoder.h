@@ -46,33 +46,32 @@ public:
 
     virtual void run();
 
-    PacketQueue *getPacketQueue() ;
-
-public:
-
-    Mutex mutex;
-
-    Condition condition;
+    PacketQueue *getPacketQueue();
 
 protected:
 
-    PlayerState *playerState;
+    /// 播放器状态
+    PlayerState *playerState = nullptr;
 
     /// 数据包队列
-    PacketQueue *packetQueue;
+    PacketQueue *packetQueue = nullptr;
 
-    AVCodecContext *codecContext;
+    /// 解码上下文
+    AVCodecContext *codecContext = nullptr;
 
-    AVStream *stream;
+    /// 码流
+    AVStream *stream = nullptr;
 
     int streamIndex;
 
     /// 是否已结束
     int finished;
 
-    AVPacket *flushPacket;
+    /// 刷新包
+    AVPacket *flushPacket = nullptr;
 
-    Condition *readWaitCond;
+    /// 流读取通知
+    Condition *readWaitCond = nullptr;
 
     /// 发送解码失败，延迟处理数据包
     bool isPendingPacket;
@@ -89,7 +88,7 @@ protected:
     /// 下一帧时间戳
     int64_t nextPts;
 
-    /// 下一阵额外参数
+    /// 下一帧额外参数
     AVRational nextPtsTb;
 
 public:

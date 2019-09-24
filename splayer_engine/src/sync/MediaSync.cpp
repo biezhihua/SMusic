@@ -203,8 +203,8 @@ void MediaSync::refreshVideo(double *remaining_time) {
 
                 // 如果不处于同步到视频状态，并且处于跳帧状态，则跳过当前帧
                 if ((time > frameTimer + nextDuration)
-                    && (playerState->frameDrop > 0
-                        || (playerState->frameDrop && playerState->syncType != AV_SYNC_VIDEO))) {
+                    && (playerState->dropFrameWhenSlow > 0
+                        || (playerState->dropFrameWhenSlow && playerState->syncType != AV_SYNC_VIDEO))) {
                     frameQueue->popFrame();
                     ALOGD(TAG, "%s drop same frame", __func__);
                     continue;

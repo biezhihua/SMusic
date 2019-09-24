@@ -130,7 +130,7 @@ bool SDLMediaPlayer::isQuitKey(const SDL_Event &event) {
 }
 
 bool SDLMediaPlayer::isNotHaveWindow() {
-    // If we don't yet have a window, skip all lowres events, because read_thread might still be initializing...
+    // If we don't yet have a window, skip all lowResolution events, because read_thread might still be initializing...
     mutex.lock();
     bool ret = false;
     if (videoDevice) {

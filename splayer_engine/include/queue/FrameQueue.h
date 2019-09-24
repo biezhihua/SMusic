@@ -5,38 +5,55 @@
 #include <common/Condition.h>
 #include <common/Log.h>
 #include <queue/PacketQueue.h>
+#include <player/PlayerState.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
 };
 
-#define FRAME_QUEUE_SIZE 10
 
+/// 解码帧结构
+/// Common struct for handling all types of decoded data and allocated render buffers.
 typedef struct Frame {
 
+    /// 帧数据
     AVFrame *frame;
 
+    /// 字幕数据
     AVSubtitle sub;
 
+    /// 序列，作seek时使用，作为区分前后帧序列
     int seekSerial;
 
-    double pts;           /* presentation timestamp for the frame */
+    /// 帧的显示时间戳
+    /// presentation timestamp for the frame
+    double pts;
 
-    double duration;      /* estimated duration of the frame */
+    /// 帧显示时长
+    /// estimated duration of the frame
+    double duration;
 
-    int64_t pos;          /* byte position of the frame in the input file */
+    /// 帧在文件中的字节位置
+    /// byte position of the frame in the input file
+    int64_t pos;
 
+    /// 帧宽度
     int width;
 
+    /// 帧高度
     int height;
 
+    /// 帧格式
     int format;
 
-    AVRational sar;
+    /// 采样率比率
+    AVRational sampleAspectRatio;
 
+    /// 上载
     int uploaded;
 
-    int flip_v;
+    /// 反转
+    int flipVertical;
 
 } Frame;
 

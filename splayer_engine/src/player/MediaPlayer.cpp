@@ -324,7 +324,7 @@ int MediaPlayer::seekTo(float increment) {
 
 void MediaPlayer::setLooping(int looping) {
     mutex.lock();
-    playerState->loop = looping;
+    playerState->loopTimes = looping;
     condition.signal();
     mutex.unlock();
 }
@@ -337,7 +337,7 @@ void MediaPlayer::setVolume(float leftVolume, float rightVolume) {
 
 void MediaPlayer::setMute(int mute) {
     mutex.lock();
-    playerState->mute = mute;
+    playerState->audioMute = mute;
     condition.signal();
     mutex.unlock();
 }
@@ -423,7 +423,7 @@ int MediaPlayer::isPlaying() {
 }
 
 int MediaPlayer::isLooping() {
-    return playerState->loop;
+    return playerState->loopTimes;
 }
 
 int MediaPlayer::getMetadata(AVDictionary **metadata) {
@@ -560,7 +560,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
     codecContext->codec_id = codec->id;
 
     // 判断是否需要重新设置lowres的值
-    int streamLowResolution = playerState->lowres;
+    int streamLowResolution = playerState->lowResolution;
     if (streamLowResolution > codec->max_lowres) {
         ALOGD(TAG, "%s The maximum value for low Resolution supported by the decoder is %d", __func__,
               codec->max_lowres);
@@ -582,7 +582,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
         codecContext->flags |= CODEC_FLAG_EMU_EDGE;
     }
 #endif
-    opts = filterCodecOptions(playerState->codec_opts, codecContext->codec_id, formatContext,
+    opts = filterCodecOptions(playerState->codecOpts, codecContext->codec_id, formatContext,
                               formatContext->streams[streamIndex], codec);
     if (!av_dict_get(opts, OPT_THREADS, nullptr, 0)) {
         av_dict_set(&opts, OPT_THREADS, "auto", 0);

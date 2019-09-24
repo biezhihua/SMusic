@@ -34,18 +34,24 @@ public:
     int64_t getFrameQueueLastPos();
 
 private:
-    AVFormatContext *formatContext; // 解复用上下文
 
-    FrameQueue *frameQueue;         // 帧队列
+    /// 解复用上下文
+    AVFormatContext *formatContext;
 
-    int rotate;                     // 旋转角度
+    /// 帧队列
+    FrameQueue *frameQueue;
 
-    Thread *decodeThread;           // 解码线程
+    /// 旋转角度
+    int rotate;
 
-    MediaClock *masterClock;        // 主时钟
+    /// 解码线程
+    Thread *decodeThread;
+
+    /// 主时钟
+    MediaClock *masterClock;
 
 private:
-    // 解码视频帧
+
     int decodeVideo();
 
     int popFrame(AVFrame *pFrame);

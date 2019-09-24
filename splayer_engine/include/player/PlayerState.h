@@ -21,46 +21,72 @@ extern "C" {
 };
 
 
-#define VIDEO_QUEUE_SIZE 3
-#define SAMPLE_QUEUE_SIZE 9
+#define VIDEO_QUEUE_SIZE                            3
+#define SAMPLE_QUEUE_SIZE                           9
 
-#define MAX_QUEUE_SIZE (15 * 1024 * 1024)
-#define MIN_FRAMES 25
+#define MAX_QUEUE_SIZE                              (15 * 1024 * 1024)
+#define MIN_FRAMES                                  25
+#define FRAME_QUEUE_SIZE                            10
 
-#define AUDIO_MIN_BUFFER_SIZE 512
+/// 最小音频缓冲
+/// Minimum SDL audio buffer size, in samples.
+#define AUDIO_MIN_BUFFER_SIZE                       512
 
-#define AUDIO_MAX_CALLBACKS_PER_SEC 30
+/// 计算实际音频缓冲大小，并不需要太频繁回调，
+/// 这里设置的是最大音频回调次数是每秒30次
+/// Calculate actual buffer size keeping in mind
+/// not cause too frequent audio callbacks
+#define AUDIO_MAX_CALLBACKS_PER_SEC                 30
 
-#define REFRESH_RATE 0.01
+/// 对于可能需要的屏幕刷新视频的轮询，应该小于1/fps
+/// polls for possible required screen refreshVideo at least this often,
+/// should be less than 1/fps
+#define REFRESH_RATE                                0.01
 
-#define AV_SYNC_THRESHOLD_MIN 0.04
+/// 最低同步阈值，如果低于该值，则不需要同步校正
+/// no sync correction is done if below the minimum AV sync threshold
+#define AV_SYNC_THRESHOLD_MIN                       0.04
 
-#define AV_SYNC_THRESHOLD_MAX 0.1
+/// 最大同步阈值，如果大于该值，则需要同步校正
+/// sync correction is done if above the maximum sync threshold
+#define AV_SYNC_THRESHOLD_MAX                       0.1
 
-#define AV_SYNC_FRAMEDUP_THRESHOLD 0.1
+/// 帧补偿同步阈值，如果帧持续时间比这更长，则不用来补偿同步
+/// If a frame duration is longer than this,
+/// it will not be duplicated to compensate AV sync
+#define AV_SYNC_FRAMEDUP_THRESHOLD                  0.1
 
-#define AV_NOSYNC_THRESHOLD 10.0
+/// 同步阈值。如果误差太大，则不进行校正
+/// no correction is done if too big error
+#define AV_NOSYNC_THRESHOLD                         10.0
 
-#define EXTERNAL_CLOCK_MIN_FRAMES 2
+#define EXTERNAL_CLOCK_MIN_FRAMES                   2
 
-#define EXTERNAL_CLOCK_MAX_FRAMES 10
+#define EXTERNAL_CLOCK_MAX_FRAMES                   10
 
-#define EXTERNAL_CLOCK_SPEED_MIN  0.900
+/// 根据实时码流的缓冲区填充时间做外部时钟调整 最小值
+#define EXTERNAL_CLOCK_SPEED_MIN                    0.900
 
-#define EXTERNAL_CLOCK_SPEED_MAX  1.010
+/// 根据实时码流的缓冲区填充时间做外部时钟调整 最大值
+#define EXTERNAL_CLOCK_SPEED_MAX                    1.010
 
-#define EXTERNAL_CLOCK_SPEED_STEP 0.001
+/// 根据实时码流的缓冲区填充时间做外部时钟调整 步进
+#define EXTERNAL_CLOCK_SPEED_STEP                   0.001
 
-#define AUDIO_DIFF_AVG_NB   20
+/// 使用差值来实现平均值
+/// we use about AUDIO_DIFF_AVG_NB A-V differences to make the average
+#define AUDIO_DIFF_AVG_NB                           20
 
-#define SAMPLE_CORRECTION_PERCENT_MAX 10
+/// 正确同步的最大音频速度变化值(百分比)
+/// maximum audio speed change to get correct sync
+#define SAMPLE_CORRECTION_PERCENT_MAX               10
 
-// Options 定义
-#define OPT_CATEGORY_FORMAT 1
-#define OPT_CATEGORY_CODEC 2
-#define OPT_CATEGORY_SWS 3
-#define OPT_CATEGORY_PLAYER 4
-#define OPT_CATEGORY_SWR 5
+/// Options 定义
+#define OPT_CATEGORY_FORMAT                         1
+#define OPT_CATEGORY_CODEC                          2
+#define OPT_CATEGORY_SWS                            3
+#define OPT_CATEGORY_PLAYER                         4
+#define OPT_CATEGORY_SWR                            5
 
 typedef enum {
     AV_SYNC_AUDIO,      // 同步到音频时钟
@@ -99,68 +125,156 @@ private:
     void parse_int(const char *type, int64_t option);
 
 public:
-    Mutex mMutex;                   // 操作互斥锁，主要是给seek操作、音视频解码以及清空解码上下文缓冲使用，不加锁会导致ffmpeg内部崩溃现象
-    AVDictionary *sws_dict;         // 视频转码option参数
-    AVDictionary *swr_opts;         // 音频重采样option参数
-    AVDictionary *format_opts;      // 解复用option参数
-    AVDictionary *codec_opts;       // 解码option参数
 
-    AVInputFormat *inputFormat;     // 指定文件封装格式，也就是解复用器
-    const char *url;                // 文件路径
-    int64_t offset;                 // 文件偏移量
-    const char *headers;            // 文件头信息
-    const char *videoTitle;         // 视频名称
+    /// 操作互斥锁，主要是给seek操作、音视频解码以及清空解码上下文缓冲使用，
+    /// 不加锁会导致ffmpeg内部崩溃现象
+    Mutex mutex;
 
-    char *audioCodecName;           // 指定音频解码器名称
-    char *videoCodecName;           // 指定视频解码器名称
+    /// 视频转码option参数
+    AVDictionary *swsOpts = nullptr;
 
-    int abortRequest;               // 退出标志
-    int pauseRequest;               // 暂停标志
-    int lastPaused;                 // 上一次暂停状态
-    SyncType syncType;              // 同步类型
-    int64_t startTime;              // 播放起始位置
-    int64_t duration;               // 流时长
-    int64_t durationSec;            // 流市场秒
-    int realTime;                   // 判断是否实时流
-    int infiniteBuffer;             // 是否无限缓冲区，默认为-1
-    int audioDisable;               // 是否禁止音频流
-    int videoDisable;               // 是否禁止视频流
-    int displayDisable;             // 是否禁止显示
+    /// 音频重采样option参数
+    AVDictionary *swrOpts = nullptr;
 
-    int fast;                       // 解码上下文的AV_CODEC_FLAG2_FAST标志
-    int generateMissingPts;                     // 解码上下文的AVFMT_FLAG_GENPTS标志
-    int lowres;                     // 解码上下文的lowres标志
+    /// 解复用option参数
+    AVDictionary *formatOpts = nullptr;
 
-    float playbackRate;             // 播放速度
-    float playbackPitch;            // 播放音调
+    /// 解码option参数
+    AVDictionary *codecOpts = nullptr;
 
-    int seekByBytes;                // 是否以字节定位
-    int seekRequest;                // 定位请求
-    int seekFlags;                  // 定位标志
-    int64_t seekPos;                // 定位位置
-    int64_t seekRel;                // 定位偏移
+    /// 指定文件封装格式，也就是解复用器
+    AVInputFormat *inputFormat = nullptr;
 
-    int autoExit;                   // 是否自动退出
-    int loop;                       // 循环播放
-    int mute;                       // 静音播放
-    int frameDrop;                  // 舍帧操作
-    int reorderVideoPts;            // 视频帧重排pts
+    /// 文件路径
+    const char *url = nullptr;
 
-    int readPauseReturn;            // 暂停基于网络的流状态
+    /// 文件偏移量
+    int64_t offset;
 
-    int eof;                        // 数据包读到结尾标志
+    /// 文件头信息
+    const char *headers = nullptr;
 
-    int attachmentRequest;          // 视频封面数据包请求
+    /// 视频名称
+    const char *videoTitle = nullptr;
+
+    /// 指定音频解码器名称
+    char *audioCodecName = nullptr;
+
+    /// 指定视频解码器名称
+    char *videoCodecName = nullptr;
+
+    /// 退出标志
+    int abortRequest;
+
+    /// 暂停标志
+    int pauseRequest;
+
+    /// 上一次暂停状态
+    int lastPaused;
+
+    /// 同步类型
+    SyncType syncType;
+
+    /// 播放起始位置
+    int64_t startTime;
+
+    /// 流时长
+    int64_t duration;
+
+    /// 流时长 秒
+    int64_t durationSec;
+
+    /// 判断是否实时流
+    int realTime;
+
+    /// 是否无限缓冲区，默认为-1
+    int infiniteBuffer;
+
+    /// 是否禁止音频流
+    int audioDisable;
+
+    /// 是否禁止视频流
+    int videoDisable;
+
+    /// 是否禁止显示
+    int displayDisable;
+
+    /// 是否允许非规范兼容的流加速
+    /// 解码上下文的AV_CODEC_FLAG2_FAST标志
+    int fast;
+
+    /// 是否生成丢失的PTS
+    /// generate missing pts
+    int generateMissingPts;
+
+    /// 是否启动低分辨率解码  1 -> 1/2 size, 2 -> 1/4 size
+    /// low resolution decoding, 1-> 1/2 size, 2->1/4 size
+    int lowResolution;
+
+    /// 播放速度
+    float playbackRate;
+
+    /// 播放音调
+    float playbackPitch;
+
+    /// 快进或者快推的间隔(秒)
+    /// set seek interval for left/right keys, in seconds
+    float seekInterval = 10;
+
+    /// 是否以字节定位
+    int seekByBytes;
+
+    /// 定位请求
+    int seekRequest;
+
+    /// 定位标志
+    int seekFlags;
+
+    /// 定位位置
+    int64_t seekPos;
+
+    /// 定位偏移
+    int64_t seekRel;
+
+    /// 结束播放时自动退出
+    /// exit at the end
+    int autoExit;
+
+    /// 设置循环播放的次数
+    /// set number of times the playback shall be looped
+    int loopTimes;
+
+    /// 静音播放
+    int audioMute;
+
+    /// 是否丢帧，当CPU过慢时
+    /// drop frames when cpu is too slow
+    int dropFrameWhenSlow;
+
+    /// 解码器重新排列时间戳
+    /// 是否使用解码器估算过的时间来矫正PTS 0=off 1=on -1=auto
+    /// let decoder reorder pts 0=off 1=on -1=auto
+    int decoderReorderPts;
+
+    /// 暂停基于网络的流状态
+    int readPauseReturn;
+
+    /// 数据包读到结尾标志
+    int eof;
+
+    /// 视频封面数据包请求
+    int attachmentRequest;
 
     /// 解码上下文
     AVFormatContext *formatContext = nullptr;
 
+    /// 视频流索引
     int videoIndex;
 
+    /// 音频流索引
     int audioIndex;
 
     const char *getSyncType();
-
 
 };
 

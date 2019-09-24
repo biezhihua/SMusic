@@ -47,7 +47,7 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
             }
         }
 
-        playerState->mMutex.lock();
+        playerState->mutex.lock();
         // 将数据包解码
         ret = avcodec_send_packet(codecContext, &pkt);
         if (ret < 0) {
@@ -59,13 +59,13 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
                 av_packet_unref(&pkt);
                 isPendingPacket = false;
             }
-            playerState->mMutex.unlock();
+            playerState->mutex.unlock();
             continue;
         }
 
         // 获取解码得到的音频帧AVFrame
         ret = avcodec_receive_frame(codecContext, frame);
-        playerState->mMutex.unlock();
+        playerState->mutex.unlock();
         // 释放数据包的引用，防止内存泄漏
         av_packet_unref(&pendingPacket);
         if (ret < 0) {
