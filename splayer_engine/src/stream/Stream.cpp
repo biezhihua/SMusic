@@ -44,16 +44,16 @@ void Stream::run() {
     if (mediaPlayer) {
         if (openStream() < 0) {
             closeStream();
-            ALOGE(TAG, "%s open stream failure", __func__);
+            if (DEBUG) ALOGE(TAG, "%s open stream failure", __func__);
             return;
         }
         notifyMsg(Msg::MSG_STARTED);
-        ALOGD(TAG, "%s start prepare read packets", __func__);
+        if (DEBUG) ALOGD(TAG, "%s start prepare read packets", __func__);
         if (readPackets() < 0) {
-            ALOGD(TAG, "%s read packets exit", __func__);
+            if (DEBUG) ALOGD(TAG, "%s read packets exit", __func__);
         }
     } else {
-        ALOGE(TAG, "%s media player is null", __func__);
+        if (DEBUG) ALOGE(TAG, "%s media player is null", __func__);
     }
 }
 
@@ -70,7 +70,7 @@ int Stream::readPackets() {
 
         // 退出播放器
         if (playerState->abortRequest) {
-            ALOGD(TAG, "%s exit read packet", __func__);
+            if (DEBUG) ALOGD(TAG, "%s exit read packet", __func__);
             return ERROR_ABORT_REQUEST;
         }
 
@@ -94,17 +94,17 @@ int Stream::readPackets() {
             ret = avformat_seek_file(formatContext, -1, seek_min, seek_target, seek_max, playerState->seekFlags);
             playerState->mutex.unlock();
             if (ret < 0) {
-                ALOGD(TAG, "%s %s: error while seeking", __func__, playerState->url);
+                if (DEBUG) ALOGD(TAG, "%s %s: error while seeking", __func__, playerState->url);
             } else {
                 if (audioDecoder) {
                     audioDecoder->flush();
                     audioDecoder->pushFlushPacket();
-                    ALOGD(TAG, "%s flush audio", __func__);
+                    if (DEBUG) ALOGD(TAG, "%s flush audio", __func__);
                 }
                 if (videoDecoder) {
                     videoDecoder->flush();
                     videoDecoder->pushFlushPacket();
-                    ALOGD(TAG, "%s flush video", __func__);
+                    if (DEBUG) ALOGD(TAG, "%s flush video", __func__);
                 }
                 // 更新外部时钟值
                 if (playerState->seekFlags & AVSEEK_FLAG_BYTE) {
@@ -145,8 +145,8 @@ int Stream::readPackets() {
             waitMutex.unlock();
             if (!isNoReadMoreLog) {
                 isNoReadMoreLog = true;
-                ALOGD(TAG, "%s not need read more, wait 10", __func__);
-                ALOGD(TAG,
+                if (DEBUG) ALOGD(TAG, "%s not need read more, wait 10", __func__);
+                if (DEBUG) ALOGD(TAG,
                       "%s isNoInfiniteBuffer = %d isNoEnoughMemory = %d isAudioEnoughPackets = %d isVideoEnoughPackets = %d",
                       __func__, isNoInfiniteBuffer, isNoEnoughMemory, isAudioEnoughPackets, isVideoEnoughPackets);
             }
@@ -161,7 +161,7 @@ int Stream::readPackets() {
             if (playerState->loopTimes) {
 //                seekTo(playerState->startTime != AV_NOPTS_VALUE ? playerState->startTime : 0);
             } else if (playerState->autoExit) {
-                ALOGD(TAG, "%s exit eof", __func__);
+                if (DEBUG) ALOGD(TAG, "%s exit eof", __func__);
                 return ERROR_EOF;
             }
         }
@@ -182,7 +182,7 @@ int Stream::readPackets() {
             }
             // 读取出错，则直接退出
             if (formatContext->pb && formatContext->pb->error) {
-                ALOGE(TAG, "%s I/O context error ", __func__);
+                if (DEBUG) ALOGE(TAG, "%s I/O context error ", __func__);
                 return ERROR_IO;
             }
             waitMutex.lock();
@@ -231,7 +231,7 @@ int Stream::openStream() {
     // 创建解复用上下文
     formatContext = avformat_alloc_context();
     if (formatContext == nullptr) {
-        ALOGE(TAG, "%s avformat could not allocate context", __func__);
+        if (DEBUG) ALOGE(TAG, "%s avformat could not allocate context", __func__);
         closeStream();
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_MEMORY);
         return ERROR_NOT_MEMORY;
@@ -265,7 +265,7 @@ int Stream::openStream() {
     if (av_stristart(playerState->url, "rtmp", nullptr) ||
         av_stristart(playerState->url, "rtsp", nullptr)) {
         // There is total different meaning for 'timeout' option in rtmp
-        ALOGD(TAG, "%s remove 'timeout' option for rtmp.", __func__);
+        if (DEBUG) ALOGD(TAG, "%s remove 'timeout' option for rtmp.", __func__);
         av_dict_set(&playerState->formatOpts, "timeout", nullptr, 0);
     }
 
@@ -275,7 +275,7 @@ int Stream::openStream() {
                               playerState->inputFormat,
                               &playerState->formatOpts);
     if (ret < 0) {
-        ALOGE(TAG, "%s avformat could not open input", __func__);
+        if (DEBUG) ALOGE(TAG, "%s avformat could not open input", __func__);
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_OPEN_INPUT);
         return ERROR_NOT_OPEN_INPUT;
     }
@@ -286,7 +286,7 @@ int Stream::openStream() {
     }
 
     if ((t = av_dict_get(playerState->formatOpts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
-        ALOGE(TAG, "%s Option %s not found", __func__, t->key);
+        if (DEBUG) ALOGE(TAG, "%s Option %s not found", __func__, t->key);
         notifyMsg(Msg::MSG_ERROR, ERROR_CODEC_OPTIONS);
         return ERROR_CODEC_OPTIONS;
     }
@@ -310,7 +310,7 @@ int Stream::openStream() {
     }
 
     if (ret < 0) {
-        ALOGE(TAG, "%s %s: could not find codec parameters", __func__, playerState->url);
+        if (DEBUG) ALOGE(TAG, "%s %s: could not find codec parameters", __func__, playerState->url);
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_FOUND_STREAM_INFO);
         return ERROR_NOT_FOUND_STREAM_INFO;
     }
@@ -360,7 +360,7 @@ int Stream::openStream() {
         ret = avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX, 0);
         playerState->mutex.unlock();
         if (ret < 0) {
-            ALOGE(TAG, "%s %s: could not seek to position %0.3f", __func__, playerState->url,
+            if (DEBUG) ALOGE(TAG, "%s %s: could not seek to position %0.3f", __func__, playerState->url,
                   (double) timestamp / AV_TIME_BASE);
         }
     }
@@ -403,7 +403,7 @@ int Stream::openStream() {
 
     // 如果音频流和视频流都没有找到，则直接退出
     if (audioIndex == -1 && videoIndex == -1) {
-        ALOGE(TAG, "%s could not find audio and video stream", __func__);
+        if (DEBUG) ALOGE(TAG, "%s could not find audio and video stream", __func__);
         notifyMsg(Msg::MSG_ERROR, ERROR_DISABLE_ALL_STREAM);
         return ERROR_DISABLE_ALL_STREAM;
     }
@@ -481,7 +481,7 @@ int Stream::notifyMsg(int what, int arg1, int arg2) {
 }
 
 void Stream::closeStream() {
-    ALOGD(TAG, __func__);
+    if (DEBUG) ALOGD(TAG, __func__);
 }
 
 void Stream::setStreamListener(IStreamListener *streamListener) {

@@ -26,63 +26,63 @@ MediaPlayer::~MediaPlayer() {
 }
 
 int MediaPlayer::create() {
-    ALOGD(TAG, "create media player - start");
+    if (DEBUG) ALOGD(TAG, "create media player - start");
     mutex.lock();
     _create();
     mutex.unlock();
-    ALOGD(TAG, "create media player - end");
+    if (DEBUG) ALOGD(TAG, "create media player - end");
     return SUCCESS;
 }
 
 int MediaPlayer::start() {
-    ALOGD(TAG, "start media player - start");
+    if (DEBUG) ALOGD(TAG, "start media player - start");
     mutex.lock();
     _start();
     mutex.unlock();
-    ALOGD(TAG, "start media player - end");
+    if (DEBUG) ALOGD(TAG, "start media player - end");
     return SUCCESS;
 }
 
 int MediaPlayer::pause() {
-    ALOGD(TAG, "pause media player - start");
+    if (DEBUG) ALOGD(TAG, "pause media player - start");
     mutex.lock();
     togglePause();
     notifyMsg(Msg::MSG_PAUSE);
     mutex.unlock();
-    ALOGD(TAG, "pause media player - end");
+    if (DEBUG) ALOGD(TAG, "pause media player - end");
     return SUCCESS;
 }
 
 int MediaPlayer::play() {
-    ALOGD(TAG, "play media player - start");
+    if (DEBUG) ALOGD(TAG, "play media player - start");
     mutex.lock();
     togglePause();
     notifyMsg(Msg::MSG_PLAY);
     mutex.unlock();
-    ALOGD(TAG, "play media player - end");
+    if (DEBUG) ALOGD(TAG, "play media player - end");
     return SUCCESS;
 }
 
 int MediaPlayer::stop() {
-    ALOGD(TAG, "stop media player - start");
+    if (DEBUG) ALOGD(TAG, "stop media player - start");
     mutex.lock();
     _stop();
     mutex.unlock();
-    ALOGD(TAG, "stop media player - end");
+    if (DEBUG) ALOGD(TAG, "stop media player - end");
     return SUCCESS;
 }
 
 int MediaPlayer::destroy() {
-    ALOGD(TAG, "destroy media player - start");
+    if (DEBUG) ALOGD(TAG, "destroy media player - start");
     mutex.lock();
     _destroy();
     mutex.unlock();
-    ALOGD(TAG, "destroy media player - end");
+    if (DEBUG) ALOGD(TAG, "destroy media player - end");
     return SUCCESS;
 }
 
 int MediaPlayer::setDataSource(const char *url, int64_t offset, const char *headers) {
-    ALOGD(TAG, "%s url = %s offset = %lld headers = %p", __func__, url, offset, headers);
+    if (DEBUG) ALOGD(TAG, "%s url = %s offset = %lld headers = %p", __func__, url, offset, headers);
     mutex.lock();
     _setDataSource(url, offset, headers);
     mutex.unlock();
@@ -103,7 +103,7 @@ int MediaPlayer::_create() {
         mediaSync = new MediaSync();
     }
     if (mediaSync->create() < 0) {
-        ALOGE(TAG, "media stream create failure");
+        if (DEBUG) ALOGE(TAG, "media stream create failure");
         notifyMsg(Msg::MSG_ERROR, ERROR);
         return ERROR;
     }
@@ -116,7 +116,7 @@ int MediaPlayer::_create() {
     mediaStream->setStreamListener(this);
     mediaStream->setMediaSync(mediaSync);
     if (mediaStream->create() < 0) {
-        ALOGE(TAG, "media stream create failure");
+        if (DEBUG) ALOGE(TAG, "media stream create failure");
         notifyMsg(Msg::MSG_ERROR, ERROR);
         return ERROR;
     }
@@ -137,7 +137,7 @@ int MediaPlayer::_create() {
         if (videoDevice->create()) {
             mediaSync->setVideoDevice(videoDevice);
         } else {
-            ALOGE(TAG, "%s video device create failure", __func__);
+            if (DEBUG) ALOGE(TAG, "%s video device create failure", __func__);
         }
     }
 
@@ -153,7 +153,8 @@ int MediaPlayer::_start() {
     }
     playerState->abortRequest = 0;
     playerState->pauseRequest = 0;
-    ALOGD(TAG, "start media stream");
+    if (DEBUG)
+        ALOGD(TAG, "start media stream");
     mediaStream->start();
     notifyMsg(Msg::MSG_START);
     notifyMsg(Msg::MSG_MEDIA_STREAM_START);
@@ -167,24 +168,26 @@ int MediaPlayer::_stop() {
     }
 
     if (mediaSync != nullptr) {
-        ALOGD(TAG, "stop media sync");
+        if (DEBUG)
+            ALOGD(TAG, "stop media sync");
         mediaSync->stop();
         notifyMsg(Msg::MSG_MEDIA_SYNC_STOP);
     }
 
     if (audioDevice != nullptr) {
-        ALOGD(TAG, "stop audio device");
+        if (DEBUG)
+            ALOGD(TAG, "stop audio device");
         audioDevice->stop();
         notifyMsg(Msg::MSG_AUDIO_DEVICE_STOP);
     }
 
     if (videoDevice != nullptr) {
-        ALOGD(TAG, "stop video device");
+        if (DEBUG) ALOGD(TAG, "stop video device");
         notifyMsg(Msg::MSG_VIDEO_DEVICE_STOP);
     }
 
     if (audioDecoder != nullptr) {
-        ALOGD(TAG, "stop audio decoder");
+        if (DEBUG) ALOGD(TAG, "stop audio decoder");
         audioDecoder->stop();
         notifyMsg(Msg::MSG_AUDIO_DECODER_STOP);
         delete audioDecoder;
@@ -192,7 +195,7 @@ int MediaPlayer::_stop() {
     }
 
     if (videoDecoder != nullptr) {
-        ALOGD(TAG, "stop video decoder");
+        if (DEBUG) ALOGD(TAG, "stop video decoder");
         videoDecoder->stop();
         notifyMsg(Msg::MSG_VIDEO_DECODER_STOP);
         delete videoDecoder;
@@ -200,7 +203,7 @@ int MediaPlayer::_stop() {
     }
 
     if (mediaStream != nullptr) {
-        ALOGD(TAG, "stop media stream");
+        if (DEBUG) ALOGD(TAG, "stop media stream");
         mediaStream->stop();
         notifyMsg(Msg::MSG_MEDIA_STREAM_STOP);
     }
@@ -231,6 +234,7 @@ int MediaPlayer::_destroy() {
             mediaSync->setVideoDevice(nullptr);
         }
         videoDevice->destroy();
+        videoDevice = nullptr;
     }
 
     if (audioDevice != nullptr) {
@@ -240,6 +244,7 @@ int MediaPlayer::_destroy() {
             audioResampler = nullptr;
         }
         audioDevice->destroy();
+        audioDevice = nullptr;
     }
 
     if (mediaStream != nullptr) {
@@ -255,6 +260,7 @@ int MediaPlayer::_destroy() {
         mediaSync->setMessageCenter(nullptr);
         mediaSync->setPlayerState(nullptr);
         mediaSync->destroy();
+        mediaSync = nullptr;
     }
 
     if (playerState != nullptr) {
@@ -279,9 +285,9 @@ int MediaPlayer::_setDataSource(const char *url, int64_t offset, const char *hea
 }
 
 int MediaPlayer::seekTo(float increment) {
-    ALOGD(TAG, "%s increment = %lf", __func__, increment);
+    if (DEBUG) ALOGD(TAG, "%s increment = %lf", __func__, increment);
     if (!playerState) {
-        ALOGE(TAG, "%s player state is null", __func__);
+        if (DEBUG) ALOGE(TAG, "%s player state is null", __func__);
         return ERROR;
     }
     if (!playerState->realTime && playerState->duration < 0) {
@@ -451,7 +457,7 @@ void MediaPlayer::setMessageListener(IMessageListener *messageListener) {
     if (messageListener) {
         this->messageListener = messageListener;
     } else {
-        ALOGE(TAG, "%s message listener is null", __func__);
+        if (DEBUG) ALOGE(TAG, "%s message listener is null", __func__);
     }
 }
 
@@ -461,7 +467,7 @@ void MediaPlayer::setAudioDevice(AudioDevice *audioDevice) {
         // 初始化音频重采样器
         audioResampler = new AudioReSampler();
     } else {
-        ALOGE(TAG, "%s audio device is null", __func__);
+        if (DEBUG) ALOGE(TAG, "%s audio device is null", __func__);
     }
 }
 
@@ -469,7 +475,7 @@ void MediaPlayer::setMediaSync(MediaSync *mediaSync) {
     this->mediaSync = mediaSync;
     if (this->mediaSync) {
     } else {
-        ALOGE(TAG, "%s media sync is null", __func__);
+        if (DEBUG) ALOGE(TAG, "%s media sync is null", __func__);
     }
 }
 
@@ -478,7 +484,7 @@ void MediaPlayer::setVideoDevice(VideoDevice *videoDevice) {
     if (this->videoDevice) {
 
     } else {
-        ALOGE(TAG, "%s video device is null", __func__);
+        if (DEBUG) ALOGE(TAG, "%s video device is null", __func__);
     }
 }
 
@@ -501,7 +507,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
 
     // 判断流索引的合法性
     if (formatContext == nullptr || streamIndex < 0 || streamIndex >= formatContext->nb_streams) {
-        ALOGE(TAG, "%s illegal stream index", __func__);
+        if (DEBUG) ALOGE(TAG, "%s illegal stream index", __func__);
         closeDecoder(streamIndex, nullptr, nullptr);
         notifyMsg(Msg::MSG_ERROR, ERROR_STREAM_INDEX, streamIndex);
         return ERROR_STREAM_INDEX;
@@ -510,7 +516,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
     // 创建解码上下文
     codecContext = avcodec_alloc_context3(nullptr);
     if (!codecContext) {
-        ALOGE(TAG, "%s alloc codec context failure", __func__);
+        if (DEBUG) ALOGE(TAG, "%s alloc codec context failure", __func__);
         closeDecoder(streamIndex, codecContext, opts);
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_MEMORY);
         return ERROR_NOT_MEMORY;
@@ -519,7 +525,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
     // 复制解码上下文参数
     ret = avcodec_parameters_to_context(codecContext, formatContext->streams[streamIndex]->codecpar);
     if (ret < 0) {
-        ALOGE(TAG, "%s copy codec params to context failure", __func__);
+        if (DEBUG) ALOGE(TAG, "%s copy codec params to context failure", __func__);
         closeDecoder(streamIndex, nullptr, nullptr);
         notifyMsg(Msg::MSG_ERROR, ERROR_COPY_CODEC_PARAM_TO_CONTEXT);
         return ERROR_COPY_CODEC_PARAM_TO_CONTEXT;
@@ -543,14 +549,14 @@ int MediaPlayer::openDecoder(int streamIndex) {
     // 如果没有找到指定的解码器，则查找默认的解码器
     if (!codec) {
         if (forcedCodecName) {
-            ALOGD(TAG, "%s No codec could be found with name '%s'", __func__, forcedCodecName);
+            if (DEBUG) ALOGD(TAG, "%s No codec could be found with name '%s'", __func__, forcedCodecName);
         }
         codec = avcodec_find_decoder(codecContext->codec_id);
     }
 
     // 判断是否成功得到解码器
     if (!codec) {
-        ALOGE(TAG, "%s No codec could be found with id %d", __func__, codecContext->codec_id);
+        if (DEBUG) ALOGE(TAG, "%s No codec could be found with id %d", __func__, codecContext->codec_id);
         closeDecoder(streamIndex, nullptr, nullptr);
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_FOUND_DCODE);
         return ERROR_NOT_FOUND_DCODE;
@@ -562,8 +568,9 @@ int MediaPlayer::openDecoder(int streamIndex) {
     // 判断是否需要重新设置lowres的值
     int streamLowResolution = playerState->lowResolution;
     if (streamLowResolution > codec->max_lowres) {
-        ALOGD(TAG, "%s The maximum value for low Resolution supported by the decoder is %d", __func__,
-              codec->max_lowres);
+        if (DEBUG)
+            ALOGD(TAG, "%s The maximum value for low Resolution supported by the decoder is %d", __func__,
+                  codec->max_lowres);
         streamLowResolution = codec->max_lowres;
     }
     codecContext->lowres = streamLowResolution;
@@ -598,14 +605,14 @@ int MediaPlayer::openDecoder(int streamIndex) {
 
     // 打开解码器
     if ((ret = avcodec_open2(codecContext, codec, &opts)) < 0) {
-        ALOGE(TAG, "%s open codec failure", __func__);
+        if (DEBUG) ALOGE(TAG, "%s open codec failure", __func__);
         closeDecoder(streamIndex, nullptr, nullptr);
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_OPEN_DECODE);
         return ERROR_NOT_OPEN_DECODE;
     }
 
     if ((t = av_dict_get(opts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
-        ALOGE(TAG, "%s option %s not found", __func__, t->key);
+        if (DEBUG) ALOGE(TAG, "%s option %s not found", __func__, t->key);
         closeDecoder(streamIndex, nullptr, nullptr);
         notifyMsg(Msg::MSG_ERROR, ERROR_CODEC_OPTIONS);
         return ERROR_CODEC_OPTIONS;
@@ -656,7 +663,7 @@ int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_ch
 
     // 校验采样率和声道数量合法性
     if (wanted_spec.freq <= 0 || wanted_spec.channels <= 0) {
-        ALOGE(TAG, "%s Invalid sample rate or channel count!", __func__);
+        if (DEBUG) ALOGE(TAG, "%s Invalid sample rate or channel count!", __func__);
         return ERROR_AUDIO_SPEC;
     }
 
@@ -673,15 +680,16 @@ int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_ch
 
     // 打开音频设备
     while (audioDevice->open(&wanted_spec, &spec) < 0) {
-        ALOGD(TAG, "%s failed to open audio device: (%d channels, %d Hz)!", __func__,
-              wanted_spec.channels,
-              wanted_spec.freq);
+        if (DEBUG)
+            ALOGD(TAG, "%s failed to open audio device: (%d channels, %d Hz)!", __func__,
+                  wanted_spec.channels,
+                  wanted_spec.freq);
         wanted_spec.channels = (uint8_t) next_nb_channels[FFMIN(7, wanted_spec.channels)];
         if (!wanted_spec.channels) {
             wanted_spec.freq = next_sample_rates[next_sample_rate_idx--];
             wanted_spec.channels = (uint8_t) wanted_nb_channels;
             if (!wanted_spec.freq) {
-                ALOGE(TAG, "%s No more combinations to try, audio open failed", __func__);
+                if (DEBUG) ALOGE(TAG, "%s No more combinations to try, audio open failed", __func__);
                 return ERROR_AUDIO_SPEC;
             }
         }
@@ -689,14 +697,14 @@ int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_ch
     }
 
     if (spec.format != AV_SAMPLE_FMT_S16) {
-        ALOGE(TAG, "%s audio format %d is not supported!", __func__, spec.format);
+        if (DEBUG) ALOGE(TAG, "%s audio format %d is not supported!", __func__, spec.format);
         return ERROR_AUDIO_FORMAT;
     }
 
     if (spec.channels != wanted_spec.channels) {
         wanted_channel_layout = av_get_default_channel_layout(spec.channels);
         if (!wanted_channel_layout) {
-            ALOGE(TAG, "%s channel count %d is not supported!", __func__, spec.channels);
+            if (DEBUG) ALOGE(TAG, "%s channel count %d is not supported!", __func__, spec.channels);
             return ERROR_AUDIO_CHANNEL_LAYOUT;
         }
     }
@@ -708,11 +716,11 @@ int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_ch
 }
 
 void MediaPlayer::onStartOpenStream() {
-    ALOGD(TAG, __func__);
+    if (DEBUG) ALOGD(TAG, __func__);
 }
 
 void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
-    ALOGD(TAG, "%s videoIndex = %d audioIndex = %d", __func__, videoIndex, audioIndex);
+    if (DEBUG) ALOGD(TAG, "%s videoIndex = %d audioIndex = %d", __func__, videoIndex, audioIndex);
 
     int ret = 0;
 
@@ -722,7 +730,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     if (videoIndex >= 0 && videoDevice != nullptr) {
         playerState->videoIndex = videoIndex;
         if (openDecoder(videoIndex) < 0) {
-            ALOGE(TAG, "%s failed to create video decoder", __func__);
+            if (DEBUG) ALOGE(TAG, "%s failed to create video decoder", __func__);
             notifyMsg(Msg::MSG_ERROR, ERROR_CREATE_AUDIO_DECODER);
         }
     }
@@ -731,32 +739,32 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     if (audioIndex >= 0 && audioDevice != nullptr) {
         playerState->audioIndex = audioIndex;
         if (openDecoder(audioIndex) < 0) {
-            ALOGE(TAG, "%s failed to create audio decoder", __func__);
+            if (DEBUG) ALOGE(TAG, "%s failed to create audio decoder", __func__);
             notifyMsg(Msg::MSG_ERROR, ERROR_CREATE_VIDEO_DECODER);
         }
     }
 
     if (audioDecoder == nullptr && videoDecoder == nullptr) {
-        ALOGE(TAG, "%s failed to create audio and video decoder", __func__);
+        if (DEBUG) ALOGE(TAG, "%s failed to create audio and video decoder", __func__);
         notifyMsg(Msg::MSG_ERROR, ERROR_CREATE_VIDEO_AUDIO_DECODER);
         return;
     }
 
     // 视频解码器开始解码
     if (videoDecoder != nullptr) {
-        ALOGD(TAG, "start video decoder");
+        if (DEBUG) ALOGD(TAG, "start video decoder");
         videoDecoder->start();
         notifyMsg(Msg::MSG_VIDEO_DECODER_START);
     } else {
         if (playerState->syncType == AV_SYNC_VIDEO) {
             playerState->syncType = AV_SYNC_AUDIO;
-            ALOGD(TAG, "%s change sync type to AV_SYNC_AUDIO", __func__);
+            if (DEBUG) ALOGD(TAG, "%s change sync type to AV_SYNC_AUDIO", __func__);
         }
     }
 
     // 音频解码器开始解码
     if (audioDecoder != nullptr) {
-        ALOGD(TAG, "start audio decoder");
+        if (DEBUG) ALOGD(TAG, "start audio decoder");
         if (audioResampler != nullptr) {
             audioResampler->setAudioDecoder(audioDecoder);
         }
@@ -765,15 +773,15 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     } else {
         if (playerState->syncType == AV_SYNC_AUDIO) {
             playerState->syncType = AV_SYNC_EXTERNAL;
-            ALOGD(TAG, "%s change sync type to AV_SYNC_EXTERNAL", __func__);
+            if (DEBUG) ALOGD(TAG, "%s change sync type to AV_SYNC_EXTERNAL", __func__);
         }
     }
 
-    ALOGD(TAG, "%s sync type = %s", __func__, playerState->getSyncType());
+    if (DEBUG) ALOGD(TAG, "%s sync type = %s", __func__, playerState->getSyncType());
 
     // 打开视频输出设备
     if (videoDevice != nullptr) {
-        ALOGD(TAG, "start video device");
+        if (DEBUG) ALOGD(TAG, "start video device");
         notifyMsg(Msg::MSG_VIDEO_DEVICE_START);
     }
 
@@ -784,7 +792,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
                               codecContext->channels,
                               codecContext->sample_rate);
         if (ret < 0) {
-            ALOGE(TAG, "%s could not open audio device", __func__);
+            if (DEBUG) ALOGE(TAG, "%s could not open audio device", __func__);
             notifyMsg(Msg::MSG_NOT_OPEN_AUDIO_DEVICE);
             // 如果音频设备打开失败，则调整时钟的同步类型
             if (playerState->syncType == AV_SYNC_AUDIO) {
@@ -796,7 +804,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
             }
         } else {
             // 启动音频输出设备
-            ALOGD(TAG, "start audio device");
+            if (DEBUG) ALOGD(TAG, "start audio device");
             audioDevice->start();
             notifyMsg(Msg::MSG_AUDIO_DEVICE_START);
         }
@@ -804,20 +812,20 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     if (videoDecoder != nullptr) {
         if (playerState->syncType == AV_SYNC_AUDIO) {
-            ALOGD(TAG, "%s change master clock to audio clock", __func__);
+            if (DEBUG) ALOGD(TAG, "%s change master clock to audio clock", __func__);
             videoDecoder->setMasterClock(mediaSync->getAudioClock());
         } else if (playerState->syncType == AV_SYNC_VIDEO) {
-            ALOGD(TAG, "%s change master clock to video clock", __func__);
+            if (DEBUG) ALOGD(TAG, "%s change master clock to video clock", __func__);
             videoDecoder->setMasterClock(mediaSync->getVideoClock());
         } else {
-            ALOGD(TAG, "%s change master clock to external clock", __func__);
+            if (DEBUG) ALOGD(TAG, "%s change master clock to external clock", __func__);
             videoDecoder->setMasterClock(mediaSync->getExternalClock());
         }
     }
 
     // 开始同步
     if (mediaSync != nullptr) {
-        ALOGD(TAG, "start media sync");
+        if (DEBUG) ALOGD(TAG, "start media sync");
         mediaSync->start(videoDecoder, audioDecoder);
         notifyMsg(Msg::MSG_MEDIA_SYNC_START);
     }
@@ -848,7 +856,7 @@ int MediaPlayer::notifyMsg(int what, int arg1, int arg2) {
 }
 
 int MediaPlayer::closeDecoder(int streamIndex, AVCodecContext *codecContext, AVDictionary *opts) {
-    ALOGD(TAG, "%s streamIndex = %d", __func__, streamIndex);
+    if (DEBUG) ALOGD(TAG, "%s streamIndex = %d", __func__, streamIndex);
     // 准备失败，则需要释放创建的解码上下文
     avcodec_free_context(&codecContext);
     // 释放参数
@@ -858,14 +866,14 @@ int MediaPlayer::closeDecoder(int streamIndex, AVCodecContext *codecContext, AVD
 
 int MediaPlayer::checkParams() {
     if (!playerState->url) {
-        ALOGE(TAG, "%s url is null", __func__);
+        if (DEBUG) ALOGE(TAG, "%s url is null", __func__);
         return ERROR_PARAMS;
     }
     return SUCCESS;
 }
 
 void MediaPlayer::setFormatContext(AVFormatContext *formatContext) {
-    ALOGD(TAG, "%s format context = %p", __func__, formatContext);
+    if (DEBUG) ALOGD(TAG, "%s format context = %p", __func__, formatContext);
     this->formatContext = formatContext;
 }
 

@@ -61,7 +61,7 @@ int MessageQueue::getMsg(Msg *msg, bool block) {
                 condition.wait(mutex);
             }
         } else {
-            ALOGE(TAG, "%s queue is null", __func__);
+            if (DEBUG) ALOGE(TAG, "%s queue is null", __func__);
             break;
         }
     }
@@ -87,7 +87,8 @@ int MessageQueue::removeMsg(int what) {
 }
 
 int MessageQueue::startMsgQueue() {
-    ALOGD(TAG, __func__);
+    if (DEBUG)
+        ALOGD(TAG, __func__);
     mutex.lock();
     auto *message = new Msg();
     message->what = Msg::MSG_FLUSH;

@@ -66,9 +66,11 @@ FrameQueue *VideoDecoder::getFrameQueue() {
 }
 
 void VideoDecoder::run() {
-    ALOGD(TAG, "start video decoder");
+    if (DEBUG)
+        ALOGD(TAG, "start video decoder");
     decodeVideo();
-    ALOGD(TAG, "end video decoder");
+    if (DEBUG)
+        ALOGD(TAG, "end video decoder");
 }
 
 /**
@@ -84,7 +86,7 @@ int VideoDecoder::decodeVideo() {
     AVRational frame_rate = av_guess_frame_rate(formatContext, stream, nullptr);
 
     if (!frame) {
-        ALOGE(TAG, "%s not memory", __func__);
+        if (DEBUG) ALOGE(TAG, "%s not memory", __func__);
         return ERROR_NOT_MEMORY;
     }
 
@@ -93,12 +95,14 @@ int VideoDecoder::decodeVideo() {
         ret = popFrame(frame);
 
         if (ret == 0) {
-            ALOGD(TAG, "%s drop frame", __func__);
+            if (DEBUG)
+                ALOGD(TAG, "%s drop frame", __func__);
             continue;
         }
 
         if (ret < 0) {
-            ALOGE(TAG, "%s not get video frame ret = %d ", __func__, ret);
+            if (DEBUG)
+                ALOGE(TAG, "%s not get video frame ret = %d ", __func__, ret);
             break;
         }
 
@@ -114,7 +118,7 @@ int VideoDecoder::decodeVideo() {
 
         if (ret < 0) {
             av_frame_free(&frame);
-            ALOGE(TAG, "%s not queue picture", __func__);
+            if (DEBUG) ALOGE(TAG, "%s not queue picture", __func__);
             break;
         }
     }
@@ -143,7 +147,7 @@ int VideoDecoder::popFrame(AVFrame *frame) {
 
     // 解码视频帧
     if ((gotPicture = decodeFrame(frame)) < 0) {
-        ALOGE(TAG, "%s video decodeFrame failure ret = %d", __func__, gotPicture);
+        if (DEBUG) ALOGE(TAG, "%s video decodeFrame failure ret = %d", __func__, gotPicture);
         return -1;
     }
 
@@ -192,11 +196,11 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
         if (isSamePacketSerial()) {
             // 接收一帧解码后的数据
             do {
-
-                ALOGD(TAG, "%s receive frame", __func__);
+                if (DEBUG)
+                    ALOGD(TAG, "%s receive frame", __func__);
 
                 if (packetQueue->isAbort()) {
-                    ALOGE(TAG, "%s abort", __func__);
+                    if (DEBUG) ALOGE(TAG, "%s abort", __func__);
                     return ERROR_ABORT_REQUEST;
                 }
 
@@ -213,10 +217,12 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
                             frame->pts = frame->pkt_dts;
                         }
                     } else {
-                        ALOGD(TAG, "%s receive frame error = %d", __func__, ret);
+                        if (DEBUG)
+                            ALOGD(TAG, "%s receive frame error = %d", __func__, ret);
                         if (ret == AVERROR(EAGAIN)) {
-                            ALOGD(TAG, "%s output is not available in this state - user must try to send new input",
-                                  __func__);
+                            if (DEBUG)
+                                ALOGD(TAG, "%s output is not available in this state - user must try to send new input",
+                                      __func__);
                         }
                     }
                 }
@@ -235,7 +241,8 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
         }
 
         do {
-            ALOGD(TAG, "%s sync packet serial", __func__);
+            if (DEBUG)
+                ALOGD(TAG, "%s sync packet serial", __func__);
 
             // 同步读取序列
             if (getPacketSize() == 0) {
@@ -260,10 +267,12 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
             nextPtsTb = startPtsTb;
         } else {
             if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
-                ALOGD(TAG, "%s send frame", __func__);
+                if (DEBUG)
+                    ALOGD(TAG, "%s send frame", __func__);
                 if (avcodec_send_packet(codecContext, &packet) == AVERROR(EAGAIN)) {
-                    ALOGE(TAG, "%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
-                          __func__);
+                    if (DEBUG)
+                        ALOGE(TAG, "%s Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
+                              __func__);
                     isPendingPacket = true;
                     av_packet_move_ref(&pendingPacket, &packet);
                 }
@@ -297,10 +306,10 @@ int VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int6
     av_frame_move_ref(frame->frame, srcFrame);
 
     frameQueue->pushFrame();
-
-    ALOGD(TAG, "%s frame = %p ptd = %lf duration = %lf pos = %lld serial = %d", __func__, srcFrame, pts, duration,
-          pos,
-          serial);
+    if (DEBUG)
+        ALOGD(TAG, "%s frame = %p ptd = %lf duration = %lf pos = %lld serial = %d", __func__, srcFrame, pts, duration,
+              pos,
+              serial);
 
     return SUCCESS;
 }

@@ -9,10 +9,11 @@ class MessageListener : public IMessageListener {
     const char *const TAG = "MessageListener";
 public:
     void onMessage(Msg *msg) override {
-        ALOGD(TAG, "%s what = %s arg1 = %d arg2 = %d", __func__,
-              Msg::getMsgSimpleName(msg->what),
-              msg->arg1,
-              msg->arg2);
+        if (DEBUG)
+            ALOGD(TAG, "%s what = %s arg1 = %d arg2 = %d", __func__,
+                  Msg::getMsgSimpleName(msg->what),
+                  msg->arg1,
+                  msg->arg2);
         if (mediaPlayer) {
             switch (msg->what) {
                 case Msg::MSG_REQUEST_PLAY_OR_PAUSE:
@@ -37,7 +38,7 @@ public:
                     break;
             }
         } else {
-            ALOGE(TAG, "%s media player is null", __func__);
+            if (DEBUG) ALOGE(TAG, "%s media player is null", __func__);
         }
     }
 };

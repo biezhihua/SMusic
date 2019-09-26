@@ -10,11 +10,13 @@ MessageCenter::~MessageCenter() {
 }
 
 void MessageCenter::run() {
-    ALOGD(TAG, "start message center thread");
+    if (DEBUG)
+        ALOGD(TAG, "start message center thread");
     while (!abortRequest) {
         executeMsg(true);
     }
-    ALOGD(TAG, "end message center thread");
+    if (DEBUG)
+        ALOGD(TAG, "end message center thread");
 }
 
 void MessageCenter::executeMsg(bool block) {
@@ -28,7 +30,8 @@ void MessageCenter::executeMsg(bool block) {
 }
 
 void MessageCenter::setMsgListener(IMessageListener *msgListener) {
-    ALOGD(TAG, "%s listener = %p", __func__, msgListener);
+    if (DEBUG)
+        ALOGD(TAG, "%s listener = %p", __func__, msgListener);
     MessageCenter::msgListener = msgListener;
 }
 
@@ -57,13 +60,15 @@ int MessageCenter::stop() {
 
 
 void MessageCenter::startMsgQueue() {
-    ALOGD(TAG, __func__);
+    if (DEBUG)
+        ALOGD(TAG, __func__);
     start();
     msgQueue->startMsgQueue();
 }
 
 void MessageCenter::stopMsgQueue() {
-    ALOGD(TAG, __func__);
+    if (DEBUG)
+        ALOGD(TAG, __func__);
     stop();
     msgQueue->clearMsgQueue(nullptr);
 }

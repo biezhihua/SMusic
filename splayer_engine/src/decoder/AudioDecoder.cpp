@@ -37,6 +37,7 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
         }
 
         AVPacket pkt;
+
         if (isPendingPacket) {
             av_packet_move_ref(&pkt, &pendingPacket);
             isPendingPacket = false;
@@ -66,8 +67,6 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
         // 获取解码得到的音频帧AVFrame
         ret = avcodec_receive_frame(codecContext, frame);
         playerState->mutex.unlock();
-        // 释放数据包的引用，防止内存泄漏
-        av_packet_unref(&pendingPacket);
         if (ret < 0) {
             av_frame_unref(frame);
             got_frame = 0;

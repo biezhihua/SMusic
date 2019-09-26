@@ -160,10 +160,10 @@ int PacketQueue::getPacket(AVPacket *pkt, int block) {
             break;
         } else if (!block) {
             ret = SUCCESS;
-            ALOGD(TAG, "%s not block", __func__);
+            if (DEBUG) ALOGD(TAG, "%s not block", __func__);
             break;
         } else {
-            ALOGD(TAG, "%s packet queue wait", __func__);
+            if (DEBUG) ALOGD(TAG, "%s packet queue wait", __func__);
             condition.wait(mutex);
         }
     }

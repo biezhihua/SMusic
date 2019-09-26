@@ -218,12 +218,12 @@ void SDLMediaPlayer::doSeek(int increment) {
 }
 
 int SDLMediaPlayer::destroy() {
-    ALOGD(TAG, "destroy sdl media player - start");
+    if (DEBUG) ALOGD(TAG, "destroy sdl media player - start");
     mutex.lock();
     MediaPlayer::_destroy();
     quit = true;
     mutex.unlock();
-    ALOGD(TAG, "destroy sdl media player - end");
+    if (DEBUG) ALOGD(TAG, "destroy sdl media player - end");
     return SUCCESS;
 }
 

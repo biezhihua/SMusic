@@ -46,7 +46,6 @@ extern Mutex *LOG_MUTEX;
 // http://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
 
 #define _ALOGD(TAG, ...) do { \
-if (DEBUG) { \
 LOG_MUTEX->lock();\
 (void)printf("\x1B[37m"); \
 (void)printf("%s ",LOG_TAG); \
@@ -58,11 +57,9 @@ LOG_MUTEX->lock();\
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
 LOG_MUTEX->unlock(); \
-} \
 } while (0)
 
 #define _ALOGI(TAG, ...) do { \
-if (DEBUG) { \
 LOG_MUTEX->lock();\
 (void)printf("\x1B[37m"); \
 (void)printf("%s ",LOG_TAG); \
@@ -74,11 +71,9 @@ LOG_MUTEX->lock();\
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
 LOG_MUTEX->unlock(); \
-} \
 } while (0)
 
 #define _ALOGE(TAG, ...) do { \
-if (DEBUG) { \
 LOG_MUTEX->lock();\
 (void)printf("\x1B[37m"); \
 (void)printf("%s ",LOG_TAG); \
@@ -89,12 +84,10 @@ LOG_MUTEX->lock();\
 (void)printf("\033[0m: "); \
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
-}\
 LOG_MUTEX->unlock(); \
 } while (0)
 
 #define _ALOGW(TAG, ...) do { \
-if (DEBUG) { \
 LOG_MUTEX->lock();\
 (void)printf("\x1B[37m"); \
 (void)printf("%s ",LOG_TAG); \
@@ -106,7 +99,6 @@ LOG_MUTEX->lock();\
 (void)printf(__VA_ARGS__); \
 (void)printf("\n"); \
 LOG_MUTEX->unlock(); \
-} \
 } while (0)
 
 

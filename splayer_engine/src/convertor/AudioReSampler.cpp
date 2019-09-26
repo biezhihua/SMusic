@@ -28,7 +28,7 @@ int AudioReSampler::setReSampleParams(AudioDeviceSpec *spec, int64_t wanted_chan
                                                                              audioState->audioParamsTarget.sampleFormat, 1);
 
     if (audioState->audioParamsTarget.bytesPerSec <= 0 || audioState->audioParamsTarget.frameSize <= 0) {
-        ALOGE(TAG, "av_samples_get_buffer_size failed");
+        if (DEBUG) ALOGE(TAG, "av_samples_get_buffer_size failed");
         return ERROR;
     }
 
@@ -179,7 +179,7 @@ int AudioReSampler::audioFrameReSample() {
                                                      frame->sample_rate, 0, nullptr);
 
             if (!audioState->swr_ctx || swr_init(audioState->swr_ctx) < 0) {
-                ALOGE(TAG,
+                if (DEBUG) ALOGE(TAG,
                       "Cannot create sample rate converter for conversion of %d Hz %s %d channels to %d Hz %s %d channels!",
                       frame->sample_rate,
                       av_get_sample_fmt_name((AVSampleFormat) frame->format),
@@ -205,7 +205,7 @@ int AudioReSampler::audioFrameReSample() {
                                                       audioState->audioParamsTarget.sampleFormat, 0);
             int len2;
             if (out_size < 0) {
-                ALOGE(TAG, "av_samples_get_buffer_size() failed");
+                if (DEBUG) ALOGE(TAG, "av_samples_get_buffer_size() failed");
                 return ERROR_AUDIO_OUT_SIZE;
             }
             if (wanted_nb_samples != frame->nb_samples) {
@@ -214,7 +214,7 @@ int AudioReSampler::audioFrameReSample() {
                                          frame->sample_rate,
                                          wanted_nb_samples * audioState->audioParamsTarget.sampleRate / frame->sample_rate) <
                     0) {
-                    ALOGE(TAG, "swr_set_compensation() failed");
+                    if (DEBUG) ALOGE(TAG, "swr_set_compensation() failed");
                     return ERROR_AUDIO_SWR_COMPENSATION;
                 }
             }
@@ -224,11 +224,11 @@ int AudioReSampler::audioFrameReSample() {
             }
             len2 = swr_convert(audioState->swr_ctx, out, out_count, in, frame->nb_samples);
             if (len2 < 0) {
-                ALOGE(TAG, "swr_convert() failed");
+                if (DEBUG) ALOGE(TAG, "swr_convert() failed");
                 return ERROR_AUDIO_SWR_CONVERT;
             }
             if (len2 == out_count) {
-                ALOGE(TAG, "audio buffer is probably too small");
+                if (DEBUG) ALOGE(TAG, "audio buffer is probably too small");
                 if (swr_init(audioState->swr_ctx) < 0) {
                     swr_free(&audioState->swr_ctx);
                 }
