@@ -58,7 +58,6 @@ void Stream::run() {
 }
 
 int Stream::readPackets() {
-
     // 读数据包流程
     int ret = 0;
 
@@ -67,7 +66,6 @@ int Stream::readPackets() {
     bool isNoReadMoreLog = false;
 
     for (;;) {
-
         // 退出播放器
         if (playerState->abortRequest) {
             if (DEBUG) ALOGD(TAG, "%s exit read packet", __func__);
@@ -87,14 +85,20 @@ int Stream::readPackets() {
         // 定位处理
         if (playerState->seekRequest) {
             int64_t seek_target = playerState->seekPos;
-            int64_t seek_min = playerState->seekRel > 0 ? seek_target - playerState->seekRel + 2 : INT64_MIN;
-            int64_t seek_max = playerState->seekRel < 0 ? seek_target - playerState->seekRel - 2 : INT64_MAX;
+            int64_t seek_min = playerState->seekRel > 0
+                               ? seek_target - playerState->seekRel + 2
+                               : INT64_MIN;
+            int64_t seek_max = playerState->seekRel < 0
+                               ? seek_target - playerState->seekRel - 2
+                               : INT64_MAX;
             // 定位
             playerState->mutex.lock();
-            ret = avformat_seek_file(formatContext, -1, seek_min, seek_target, seek_max, playerState->seekFlags);
+            ret = avformat_seek_file(formatContext, -1, seek_min, seek_target,
+                                     seek_max, playerState->seekFlags);
             playerState->mutex.unlock();
             if (ret < 0) {
-                if (DEBUG) ALOGD(TAG, "%s %s: error while seeking", __func__, playerState->url);
+                if (DEBUG)
+                    ALOGD(TAG, "%s %s: error while seeking", __func__, playerState->url);
             } else {
                 if (audioDecoder) {
                     audioDecoder->flush();
@@ -122,9 +126,11 @@ int Stream::readPackets() {
         if (playerState->attachmentRequest) {
             // https://segmentfault.com/a/1190000018373504?utm_source=tag-newest
             // 它和mp3文件有关，是一个流的标志
-            if (videoDecoder && (videoDecoder->getStream()->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
+            if (videoDecoder && (videoDecoder->getStream()->disposition &
+                                 AV_DISPOSITION_ATTACHED_PIC)) {
                 AVPacket copy = {nullptr};
-                if (av_packet_ref(&copy, &videoDecoder->getStream()->attached_pic) < 0) {
+                if (av_packet_ref(&copy, &videoDecoder->getStream()->attached_pic) <
+                    0) {
                     break;
                 }
                 videoDecoder->pushPacket(&copy);
@@ -134,11 +140,17 @@ int Stream::readPackets() {
 
         // 队列满，等待消耗
         bool isNoInfiniteBuffer = playerState->infiniteBuffer < 1;
-        bool isNoEnoughMemory = (audioDecoder ? audioDecoder->getMemorySize() : 0) +
-                                (videoDecoder ? videoDecoder->getMemorySize() : 0) > MAX_QUEUE_SIZE;
-        bool isAudioEnoughPackets = !audioDecoder || audioDecoder->hasEnoughPackets();
-        bool isVideoEnoughPackets = !videoDecoder || videoDecoder->hasEnoughPackets();
-        bool isNotReadMore = isNoInfiniteBuffer && (isNoEnoughMemory || (isAudioEnoughPackets && isVideoEnoughPackets));
+        bool isNoEnoughMemory =
+                (audioDecoder ? audioDecoder->getMemorySize() : 0) +
+                (videoDecoder ? videoDecoder->getMemorySize() : 0) >
+                MAX_QUEUE_SIZE;
+        bool isAudioEnoughPackets =
+                !audioDecoder || audioDecoder->hasEnoughPackets();
+        bool isVideoEnoughPackets =
+                !videoDecoder || videoDecoder->hasEnoughPackets();
+        bool isNotReadMore =
+                isNoInfiniteBuffer &&
+                (isNoEnoughMemory || (isAudioEnoughPackets && isVideoEnoughPackets));
         if (isNotReadMore) {
             waitMutex.lock();
             waitCondition.waitRelative(waitMutex, 10);
@@ -146,9 +158,12 @@ int Stream::readPackets() {
             if (!isNoReadMoreLog) {
                 isNoReadMoreLog = true;
                 if (DEBUG) ALOGD(TAG, "%s not need read more, wait 10", __func__);
-                if (DEBUG) ALOGD(TAG,
-                      "%s isNoInfiniteBuffer = %d isNoEnoughMemory = %d isAudioEnoughPackets = %d isVideoEnoughPackets = %d",
-                      __func__, isNoInfiniteBuffer, isNoEnoughMemory, isAudioEnoughPackets, isVideoEnoughPackets);
+                if (DEBUG)
+                    ALOGD(TAG,
+                          "%s isNoInfiniteBuffer = %d isNoEnoughMemory = %d "
+                          "isAudioEnoughPackets = %d isVideoEnoughPackets = %d",
+                          __func__, isNoInfiniteBuffer, isNoEnoughMemory,
+                          isAudioEnoughPackets, isVideoEnoughPackets);
             }
             continue;
         }
@@ -159,7 +174,8 @@ int Stream::readPackets() {
         if (isRetryPlay()) {
             // TODO
             if (playerState->loopTimes) {
-//                seekTo(playerState->startTime != AV_NOPTS_VALUE ? playerState->startTime : 0);
+                //                seekTo(playerState->startTime != AV_NOPTS_VALUE ?
+                //                playerState->startTime : 0);
             } else if (playerState->autoExit) {
                 if (DEBUG) ALOGD(TAG, "%s exit eof", __func__);
                 return ERROR_EOF;
@@ -171,7 +187,8 @@ int Stream::readPackets() {
 
         if (ret < 0) {
             // 如果没能读出裸数据包，判断是否是结尾
-            if ((ret == AVERROR_EOF || avio_feof(formatContext->pb)) && !playerState->eof) {
+            if ((ret == AVERROR_EOF || avio_feof(formatContext->pb)) &&
+                !playerState->eof) {
                 if (videoDecoder) {
                     videoDecoder->pushNullPacket();
                 }
@@ -193,8 +210,7 @@ int Stream::readPackets() {
             playerState->eof = 0;
         }
 
-        if (audioDecoder &&
-            pkt->stream_index == audioDecoder->getStreamIndex() &&
+        if (audioDecoder && pkt->stream_index == audioDecoder->getStreamIndex() &&
             isPacketInPlayRange(formatContext, pkt)) {
             audioDecoder->pushPacket(pkt);
         } else if (videoDecoder &&
@@ -218,7 +234,6 @@ static int avFormatInterruptCb(void *ctx) {
 }
 
 int Stream::openStream() {
-
     if (streamListener) {
         streamListener->onStartOpenStream();
     }
@@ -246,8 +261,10 @@ int Stream::openStream() {
     // https://zhuanlan.zhihu.com/p/43672062
     // scan_all_pmts, 是mpegts的一个选项，这里在没有设定该选项的时候，强制设为1
     // scan_all_pmts, 扫描全部的ts流的"Program Map Table"表。
-    if (!av_dict_get(playerState->formatOpts, OPT_SCALL_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE)) {
-        av_dict_set(&playerState->formatOpts, OPT_SCALL_ALL_PMTS, "1", AV_DICT_DONT_OVERWRITE);
+    if (!av_dict_get(playerState->formatOpts, OPT_SCALL_ALL_PMTS, nullptr,
+                     AV_DICT_MATCH_CASE)) {
+        av_dict_set(&playerState->formatOpts, OPT_SCALL_ALL_PMTS, "1",
+                    AV_DICT_DONT_OVERWRITE);
         scanAllProgramMapTableSet = 1;
     }
 
@@ -270,10 +287,8 @@ int Stream::openStream() {
     }
 
     // 打开文件
-    ret = avformat_open_input(&formatContext,
-                              playerState->url,
-                              playerState->inputFormat,
-                              &playerState->formatOpts);
+    ret = avformat_open_input(&formatContext, playerState->url,
+                              playerState->inputFormat, &playerState->formatOpts);
     if (ret < 0) {
         if (DEBUG) ALOGE(TAG, "%s avformat could not open input", __func__);
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_OPEN_INPUT);
@@ -282,10 +297,12 @@ int Stream::openStream() {
 
     // 还原MPEGTS的特殊处理标记
     if (scanAllProgramMapTableSet) {
-        av_dict_set(&playerState->formatOpts, OPT_SCALL_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE);
+        av_dict_set(&playerState->formatOpts, OPT_SCALL_ALL_PMTS, nullptr,
+                    AV_DICT_MATCH_CASE);
     }
 
-    if ((t = av_dict_get(playerState->formatOpts, "", nullptr, AV_DICT_IGNORE_SUFFIX))) {
+    if ((t = av_dict_get(playerState->formatOpts, "", nullptr,
+                         AV_DICT_IGNORE_SUFFIX))) {
         if (DEBUG) ALOGE(TAG, "%s Option %s not found", __func__, t->key);
         notifyMsg(Msg::MSG_ERROR, ERROR_CODEC_OPTIONS);
         return ERROR_CODEC_OPTIONS;
@@ -310,7 +327,9 @@ int Stream::openStream() {
     }
 
     if (ret < 0) {
-        if (DEBUG) ALOGE(TAG, "%s %s: could not find codec parameters", __func__, playerState->url);
+        if (DEBUG)
+            ALOGE(TAG, "%s %s: could not find codec parameters", __func__,
+                  playerState->url);
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_FOUND_STREAM_INFO);
         return ERROR_NOT_FOUND_STREAM_INFO;
     }
@@ -328,7 +347,8 @@ int Stream::openStream() {
         playerState->duration = -1;
         if (formatContext->duration) {
             playerState->duration = formatContext->duration;
-            playerState->durationSec = av_rescale(formatContext->duration, 1000, AV_TIME_BASE);
+            playerState->durationSec =
+                    av_rescale(formatContext->duration, 1000, AV_TIME_BASE);
         }
     }
 
@@ -338,16 +358,20 @@ int Stream::openStream() {
     }
 
     // 判断是否以字节方式定位
-    playerState->seekByBytes = (formatContext->iformat->flags & AVFMT_TS_DISCONT) != 0 &&
-                               strcmp(FORMAT_OGG, formatContext->iformat->name) != 0;
+    playerState->seekByBytes =
+            (formatContext->iformat->flags & AVFMT_TS_DISCONT) != 0 &&
+            strcmp(FORMAT_OGG, formatContext->iformat->name) != 0;
 
     // get window title from metadata
-    if (!playerState->videoTitle && (t = av_dict_get(formatContext->metadata, "title", nullptr, 0))) {
-        playerState->videoTitle = av_asprintf("%s - %s", t->value, playerState->url);
+    if (!playerState->videoTitle &&
+        (t = av_dict_get(formatContext->metadata, "title", nullptr, 0))) {
+        playerState->videoTitle =
+                av_asprintf("%s - %s", t->value, playerState->url);
     }
 
     // 设置最大帧间隔
-    mediaSync->setMaxDuration((formatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0);
+    mediaSync->setMaxDuration(
+            (formatContext->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0);
 
     // 如果不是从头开始播放，则跳转到播放位置
     if (playerState->startTime != AV_NOPTS_VALUE) {
@@ -357,11 +381,13 @@ int Stream::openStream() {
             timestamp += formatContext->start_time;
         }
         playerState->mutex.lock();
-        ret = avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX, 0);
+        ret = avformat_seek_file(formatContext, -1, INT64_MIN, timestamp, INT64_MAX,
+                                 0);
         playerState->mutex.unlock();
         if (ret < 0) {
-            if (DEBUG) ALOGE(TAG, "%s %s: could not seek to position %0.3f", __func__, playerState->url,
-                  (double) timestamp / AV_TIME_BASE);
+            if (DEBUG)
+                ALOGE(TAG, "%s %s: could not seek to position %0.3f", __func__,
+                      playerState->url, (double) timestamp / AV_TIME_BASE);
         }
     }
 
@@ -385,14 +411,16 @@ int Stream::openStream() {
 
     // 如果不禁止视频流，则查找最合适的视频流索引
     if (!playerState->videoDisable) {
-        videoIndex = av_find_best_stream(formatContext, AVMEDIA_TYPE_VIDEO, videoIndex, -1, nullptr, 0);
+        videoIndex = av_find_best_stream(formatContext, AVMEDIA_TYPE_VIDEO,
+                                         videoIndex, -1, nullptr, 0);
     } else {
         videoIndex = -1;
     }
 
     // 如果不禁止音频流，则查找最合适的音频流索引(与视频流关联的音频流)
     if (!playerState->audioDisable) {
-        audioIndex = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO, audioIndex, videoIndex, nullptr, 0);
+        audioIndex = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO,
+                                         audioIndex, videoIndex, nullptr, 0);
     } else {
         audioIndex = -1;
     }
@@ -411,25 +439,35 @@ int Stream::openStream() {
     return SUCCESS;
 }
 
-
-bool Stream::isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const {
-
+bool Stream::isPacketInPlayRange(const AVFormatContext *formatContext,
+                                 const AVPacket *packet) const {
     if (playerState->duration == AV_NOPTS_VALUE) {
         return SUCCESS;
     }
 
-    /* check if packet playerState in stream range specified by user, then packetQueue, otherwise discard */
-    int64_t streamStartTime = formatContext->streams[packet->stream_index]->start_time;
+    /* check if packet playerState in stream range specified by user, then
+     * packetQueue, otherwise discard */
+    int64_t streamStartTime =
+            formatContext->streams[packet->stream_index]->start_time;
 
     // https://baike.baidu.com/item/PTS/13977433
-    int64_t packetTimestamp = (packet->pts == AV_NOPTS_VALUE) ? packet->dts : packet->pts;
-    int64_t diffTimestamp = packetTimestamp - (streamStartTime != AV_NOPTS_VALUE ? streamStartTime : 0);
+    int64_t packetTimestamp =
+            (packet->pts == AV_NOPTS_VALUE) ? packet->dts : packet->pts;
+    int64_t diffTimestamp =
+            packetTimestamp -
+            (streamStartTime != AV_NOPTS_VALUE ? streamStartTime : 0);
 
-    double diffTime = diffTimestamp * av_q2d(formatContext->streams[packet->stream_index]->time_base);
-    double startTime = (double) (playerState->startTime != AV_NOPTS_VALUE ? playerState->startTime : 0) / AV_TIME_BASE;
+    double diffTime =
+            diffTimestamp *
+            av_q2d(formatContext->streams[packet->stream_index]->time_base);
+    double startTime =
+            (double) (playerState->startTime != AV_NOPTS_VALUE ? playerState->startTime
+                                                               : 0) /
+            AV_TIME_BASE;
     double duration = (double) playerState->duration / AV_TIME_BASE;
 
-    return (playerState->duration == AV_NOPTS_VALUE) || ((diffTime - startTime) <= duration);
+    return (playerState->duration == AV_NOPTS_VALUE) ||
+           ((diffTime - startTime) <= duration);
 }
 
 bool Stream::isRetryPlay() const {
@@ -451,13 +489,9 @@ void Stream::setMediaSync(MediaSync *mediaSync) {
     Stream::mediaSync = mediaSync;
 }
 
-Condition *Stream::getWaitCondition() {
-    return &waitCondition;
-}
+Condition *Stream::getWaitCondition() { return &waitCondition; }
 
-AVPacket *Stream::getFlushPacket() {
-    return &flushPacket;
-}
+AVPacket *Stream::getFlushPacket() { return &flushPacket; }
 
 int Stream::notifyMsg(int what) {
     if (messageCenter) {
@@ -507,5 +541,3 @@ int Stream::destroy() {
 void Stream::setMessageCenter(MessageCenter *messageCenter) {
     Stream::messageCenter = messageCenter;
 }
-
-

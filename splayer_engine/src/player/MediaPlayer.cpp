@@ -81,8 +81,11 @@ int MediaPlayer::destroy() {
     return SUCCESS;
 }
 
-int MediaPlayer::setDataSource(const char *url, int64_t offset, const char *headers) {
-    if (DEBUG) ALOGD(TAG, "%s url = %s offset = %lld headers = %p", __func__, url, offset, headers);
+int MediaPlayer::setDataSource(const char *url, int64_t offset,
+                               const char *headers) {
+    if (DEBUG)
+        ALOGD(TAG, "%s url = %s offset = %lld headers = %p", __func__, url, offset,
+              headers);
     mutex.lock();
     _setDataSource(url, offset, headers);
     mutex.unlock();
@@ -90,7 +93,6 @@ int MediaPlayer::setDataSource(const char *url, int64_t offset, const char *head
 }
 
 int MediaPlayer::_create() {
-
     if (messageCenter != nullptr) {
         messageCenter->setMsgListener(messageListener);
     }
@@ -153,8 +155,7 @@ int MediaPlayer::_start() {
     }
     playerState->abortRequest = 0;
     playerState->pauseRequest = 0;
-    if (DEBUG)
-        ALOGD(TAG, "start media stream");
+    if (DEBUG) ALOGD(TAG, "start media stream");
     mediaStream->start();
     notifyMsg(Msg::MSG_START);
     notifyMsg(Msg::MSG_MEDIA_STREAM_START);
@@ -162,21 +163,18 @@ int MediaPlayer::_start() {
 }
 
 int MediaPlayer::_stop() {
-
     if (playerState != nullptr) {
         playerState->abortRequest = 1;
     }
 
     if (mediaSync != nullptr) {
-        if (DEBUG)
-            ALOGD(TAG, "stop media sync");
+        if (DEBUG) ALOGD(TAG, "stop media sync");
         mediaSync->stop();
         notifyMsg(Msg::MSG_MEDIA_SYNC_STOP);
     }
 
     if (audioDevice != nullptr) {
-        if (DEBUG)
-            ALOGD(TAG, "stop audio device");
+        if (DEBUG) ALOGD(TAG, "stop audio device");
         audioDevice->stop();
         notifyMsg(Msg::MSG_AUDIO_DEVICE_STOP);
     }
@@ -272,7 +270,8 @@ int MediaPlayer::_destroy() {
     return SUCCESS;
 }
 
-int MediaPlayer::_setDataSource(const char *url, int64_t offset, const char *headers) const {
+int MediaPlayer::_setDataSource(const char *url, int64_t offset,
+                                const char *headers) const {
     if (playerState != nullptr) {
         playerState->url = av_strdup(url);
         playerState->offset = offset;
@@ -393,7 +392,6 @@ long MediaPlayer::getCurrentPosition() {
     if (playerState->seekRequest) {
         currentPosition = playerState->seekPos;
     } else {
-
         // 起始延时
         int64_t start_time = formatContext->start_time;
         int64_t start_diff = 0;
@@ -428,9 +426,7 @@ int MediaPlayer::isPlaying() {
     return !playerState->abortRequest && !playerState->pauseRequest;
 }
 
-int MediaPlayer::isLooping() {
-    return playerState->loopTimes;
-}
+int MediaPlayer::isLooping() { return playerState->loopTimes; }
 
 int MediaPlayer::getMetadata(AVDictionary **metadata) {
     if (!formatContext) {
@@ -482,12 +478,10 @@ void MediaPlayer::setMediaSync(MediaSync *mediaSync) {
 void MediaPlayer::setVideoDevice(VideoDevice *videoDevice) {
     this->videoDevice = videoDevice;
     if (this->videoDevice) {
-
     } else {
         if (DEBUG) ALOGE(TAG, "%s video device is null", __func__);
     }
 }
-
 
 int MediaPlayer::togglePause() {
     if (mediaSync) {
@@ -497,7 +491,6 @@ int MediaPlayer::togglePause() {
 }
 
 int MediaPlayer::openDecoder(int streamIndex) {
-
     AVCodecContext *codecContext = nullptr;
     AVCodec *codec = nullptr;
     AVDictionary *opts = nullptr;
@@ -506,7 +499,8 @@ int MediaPlayer::openDecoder(int streamIndex) {
     int ret = 0;
 
     // 判断流索引的合法性
-    if (formatContext == nullptr || streamIndex < 0 || streamIndex >= formatContext->nb_streams) {
+    if (formatContext == nullptr || streamIndex < 0 ||
+        streamIndex >= formatContext->nb_streams) {
         if (DEBUG) ALOGE(TAG, "%s illegal stream index", __func__);
         closeDecoder(streamIndex, nullptr, nullptr);
         notifyMsg(Msg::MSG_ERROR, ERROR_STREAM_INDEX, streamIndex);
@@ -523,7 +517,8 @@ int MediaPlayer::openDecoder(int streamIndex) {
     }
 
     // 复制解码上下文参数
-    ret = avcodec_parameters_to_context(codecContext, formatContext->streams[streamIndex]->codecpar);
+    ret = avcodec_parameters_to_context(
+            codecContext, formatContext->streams[streamIndex]->codecpar);
     if (ret < 0) {
         if (DEBUG) ALOGE(TAG, "%s copy codec params to context failure", __func__);
         closeDecoder(streamIndex, nullptr, nullptr);
@@ -549,14 +544,18 @@ int MediaPlayer::openDecoder(int streamIndex) {
     // 如果没有找到指定的解码器，则查找默认的解码器
     if (!codec) {
         if (forcedCodecName) {
-            if (DEBUG) ALOGD(TAG, "%s No codec could be found with name '%s'", __func__, forcedCodecName);
+            if (DEBUG)
+                ALOGD(TAG, "%s No codec could be found with name '%s'", __func__,
+                      forcedCodecName);
         }
         codec = avcodec_find_decoder(codecContext->codec_id);
     }
 
     // 判断是否成功得到解码器
     if (!codec) {
-        if (DEBUG) ALOGE(TAG, "%s No codec could be found with id %d", __func__, codecContext->codec_id);
+        if (DEBUG)
+            ALOGE(TAG, "%s No codec could be found with id %d", __func__,
+                  codecContext->codec_id);
         closeDecoder(streamIndex, nullptr, nullptr);
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_FOUND_DCODE);
         return ERROR_NOT_FOUND_DCODE;
@@ -569,15 +568,17 @@ int MediaPlayer::openDecoder(int streamIndex) {
     int streamLowResolution = playerState->lowResolution;
     if (streamLowResolution > codec->max_lowres) {
         if (DEBUG)
-            ALOGD(TAG, "%s The maximum value for low Resolution supported by the decoder is %d", __func__,
-                  codec->max_lowres);
+            ALOGD(TAG,
+                  "%s The maximum value for low Resolution supported by the decoder "
+                  "is %d",
+                  __func__, codec->max_lowres);
         streamLowResolution = codec->max_lowres;
     }
     codecContext->lowres = streamLowResolution;
 
 #if FF_API_EMU_EDGE
     if (stream_lowres) {
-        codecContext->flags |= CODEC_FLAG_EMU_EDGE;
+      codecContext->flags |= CODEC_FLAG_EMU_EDGE;
     }
 #endif
     if (playerState->fast) {
@@ -586,11 +587,12 @@ int MediaPlayer::openDecoder(int streamIndex) {
 
 #if FF_API_EMU_EDGE
     if (codec->capabilities & AV_CODEC_CAP_DR1) {
-        codecContext->flags |= CODEC_FLAG_EMU_EDGE;
+      codecContext->flags |= CODEC_FLAG_EMU_EDGE;
     }
 #endif
-    opts = filterCodecOptions(playerState->codecOpts, codecContext->codec_id, formatContext,
-                              formatContext->streams[streamIndex], codec);
+    opts = filterCodecOptions(playerState->codecOpts, codecContext->codec_id,
+                              formatContext, formatContext->streams[streamIndex],
+                              codec);
     if (!av_dict_get(opts, OPT_THREADS, nullptr, 0)) {
         av_dict_set(&opts, OPT_THREADS, "auto", 0);
     }
@@ -599,7 +601,8 @@ int MediaPlayer::openDecoder(int streamIndex) {
         av_dict_set_int(&opts, OPT_LOW_RESOLUTION, streamLowResolution, 0);
     }
 
-    if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO || codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
+    if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO ||
+        codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
         av_dict_set(&opts, OPT_REF_COUNTED_FRAMES, "1", 0);
     }
 
@@ -624,19 +627,23 @@ int MediaPlayer::openDecoder(int streamIndex) {
     formatContext->streams[streamIndex]->discard = AVDISCARD_DEFAULT;
 
     if (codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
-        audioDecoder = new AudioDecoder(codecContext,
-                                        formatContext->streams[streamIndex],
-                                        streamIndex,
-                                        playerState, mediaStream->getFlushPacket(),
-                                        mediaStream->getWaitCondition());
+        audioDecoder = new AudioDecoder(
+                codecContext,
+                formatContext->streams[streamIndex],
+                streamIndex,
+                playerState,
+                mediaStream->getFlushPacket(),
+                mediaStream->getWaitCondition());
         mediaStream->setAudioDecoder(audioDecoder);
     } else if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
-        videoDecoder = new VideoDecoder(formatContext,
-                                        codecContext,
-                                        formatContext->streams[streamIndex],
-                                        streamIndex,
-                                        playerState, mediaStream->getFlushPacket(),
-                                        mediaStream->getWaitCondition());
+        videoDecoder = new VideoDecoder(
+                formatContext,
+                codecContext,
+                formatContext->streams[streamIndex],
+                streamIndex,
+                playerState,
+                mediaStream->getFlushPacket(),
+                mediaStream->getWaitCondition());
         mediaStream->setVideoDecoder(videoDecoder);
         playerState->attachmentRequest = 1;
     }
@@ -644,19 +651,22 @@ int MediaPlayer::openDecoder(int streamIndex) {
     return SUCCESS;
 }
 
-int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_channels, int wanted_sample_rate) {
-
+int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout,
+                                 int wanted_nb_channels,
+                                 int wanted_sample_rate) {
     AudioDeviceSpec wanted_spec, spec;
     const int next_nb_channels[] = {0, 0, 1, 6, 2, 6, 4, 6};
     const int next_sample_rates[] = {0, 44100, 48000, 96000, 192000};
     int next_sample_rate_idx = FF_ARRAY_ELEMS(next_sample_rates) - 1;
 
     if (!wanted_channel_layout ||
-        wanted_nb_channels != av_get_channel_layout_nb_channels((uint64_t) wanted_channel_layout)) {
+        wanted_nb_channels !=
+        av_get_channel_layout_nb_channels((uint64_t) wanted_channel_layout)) {
         wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
         wanted_channel_layout &= ~AV_CH_LAYOUT_STEREO_DOWNMIX;
     }
-    wanted_nb_channels = av_get_channel_layout_nb_channels((uint64_t) wanted_channel_layout);
+    wanted_nb_channels =
+            av_get_channel_layout_nb_channels((uint64_t) wanted_channel_layout);
 
     wanted_spec.channels = (uint8_t) wanted_nb_channels;
     wanted_spec.freq = wanted_sample_rate;
@@ -668,28 +678,32 @@ int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_ch
     }
 
     // 找到合适的采样率
-    while (next_sample_rate_idx && next_sample_rates[next_sample_rate_idx] >= wanted_spec.freq) {
+    while (next_sample_rate_idx &&
+           next_sample_rates[next_sample_rate_idx] >= wanted_spec.freq) {
         next_sample_rate_idx--;
     }
 
     wanted_spec.format = AV_SAMPLE_FMT_S16;
-    wanted_spec.samples = (uint16_t) FFMAX(AUDIO_MIN_BUFFER_SIZE,
-                                           2 << av_log2((unsigned int) wanted_spec.freq / AUDIO_MAX_CALLBACKS_PER_SEC));
+    wanted_spec.samples = (uint16_t) FFMAX(
+            AUDIO_MIN_BUFFER_SIZE, 2 << av_log2((unsigned int) wanted_spec.freq /
+                                                AUDIO_MAX_CALLBACKS_PER_SEC));
     wanted_spec.callback = audioPCMQueueCallback;
     wanted_spec.userdata = this;
 
     // 打开音频设备
     while (audioDevice->open(&wanted_spec, &spec) < 0) {
         if (DEBUG)
-            ALOGD(TAG, "%s failed to open audio device: (%d channels, %d Hz)!", __func__,
-                  wanted_spec.channels,
-                  wanted_spec.freq);
-        wanted_spec.channels = (uint8_t) next_nb_channels[FFMIN(7, wanted_spec.channels)];
+            ALOGD(TAG, "%s failed to open audio device: (%d channels, %d Hz)!",
+                  __func__, wanted_spec.channels, wanted_spec.freq);
+        wanted_spec.channels =
+                (uint8_t) next_nb_channels[FFMIN(7, wanted_spec.channels)];
         if (!wanted_spec.channels) {
             wanted_spec.freq = next_sample_rates[next_sample_rate_idx--];
             wanted_spec.channels = (uint8_t) wanted_nb_channels;
             if (!wanted_spec.freq) {
-                if (DEBUG) ALOGE(TAG, "%s No more combinations to try, audio open failed", __func__);
+                if (DEBUG)
+                    ALOGE(TAG, "%s No more combinations to try, audio open failed",
+                          __func__);
                 return ERROR_AUDIO_SPEC;
             }
         }
@@ -697,14 +711,17 @@ int MediaPlayer::openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_ch
     }
 
     if (spec.format != AV_SAMPLE_FMT_S16) {
-        if (DEBUG) ALOGE(TAG, "%s audio format %d is not supported!", __func__, spec.format);
+        if (DEBUG)
+            ALOGE(TAG, "%s audio format %d is not supported!", __func__, spec.format);
         return ERROR_AUDIO_FORMAT;
     }
 
     if (spec.channels != wanted_spec.channels) {
         wanted_channel_layout = av_get_default_channel_layout(spec.channels);
         if (!wanted_channel_layout) {
-            if (DEBUG) ALOGE(TAG, "%s channel count %d is not supported!", __func__, spec.channels);
+            if (DEBUG)
+                ALOGE(TAG, "%s channel count %d is not supported!", __func__,
+                      spec.channels);
             return ERROR_AUDIO_CHANNEL_LAYOUT;
         }
     }
@@ -720,7 +737,9 @@ void MediaPlayer::onStartOpenStream() {
 }
 
 void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
-    if (DEBUG) ALOGD(TAG, "%s videoIndex = %d audioIndex = %d", __func__, videoIndex, audioIndex);
+    if (DEBUG)
+        ALOGD(TAG, "%s videoIndex = %d audioIndex = %d", __func__, videoIndex,
+              audioIndex);
 
     int ret = 0;
 
@@ -745,7 +764,8 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     }
 
     if (audioDecoder == nullptr && videoDecoder == nullptr) {
-        if (DEBUG) ALOGE(TAG, "%s failed to create audio and video decoder", __func__);
+        if (DEBUG)
+            ALOGE(TAG, "%s failed to create audio and video decoder", __func__);
         notifyMsg(Msg::MSG_ERROR, ERROR_CREATE_VIDEO_AUDIO_DECODER);
         return;
     }
@@ -773,11 +793,13 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     } else {
         if (playerState->syncType == AV_SYNC_AUDIO) {
             playerState->syncType = AV_SYNC_EXTERNAL;
-            if (DEBUG) ALOGD(TAG, "%s change sync type to AV_SYNC_EXTERNAL", __func__);
+            if (DEBUG)
+                ALOGD(TAG, "%s change sync type to AV_SYNC_EXTERNAL", __func__);
         }
     }
 
-    if (DEBUG) ALOGD(TAG, "%s sync type = %s", __func__, playerState->getSyncType());
+    if (DEBUG)
+        ALOGD(TAG, "%s sync type = %s", __func__, playerState->getSyncType());
 
     // 打开视频输出设备
     if (videoDevice != nullptr) {
@@ -788,8 +810,7 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     // 打开音频输出设备
     if (audioDevice != nullptr && audioDecoder != nullptr) {
         AVCodecContext *codecContext = audioDecoder->getCodecContext();
-        ret = openAudioDevice(codecContext->channel_layout,
-                              codecContext->channels,
+        ret = openAudioDevice(codecContext->channel_layout, codecContext->channels,
                               codecContext->sample_rate);
         if (ret < 0) {
             if (DEBUG) ALOGE(TAG, "%s could not open audio device", __func__);
@@ -818,7 +839,8 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
             if (DEBUG) ALOGD(TAG, "%s change master clock to video clock", __func__);
             videoDecoder->setMasterClock(mediaSync->getVideoClock());
         } else {
-            if (DEBUG) ALOGD(TAG, "%s change master clock to external clock", __func__);
+            if (DEBUG)
+                ALOGD(TAG, "%s change master clock to external clock", __func__);
             videoDecoder->setMasterClock(mediaSync->getExternalClock());
         }
     }
@@ -855,7 +877,8 @@ int MediaPlayer::notifyMsg(int what, int arg1, int arg2) {
     return ERROR;
 }
 
-int MediaPlayer::closeDecoder(int streamIndex, AVCodecContext *codecContext, AVDictionary *opts) {
+int MediaPlayer::closeDecoder(int streamIndex, AVCodecContext *codecContext,
+                              AVDictionary *opts) {
     if (DEBUG) ALOGD(TAG, "%s streamIndex = %d", __func__, streamIndex);
     // 准备失败，则需要释放创建的解码上下文
     avcodec_free_context(&codecContext);
@@ -893,5 +916,3 @@ int MediaPlayer::seek(int64_t pos, int64_t rel, int seekByBytes) {
     }
     return SUCCESS;
 }
-
-

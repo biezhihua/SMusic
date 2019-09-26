@@ -1,21 +1,12 @@
 #include "decoder/AudioDecoder.h"
 
-AudioDecoder::AudioDecoder(AVCodecContext *avctx,
-                           AVStream *stream,
-                           int streamIndex,
-                           PlayerState *playerState,
-                           AVPacket *flushPacket,
-                           Condition *readWaitCond)
-        : MediaDecoder(avctx,
-                       stream,
-                       streamIndex,
-                       playerState,
-                       flushPacket,
-                       readWaitCond) {
-}
+AudioDecoder::AudioDecoder(AVCodecContext *avctx, AVStream *stream,
+                           int streamIndex, PlayerState *playerState,
+                           AVPacket *flushPacket, Condition *readWaitCond)
+        : MediaDecoder(avctx, stream, streamIndex, playerState, flushPacket,
+                       readWaitCond) {}
 
-AudioDecoder::~AudioDecoder() {
-}
+AudioDecoder::~AudioDecoder() {}
 
 int AudioDecoder::getAudioFrame(AVFrame *frame) {
     int got_frame = 0;
@@ -27,7 +18,6 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
     av_frame_unref(frame);
 
     do {
-
         if (playerState->abortRequest) {
             return ERROR_ABORT_REQUEST;
         }
@@ -76,7 +66,8 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
             // 这里要重新计算frame的pts 否则会导致网络视频出现pts 对不上的情况
             AVRational tb = (AVRational) {1, frame->sample_rate};
             if (frame->pts != AV_NOPTS_VALUE) {
-                frame->pts = av_rescale_q(frame->pts, av_codec_get_pkt_timebase(codecContext), tb);
+                frame->pts = av_rescale_q(frame->pts,
+                                          av_codec_get_pkt_timebase(codecContext), tb);
             } else if (nextPts != AV_NOPTS_VALUE) {
                 frame->pts = av_rescale_q(nextPts, nextPtsTb, tb);
             }
@@ -93,9 +84,3 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
 
     return got_frame;
 }
-
-
-
-
-
-

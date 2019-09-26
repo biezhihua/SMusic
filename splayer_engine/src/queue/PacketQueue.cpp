@@ -124,9 +124,7 @@ void PacketQueue::start() {
  * @param pkt
  * @return
  */
-int PacketQueue::getPacket(AVPacket *pkt) {
-    return getPacket(pkt, 1);
-}
+int PacketQueue::getPacket(AVPacket *pkt) { return getPacket(pkt, 1); }
 
 /**
  * 取出数据包

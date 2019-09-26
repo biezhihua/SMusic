@@ -48,21 +48,21 @@ typedef enum {
 typedef enum {
 
     /// no blending dstRGBA = srcRGBA
-    BLEND_NONE = 0x00,
+            BLEND_NONE = 0x00,
 
     /// alpha blending
     /// dstRGB = (srcRGB * srcA) + (dstRGB * (1-srcA))
     /// dstA = srcA + (dstA * (1-srcA))
-    BLEND_BLEND = 0x01,
+            BLEND_BLEND = 0x01,
 
     /// additive blending
     /// dstRGB = (srcRGB * srcA) + dstRGB
-    BLEND_ADD = 0x02,
+            BLEND_ADD = 0x02,
 
     /// color modulate
     /// dstRGB = srcRGB * dstRGB
     /// dstA = dstA
-    BLEND_MOD = 0x04,
+            BLEND_MOD = 0x04,
 
     BLEND_INVALID = 0x7FFFFFFF
 

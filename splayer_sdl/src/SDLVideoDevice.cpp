@@ -34,8 +34,9 @@ int SDLVideoDevice::create() {
     }
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (renderer == nullptr) {
-        if (DEBUG) ALOGE(TAG, "%s failed to initialize a hardware accelerated renderer: %s", __func__,
-              SDL_GetError());
+        if (DEBUG)
+            ALOGE(TAG, "%s failed to initialize a hardware accelerated renderer: %s", __func__,
+                  SDL_GetError());
         renderer = SDL_CreateRenderer(window, -1, 0);
     }
     if (renderer == nullptr) {
@@ -114,8 +115,9 @@ SDLVideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight, Text
             memset(pixels, 0, pitch * newHeight);
             SDL_UnlockTexture(videoTexture);
         }
-        if (DEBUG) ALOGD(TAG, "%s Created %dx%d texture with %s", __func__, newWidth, newHeight,
-              SDL_GetPixelFormatName(newFormat));
+        if (DEBUG)
+            ALOGD(TAG, "%s Created %dx%d texture with %s", __func__, newWidth, newHeight,
+                  SDL_GetPixelFormatName(newFormat));
     }
     return SUCCESS;
 }
@@ -164,8 +166,10 @@ void SDLVideoDevice::calculateDisplayRect(SDL_Rect *rect,
                                           int picWidth, int picHeight,
                                           AVRational picSar) {
 
-    if (DEBUG) ALOGD(TAG, "%s srcWidth = %d scrHeight = %d picWidth = %d picHeight = %d", __func__, srcWidth, scrHeight, picWidth,
-          picHeight);
+    if (DEBUG)
+        ALOGD(TAG, "%s srcWidth = %d scrHeight = %d picWidth = %d picHeight = %d", __func__, srcWidth, scrHeight,
+              picWidth,
+              picHeight);
     AVRational aspectRatio = picSar;
     int64_t width, height, x, y;
 
@@ -290,13 +294,15 @@ void SDLVideoDevice::displayWindow() {
         SDL_SetWindowSize(window, width, height);
         SDL_SetWindowPosition(window, surfaceLeftOffset, surfaceTopOffset);
         SDL_ShowWindow(window);
-        if (DEBUG) ALOGD(TAG,
-              "%s videoTitle = %s videoWidth = %d videoHeight = %d surfaceLeftOffset = %d surfaceTopOffset = %d",
-              __func__,
-              playerState->videoTitle,
-              width, height,
-              surfaceLeftOffset, surfaceTopOffset
-        );
+        if (DEBUG) {
+            ALOGD(TAG,
+                  "%s videoTitle = %s videoWidth = %d videoHeight = %d surfaceLeftOffset = %d surfaceTopOffset = %d",
+                  __func__,
+                  playerState->videoTitle,
+                  width, height,
+                  surfaceLeftOffset, surfaceTopOffset
+            );
+        }
     }
 }
 

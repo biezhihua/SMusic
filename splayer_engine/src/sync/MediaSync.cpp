@@ -75,29 +75,21 @@ double MediaSync::getMasterClock() {
     return val;
 }
 
-MediaClock *MediaSync::getAudioClock() {
-    return audioClock;
-}
+MediaClock *MediaSync::getAudioClock() { return audioClock; }
 
-MediaClock *MediaSync::getVideoClock() {
-    return videoClock;
-}
+MediaClock *MediaSync::getVideoClock() { return videoClock; }
 
-MediaClock *MediaSync::getExternalClock() {
-    return externalClock;
-}
+MediaClock *MediaSync::getExternalClock() { return externalClock; }
 
-void MediaSync::run() {
-
-}
+void MediaSync::run() {}
 
 void MediaSync::refreshVideo() {
     if (remainingTime > 0.0) {
         av_usleep(static_cast<unsigned int>((int64_t) (remainingTime * 1000000.0)));
     }
     remainingTime = REFRESH_RATE;
-    if (playerState != nullptr && videoDecoder != nullptr && videoDevice != nullptr &&
-        (!playerState->pauseRequest || forceRefresh)) {
+    if (playerState != nullptr && videoDecoder != nullptr &&
+        videoDevice != nullptr && (!playerState->pauseRequest || forceRefresh)) {
         if (DEBUG) ALOGD(TAG, "===== refreshVideo =====");
         refreshVideo(&remainingTime);
         if (DEBUG) ALOGD(TAG, "===== end =====");
@@ -108,7 +100,8 @@ void MediaSync::refreshVideo(double *remaining_time) {
     double time;
 
     // 检查外部时钟
-    if (!playerState->pauseRequest && playerState->realTime && playerState->syncType == AV_SYNC_EXTERNAL) {
+    if (!playerState->pauseRequest && playerState->realTime &&
+        playerState->syncType == AV_SYNC_EXTERNAL) {
         checkExternalClockSpeed();
     }
 
@@ -116,7 +109,6 @@ void MediaSync::refreshVideo(double *remaining_time) {
     PacketQueue *packetQueue = videoDecoder->getPacketQueue();
 
     for (;;) {
-
         if (playerState->abortRequest) {
             if (DEBUG) ALOGI(TAG, "%s abort request", __func__);
             break;
@@ -124,7 +116,6 @@ void MediaSync::refreshVideo(double *remaining_time) {
 
         // 判断是否存在帧队列是否存在数据
         if (videoDecoder->getFrameSize() > 0) {
-
             double currentDuration, nextDuration, delay;
 
             Frame *nextFrame, *currentFrame;
@@ -135,8 +126,9 @@ void MediaSync::refreshVideo(double *remaining_time) {
             // 当前帧
             nextFrame = frameQueue->nextFrame();
 
-            if (DEBUG) ALOGD(TAG, "nextFrame.seekSerial = %d packetQueue.lastSeekSerial = %d ", nextFrame->seekSerial,
-                  packetQueue->getLastSeekSerial());
+            if (DEBUG)
+                ALOGD(TAG, "nextFrame.seekSerial = %d packetQueue.lastSeekSerial = %d ",
+                      nextFrame->seekSerial, packetQueue->getLastSeekSerial());
 
             // 如果不是相同序列，丢掉seek之前的帧
             if (currentFrame->seekSerial != packetQueue->getLastSeekSerial()) {
@@ -145,14 +137,16 @@ void MediaSync::refreshVideo(double *remaining_time) {
                 continue;
             }
 
-            if (DEBUG) ALOGD(TAG, "nextFrame.seekSerial = %d next2Frame.seekSerial = %d",
-                  currentFrame->seekSerial,
-                  nextFrame->seekSerial);
+            if (DEBUG)
+                ALOGD(TAG, "nextFrame.seekSerial = %d next2Frame.seekSerial = %d",
+                      currentFrame->seekSerial, nextFrame->seekSerial);
 
             // 判断是否需要强制更新帧的时间(seek操作时才会产生变化)
             if (currentFrame->seekSerial != nextFrame->seekSerial) {
                 frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
-                if (DEBUG) ALOGD(TAG, "%s not same serial, force reset frameTimer = %fd ", __func__, frameTimer);
+                if (DEBUG)
+                    ALOGD(TAG, "%s not same serial, force reset frameTimer = %fd ",
+                          __func__, frameTimer);
             }
 
             // 如果处于暂停状态，则直接显示
@@ -174,8 +168,11 @@ void MediaSync::refreshVideo(double *remaining_time) {
             // 如果当前时间小于帧计时器的时间 + 延时时间，则表示还没到当前帧
             if (time < (frameTimer + delay)) {
                 *remaining_time = FFMIN(frameTimer + delay - time, *remaining_time);
-                if (DEBUG) ALOGD(TAG, "%s need display pre frame, diff time = %lf remainingTime = %lf", __func__,
-                      (frameTimer + delay - time), *remaining_time);
+                if (DEBUG)
+                    ALOGD(
+                            TAG,
+                            "%s need display pre frame, diff time = %lf remainingTime = %lf",
+                            __func__, (frameTimer + delay - time), *remaining_time);
                 break;
             }
 
@@ -184,7 +181,9 @@ void MediaSync::refreshVideo(double *remaining_time) {
             // 帧计时器落后当前时间超过了阈值，则用当前的时间作为帧计时器时间
             if (delay > 0 && (time - frameTimer) > AV_SYNC_THRESHOLD_MAX) {
                 frameTimer = time;
-                if (DEBUG) ALOGD(TAG, "%s fall behind, force reset frameTimer = %fd ", __func__, frameTimer);
+                if (DEBUG)
+                    ALOGD(TAG, "%s fall behind, force reset frameTimer = %fd ", __func__,
+                          frameTimer);
             }
 
             // 更新视频时钟的pts
@@ -202,12 +201,12 @@ void MediaSync::refreshVideo(double *remaining_time) {
                 nextDuration = calculateDuration(nextFrame, next2Frame);
 
                 // 如果不处于同步到视频状态，并且处于跳帧状态，则跳过当前帧
-                if ((time > frameTimer + nextDuration)
-                    && (playerState->dropFrameWhenSlow > 0
-                        || (playerState->dropFrameWhenSlow && playerState->syncType != AV_SYNC_VIDEO))) {
+                if ((time > frameTimer + nextDuration) &&
+                    (playerState->dropFrameWhenSlow > 0 ||
+                     (playerState->dropFrameWhenSlow &&
+                      playerState->syncType != AV_SYNC_VIDEO))) {
                     frameQueue->popFrame();
-                    if (DEBUG)
-                        ALOGD(TAG, "%s drop same frame", __func__);
+                    if (DEBUG) ALOGD(TAG, "%s drop same frame", __func__);
                     continue;
                 }
             }
@@ -225,27 +224,34 @@ void MediaSync::refreshVideo(double *remaining_time) {
     }
 
     // 显示画面
-    if (!playerState->displayDisable && forceRefresh && videoDecoder && frameQueue->getShowIndex()) {
-        if (DEBUG)
-            ALOGD(TAG, "%s render video", __func__);
+    if (!playerState->displayDisable && forceRefresh && videoDecoder &&
+        frameQueue->getShowIndex()) {
+        if (DEBUG) ALOGD(TAG, "%s render video", __func__);
         renderVideo();
     }
     forceRefresh = 0;
 }
 
 void MediaSync::checkExternalClockSpeed() {
-    if ((videoDecoder && videoDecoder->getPacketSize() <= EXTERNAL_CLOCK_MIN_FRAMES)
-        || (audioDecoder && audioDecoder->getPacketSize() <= EXTERNAL_CLOCK_MIN_FRAMES)) {
-        externalClock->setSpeed(FFMAX(EXTERNAL_CLOCK_SPEED_MIN,
-                                      externalClock->getSpeed() - EXTERNAL_CLOCK_SPEED_STEP));
-    } else if ((!videoDecoder || videoDecoder->getPacketSize() > EXTERNAL_CLOCK_MAX_FRAMES)
-               && (!audioDecoder || audioDecoder->getPacketSize() > EXTERNAL_CLOCK_MAX_FRAMES)) {
-        externalClock->setSpeed(FFMIN(EXTERNAL_CLOCK_SPEED_MAX,
-                                      externalClock->getSpeed() + EXTERNAL_CLOCK_SPEED_STEP));
+    if ((videoDecoder &&
+         videoDecoder->getPacketSize() <= EXTERNAL_CLOCK_MIN_FRAMES) ||
+        (audioDecoder &&
+         audioDecoder->getPacketSize() <= EXTERNAL_CLOCK_MIN_FRAMES)) {
+        externalClock->setSpeed(
+                FFMAX(EXTERNAL_CLOCK_SPEED_MIN,
+                      externalClock->getSpeed() - EXTERNAL_CLOCK_SPEED_STEP));
+    } else if ((!videoDecoder ||
+                videoDecoder->getPacketSize() > EXTERNAL_CLOCK_MAX_FRAMES) &&
+               (!audioDecoder ||
+                audioDecoder->getPacketSize() > EXTERNAL_CLOCK_MAX_FRAMES)) {
+        externalClock->setSpeed(
+                FFMIN(EXTERNAL_CLOCK_SPEED_MAX,
+                      externalClock->getSpeed() + EXTERNAL_CLOCK_SPEED_STEP));
     } else {
         double speed = externalClock->getSpeed();
         if (speed != 1.0) {
-            externalClock->setSpeed(speed + EXTERNAL_CLOCK_SPEED_STEP * (1.0 - speed) / fabs(1.0 - speed));
+            externalClock->setSpeed(speed + EXTERNAL_CLOCK_SPEED_STEP *
+                                            (1.0 - speed) / fabs(1.0 - speed));
         }
     }
 }
@@ -256,18 +262,19 @@ double MediaSync::calculateDelay(double delay) {
     // 如果不是同步到视频流，则需要计算延时时间
     // 如果不是以视频做为同步基准，则计算延时
     if (playerState->syncType != AV_SYNC_VIDEO) {
-
         // 计算差值
         diff = videoClock->getClock() - getMasterClock();
 
         // 用差值与同步阈值计算延时
-        // skip or repeat frame. We take into account the duration to compute the threshold. I still don't know
-        // if it is the best guess */
-        // 0.04 ~ 0.1
+        // skip or repeat frame. We take into account the duration to compute the
+        // threshold. I still don't know if it is the best guess */ 0.04 ~ 0.1
         // 计算同步阈值
-        sync_threshold = FFMAX(AV_SYNC_THRESHOLD_MIN, FFMIN(AV_SYNC_THRESHOLD_MAX, delay));
+        sync_threshold =
+                FFMAX(AV_SYNC_THRESHOLD_MIN, FFMIN(AV_SYNC_THRESHOLD_MAX, delay));
 
-        if (DEBUG) ALOGD(TAG, "%s diff = %lf syncThreshold[0.04,0.1] = %lf ", __func__, diff, sync_threshold);
+        if (DEBUG)
+            ALOGD(TAG, "%s diff = %lf syncThreshold[0.04,0.1] = %lf ", __func__, diff,
+                  sync_threshold);
 
         // 判断时间差是否在许可范围内
         if (!isnan(diff) && fabs(diff) < maxFrameDuration) {
@@ -302,9 +309,9 @@ double MediaSync::calculateDuration(Frame *current, Frame *next) {
 }
 
 void MediaSync::renderVideo() {
-
     if (videoDecoder == nullptr || videoDevice == nullptr) {
-        if (DEBUG) ALOGE(TAG, "%s videoDecoder is null or videoDevice is null", __func__);
+        if (DEBUG)
+            ALOGE(TAG, "%s videoDecoder is null or videoDevice is null", __func__);
         return;
     }
 
@@ -316,22 +323,24 @@ void MediaSync::renderVideo() {
     int ret = 0;
 
     if (!currentFrame->uploaded) {
-
         AVFrame *frame = currentFrame->frame;
 
-        TextureFormat format = videoDevice->getTextureFormat(currentFrame->frame->format);
+        TextureFormat format =
+                videoDevice->getTextureFormat(currentFrame->frame->format);
         BlendMode blendMode = videoDevice->getBlendMode(format);
 
         // 初始化纹理
-        if (videoDevice->onInitTexture(0, currentFrame->frame->width, currentFrame->frame->height,
-                                       format, blendMode, videoDecoder->getRotate()) < 0) {
+        if (videoDevice->onInitTexture(0, currentFrame->frame->width,
+                                       currentFrame->frame->height, format,
+                                       blendMode, videoDecoder->getRotate()) < 0) {
             return;
         }
 
         switch (format) {
             case FMT_YUV420P:
                 // 根据图像格式更新纹理数据
-                if (frame->linesize[0] > 0 && frame->linesize[1] > 0 && frame->linesize[2] > 0) {
+                if (frame->linesize[0] > 0 && frame->linesize[1] > 0 &&
+                    frame->linesize[2] > 0) {
                     ret = videoDevice->onUpdateYUV(frame->data[0], frame->linesize[0],
                                                    frame->data[1], frame->linesize[1],
                                                    frame->data[2], frame->linesize[2]);
@@ -339,17 +348,20 @@ void MediaSync::renderVideo() {
                         if (DEBUG) ALOGE(TAG, "%s update FMT_YUV420P error", __func__);
                         return;
                     }
-                } else if (frame->linesize[0] < 0 && frame->linesize[1] < 0 && frame->linesize[2] < 0) {
-                    ret = videoDevice->onUpdateYUV(frame->data[0] + frame->linesize[0] * (frame->height - 1),
-                                                   -frame->linesize[0],
-                                                   frame->data[1] +
-                                                   frame->linesize[1] * (AV_CEIL_RSHIFT(frame->height, 1) - 1),
-                                                   -frame->linesize[1],
-                                                   frame->data[2] +
-                                                   frame->linesize[2] * (AV_CEIL_RSHIFT(frame->height, 1) - 1),
-                                                   -frame->linesize[2]);
+                } else if (frame->linesize[0] < 0 && frame->linesize[1] < 0 &&
+                           frame->linesize[2] < 0) {
+                    ret = videoDevice->onUpdateYUV(
+                            frame->data[0] + frame->linesize[0] * (frame->height - 1),
+                            -frame->linesize[0],
+                            frame->data[1] +
+                            frame->linesize[1] * (AV_CEIL_RSHIFT(frame->height, 1) - 1),
+                            -frame->linesize[1],
+                            frame->data[2] +
+                            frame->linesize[2] * (AV_CEIL_RSHIFT(frame->height, 1) - 1),
+                            -frame->linesize[2]);
                     if (ret < 0) {
-                        if (DEBUG) ALOGE(TAG, "%s update negative FMT_YUV420P error", __func__);
+                        if (DEBUG)
+                            ALOGE(TAG, "%s update negative FMT_YUV420P error", __func__);
                         return;
                     }
                 }
@@ -365,25 +377,26 @@ void MediaSync::renderVideo() {
 
                 // 其他格式转码成BGRA格式再做渲染
             case FMT_NONE:
-                swsContext = sws_getCachedContext(swsContext,
-                                                  frame->width, frame->height,
-                                                  (AVPixelFormat) frame->format,
-                                                  frame->width, frame->height,
-                                                  AV_PIX_FMT_BGRA, SWS_BICUBIC,
-                                                  nullptr, nullptr, nullptr);
+                swsContext = sws_getCachedContext(
+                        swsContext, frame->width, frame->height,
+                        (AVPixelFormat) frame->format, frame->width, frame->height,
+                        AV_PIX_FMT_BGRA, SWS_BICUBIC, nullptr, nullptr, nullptr);
                 if (!buffer) {
-                    int numBytes = av_image_get_buffer_size(AV_PIX_FMT_BGRA, frame->width, frame->height, 1);
+                    int numBytes = av_image_get_buffer_size(AV_PIX_FMT_BGRA, frame->width,
+                                                            frame->height, 1);
                     buffer = (uint8_t *) av_malloc(numBytes * sizeof(uint8_t));
                     frameARGB = av_frame_alloc();
-                    av_image_fill_arrays(frameARGB->data, frameARGB->linesize, buffer, AV_PIX_FMT_BGRA, frame->width,
-                                         frame->height, 1);
+                    av_image_fill_arrays(frameARGB->data, frameARGB->linesize, buffer,
+                                         AV_PIX_FMT_BGRA, frame->width, frame->height, 1);
                 }
                 if (swsContext != nullptr) {
-                    sws_scale(swsContext, (uint8_t const *const *) frame->data, frame->linesize, 0, frame->height,
-                              frameARGB->data, frameARGB->linesize);
+                    sws_scale(swsContext, (uint8_t const *const *) frame->data,
+                              frame->linesize, 0, frame->height, frameARGB->data,
+                              frameARGB->linesize);
                 }
 
-                ret = videoDevice->onUpdateARGB(frameARGB->data[0], frameARGB->linesize[0]);
+                ret = videoDevice->onUpdateARGB(frameARGB->data[0],
+                                                frameARGB->linesize[0]);
 
                 if (ret < 0) {
                     if (DEBUG) ALOGE(TAG, "%s update FMT_NONE error", __func__);
@@ -396,34 +409,34 @@ void MediaSync::renderVideo() {
         currentFrame->uploaded = 1;
     }
     // 请求渲染视频
-    videoDevice->onRequestRenderEnd(currentFrame, currentFrame->frame->linesize[0] < 0);
+    videoDevice->onRequestRenderEnd(currentFrame,
+                                    currentFrame->frame->linesize[0] < 0);
 }
 
 void MediaSync::setPlayerState(PlayerState *playerState) {
     MediaSync::playerState = playerState;
 }
 
-void MediaSync::resetRemainingTime() {
-    remainingTime = 0.0f;
-}
+void MediaSync::resetRemainingTime() { remainingTime = 0.0f; }
 
 void MediaSync::togglePause() {
     if (playerState) {
         if (playerState->pauseRequest) {
-            frameTimer += (av_gettime_relative() * 1.0F / AV_TIME_BASE - videoClock->getLastUpdated());
+            frameTimer += (av_gettime_relative() * 1.0F / AV_TIME_BASE -
+                           videoClock->getLastUpdated());
             if (playerState->readPauseReturn != AVERROR(ENOSYS)) {
                 videoClock->setPaused(0);
             }
             videoClock->setClock(videoClock->getClock(), videoClock->getSeekSerial());
         }
-        externalClock->setClock(externalClock->getClock(), externalClock->getSeekSerial());
+        externalClock->setClock(externalClock->getClock(),
+                                externalClock->getSeekSerial());
         playerState->pauseRequest = !playerState->pauseRequest;
         audioClock->setPaused(playerState->pauseRequest);
         videoClock->setPaused(playerState->pauseRequest);
         externalClock->setPaused(playerState->pauseRequest);
     }
 }
-
 
 int MediaSync::notifyMsg(int what) {
     if (messageCenter) {
@@ -474,4 +487,3 @@ int MediaSync::destroy() {
 void MediaSync::setMessageCenter(MessageCenter *messageCenter) {
     MediaSync::messageCenter = messageCenter;
 }
-

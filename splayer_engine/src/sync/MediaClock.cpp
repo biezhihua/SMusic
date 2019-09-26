@@ -1,13 +1,9 @@
 
 #include "sync/MediaClock.h"
 
-MediaClock::MediaClock() {
-    queueSerial = nullptr;
-}
+MediaClock::MediaClock() { queueSerial = nullptr; }
 
-MediaClock::~MediaClock() {
-    queueSerial = nullptr;
-}
+MediaClock::~MediaClock() { queueSerial = nullptr; }
 
 void MediaClock::init(int *queueSeekSerial) {
     speed = 1.0;
@@ -48,27 +44,18 @@ void MediaClock::setSpeed(double speed) {
 void MediaClock::syncToSlave(MediaClock *slave) {
     double clock = getClock();
     double slave_clock = slave->getClock();
-    if (!isnan(slave_clock) && (isnan(clock) || fabs(clock - slave_clock) > AV_NOSYNC_THRESHOLD)) {
+    if (!isnan(slave_clock) &&
+        (isnan(clock) || fabs(clock - slave_clock) > AV_NOSYNC_THRESHOLD)) {
         setClock(slave_clock, slave->seekSerial);
     }
 }
 
-double MediaClock::getSpeed() const {
-    return speed;
-}
+double MediaClock::getSpeed() const { return speed; }
 
-int MediaClock::getPaused() const {
-    return paused;
-}
+int MediaClock::getPaused() const { return paused; }
 
-void MediaClock::setPaused(int paused) {
-    MediaClock::paused = paused;
-}
+void MediaClock::setPaused(int paused) { MediaClock::paused = paused; }
 
-int MediaClock::getSeekSerial() const {
-    return seekSerial;
-}
+int MediaClock::getSeekSerial() const { return seekSerial; }
 
-double MediaClock::getLastUpdated() const {
-    return lastUpdated;
-}
+double MediaClock::getLastUpdated() const { return lastUpdated; }

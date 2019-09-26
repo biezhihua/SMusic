@@ -1,30 +1,23 @@
 #include <device/VideoDevice.h>
 
-VideoDevice::VideoDevice() {
+VideoDevice::VideoDevice() {}
 
-}
+VideoDevice::~VideoDevice() {}
 
-VideoDevice::~VideoDevice() {
-
-}
-
-int VideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight, TextureFormat format, BlendMode blendMode,
+int VideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight,
+                               TextureFormat format, BlendMode blendMode,
                                int rotate) {
     return 0;
 }
 
-int VideoDevice::onUpdateYUV(uint8_t *yData, int yPitch, uint8_t *uData, int uPitch,
-                             uint8_t *vData, int vPitch) {
+int VideoDevice::onUpdateYUV(uint8_t *yData, int yPitch, uint8_t *uData,
+                             int uPitch, uint8_t *vData, int vPitch) {
     return 0;
 }
 
-int VideoDevice::onUpdateARGB(uint8_t *rgba, int pitch) {
-    return 0;
-}
+int VideoDevice::onUpdateARGB(uint8_t *rgba, int pitch) { return 0; }
 
-int VideoDevice::onRequestRenderEnd(Frame *frame, bool flip) {
-    return 0;
-}
+int VideoDevice::onRequestRenderEnd(Frame *frame, bool flip) { return 0; }
 
 TextureFormat VideoDevice::getTextureFormat(int format) {
     switch (format) {
@@ -74,7 +67,8 @@ TextureFormat VideoDevice::getTextureFormat(int format) {
 }
 
 BlendMode VideoDevice::getBlendMode(TextureFormat format) {
-    if (format == FMT_RGB32 || format == FMT_RGB32_1 || format == FMT_BGR32 || format == FMT_BGR32_1) {
+    if (format == FMT_RGB32 || format == FMT_RGB32_1 || format == FMT_BGR32 ||
+        format == FMT_BGR32_1) {
         return BLEND_BLEND;
     }
     return BLEND_NONE;
@@ -88,10 +82,6 @@ void VideoDevice::setPlayerState(PlayerState *playerState) {
     this->playerState = playerState;
 }
 
-int VideoDevice::create() {
-    return 0;
-}
+int VideoDevice::create() { return 0; }
 
-int VideoDevice::destroy() {
-    return 0;
-}
+int VideoDevice::destroy() { return 0; }

@@ -118,7 +118,9 @@ int VideoDecoder::decodeVideo() {
 
         if (ret < 0) {
             av_frame_free(&frame);
-            if (DEBUG) ALOGE(TAG, "%s not queue picture", __func__);
+            if (DEBUG) {
+                ALOGE(TAG, "%s not queue picture", __func__);
+            }
             break;
         }
     }
@@ -196,11 +198,14 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
         if (isSamePacketSerial()) {
             // 接收一帧解码后的数据
             do {
-                if (DEBUG)
+                if (DEBUG) {
                     ALOGD(TAG, "%s receive frame", __func__);
+                }
 
                 if (packetQueue->isAbort()) {
-                    if (DEBUG) ALOGE(TAG, "%s abort", __func__);
+                    if (DEBUG) {
+                        ALOGE(TAG, "%s abort", __func__);
+                    }
                     return ERROR_ABORT_REQUEST;
                 }
 

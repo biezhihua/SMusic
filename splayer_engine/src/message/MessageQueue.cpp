@@ -1,12 +1,8 @@
 #include <message/MessageQueue.h>
 
-MessageQueue::MessageQueue() {
-    queue = new list<Msg *>();
-}
+MessageQueue::MessageQueue() { queue = new list<Msg *>(); }
 
-MessageQueue::~MessageQueue() {
-    delete queue;
-}
+MessageQueue::~MessageQueue() { delete queue; }
 
 int MessageQueue::putMsg(Msg *msg) {
     int ret;
@@ -69,7 +65,6 @@ int MessageQueue::getMsg(Msg *msg, bool block) {
     return ret;
 }
 
-
 int MessageQueue::removeMsg(int what) {
     mutex.lock();
     std::list<Msg *>::iterator it;
@@ -87,8 +82,7 @@ int MessageQueue::removeMsg(int what) {
 }
 
 int MessageQueue::startMsgQueue() {
-    if (DEBUG)
-        ALOGD(TAG, __func__);
+    if (DEBUG) ALOGD(TAG, __func__);
     mutex.lock();
     auto *message = new Msg();
     message->what = Msg::MSG_FLUSH;
@@ -120,4 +114,3 @@ int MessageQueue::notifyMsg(int what, int arg1, int arg2) {
     putMsg(message);
     return SUCCESS;
 }
-

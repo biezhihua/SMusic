@@ -45,16 +45,16 @@ Frame *FrameQueue::next2Frame() {
     return &queue[(readIndex + readIndexShown + 1) % maxSize];
 }
 
-Frame *FrameQueue::currentFrame() {
-    return &queue[readIndex];
-}
+Frame *FrameQueue::currentFrame() { return &queue[readIndex]; }
 
 Frame *FrameQueue::peekWritable() {
     mutex.lock();
     while (size >= maxSize && !abortRequest) {
         if (!_condWriteableWait) {
             _condWriteableWait = true;
-            if (DEBUG) ALOGD(TAG, "%s size = %d maxSize = %d do waiting", __func__, size, maxSize);
+            if (DEBUG)
+                ALOGD(TAG, "%s size = %d maxSize = %d do waiting", __func__, size,
+                      maxSize);
         }
         condition.wait(mutex);
     }
@@ -99,18 +99,14 @@ void FrameQueue::flush() {
     }
 }
 
-int FrameQueue::getFrameSize() {
-    return size - readIndexShown;
-}
+int FrameQueue::getFrameSize() { return size - readIndexShown; }
 
 void FrameQueue::unrefFrame(Frame *vp) {
     av_frame_unref(vp->frame);
     avsubtitle_free(&vp->sub);
 }
 
-int FrameQueue::getShowIndex() const {
-    return readIndexShown;
-}
+int FrameQueue::getShowIndex() const { return readIndexShown; }
 
 Frame *FrameQueue::peekReadable() {
     // wait until we have a readable a new frame
@@ -119,7 +115,8 @@ Frame *FrameQueue::peekReadable() {
         if (!_condReadableWait) {
             _condReadableWait = true;
             if (DEBUG)
-                ALOGW(TAG, "%s size = %d maxSize = %d do waiting", __func__, size, maxSize);
+                ALOGW(TAG, "%s size = %d maxSize = %d do waiting", __func__, size,
+                      maxSize);
         }
         condition.wait(mutex);
     }
@@ -136,14 +133,13 @@ Frame *FrameQueue::peekReadable() {
     return &queue[(readIndex + readIndexShown) % maxSize];
 }
 
-Mutex *FrameQueue::getMutex() {
-    return &mutex;
-}
+Mutex *FrameQueue::getMutex() { return &mutex; }
 
 int64_t FrameQueue::lastPos() {
     /* return last shown position */
     Frame *frame = &queue[readIndex];
-    if (readIndexShown && packetQueue && frame->seekSerial == packetQueue->getLastSeekSerial()) {
+    if (readIndexShown && packetQueue &&
+        frame->seekSerial == packetQueue->getLastSeekSerial()) {
         // 返回正在显示的帧的position
         return frame->pos;
     } else {
