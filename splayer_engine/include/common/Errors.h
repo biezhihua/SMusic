@@ -5,6 +5,7 @@
 #include <cerrno>
 
 #define  SUCCESS                            1
+#define  ZEOR                               0
 #define  ERROR                              -1
 
 #define  ERROR_PARAMS                       -2
@@ -35,6 +36,8 @@
 #define  ERROR_AUDIO_OPEN                   -28
 #define  ERROR_DURATION                     -29
 #define  ERROR_LAST_SEEK_REQUEST            -30
+#define  ERROR_VIDEO_DECODE_FRAME           -31
+#define  ERROR_AUDIO_PEEK_READABLE          -32
 
 
 #endif //ERRORS_H

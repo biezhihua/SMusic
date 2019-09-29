@@ -36,7 +36,7 @@ int MediaDecoder::pushPacket(AVPacket *pkt) {
     return packetQueue->pushPacket(pkt);
 }
 
-int MediaDecoder::getPacketSize() { return packetQueue->getPacketSize(); }
+int MediaDecoder::getPacketQueueSize() { return packetQueue->getPacketSize(); }
 
 int MediaDecoder::getStreamIndex() { return streamIndex; }
 
@@ -44,7 +44,7 @@ AVStream *MediaDecoder::getStream() { return stream; }
 
 AVCodecContext *MediaDecoder::getCodecContext() { return codecContext; }
 
-int MediaDecoder::getMemorySize() { return packetQueue->getSize(); }
+int MediaDecoder::getPacketQueueMemorySize() { return packetQueue->getSize(); }
 
 int MediaDecoder::hasEnoughPackets() {
     return streamIndex < 0 || (packetQueue == nullptr) ||
@@ -56,7 +56,7 @@ int MediaDecoder::hasEnoughPackets() {
 }
 
 bool MediaDecoder::isFinished() {
-    return finished == packetQueue->getLastSeekSerial() && getPacketSize() == 0;
+    return finished == packetQueue->getLastSeekSerial() && getPacketQueueSize() == 0;
 }
 
 void MediaDecoder::run() {

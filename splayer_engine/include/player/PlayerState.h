@@ -22,7 +22,7 @@ extern "C" {
 
 
 #define VIDEO_QUEUE_SIZE                            3
-#define SAMPLE_QUEUE_SIZE                           9
+#define AUDIO_QUEUE_SIZE                           9
 
 #define MAX_QUEUE_SIZE                              (15 * 1024 * 1024)
 #define MIN_FRAMES                                  25

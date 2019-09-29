@@ -138,6 +138,7 @@ int PacketQueue::getPacket(AVPacket *pkt, int block) {
     mutex.lock();
     for (;;) {
         if (abortRequest) {
+            if (DEBUG) ALOGD(TAG, "%s abort request", __func__);
             ret = ERROR_ABORT_REQUEST;
             break;
         }
@@ -152,7 +153,7 @@ int PacketQueue::getPacket(AVPacket *pkt, int block) {
             memorySize -= pkt1->pkt.size + sizeof(*pkt1);
             duration -= pkt1->pkt.duration;
             *pkt = pkt1->pkt;
-            firstSekSerial = pkt1->serial;
+            firstSeekSerial = pkt1->serial;
             av_free(pkt1);
             ret = SUCCESS;
             break;
@@ -196,7 +197,7 @@ int PacketQueue::getLastSeekSerial() {
 
 int PacketQueue::getFirstSeekSerial() {
     Mutex::Autolock lock(mutex);
-    return firstSekSerial;
+    return firstSeekSerial;
 }
 
 int *PacketQueue::getPointLastSeekSerial() {

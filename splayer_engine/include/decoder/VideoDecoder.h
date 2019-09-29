@@ -8,7 +8,7 @@
 class VideoDecoder : public MediaDecoder {
     const char *const TAG = "VideoDecoder";
 public:
-    VideoDecoder(AVFormatContext *pFormatCtx, AVCodecContext *avctx, AVStream *stream, int streamIndex,
+    VideoDecoder(AVFormatContext *formatCtx, AVCodecContext *avctx, AVStream *stream, int streamIndex,
                  PlayerState *playerState, AVPacket *flushPacket, Condition *pCondition);
 
     virtual ~VideoDecoder();

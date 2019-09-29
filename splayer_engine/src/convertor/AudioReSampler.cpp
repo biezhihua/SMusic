@@ -106,7 +106,7 @@ void AudioReSampler::pcmQueueCallback(uint8_t *stream, int len) {
                                                    audioState->writeBufferSize) /
                                          audioState->audioParamsTarget.bytesPerSec;
         double time = audioState->audio_callback_time / 1000000.0;
-        mediaSync->updateAudioClock(pts, 1, time);
+        mediaSync->updateAudioClock(pts, audioState->seekSerial, time);
     }
 }
 
@@ -148,183 +148,221 @@ int AudioReSampler::audioSynchronize(int nbSamples) {
 }
 
 int AudioReSampler::audioFrameReSample() {
-    int data_size, resampled_data_size;
-    int64_t dec_channel_layout;
-    int wanted_nb_samples;
-    int translate_time = 1;
-    int ret;
+    int reSampledDataSize;
+    int64_t wantedChannelLayout;
+    int wantedNbSamples;
+    Frame *frame = nullptr;
 
     // 处于暂停状态
     if (!audioDecoder || playerState->abortRequest || playerState->pauseRequest) {
         return -1;
     }
 
-    for (;;) {
-        // 如果数据包解码失败，直接返回
-        if ((ret = audioDecoder->getAudioFrame(frame)) < 0) {
-            return ERROR_AUDIO_DECODE;
+    do {
+        // 判断已解码的缓存队列是否可读
+        if (!(frame = audioDecoder->getFrameQueue()->peekReadable())) {
+            if (DEBUG) {
+                ALOGE(TAG, "%s audio peek readable ", __func__);
+            }
+            return ERROR_AUDIO_PEEK_READABLE;
         }
+        // 缓存队列的下一帧
+        audioDecoder->getFrameQueue()->popFrame();
+    } while (frame->seekSerial != audioDecoder->getPacketQueue()->getLastSeekSerial());
 
-        if (ret == 0) {
-            continue;
-        }
+    // 解码的声道设计
+    wantedChannelLayout = getWantedChannelLayout(frame);
 
-        data_size =
-                av_samples_get_buffer_size(nullptr, frame->channels, frame->nb_samples,
-                                           (AVSampleFormat) frame->format, 1);
+    // 同步音频并获取采样的大小
+    wantedNbSamples = audioSynchronize(frame->frame->nb_samples);
 
-        dec_channel_layout = (frame->channel_layout &&
-                              frame->channels == av_get_channel_layout_nb_channels(
-                                      frame->channel_layout))
-                             ? frame->channel_layout
-                             : av_get_default_channel_layout(frame->channels);
+    bool isNotSameSampleFormat = (AVSampleFormat) frame->frame->format != audioState->audioParamsSrc.sampleFormat;
+    bool isNotSameChannelLayout = wantedChannelLayout != audioState->audioParamsSrc.channelLayout;
+    bool isNotSameSampleRate = frame->frame->sample_rate != audioState->audioParamsSrc.sampleRate;
+    bool isNotSameNbSamples = wantedNbSamples != frame->frame->nb_samples && !audioState->swrContext;
+    bool isNeedConvert =
+            isNotSameSampleFormat || isNotSameChannelLayout || isNotSameSampleRate || isNotSameNbSamples;
 
-        wanted_nb_samples = audioSynchronize(frame->nb_samples);
+    // 如果跟源音频的格式、声道格式、采样率、采样大小等不相同，则需要做重采样处理
+    if (isNeedConvert && initConvertSwrContext(wantedChannelLayout, frame) < 0) {
+        return ERROR_AUDIO_SWR;
+    }
 
-        // 帧格式跟源格式不对？？？？
-        if (frame->format != audioState->audioParamsSrc.sampleFormat ||
-            dec_channel_layout != audioState->audioParamsSrc.channelLayout ||
-            frame->sample_rate != audioState->audioParamsSrc.sampleRate ||
-            (wanted_nb_samples != frame->nb_samples && !audioState->swr_ctx)) {
-            swr_free(&audioState->swr_ctx);
-            audioState->swr_ctx = swr_alloc_set_opts(
-                    nullptr, audioState->audioParamsTarget.channelLayout,
-                    audioState->audioParamsTarget.sampleFormat,
-                    audioState->audioParamsTarget.sampleRate, dec_channel_layout,
-                    (AVSampleFormat) frame->format, frame->sample_rate, 0, nullptr);
+// 音频重采样处理
+    if (audioState->swrContext) {
+        int length = convertAudio(wantedNbSamples, frame);
 
-            if (!audioState->swr_ctx || swr_init(audioState->swr_ctx) < 0) {
-                if (DEBUG)
-                    ALOGE(TAG,
-                          "Cannot create sample rate converter for conversion of %d Hz "
-                          "%s %d channels to %d Hz %s %d channels!",
-                          frame->sample_rate,
-                          av_get_sample_fmt_name((AVSampleFormat) frame->format),
-                          frame->channels, audioState->audioParamsTarget.sampleRate,
-                          av_get_sample_fmt_name(
-                                  audioState->audioParamsTarget.sampleFormat),
-                          audioState->audioParamsTarget.channels);
-                swr_free(&audioState->swr_ctx);
-                return ERROR_AUDIO_SWR;
-            }
-            audioState->audioParamsSrc.channelLayout = dec_channel_layout;
-            audioState->audioParamsSrc.channels = frame->channels;
-            audioState->audioParamsSrc.sampleRate = frame->sample_rate;
-            audioState->audioParamsSrc.sampleFormat = (AVSampleFormat) frame->format;
-        }
-
-        // 音频重采样处理
-        if (audioState->swr_ctx) {
-            const uint8_t **in = (const uint8_t **) frame->extended_data;
-            uint8_t **out = &audioState->reSampleBuffer;
-            int out_count = wanted_nb_samples *
-                            audioState->audioParamsTarget.sampleRate /
-                            frame->sample_rate +
-                            256;
-            int out_size = av_samples_get_buffer_size(
-                    nullptr, audioState->audioParamsTarget.channels, out_count,
-                    audioState->audioParamsTarget.sampleFormat, 0);
-            int len2;
-            if (out_size < 0) {
-                if (DEBUG) ALOGE(TAG, "av_samples_get_buffer_size() failed");
-                return ERROR_AUDIO_OUT_SIZE;
-            }
-            if (wanted_nb_samples != frame->nb_samples) {
-                if (swr_set_compensation(audioState->swr_ctx,
-                                         (wanted_nb_samples - frame->nb_samples) *
-                                         audioState->audioParamsTarget.sampleRate /
-                                         frame->sample_rate,
-                                         wanted_nb_samples *
-                                         audioState->audioParamsTarget.sampleRate /
-                                         frame->sample_rate) < 0) {
-                    if (DEBUG) ALOGE(TAG, "swr_set_compensation() failed");
-                    return ERROR_AUDIO_SWR_COMPENSATION;
-                }
-            }
-            av_fast_malloc(&audioState->reSampleBuffer, &audioState->reSampleSize,
-                           out_size);
-            if (!audioState->reSampleBuffer) {
-                return ERROR_NOT_MEMORY;
-            }
-            len2 = swr_convert(audioState->swr_ctx, out, out_count, in,
-                               frame->nb_samples);
-            if (len2 < 0) {
-                if (DEBUG) ALOGE(TAG, "swr_convert() failed");
-                return ERROR_AUDIO_SWR_CONVERT;
-            }
-            if (len2 == out_count) {
-                if (DEBUG) ALOGE(TAG, "audio buffer is probably too small");
-                if (swr_init(audioState->swr_ctx) < 0) {
-                    swr_free(&audioState->swr_ctx);
-                }
-            }
-            audioState->outputBuffer = audioState->reSampleBuffer;
-            resampled_data_size =
-                    len2 * audioState->audioParamsTarget.channels *
+        if (length > 0) {
+            audioState->
+                    outputBuffer = audioState->reSampleBuffer;
+            reSampledDataSize =
+                    length * audioState->audioParamsTarget.channels *
                     av_get_bytes_per_sample(audioState->audioParamsTarget.sampleFormat);
 
-            // 变速变调处理
-            if ((playerState->playbackRate != 1.0f ||
-                 playerState->playbackPitch != 1.0f) &&
-                !playerState->abortRequest) {
-                int bytes_per_sample =
-                        av_get_bytes_per_sample(audioState->audioParamsTarget.sampleFormat);
-                av_fast_malloc(&audioState->soundTouchBuffer,
-                               &audioState->soundTouchBufferSize,
-                               (size_t) out_size * translate_time);
-                for (int i = 0; i < (resampled_data_size / 2); i++) {
-                    audioState->soundTouchBuffer[i] =
-                            (audioState->reSampleBuffer[i * 2] |
-                             (audioState->reSampleBuffer[i * 2 + 1] << 8));
-                }
-                if (!soundTouchWrapper) {
-                    soundTouchWrapper = new SoundTouchWrapper();
-                }
-                int ret_len = soundTouchWrapper->translate(
-                        audioState->soundTouchBuffer, (float) (playerState->playbackRate),
-                        (float) (playerState->playbackPitch != 1.0f
-                                 ? playerState->playbackPitch
-                                 : 1.0f / playerState->playbackRate),
-                        resampled_data_size / 2, bytes_per_sample,
-                        audioState->audioParamsTarget.channels, frame->sample_rate);
-                if (ret_len > 0) {
-                    audioState->outputBuffer = (uint8_t *) audioState->soundTouchBuffer;
-                    resampled_data_size = ret_len;
-                } else {
-                    translate_time++;
-                    av_frame_unref(frame);
-                    continue;
-                }
-            }
+// 这里可以做变声变速处理，请参考ijkplayer 的做法
         } else {
-            audioState->outputBuffer = frame->data[0];
-            resampled_data_size = data_size;
+            return ERROR_AUDIO_SWR_CONVERT;
         }
 
-        // 处理完直接退出循环
-        break;
-    }
-
-    // 利用pts更新音频时钟
-    if (frame->pts != AV_NOPTS_VALUE) {
-        audioState->audioClock =
-                frame->pts * av_q2d((AVRational) {1, frame->sample_rate}) +
-                (double) frame->nb_samples / frame->sample_rate;
+// 变速变调处理
+//            if ((playerState->playbackRate != 1.0f ||
+//                 playerState->playbackPitch != 1.0f) &&
+//                !playerState->abortRequest) {
+//                int bytes_per_sample =
+//                        av_get_bytes_per_sample(audioState->audioParamsTarget.sampleFormat);
+//                av_fast_malloc(&audioState->soundTouchBuffer,
+//                               &audioState->soundTouchBufferSize,
+//                               (size_t) out_size * translate_time);
+//                for (int i = 0; i < (reSampledDataSize / 2); i++) {
+//                    audioState->soundTouchBuffer[i] =
+//                            (audioState->reSampleBuffer[i * 2] |
+//                             (audioState->reSampleBuffer[i * 2 + 1] << 8));
+//                }
+//                if (!soundTouchWrapper) {
+//                    soundTouchWrapper = new SoundTouchWrapper();
+//                }
+//                int ret_len = soundTouchWrapper->translate(
+//                        audioState->soundTouchBuffer, (float) (playerState->playbackRate),
+//                        (float) (playerState->playbackPitch != 1.0f
+//                                 ? playerState->playbackPitch
+//                                 : 1.0f / playerState->playbackRate),
+//                        reSampledDataSize / 2, bytes_per_sample,
+//                        audioState->audioParamsTarget.channels, frame->frame->sample_rate);
+//                if (ret_len > 0) {
+//                    audioState->outputBuffer = (uint8_t *) audioState->soundTouchBuffer;
+//                    reSampledDataSize = ret_len;
+//                } else {
+//                    translate_time++;
+//                    av_frame_unref(frame->frame);
+//                    continue;
+//                }
+//            }
     } else {
-        audioState->audioClock = NAN;
+        audioState->
+                outputBuffer = frame->frame->data[0];
+        reSampledDataSize = av_samples_get_buffer_size(nullptr,
+                                                       frame->frame->channels,
+                                                       frame->frame->nb_samples,
+                                                       (AVSampleFormat) frame->format, 1);;
     }
 
-    // 使用完成释放引用，防止内存泄漏
-    av_frame_unref(frame);
+// 利用pts更新音频时钟
+    if (frame->pts != AV_NOPTS_VALUE) {
+        audioState->
+                audioClock =
+                frame->pts * av_q2d((AVRational) {1, frame->frame->sample_rate}) +
+                (double) frame->frame->nb_samples / frame->frame->sample_rate;
+    } else {
+        audioState->
+                audioClock = NAN;
+    }
 
-    return resampled_data_size;
+    audioState->
+            seekSerial = frame->seekSerial;
+
+// 使用完成释放引用，防止内存泄漏
+    av_frame_unref(frame
+                           ->frame);
+
+    return reSampledDataSize;
+}
+
+int AudioReSampler::initConvertSwrContext(int64_t wantedChannelLayout, Frame *frame) const {
+    swr_free(&audioState->swrContext);
+    audioState->swrContext = swr_alloc_set_opts(
+            nullptr, audioState->audioParamsTarget.channelLayout,
+            audioState->audioParamsTarget.sampleFormat,
+            audioState->audioParamsTarget.sampleRate, wantedChannelLayout,
+            (AVSampleFormat) frame->frame->format, frame->frame->sample_rate, 0, nullptr);
+
+    if (!audioState->swrContext || swr_init(audioState->swrContext) < 0) {
+        if (DEBUG)
+            ALOGE(TAG,
+                  "Cannot create sample rate converter for conversion of %d Hz "
+                  "%s %d channels to %d Hz %s %d channels!",
+                  frame->frame->sample_rate,
+                  av_get_sample_fmt_name((AVSampleFormat) frame->format),
+                  frame->frame->channels, audioState->audioParamsTarget.sampleRate,
+                  av_get_sample_fmt_name(
+                          audioState->audioParamsTarget.sampleFormat),
+                  audioState->audioParamsTarget.channels);
+        swr_free(&audioState->swrContext);
+        return ERROR_AUDIO_SWR;
+    }
+    audioState->audioParamsSrc.channelLayout = wantedChannelLayout;
+    audioState->audioParamsSrc.channels = frame->frame->channels;
+    audioState->audioParamsSrc.sampleRate = frame->frame->sample_rate;
+    audioState->audioParamsSrc.sampleFormat = (AVSampleFormat) frame->format;
+    return SUCCESS;
+}
+
+int AudioReSampler::convertAudio(int wantedNbSamples, Frame *frame) const {
+    const uint8_t **in = (const uint8_t **) frame->frame->extended_data;
+    uint8_t **out = &audioState->reSampleBuffer;
+
+    int outCount = static_cast<int>(
+            (int64_t) wantedNbSamples * audioState->audioParamsTarget.sampleRate / frame->frame->sample_rate +
+            256);
+
+    int outSize = av_samples_get_buffer_size(nullptr,
+                                             audioState->audioParamsTarget.channels,
+                                             outCount,
+                                             audioState->audioParamsTarget.sampleFormat,
+                                             0);
+
+    int length;
+
+    if (outSize < 0) {
+        if (DEBUG) {
+            ALOGE(TAG, "av_samples_get_buffer_size() failed");
+        }
+        return ERROR_AUDIO_OUT_SIZE;
+    }
+
+    if (wantedNbSamples != frame->frame->nb_samples) {
+        if (swr_set_compensation(audioState->swrContext,
+                                 (wantedNbSamples - frame->frame->nb_samples) *
+                                 audioState->audioParamsTarget.sampleRate /
+                                 frame->frame->sample_rate,
+                                 wantedNbSamples *
+                                 audioState->audioParamsTarget.sampleRate /
+                                 frame->frame->sample_rate) < 0) {
+            if (DEBUG) ALOGE(TAG, "swr_set_compensation() failed");
+            return ERROR_AUDIO_SWR_COMPENSATION;
+        }
+    }
+    av_fast_malloc(&audioState->reSampleBuffer, &audioState->reSampleSize, outSize);
+    if (!audioState->reSampleBuffer) {
+        return ERROR_NOT_MEMORY;
+    }
+    length = swr_convert(audioState->swrContext, out, outCount, in,
+                         frame->frame->nb_samples);
+
+    if (length < 0) {
+        if (DEBUG) ALOGE(TAG, "%s swr_convert() failed", __func__);
+        return ERROR;
+    }
+
+    // 音频buffer缓冲太小了？
+    if (length == outCount) {
+        if (DEBUG) ALOGE(TAG, "%s audio buffer is probably too small", __func__);
+        if (swr_init(audioState->swrContext) < 0) {
+            swr_free(&audioState->swrContext);
+        }
+    }
+    return length;
+}
+
+uint64_t AudioReSampler::getWantedChannelLayout(Frame *frame) const {
+    bool isValid = frame->frame->channel_layout &&
+                   frame->frame->channels == av_get_channel_layout_nb_channels(frame->frame->channel_layout);
+    return isValid ? frame->frame->channel_layout : av_get_default_channel_layout(frame->frame->channels);
 }
 
 void AudioReSampler::create() {
     audioState = (AudioState *) av_mallocz(sizeof(AudioState));
     memset(audioState, 0, sizeof(AudioState));
     soundTouchWrapper = new SoundTouchWrapper();
-    frame = av_frame_alloc();
 }
 
 void AudioReSampler::destroy() {
@@ -333,16 +371,11 @@ void AudioReSampler::destroy() {
         soundTouchWrapper = nullptr;
     }
     if (audioState) {
-        swr_free(&audioState->swr_ctx);
+        swr_free(&audioState->swrContext);
         av_freep(&audioState->reSampleBuffer);
         memset(audioState, 0, sizeof(AudioState));
         av_free(audioState);
         audioState = nullptr;
-    }
-    if (frame) {
-        av_frame_unref(frame);
-        av_frame_free(&frame);
-        frame = nullptr;
     }
 }
 

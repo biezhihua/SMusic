@@ -71,7 +71,7 @@ typedef struct AudioState {
     int writeBufferSize;
 
     /// 音频转码上下文
-    SwrContext *swr_ctx = nullptr;
+    SwrContext *swrContext = nullptr;
 
     /// 音频回调时间
     int64_t audio_callback_time;
@@ -81,6 +81,8 @@ typedef struct AudioState {
 
     /// 音频目标参数
     AudioParams audioParamsTarget;
+
+    int seekSerial = -1;
 } AudioState;
 
 /**
@@ -120,8 +122,6 @@ private:
 
     MediaSync *mediaSync = nullptr;
 
-    AVFrame *frame = nullptr;
-
     /// 音频解码器
     AudioDecoder *audioDecoder = nullptr;
 
@@ -130,6 +130,12 @@ private:
 
     /// 变速变调处理
     SoundTouchWrapper *soundTouchWrapper = nullptr;
+
+    uint64_t getWantedChannelLayout(Frame *frame) const;
+
+    int convertAudio(int wantedNbSamples, Frame *frame) const;
+
+    int initConvertSwrContext(int64_t wantedChannelLayout, Frame *frame) const;
 };
 
 

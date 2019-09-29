@@ -54,7 +54,8 @@ int main() {
             .withDebug(true)
             .build();
     mediaPlayer->create();
-    mediaPlayer->setDataSource("/Users/biezhihua/Downloads/The.Walking.Dead.S04E15.2013.BluRay.720p.x264.AC3-CMCT.mkv");
+    mediaPlayer->setDataSource("/Users/biezhihua/Downloads/寄生虫.mp4");
+//    mediaPlayer->setDataSource("/Users/biezhihua/Downloads/The.Walking.Dead.S04E15.2013.BluRay.720p.x264.AC3-CMCT.mkv");
     mediaPlayer->start();
     mediaPlayer->eventLoop();
     return SUCCESS;

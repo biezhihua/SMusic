@@ -91,10 +91,10 @@ private:
     bool abortRequest;
 
     /// 序列，seek时使用，作为区分前后帧序列
-    int lastSeekSerial;
+    int lastSeekSerial ;
 
     /// 序列，seek时使用，当获取数据包时被更新
-    int firstSekSerial;
+    int firstSeekSerial = -1;
 
     AVPacket *flushPacket;
 };

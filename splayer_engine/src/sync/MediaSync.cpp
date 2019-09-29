@@ -14,7 +14,9 @@ void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
 }
 
 void MediaSync::stop() {
-    if (DEBUG) ALOGD(TAG, "stop media sync");
+    if (DEBUG) {
+        ALOGD(TAG, "stop media sync");
+    }
     abortRequest = true;
     playerState = nullptr;
     videoDecoder = nullptr;
@@ -234,16 +236,16 @@ void MediaSync::refreshVideo(double *remaining_time) {
 
 void MediaSync::checkExternalClockSpeed() {
     if ((videoDecoder &&
-         videoDecoder->getPacketSize() <= EXTERNAL_CLOCK_MIN_FRAMES) ||
+         videoDecoder->getPacketQueueSize() <= EXTERNAL_CLOCK_MIN_FRAMES) ||
         (audioDecoder &&
-         audioDecoder->getPacketSize() <= EXTERNAL_CLOCK_MIN_FRAMES)) {
+         audioDecoder->getPacketQueueSize() <= EXTERNAL_CLOCK_MIN_FRAMES)) {
         externalClock->setSpeed(
                 FFMAX(EXTERNAL_CLOCK_SPEED_MIN,
                       externalClock->getSpeed() - EXTERNAL_CLOCK_SPEED_STEP));
     } else if ((!videoDecoder ||
-                videoDecoder->getPacketSize() > EXTERNAL_CLOCK_MAX_FRAMES) &&
+                videoDecoder->getPacketQueueSize() > EXTERNAL_CLOCK_MAX_FRAMES) &&
                (!audioDecoder ||
-                audioDecoder->getPacketSize() > EXTERNAL_CLOCK_MAX_FRAMES)) {
+                audioDecoder->getPacketQueueSize() > EXTERNAL_CLOCK_MAX_FRAMES)) {
         externalClock->setSpeed(
                 FFMIN(EXTERNAL_CLOCK_SPEED_MAX,
                       externalClock->getSpeed() + EXTERNAL_CLOCK_SPEED_STEP));

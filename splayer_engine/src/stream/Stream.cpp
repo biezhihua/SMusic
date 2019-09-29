@@ -141,8 +141,8 @@ int Stream::readPackets() {
         // 队列满，等待消耗
         bool isNoInfiniteBuffer = playerState->infiniteBuffer < 1;
         bool isNoEnoughMemory =
-                (audioDecoder ? audioDecoder->getMemorySize() : 0) +
-                (videoDecoder ? videoDecoder->getMemorySize() : 0) >
+                (audioDecoder ? audioDecoder->getPacketQueueMemorySize() : 0) +
+                (videoDecoder ? videoDecoder->getPacketQueueMemorySize() : 0) >
                 MAX_QUEUE_SIZE;
         bool isAudioEnoughPackets =
                 !audioDecoder || audioDecoder->hasEnoughPackets();
@@ -246,7 +246,9 @@ int Stream::openStream() {
     // 创建解复用上下文
     formatContext = avformat_alloc_context();
     if (formatContext == nullptr) {
-        if (DEBUG) ALOGE(TAG, "%s avformat could not allocate context", __func__);
+        if (DEBUG) {
+            ALOGE(TAG, "%s avformat could not allocate context", __func__);
+        }
         closeStream();
         notifyMsg(Msg::MSG_ERROR, ERROR_NOT_MEMORY);
         return ERROR_NOT_MEMORY;

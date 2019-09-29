@@ -628,6 +628,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
 
     if (codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
         audioDecoder = new AudioDecoder(
+                formatContext,
                 codecContext,
                 formatContext->streams[streamIndex],
                 streamIndex,
@@ -772,19 +773,25 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 视频解码器开始解码
     if (videoDecoder != nullptr) {
-        if (DEBUG) ALOGD(TAG, "start video decoder");
+        if (DEBUG) {
+            ALOGD(TAG, "start video decoder");
+        }
         videoDecoder->start();
         notifyMsg(Msg::MSG_VIDEO_DECODER_START);
     } else {
         if (playerState->syncType == AV_SYNC_VIDEO) {
             playerState->syncType = AV_SYNC_AUDIO;
-            if (DEBUG) ALOGD(TAG, "%s change sync type to AV_SYNC_AUDIO", __func__);
+            if (DEBUG) {
+                ALOGD(TAG, "%s change sync type to AV_SYNC_AUDIO", __func__);
+            }
         }
     }
 
     // 音频解码器开始解码
     if (audioDecoder != nullptr) {
-        if (DEBUG) ALOGD(TAG, "start audio decoder");
+        if (DEBUG) {
+            ALOGD(TAG, "start audio decoder");
+        }
         if (audioResampler != nullptr) {
             audioResampler->setAudioDecoder(audioDecoder);
         }
@@ -833,21 +840,28 @@ void MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     if (videoDecoder != nullptr) {
         if (playerState->syncType == AV_SYNC_AUDIO) {
-            if (DEBUG) ALOGD(TAG, "%s change master clock to audio clock", __func__);
+            if (DEBUG) {
+                ALOGD(TAG, "%s change master clock to audio clock", __func__);
+            }
             videoDecoder->setMasterClock(mediaSync->getAudioClock());
         } else if (playerState->syncType == AV_SYNC_VIDEO) {
-            if (DEBUG) ALOGD(TAG, "%s change master clock to video clock", __func__);
+            if (DEBUG) {
+                ALOGD(TAG, "%s change master clock to video clock", __func__);
+            }
             videoDecoder->setMasterClock(mediaSync->getVideoClock());
         } else {
-            if (DEBUG)
+            if (DEBUG) {
                 ALOGD(TAG, "%s change master clock to external clock", __func__);
+            }
             videoDecoder->setMasterClock(mediaSync->getExternalClock());
         }
     }
 
     // 开始同步
     if (mediaSync != nullptr) {
-        if (DEBUG) ALOGD(TAG, "start media sync");
+        if (DEBUG) {
+            ALOGD(TAG, "start media sync");
+        }
         mediaSync->start(videoDecoder, audioDecoder);
         notifyMsg(Msg::MSG_MEDIA_SYNC_START);
     }
@@ -879,7 +893,9 @@ int MediaPlayer::notifyMsg(int what, int arg1, int arg2) {
 
 int MediaPlayer::closeDecoder(int streamIndex, AVCodecContext *codecContext,
                               AVDictionary *opts) {
-    if (DEBUG) ALOGD(TAG, "%s streamIndex = %d", __func__, streamIndex);
+    if (DEBUG) {
+        ALOGD(TAG, "%s streamIndex = %d", __func__, streamIndex);
+    }
     // 准备失败，则需要释放创建的解码上下文
     avcodec_free_context(&codecContext);
     // 释放参数
@@ -889,14 +905,18 @@ int MediaPlayer::closeDecoder(int streamIndex, AVCodecContext *codecContext,
 
 int MediaPlayer::checkParams() {
     if (!playerState->url) {
-        if (DEBUG) ALOGE(TAG, "%s url is null", __func__);
+        if (DEBUG) {
+            ALOGE(TAG, "%s url is null", __func__);
+        }
         return ERROR_PARAMS;
     }
     return SUCCESS;
 }
 
 void MediaPlayer::setFormatContext(AVFormatContext *formatContext) {
-    if (DEBUG) ALOGD(TAG, "%s format context = %p", __func__, formatContext);
+    if (DEBUG) {
+        ALOGD(TAG, "%s format context = %p", __func__, formatContext);
+    }
     this->formatContext = formatContext;
 }
 

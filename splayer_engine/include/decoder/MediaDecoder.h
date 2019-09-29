@@ -22,21 +22,19 @@ public:
 
     virtual void flush();
 
-    int pushPacket(AVPacket *pkt);
-
-    int getPacketSize();
-
     int getStreamIndex();
-
-    AVStream *getStream();
 
     AVCodecContext *getCodecContext();
 
-    int getMemorySize();
+    AVStream *getStream();
+
+    int getPacketQueueSize();
+
+    int getPacketQueueMemorySize();
+
+    int pushPacket(AVPacket *pkt);
 
     int hasEnoughPackets();
-
-    virtual bool isFinished();
 
     void pushFlushPacket();
 
@@ -44,9 +42,11 @@ public:
 
     bool isSamePacketSerial();
 
+    PacketQueue *getPacketQueue();
+
     virtual void run();
 
-    PacketQueue *getPacketQueue();
+    virtual bool isFinished();
 
 protected:
 
