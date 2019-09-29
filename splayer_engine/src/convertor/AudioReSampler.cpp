@@ -11,22 +11,21 @@ AudioReSampler::~AudioReSampler() {
     playerState = nullptr;
 }
 
-int AudioReSampler::setReSampleParams(AudioDeviceSpec *spec,
-                                      int64_t wanted_channel_layout) {
+int AudioReSampler::setReSampleParams(AudioDeviceSpec *spec, int64_t wanted_channel_layout) {
     audioState->audioParamsTarget.sampleFormat = AV_SAMPLE_FMT_S16;
     audioState->audioParamsTarget.sampleRate = spec->freq;
     audioState->audioParamsTarget.channelLayout = wanted_channel_layout;
     audioState->audioParamsTarget.channels = spec->channels;
-    audioState->audioParamsTarget.frameSize = av_samples_get_buffer_size(
-            nullptr, audioState->audioParamsTarget.channels, 1,
-            audioState->audioParamsTarget.sampleFormat, 1);
-    audioState->audioParamsTarget.bytesPerSec = av_samples_get_buffer_size(
-            nullptr, audioState->audioParamsTarget.channels,
-            audioState->audioParamsTarget.sampleRate,
-            audioState->audioParamsTarget.sampleFormat, 1);
+    audioState->audioParamsTarget.frameSize = av_samples_get_buffer_size(nullptr,
+                                                                         audioState->audioParamsTarget.channels, 1,
+                                                                         audioState->audioParamsTarget.sampleFormat, 1);
+    audioState->audioParamsTarget.bytesPerSec = av_samples_get_buffer_size(nullptr,
+                                                                           audioState->audioParamsTarget.channels,
+                                                                           audioState->audioParamsTarget.sampleRate,
+                                                                           audioState->audioParamsTarget.sampleFormat,
+                                                                           1);
 
-    if (audioState->audioParamsTarget.bytesPerSec <= 0 ||
-        audioState->audioParamsTarget.frameSize <= 0) {
+    if (audioState->audioParamsTarget.bytesPerSec <= 0 || audioState->audioParamsTarget.frameSize <= 0) {
         if (DEBUG) {
             ALOGE(TAG, "av_samples_get_buffer_size failed");
         }
@@ -39,19 +38,14 @@ int AudioReSampler::setReSampleParams(AudioDeviceSpec *spec,
     audioState->bufferIndex = 0;
     audioState->audio_diff_avg_coef = exp(log(0.01) / AUDIO_DIFF_AVG_NB);
     audioState->audio_diff_avg_count = 0;
-    audioState->audio_diff_threshold =
-            (double) (audioState->audioHardwareBufSize) /
-            audioState->audioParamsTarget.bytesPerSec;
+    audioState->audio_diff_threshold = (double) (audioState->audioHardwareBufSize) /
+                                       audioState->audioParamsTarget.bytesPerSec;
 
     if ((playerState->formatContext->iformat->flags &
          (AVFMT_NOBINSEARCH | AVFMT_NOGENSEARCH | AVFMT_NO_BYTE_SEEK)) &&
         !playerState->formatContext->iformat->read_seek) {
-        audioDecoder->setStartPts(
-                playerState->formatContext->streams[playerState->audioIndex]
-                        ->start_time);
-        audioDecoder->setStartPtsTb(
-                playerState->formatContext->streams[playerState->audioIndex]
-                        ->time_base);
+        audioDecoder->setStartPts(playerState->formatContext->streams[playerState->audioIndex]->start_time);
+        audioDecoder->setStartPtsTb(playerState->formatContext->streams[playerState->audioIndex]->time_base);
     }
 
     return SUCCESS;
@@ -97,13 +91,11 @@ void AudioReSampler::pcmQueueCallback(uint8_t *stream, int len) {
         stream += length;
         audioState->bufferIndex += length;
     }
-    audioState->writeBufferSize =
-            audioState->bufferSize - audioState->bufferIndex;
+    audioState->writeBufferSize = audioState->bufferSize - audioState->bufferIndex;
 
     if (!isnan(audioState->audioClock) && mediaSync) {
         double pts =
-                audioState->audioClock - (double) (2 * audioState->audioHardwareBufSize +
-                                                   audioState->writeBufferSize) /
+                audioState->audioClock - (double) (2 * audioState->audioHardwareBufSize + audioState->writeBufferSize) /
                                          audioState->audioParamsTarget.bytesPerSec;
         double time = audioState->audio_callback_time / 1000000.0;
         mediaSync->updateAudioClock(pts, audioState->seekSerial, time);
@@ -155,7 +147,7 @@ int AudioReSampler::audioFrameReSample() {
 
     // 处于暂停状态
     if (!audioDecoder || playerState->abortRequest || playerState->pauseRequest) {
-        return -1;
+        return ERROR;
     }
 
     do {
@@ -188,7 +180,7 @@ int AudioReSampler::audioFrameReSample() {
         return ERROR_AUDIO_SWR;
     }
 
-// 音频重采样处理
+    // 音频重采样处理
     if (audioState->swrContext) {
         int length = convertAudio(wantedNbSamples, frame);
 
@@ -199,7 +191,7 @@ int AudioReSampler::audioFrameReSample() {
                     length * audioState->audioParamsTarget.channels *
                     av_get_bytes_per_sample(audioState->audioParamsTarget.sampleFormat);
 
-// 这里可以做变声变速处理，请参考ijkplayer 的做法
+            // 这里可以做变声变速处理，请参考ijkplayer 的做法
         } else {
             return ERROR_AUDIO_SWR_CONVERT;
         }
@@ -238,8 +230,7 @@ int AudioReSampler::audioFrameReSample() {
 //                }
 //            }
     } else {
-        audioState->
-                outputBuffer = frame->frame->data[0];
+        audioState->outputBuffer = frame->frame->data[0];
         reSampledDataSize = av_samples_get_buffer_size(nullptr,
                                                        frame->frame->channels,
                                                        frame->frame->nb_samples,
@@ -248,21 +239,16 @@ int AudioReSampler::audioFrameReSample() {
 
 // 利用pts更新音频时钟
     if (frame->pts != AV_NOPTS_VALUE) {
-        audioState->
-                audioClock =
-                frame->pts * av_q2d((AVRational) {1, frame->frame->sample_rate}) +
-                (double) frame->frame->nb_samples / frame->frame->sample_rate;
+        audioState->audioClock = frame->pts * av_q2d((AVRational) {1, frame->frame->sample_rate}) +
+                                 (double) frame->frame->nb_samples / frame->frame->sample_rate;
     } else {
-        audioState->
-                audioClock = NAN;
+        audioState->audioClock = NAN;
     }
 
-    audioState->
-            seekSerial = frame->seekSerial;
+    audioState->seekSerial = frame->seekSerial;
 
-// 使用完成释放引用，防止内存泄漏
-    av_frame_unref(frame
-                           ->frame);
+    // 使用完成释放引用，防止内存泄漏
+    av_frame_unref(frame->frame);
 
     return reSampledDataSize;
 }
