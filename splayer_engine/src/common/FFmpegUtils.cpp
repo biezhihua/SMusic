@@ -1,8 +1,5 @@
+#include <common/Log.h>
 #include "common/FFmpegUtils.h"
-
-#if defined(__ANDROID__)
-#include <AndroidLog.h>
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,28 +9,19 @@ extern "C" {
 
 /**
  * 过滤解码器属性
- * @param opts
- * @param codec_id
- * @param s
- * @param st
- * @param codec
- * @return
  */
-AVDictionary *filterCodecOptions(AVDictionary *opts, enum AVCodecID codec_id,
-                                 AVFormatContext *s, AVStream *st, AVCodec *codec) {
-    AVDictionary *ret = NULL;
-    AVDictionaryEntry *t = NULL;
-    int flags = s->oformat ? AV_OPT_FLAG_ENCODING_PARAM
-                           : AV_OPT_FLAG_DECODING_PARAM;
+AVDictionary *filterCodecOptions(AVDictionary *opts, enum AVCodecID codec_id, AVFormatContext *formatContext, AVStream *stream, AVCodec *codec) {
+    AVDictionary *ret = nullptr;
+    AVDictionaryEntry *t = nullptr;
+    int flags = formatContext->oformat ? AV_OPT_FLAG_ENCODING_PARAM : AV_OPT_FLAG_DECODING_PARAM;
     char prefix = 0;
     const AVClass *cc = avcodec_get_class();
 
     if (!codec) {
-        codec = s->oformat ? avcodec_find_encoder(codec_id)
-                           : avcodec_find_decoder(codec_id);
+        codec = formatContext->oformat ? avcodec_find_encoder(codec_id) : avcodec_find_decoder(codec_id);
     }
 
-    switch (st->codecpar->codec_type) {
+    switch (stream->codecpar->codec_type) {
         case AVMEDIA_TYPE_VIDEO: {
             prefix = 'v';
             flags |= AV_OPT_FLAG_VIDEO_PARAM;
@@ -56,7 +44,7 @@ AVDictionary *filterCodecOptions(AVDictionary *opts, enum AVCodecID codec_id,
 
         /* check stream specification in opt name */
         if (p) {
-            switch (checkStreamSpecifier(s, st, p + 1)) {
+            switch (checkStreamSpecifier(formatContext, stream, p + 1)) {
                 case 1: {
                     *p = 0;
                     break;
@@ -70,12 +58,9 @@ AVDictionary *filterCodecOptions(AVDictionary *opts, enum AVCodecID codec_id,
             }
         }
 
-        if (av_opt_find(&cc, t->key, NULL, flags, AV_OPT_SEARCH_FAKE_OBJ) || !codec
-            || (codec->priv_class
-                && av_opt_find(&codec->priv_class, t->key, NULL, flags, AV_OPT_SEARCH_FAKE_OBJ))) {
+        if (av_opt_find(&cc, t->key, nullptr, flags, AV_OPT_SEARCH_FAKE_OBJ) || !codec || (codec->priv_class && av_opt_find(&codec->priv_class, t->key, NULL, flags, AV_OPT_SEARCH_FAKE_OBJ))) {
             av_dict_set(&ret, t->key, t->value, 0);
-        } else if (t->key[0] == prefix
-                   && av_opt_find(&cc, t->key + 1, NULL, flags, AV_OPT_SEARCH_FAKE_OBJ)) {
+        } else if (t->key[0] == prefix && av_opt_find(&cc, t->key + 1, nullptr, flags, AV_OPT_SEARCH_FAKE_OBJ)) {
             av_dict_set(&ret, t->key + 1, t->value, 0);
         }
 
@@ -107,30 +92,24 @@ int checkStreamSpecifier(AVFormatContext *s, AVStream *st, const char *spec) {
 
 /**
  * 设置媒体流信息
- * @param s
- * @param codec_opts
+ * @param formatContext
+ * @param codecOpts
  * @return
  */
-AVDictionary **setupStreamInfoOptions(AVFormatContext *s, AVDictionary *codec_opts) {
-    int i;
+AVDictionary **setupStreamInfoOptions(AVFormatContext *formatContext, AVDictionary *codecOpts) {
     AVDictionary **opts;
-
-    if (!s->nb_streams) {
-        return NULL;
+    if (!formatContext->nb_streams) {
+        return nullptr;
     }
-    opts = (AVDictionary **) av_mallocz_array(s->nb_streams, sizeof(*opts));
+    opts = (AVDictionary **) av_mallocz_array(formatContext->nb_streams, sizeof(*opts));
     if (!opts) {
-#if defined(__ANDROID__)
-        ALOGE("Could not alloc memory for stream options.\n");
-#else
-        av_log(NULL, AV_LOG_ERROR,
-               "Could not alloc memory for stream options.\n");
-#endif
-        return NULL;
+        if (DEBUG) {
+            ALOGE("FFmpegUtils", "%s could not alloc memory for stream options.", __func__);
+        }
+        return nullptr;
     }
-    for (i = 0; i < s->nb_streams; i++) {
-        opts[i] = filterCodecOptions(codec_opts, s->streams[i]->codecpar->codec_id,
-                                     s, s->streams[i], NULL);
+    for (int i = 0; i < formatContext->nb_streams; i++) {
+        opts[i] = filterCodecOptions(codecOpts, formatContext->streams[i]->codecpar->codec_id, formatContext, formatContext->streams[i], nullptr);
     }
     return opts;
 }

@@ -13,13 +13,13 @@ extern "C" {
 
 
 AVDictionary *filterCodecOptions(AVDictionary *opts, enum AVCodecID codec_id,
-                                 AVFormatContext *s, AVStream *st, AVCodec *codec);
+                                 AVFormatContext *formatContext, AVStream *stream, AVCodec *codec);
 
 // 检查媒体参数
 int checkStreamSpecifier(AVFormatContext *s, AVStream *st, const char *spec);
 
 // 设置媒体流额外参数
-AVDictionary **setupStreamInfoOptions(AVFormatContext *s, AVDictionary *codec_opts);
+AVDictionary **setupStreamInfoOptions(AVFormatContext *formatContext, AVDictionary *codecOpts);
 
 // 打印出错信息
 void printError(const char *filename, int err);

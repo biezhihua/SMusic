@@ -1,6 +1,7 @@
 #ifndef SPLAYER_MAC_DEMO_STREAM_H
 #define SPLAYER_MAC_DEMO_STREAM_H
 
+
 class MediaPlayer;
 
 #include <player/MediaPlayer.h>
@@ -20,6 +21,12 @@ class Stream : public Runnable {
     const char *const OPT_HEADERS = "headers";
 
     const char *const FORMAT_OGG = "ogg";
+
+    const char *const FORMAT_RTMP = "rtmp";
+
+    const char *const FORMAT_RTSP = "rtsp";
+
+    const char *const OPT_KEY_TIMEOUT = "timeout";
 
 private:
     /// 读数据包线程
@@ -100,7 +107,15 @@ private:
 
     int notifyMsg(int what, int arg1, int arg2);
 
-    void closeStream();
+    void doSeek() const;
+
+    void doPause() const;
+
+    int doAttachment() const;
+
+    void doRetryPlay();
+
+    bool isNotReadMore() const;
 };
 
 

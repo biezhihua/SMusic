@@ -98,10 +98,6 @@ void AudioReSampler::onPCMDataCallback(uint8_t *stream, int len) {
     while (len > 0) {
         if (audioState->audioBufferIndex >= audioState->audioBufferSize) {
             bufferSize = audioFrameReSample();
-
-            if (DEBUG) {
-                ALOGD(TAG, "%s bufferSize = %d", __func__, bufferSize);
-            }
             if (bufferSize < 0) {
                 audioState->audioOutputBuffer = nullptr;
                 audioState->audioBufferSize = (unsigned int) (AUDIO_MIN_BUFFER_SIZE / audioState->audioParamsTarget.frameSize * audioState->audioParamsTarget.frameSize);
@@ -185,7 +181,7 @@ int AudioReSampler::audioFrameReSample() {
     Frame *frame = nullptr;
 
     // 处于暂停状态
-    if (playerState->pauseRequest) {
+    if (audioDecoder == nullptr || audioDecoder->getFrameQueue() == nullptr || playerState->pauseRequest) {
         return ERROR;
     }
 

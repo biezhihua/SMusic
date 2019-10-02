@@ -38,6 +38,7 @@
 #define  ERROR_LAST_SEEK_REQUEST            -30
 #define  ERROR_VIDEO_DECODE_FRAME           -31
 #define  ERROR_AUDIO_PEEK_READABLE          -32
+#define  ERROR_ATTACHMENT                   -33
 
 
 #endif //ERRORS_H
