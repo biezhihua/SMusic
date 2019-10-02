@@ -8,7 +8,7 @@ typedef void (*AudioPCMCallback)(void *userdata, uint8_t *stream, int len);
 
 typedef struct AudioDeviceSpec {
     /// 采样率
-    int freq;
+    int sampleRate;
 
     /// 音频采样格式
     AVSampleFormat format;
@@ -36,7 +36,7 @@ public:
 
     virtual ~AudioDevice();
 
-    virtual int open(const AudioDeviceSpec *desired, AudioDeviceSpec *obtained);
+    virtual int open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained);
 
     virtual void create();
 

@@ -100,7 +100,7 @@ public:
     int64_t lastPos();
 
 private:
-    void unrefFrame(Frame *vp);
+    void unrefFrame(Frame *frame);
 
 private:
 

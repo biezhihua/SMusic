@@ -8,7 +8,7 @@ class AudioDecoder : public MediaDecoder {
     const char *const TAG = "AudioDecoder";
 
 public:
-    AudioDecoder(AVFormatContext *formatCtx,AVCodecContext *avctx, AVStream *stream, int streamIndex, PlayerState *playerState,
+    AudioDecoder(AVFormatContext *formatCtx, AVCodecContext *avctx, AVStream *stream, int streamIndex, PlayerState *playerState,
                  AVPacket *flushPacket, Condition *pCondition);
 
     virtual ~AudioDecoder();
@@ -31,6 +31,8 @@ public:
 
     int64_t getFrameQueueLastPos();
 
+    int getAudioFrame(AVFrame *frame);
+
 private:
 
     /// 解复用上下文
@@ -46,13 +48,10 @@ private:
 
     int decodeAudio();
 
-    int popFrame(AVFrame *pFrame);
+    int decodeFrameFromPacketQueue(AVFrame *pFrame);
 
     int decodeFrame(AVFrame *frame);
 
-    double getFramePts(const AVFrame *frame, const AVRational &timeBase) const;
-
-    double getFrameDuration(const AVFrame *avFrame) const;
 };
 
 

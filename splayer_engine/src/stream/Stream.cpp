@@ -210,7 +210,8 @@ int Stream::readPackets() {
             playerState->eof = 0;
         }
 
-        if (audioDecoder && pkt->stream_index == audioDecoder->getStreamIndex() &&
+        if (audioDecoder &&
+            pkt->stream_index == audioDecoder->getStreamIndex() &&
             isPacketInPlayRange(formatContext, pkt)) {
             audioDecoder->pushPacket(pkt);
         } else if (videoDecoder &&

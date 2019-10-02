@@ -37,18 +37,18 @@ typedef struct AudioState {
     /// 音频时钟
     double audioClock;
 
-    double audio_diff_cum;
+    double audioDiffCum;
 
-    double audio_diff_avg_coef;
+    double audioDiffAvgCoef;
 
-    double audio_diff_threshold;
+    double audioDiffThreshold;
 
-    int audio_diff_avg_count;
+    int audioDiffAvgCount;
 
     int audioHardwareBufSize;
 
     /// 输出缓冲大小
-    uint8_t *outputBuffer = nullptr;
+    uint8_t *audioOutputBuffer = nullptr;
 
     /// 重采样大小
     uint8_t *reSampleBuffer = nullptr;
@@ -57,7 +57,7 @@ typedef struct AudioState {
     short *soundTouchBuffer = nullptr;
 
     /// 缓冲大小
-    unsigned int bufferSize;
+    unsigned int audioBufferSize;
 
     /// 重采样大小
     unsigned int reSampleSize;
@@ -65,16 +65,16 @@ typedef struct AudioState {
     /// SoundTouch处理后的缓冲大小大小
     unsigned int soundTouchBufferSize;
 
-    int bufferIndex;
+    int audioBufferIndex;
 
     /// 写入大小
-    int writeBufferSize;
+    int audioWriteBufferSize;
 
     /// 音频转码上下文
     SwrContext *swrContext = nullptr;
 
     /// 音频回调时间
-    int64_t audio_callback_time;
+    int64_t audioCallbackTime;
 
     /// 音频原始参数
     AudioParams audioParamsSrc;
@@ -96,9 +96,9 @@ public:
 
     virtual ~AudioReSampler();
 
-    int setReSampleParams(AudioDeviceSpec *spec, int64_t wanted_channel_layout);
+    int setReSampleParams(AudioDeviceSpec *obtainedSpec, int64_t wantedChannelLayout);
 
-    void pcmQueueCallback(uint8_t *stream, int len);
+    void onPCMDataCallback(uint8_t *stream, int len);
 
     virtual void create();
 
@@ -118,6 +118,8 @@ private:
 
 private:
 
+    AVFrame *srcFrame = nullptr;
+
     PlayerState *playerState = nullptr;
 
     MediaSync *mediaSync = nullptr;
@@ -131,11 +133,9 @@ private:
     /// 变速变调处理
     SoundTouchWrapper *soundTouchWrapper = nullptr;
 
-    uint64_t getWantedChannelLayout(Frame *frame) const;
+    int convertAudio(int wantedNbSamples, AVFrame *frame) const;
 
-    int convertAudio(int wantedNbSamples, Frame *frame) const;
-
-    int initConvertSwrContext(int64_t wantedChannelLayout, Frame *frame) const;
+    int initConvertSwrContext(int64_t desireChannelLayout, AVFrame *frame) const;
 };
 
 

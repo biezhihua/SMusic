@@ -54,7 +54,7 @@ private:
 
     int decodeVideo();
 
-    int popFrame(AVFrame *pFrame);
+    int decodeFrameFromPacketQueue(AVFrame *pFrame);
 
     int decodeFrame(AVFrame *frame);
 

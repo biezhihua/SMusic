@@ -45,7 +45,9 @@ Frame *FrameQueue::next2Frame() {
     return &queue[(readIndex + readIndexShown + 1) % maxSize];
 }
 
-Frame *FrameQueue::currentFrame() { return &queue[readIndex]; }
+Frame *FrameQueue::currentFrame() {
+    return &queue[readIndex];
+}
 
 Frame *FrameQueue::peekWritable() {
     mutex.lock();
@@ -101,9 +103,9 @@ void FrameQueue::flush() {
 
 int FrameQueue::getFrameSize() { return size - readIndexShown; }
 
-void FrameQueue::unrefFrame(Frame *vp) {
-    av_frame_unref(vp->frame);
-    avsubtitle_free(&vp->sub);
+void FrameQueue::unrefFrame(Frame *frame) {
+    av_frame_unref(frame->frame);
+    avsubtitle_free(&frame->sub);
 }
 
 int FrameQueue::getShowIndex() const { return readIndexShown; }
@@ -130,7 +132,8 @@ Frame *FrameQueue::peekReadable() {
 
     // 获取queue中一块Frame大小的可写内存
     // 这方法和frameQueuePeek的作用一样， 都是获取待显示的第一帧
-    return &queue[(readIndex + readIndexShown) % maxSize];
+    Frame *frame = &queue[(readIndex + readIndexShown) % maxSize];
+    return frame;
 }
 
 Mutex *FrameQueue::getMutex() { return &mutex; }

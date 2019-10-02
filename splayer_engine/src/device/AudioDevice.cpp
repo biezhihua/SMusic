@@ -11,7 +11,7 @@ AudioDevice::~AudioDevice() {
 
 }
 
-int AudioDevice::open(const AudioDeviceSpec *desired, AudioDeviceSpec *obtained) {
+int AudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained) {
     return 0;
 }
 

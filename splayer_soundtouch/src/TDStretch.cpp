@@ -605,7 +605,7 @@ void TDStretch::setChannels(int numChannels)
 
 
 // nominal tempo, no need for processing, just pass the samples through
-// to outputBuffer
+// to audioOutputBuffer
 /*
 void TDStretch::processNominalTempo()
 {
@@ -623,8 +623,8 @@ void TDStretch::processNominalTempo()
         }
         // Mix the samples in the beginning of 'inputBuffer' with the 
         // samples in 'midBuffer' using sliding overlapping 
-        overlap(outputBuffer.ptrEnd(overlapLength), inputBuffer.ptrBegin(), 0);
-        outputBuffer.putSamples(overlapLength);
+        overlap(audioOutputBuffer.ptrEnd(overlapLength), inputBuffer.ptrBegin(), 0);
+        audioOutputBuffer.putSamples(overlapLength);
         inputBuffer.receiveSamples(overlapLength);
         clearMidBuffer();
         // now we've caught the nominal sample flow and may switch to
@@ -632,13 +632,13 @@ void TDStretch::processNominalTempo()
     }
 
     // Simply bypass samples from input to output
-    outputBuffer.moveSamples(inputBuffer);
+    audioOutputBuffer.moveSamples(inputBuffer);
 }
 */
 
 
 // Processes as many processing frames of the samples 'inputBuffer', store
-// the result into 'outputBuffer'
+// the result into 'audioOutputBuffer'
 void TDStretch::processSamples()
 {
     int ovlSkip;

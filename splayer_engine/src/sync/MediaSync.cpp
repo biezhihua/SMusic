@@ -129,7 +129,7 @@ void MediaSync::refreshVideo(double *remaining_time) {
             nextFrame = frameQueue->nextFrame();
 
             if (DEBUG)
-                ALOGD(TAG, "nextFrame.seekSerial = %d packetQueue.lastSeekSerial = %d ",
+                ALOGD(TAG, "nextFrame.lastSeekSerial = %d packetQueue.lastSeekSerial = %d ",
                       nextFrame->seekSerial, packetQueue->getLastSeekSerial());
 
             // 如果不是相同序列，丢掉seek之前的帧
@@ -140,7 +140,7 @@ void MediaSync::refreshVideo(double *remaining_time) {
             }
 
             if (DEBUG)
-                ALOGD(TAG, "nextFrame.seekSerial = %d next2Frame.seekSerial = %d",
+                ALOGD(TAG, "nextFrame.lastSeekSerial = %d next2Frame.lastSeekSerial = %d",
                       currentFrame->seekSerial, nextFrame->seekSerial);
 
             // 判断是否需要强制更新帧的时间(seek操作时才会产生变化)

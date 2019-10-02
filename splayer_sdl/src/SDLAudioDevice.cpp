@@ -1,24 +1,24 @@
 #include <SDLAudioDevice.h>
 
-int SDLAudioDevice::open(const AudioDeviceSpec *desired, AudioDeviceSpec *obtained) {
-    SDL_AudioSpec wantedSpec, spec;
-    wantedSpec.channels = desired->channels;
-    wantedSpec.size = desired->size;
-    wantedSpec.format = getSDLFormat(desired->format);
-    wantedSpec.freq = desired->freq;
-    wantedSpec.userdata = desired->userdata;
-    wantedSpec.samples = desired->samples;
-    wantedSpec.callback = desired->callback;
-    audioDev = SDL_OpenAudioDevice(nullptr, 0, &wantedSpec, &spec,
+int SDLAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained) {
+    SDL_AudioSpec desiredSpec, obtainedSpec;
+    desiredSpec.channels = desired->channels;
+    desiredSpec.size = desired->size;
+    desiredSpec.format = getSDLFormat(desired->format);
+    desiredSpec.freq = desired->sampleRate;
+    desiredSpec.userdata = desired->userdata;
+    desiredSpec.samples = desired->samples;
+    desiredSpec.callback = desired->callback;
+    audioDev = SDL_OpenAudioDevice(nullptr, 0, &desiredSpec, &obtainedSpec,
                                    SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
     if (audioDev) {
-        obtained->channels = spec.channels;
-        obtained->size = spec.size;
-        obtained->format = getAVFormat(spec.format);
-        obtained->freq = spec.freq;
-        obtained->userdata = spec.userdata;
-        obtained->samples = spec.samples;
-        obtained->callback = spec.callback;
+        obtained->channels = obtainedSpec.channels;
+        obtained->size = obtainedSpec.size;
+        obtained->format = getAVFormat(obtainedSpec.format);
+        obtained->sampleRate = obtainedSpec.freq;
+        obtained->userdata = obtainedSpec.userdata;
+        obtained->samples = obtainedSpec.samples;
+        obtained->callback = obtainedSpec.callback;
         return SUCCESS;
     }
     return ERROR_AUDIO_OPEN;

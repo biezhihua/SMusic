@@ -138,7 +138,7 @@ protected:
 
     int closeDecoder(int streamIndex, AVCodecContext *codecContext, AVDictionary *opts);
 
-    int openAudioDevice(int64_t wanted_channel_layout, int wanted_nb_channels, int wanted_sample_rate);
+    int openAudioDevice(int64_t wantedChannelLayout, int wantedNbChannels, int wantedSampleRate);
 
     int checkParams();
 

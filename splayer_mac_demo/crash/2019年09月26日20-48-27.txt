@@ -219,7 +219,7 @@ Thread 19 Crashed:: AudioQueue thread
 3   splayer_mac_demo              	0x000000010549a34b AudioDecoder::getAudioFrame(AVFrame*) + 363 (AudioDecoder.cpp:51)
 4   splayer_mac_demo              	0x0000000105498da6 AudioReSampler::audioFrameReSample() + 118 (AudioReSampler.cpp:164)
 5   splayer_mac_demo              	0x0000000105498b56 AudioReSampler::pcmQueueCallback(unsigned char*, int) + 118 (AudioReSampler.cpp:72)
-6   splayer_mac_demo              	0x00000001054a0bd7 MediaPlayer::pcmQueueCallback(unsigned char*, int) + 87 (MediaPlayer.cpp:450)
+6   splayer_mac_demo              	0x00000001054a0bd7 MediaPlayer::onPCMDataCallback(unsigned char*, int) + 87 (MediaPlayer.cpp:450)
 7   splayer_mac_demo              	0x00000001054a0b6b audioPCMQueueCallback(void*, unsigned char*, int) + 43 (MediaPlayer.cpp:442)
 8   libSDL2-2.0.0.dylib           	0x0000000107877d34 outputCallback + 188
 9   com.apple.audio.toolbox.AudioToolbox	0x00007fff32e14c43 ClientAudioQueue::CallOutputCallback(AudioQueueBuffer*) + 247

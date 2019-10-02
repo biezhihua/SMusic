@@ -13,7 +13,7 @@ private:
     SDL_AudioDeviceID audioDev;
 
 public:
-    int open(const AudioDeviceSpec *desired, AudioDeviceSpec *obtained) override;
+    int open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained) override;
 
     void create() override;
 

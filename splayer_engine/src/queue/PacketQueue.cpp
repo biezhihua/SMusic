@@ -190,11 +190,13 @@ bool PacketQueue::isAbort() {
     return abortRequest;
 }
 
+/// 序列，seek时使用，向PacketQueue中存储Packet时，被更新为队尾的seekSerial
 int PacketQueue::getLastSeekSerial() {
     Mutex::Autolock lock(mutex);
     return lastSeekSerial;
 }
 
+/// 序列，seek时使用，从PacketQueue从获取Packet时，被更新为队首的seekSerial
 int PacketQueue::getFirstSeekSerial() {
     Mutex::Autolock lock(mutex);
     return firstSeekSerial;

@@ -90,10 +90,10 @@ private:
     /// 用户退出请求标志
     bool abortRequest;
 
-    /// 序列，seek时使用，作为区分前后帧序列
-    int lastSeekSerial ;
+    /// 序列，seek时使用，向PacketQueue中存储Packet时，被更新为队尾的seekSerial
+    int lastSeekSerial;
 
-    /// 序列，seek时使用，当获取数据包时被更新
+    /// 序列，seek时使用，从PacketQueue从获取Packet时，被更新为队首的seekSerial
     int firstSeekSerial = -1;
 
     AVPacket *flushPacket;
