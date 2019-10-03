@@ -1,4 +1,3 @@
-
 #include "sync/MediaClock.h"
 
 MediaClock::MediaClock() { queueSerial = nullptr; }
@@ -44,8 +43,7 @@ void MediaClock::setSpeed(double speed) {
 void MediaClock::syncToSlave(MediaClock *slave) {
     double clock = getClock();
     double slave_clock = slave->getClock();
-    if (!isnan(slave_clock) &&
-        (isnan(clock) || fabs(clock - slave_clock) > AV_NOSYNC_THRESHOLD)) {
+    if (!isnan(slave_clock) && (isnan(clock) || fabs(clock - slave_clock) > AV_NOSYNC_THRESHOLD)) {
         setClock(slave_clock, slave->seekSerial);
     }
 }

@@ -88,21 +88,21 @@ typedef struct AudioState {
 /**
  * 音频重采样器
  */
-class AudioReSampler {
-    const char *const TAG = "AudioReSampler";
+class AudioResample {
+    const char *const TAG = "AudioResample";
 
 public:
-    AudioReSampler();
+    AudioResample();
 
-    virtual ~AudioReSampler();
+    virtual ~AudioResample();
 
     int setReSampleParams(AudioDeviceSpec *obtainedSpec, int64_t wantedChannelLayout);
 
     void onPCMDataCallback(uint8_t *stream, int len);
 
-    virtual void create();
+    virtual int create();
 
-    virtual void destroy();
+    virtual int destroy();
 
     void setPlayerState(PlayerState *playerState);
 

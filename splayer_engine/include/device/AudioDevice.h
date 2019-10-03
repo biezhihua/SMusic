@@ -38,7 +38,7 @@ public:
 
     virtual int open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained);
 
-    virtual void create();
+    virtual int create();
 
     virtual void destroy();
 

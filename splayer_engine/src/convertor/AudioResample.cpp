@@ -1,13 +1,13 @@
 
-#include <convertor/AudioReSampler.h>
+#include <convertor/AudioResample.h>
 
-#include "convertor/AudioReSampler.h"
+#include "convertor/AudioResample.h"
 
-AudioReSampler::AudioReSampler() {
+AudioResample::AudioResample() {
     srcFrame = av_frame_alloc();
 }
 
-AudioReSampler::~AudioReSampler() {
+AudioResample::~AudioResample() {
     av_frame_unref(srcFrame);
     av_free(srcFrame);
     srcFrame = nullptr;
@@ -16,7 +16,7 @@ AudioReSampler::~AudioReSampler() {
     playerState = nullptr;
 }
 
-int AudioReSampler::setReSampleParams(AudioDeviceSpec *obtainedSpec, int64_t wantedChannelLayout) {
+int AudioResample::setReSampleParams(AudioDeviceSpec *obtainedSpec, int64_t wantedChannelLayout) {
 
     // 设置音频目标参数
     audioState->audioParamsTarget.sampleFormat = AV_SAMPLE_FMT_S16;
@@ -84,11 +84,11 @@ int AudioReSampler::setReSampleParams(AudioDeviceSpec *obtainedSpec, int64_t wan
     return SUCCESS;
 }
 
-void AudioReSampler::onPCMDataCallback(uint8_t *stream, int len) {
+void AudioResample::onPCMDataCallback(uint8_t *stream, int len) {
     int bufferSize, length;
 
     // 没有音频解码器时，直接返回
-    if (audioDecoder == nullptr) {
+    if (!audioDecoder) {
         memset(stream, 0, (size_t) (len));
         return;
     }
@@ -114,7 +114,7 @@ void AudioReSampler::onPCMDataCallback(uint8_t *stream, int len) {
         }
 
         // 复制经过转码输出的PCM数据到缓冲区中
-        if (audioState->audioOutputBuffer != nullptr && !playerState->audioMute) {
+        if (audioState->audioOutputBuffer && !playerState->audioMute) {
             memcpy(stream, audioState->audioOutputBuffer + audioState->audioBufferIndex, (size_t) length);
         } else {
             memset(stream, 0, (size_t) length);
@@ -135,7 +135,7 @@ void AudioReSampler::onPCMDataCallback(uint8_t *stream, int len) {
     }
 }
 
-int AudioReSampler::audioSynchronize(int nbSamples) {
+int AudioResample::audioSynchronize(int nbSamples) {
     int wantedNbSamples = nbSamples;
 
     // 如果时钟不是同步到音频流，则需要进行对音频频进行同步处理
@@ -174,14 +174,14 @@ int AudioReSampler::audioSynchronize(int nbSamples) {
     return wantedNbSamples;
 }
 
-int AudioReSampler::audioFrameReSample() {
+int AudioResample::audioFrameReSample() {
     int reSampledDataSize = 0;
     int64_t wantedChannelLayout = 0;
     int wantedNbSamples = 0;
     Frame *frame = nullptr;
 
     // 处于暂停状态
-    if (audioDecoder == nullptr || audioDecoder->getFrameQueue() == nullptr || playerState->pauseRequest) {
+    if (!audioDecoder || !audioDecoder->getFrameQueue() || playerState->pauseRequest) {
         return ERROR;
     }
 
@@ -298,7 +298,7 @@ int AudioReSampler::audioFrameReSample() {
     return reSampledDataSize;
 }
 
-int AudioReSampler::initConvertSwrContext(int64_t desireChannelLayout, AVFrame *frame) const {
+int AudioResample::initConvertSwrContext(int64_t desireChannelLayout, AVFrame *frame) const {
     swr_free(&audioState->swrContext);
     audioState->swrContext = swr_alloc_set_opts(
             nullptr,
@@ -351,7 +351,7 @@ int AudioReSampler::initConvertSwrContext(int64_t desireChannelLayout, AVFrame *
     return SUCCESS;
 }
 
-int AudioReSampler::convertAudio(int wantedNbSamples, AVFrame *frame) const {
+int AudioResample::convertAudio(int wantedNbSamples, AVFrame *frame) const {
 
     const auto **in = (const uint8_t **) frame->extended_data;
 
@@ -406,13 +406,14 @@ int AudioReSampler::convertAudio(int wantedNbSamples, AVFrame *frame) const {
     return length;
 }
 
-void AudioReSampler::create() {
+int AudioResample::create() {
     audioState = (AudioState *) av_mallocz(sizeof(AudioState));
     memset(audioState, 0, sizeof(AudioState));
     soundTouchWrapper = new SoundTouchWrapper();
+    return SUCCESS;
 }
 
-void AudioReSampler::destroy() {
+int AudioResample::destroy() {
     if (soundTouchWrapper) {
         delete soundTouchWrapper;
         soundTouchWrapper = nullptr;
@@ -424,16 +425,17 @@ void AudioReSampler::destroy() {
         av_free(audioState);
         audioState = nullptr;
     }
+    return SUCCESS;
 }
 
-void AudioReSampler::setPlayerState(PlayerState *playerState) {
-    AudioReSampler::playerState = playerState;
+void AudioResample::setPlayerState(PlayerState *playerState) {
+    AudioResample::playerState = playerState;
 }
 
-void AudioReSampler::setMediaSync(MediaSync *mediaSync) {
-    AudioReSampler::mediaSync = mediaSync;
+void AudioResample::setMediaSync(MediaSync *mediaSync) {
+    AudioResample::mediaSync = mediaSync;
 }
 
-void AudioReSampler::setAudioDecoder(AudioDecoder *audioDecoder) {
-    AudioReSampler::audioDecoder = audioDecoder;
+void AudioResample::setAudioDecoder(AudioDecoder *audioDecoder) {
+    AudioResample::audioDecoder = audioDecoder;
 }

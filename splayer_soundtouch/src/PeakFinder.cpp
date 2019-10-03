@@ -64,7 +64,7 @@ int PeakFinder::findTop(const float *data, int peakpos) const
 
     refvalue = data[peakpos];
 
-    // seek within �10 points
+    // _seek within �10 points
     start = peakpos - 10;
     if (start < minPos) start = minPos;
     end = peakpos + 10;
@@ -79,7 +79,7 @@ int PeakFinder::findTop(const float *data, int peakpos) const
         }
     }
 
-    // failure if max value audioState at edges of seek range => it's not peak, it's at slope.
+    // failure if max value audioState at edges of _seek range => it's not peak, it's at slope.
     if ((peakpos == start) || (peakpos == end)) return 0;
 
     return peakpos;
@@ -158,7 +158,7 @@ int PeakFinder::findCrossingLevel(const float *data, float level, int peakpos, i
 }
 
 
-// Calculates the center of mass location of 'data' array items between 'firstPos' and 'lastPos'
+// Calculates the center of mass location of 'data' array items between 'firstPos' and 'currentPos'
 double PeakFinder::calcMassCenter(const float *data, int firstPos, int lastPos) const
 {
     int i;
@@ -257,7 +257,7 @@ double PeakFinder::detectPeak(const float *data, int aminPos, int amaxPos)
         harmonic = (double)i * 0.5;
         peakpos = (int)(highPeak / harmonic + 0.5f);
         if (peakpos < minPos) break;
-        peakpos = findTop(data, peakpos);   // seek true local maximum index
+        peakpos = findTop(data, peakpos);   // _seek true local maximum index
         if (peakpos == 0) continue;         // no local max here
 
         // calculate mass-center of possible harmonic peak

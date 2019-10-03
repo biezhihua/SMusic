@@ -8,25 +8,39 @@ MessageCenter::~MessageCenter() {
 }
 
 void MessageCenter::run() {
-    if (DEBUG) ALOGD(TAG, "start message center thread");
+    if (DEBUG) {
+        ALOGD(TAG, "start message center thread");
+    }
     while (!abortRequest) {
         executeMsg(true);
     }
-    if (DEBUG) ALOGD(TAG, "end message center thread");
+    if (DEBUG) {
+        ALOGD(TAG, "end message center thread");
+    }
 }
 
 void MessageCenter::executeMsg(bool block) {
     int ret = msgQueue->getMsg(&msg, block);
     if (ret >= 0 && msg.what != -1) {
-        if (msgListener != nullptr) {
-            msgListener->onMessage(&msg);
+        if (Msg::MSG_REQUEST_ERROR == msg.what) {
+            int target = msg.arg1;
+            if (Msg::MSG_REQUEST_DESTROY == target) {
+            } else if (Msg::MSG_REQUEST_STOP == target) {
+
+            }
+        } else {
+            if (msgListener != nullptr) {
+                msgListener->onMessage(&msg);
+            }
         }
     }
     msg.free();
 }
 
 void MessageCenter::setMsgListener(IMessageListener *msgListener) {
-    if (DEBUG) ALOGD(TAG, "%s listener = %p", __func__, msgListener);
+    if (DEBUG) {
+        ALOGD(TAG, "%s listener = %p", __func__, msgListener);
+    }
     MessageCenter::msgListener = msgListener;
 }
 

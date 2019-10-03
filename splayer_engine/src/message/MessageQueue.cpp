@@ -57,7 +57,9 @@ int MessageQueue::getMsg(Msg *msg, bool block) {
                 condition.wait(mutex);
             }
         } else {
-            if (DEBUG) ALOGE(TAG, "%s queue is null", __func__);
+            if (DEBUG) {
+                ALOGE(TAG, "%s queue is null", __func__);
+            }
             break;
         }
     }

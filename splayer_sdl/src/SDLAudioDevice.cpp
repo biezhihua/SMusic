@@ -9,8 +9,7 @@ int SDLAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained) {
     desiredSpec.userdata = desired->userdata;
     desiredSpec.samples = desired->samples;
     desiredSpec.callback = desired->callback;
-    audioDev = SDL_OpenAudioDevice(nullptr, 0, &desiredSpec, &obtainedSpec,
-                                   SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
+    audioDev = SDL_OpenAudioDevice(nullptr, 0, &desiredSpec, &obtainedSpec, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
     if (audioDev) {
         obtained->channels = obtainedSpec.channels;
         obtained->size = obtainedSpec.size;
@@ -24,8 +23,9 @@ int SDLAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained) {
     return ERROR_AUDIO_OPEN;
 }
 
-void SDLAudioDevice::create() {
+int SDLAudioDevice::create() {
     AudioDevice::create();
+    return SUCCESS;
 }
 
 void SDLAudioDevice::destroy() {

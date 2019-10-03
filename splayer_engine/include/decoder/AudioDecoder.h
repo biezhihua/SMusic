@@ -8,8 +8,15 @@ class AudioDecoder : public MediaDecoder {
     const char *const TAG = "AudioDecoder";
 
 public:
-    AudioDecoder(AVFormatContext *formatCtx, AVCodecContext *avctx, AVStream *stream, int streamIndex, PlayerState *playerState,
-                 AVPacket *flushPacket, Condition *pCondition);
+    AudioDecoder(AVFormatContext *formatCtx,
+                 AVCodecContext *avctx,
+                 AVStream *stream,
+                 int streamIndex,
+                 PlayerState *playerState,
+                 AVPacket *flushPacket,
+                 Condition *pCondition,
+                 AVDictionary *opts,
+                 MessageCenter *messageCenter);
 
     virtual ~AudioDecoder();
 

@@ -4,7 +4,7 @@ FrameQueue::FrameQueue(int max_size, int keep_last, PacketQueue *packetQueue) {
     this->packetQueue = packetQueue;
     memset(queue, 0, sizeof(Frame) * FRAME_QUEUE_SIZE);
     maxSize = FFMIN(max_size, FRAME_QUEUE_SIZE);
-    keepLast = (keep_last != 0);
+    keepPreviousFrame = (keep_last != 0);
     for (int i = 0; i < this->maxSize; ++i) {
         queue[i].frame = av_frame_alloc();
     }
@@ -37,16 +37,19 @@ void FrameQueue::abort() {
     mutex.unlock();
 }
 
-Frame *FrameQueue::nextFrame() {
+/// 上一帧
+Frame *FrameQueue::peekPreviousFrame() {
+    return &queue[readIndex];
+}
+
+/// 当前帧
+Frame *FrameQueue::peekCurrentFrame() {
     return &queue[(readIndex + readIndexShown) % maxSize];
 }
 
-Frame *FrameQueue::next2Frame() {
+/// 下一帧
+Frame *FrameQueue::peekNextFrame() {
     return &queue[(readIndex + readIndexShown + 1) % maxSize];
-}
-
-Frame *FrameQueue::currentFrame() {
-    return &queue[readIndex];
 }
 
 Frame *FrameQueue::peekWritable() {
@@ -54,9 +57,9 @@ Frame *FrameQueue::peekWritable() {
     while (size >= maxSize && !abortRequest) {
         if (!_condWriteableWait) {
             _condWriteableWait = true;
-            if (DEBUG)
-                ALOGD(TAG, "%s size = %d maxSize = %d do waiting", __func__, size,
-                      maxSize);
+            if (DEBUG) {
+                ALOGD(TAG, "%s size = %d maxSize = %d do waiting", __func__, size, maxSize);
+            }
         }
         condition.wait(mutex);
     }
@@ -81,7 +84,7 @@ void FrameQueue::pushFrame() {
 }
 
 void FrameQueue::popFrame() {
-    if (keepLast && !readIndexShown) {
+    if (keepPreviousFrame && !readIndexShown) {
         readIndexShown = 1;
         return;
     }
@@ -108,7 +111,7 @@ void FrameQueue::unrefFrame(Frame *frame) {
     avsubtitle_free(&frame->sub);
 }
 
-int FrameQueue::getShowIndex() const { return readIndexShown; }
+int FrameQueue::isShownIndex() const { return readIndexShown; }
 
 Frame *FrameQueue::peekReadable() {
     // wait until we have a readable a new frame
@@ -116,9 +119,9 @@ Frame *FrameQueue::peekReadable() {
     while ((size - readIndexShown) <= 0 && !packetQueue->isAbort()) {
         if (!_condReadableWait) {
             _condReadableWait = true;
-            if (DEBUG)
-                ALOGW(TAG, "%s size = %d maxSize = %d do waiting", __func__, size,
-                      maxSize);
+            if (DEBUG) {
+                ALOGD(TAG, "%s size = %d maxSize = %d do waiting", __func__, size, maxSize);
+            }
         }
         condition.wait(mutex);
     }
@@ -138,11 +141,10 @@ Frame *FrameQueue::peekReadable() {
 
 Mutex *FrameQueue::getMutex() { return &mutex; }
 
-int64_t FrameQueue::lastPos() {
+int64_t FrameQueue::currentPos() {
     /* return last shown position */
     Frame *frame = &queue[readIndex];
-    if (readIndexShown && packetQueue &&
-        frame->seekSerial == packetQueue->getLastSeekSerial()) {
+    if (readIndexShown && packetQueue && frame->seekSerial == packetQueue->getLastSeekSerial()) {
         // 返回正在显示的帧的position
         return frame->pos;
     } else {

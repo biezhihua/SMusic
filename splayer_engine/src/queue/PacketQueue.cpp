@@ -138,7 +138,6 @@ int PacketQueue::getPacket(AVPacket *pkt, int block) {
     mutex.lock();
     for (;;) {
         if (abortRequest) {
-            if (DEBUG) ALOGD(TAG, "%s abort request", __func__);
             ret = ERROR_ABORT_REQUEST;
             break;
         }
@@ -159,10 +158,8 @@ int PacketQueue::getPacket(AVPacket *pkt, int block) {
             break;
         } else if (!block) {
             ret = SUCCESS;
-            if (DEBUG) ALOGD(TAG, "%s not block", __func__);
             break;
         } else {
-            if (DEBUG) ALOGD(TAG, "%s packet queue wait", __func__);
             condition.wait(mutex);
         }
     }

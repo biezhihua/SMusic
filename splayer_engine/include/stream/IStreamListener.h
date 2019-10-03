@@ -4,9 +4,9 @@
 class IStreamListener {
 
 public:
-    virtual void onStartOpenStream() = 0;
+    virtual int onStartOpenStream() = 0;
 
-    virtual void onEndOpenStream(int videoIndex, int audioIndex) = 0;
+    virtual int onEndOpenStream(int videoIndex, int audioIndex) = 0;
 };
 
 #endif

@@ -4,14 +4,17 @@ VideoDevice::VideoDevice() {}
 
 VideoDevice::~VideoDevice() {}
 
-int VideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight,
+int VideoDevice::onInitTexture(int initTexture,
+                               int newWidth, int newHeight,
                                TextureFormat format, BlendMode blendMode,
                                int rotate) {
     return 0;
 }
 
-int VideoDevice::onUpdateYUV(uint8_t *yData, int yPitch, uint8_t *uData,
-                             int uPitch, uint8_t *vData, int vPitch) {
+int VideoDevice::onUpdateYUV(
+        uint8_t *yData, int yPitch,
+        uint8_t *uData, int uPitch,
+        uint8_t *vData, int vPitch) {
     return 0;
 }
 
@@ -82,6 +85,6 @@ void VideoDevice::setPlayerState(PlayerState *playerState) {
     this->playerState = playerState;
 }
 
-int VideoDevice::create() { return 0; }
+int VideoDevice::create() { return SUCCESS; }
 
-int VideoDevice::destroy() { return 0; }
+int VideoDevice::destroy() { return SUCCESS; }

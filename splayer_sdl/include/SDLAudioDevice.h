@@ -15,7 +15,7 @@ private:
 public:
     int open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained) override;
 
-    void create() override;
+    int create() override;
 
     void destroy() override;
 

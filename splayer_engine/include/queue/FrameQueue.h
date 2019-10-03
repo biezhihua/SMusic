@@ -75,11 +75,11 @@ public:
 
     void abort();
 
-    Frame *nextFrame();
+    Frame *peekCurrentFrame();
 
-    Frame *next2Frame();
+    Frame *peekNextFrame();
 
-    Frame *currentFrame();
+    Frame *peekPreviousFrame();
 
     Frame *peekWritable();
 
@@ -93,11 +93,11 @@ public:
 
     int getFrameSize();
 
-    int getShowIndex() const;
+    int isShownIndex() const;
 
     Mutex *getMutex();
 
-    int64_t lastPos();
+    int64_t currentPos();
 
 private:
     void unrefFrame(Frame *frame);
@@ -128,7 +128,7 @@ private:
     int maxSize;
 
     /// 保持上一个
-    int keepLast;
+    int keepPreviousFrame;
 
     /// 表示当前是否有帧在显示
     int readIndexShown;

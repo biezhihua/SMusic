@@ -6,13 +6,20 @@
 #include <player/PlayerState.h>
 #include <queue/PacketQueue.h>
 #include <queue/FrameQueue.h>
+#include <message/MessageCenter.h>
 
 class MediaDecoder : public Runnable {
     const char *const TAG = "MediaDecoder";
 
 public:
-    MediaDecoder(AVCodecContext *codecContext, AVStream *stream, int streamIndex, PlayerState *playerState,
-                 AVPacket *flushPacket, Condition *readWaitCond);
+    MediaDecoder(AVCodecContext *codecContext,
+                 AVStream *stream,
+                 int streamIndex,
+                 PlayerState *playerState,
+                 AVPacket *flushPacket,
+                 Condition *readWaitCond,
+                 AVDictionary *opts,
+                 MessageCenter *messageCenter);
 
     virtual ~MediaDecoder();
 
@@ -47,6 +54,16 @@ public:
     virtual void run();
 
     virtual bool isFinished();
+
+    void setStartPts(int64_t startPts);
+
+    void setStartPtsTb(const AVRational &startPtsTb);
+
+    int notifyMsg(int what);
+
+    int notifyMsg(int what, int arg1);
+
+    int notifyMsg(int what, int arg1, int arg2);
 
 protected:
 
@@ -91,10 +108,12 @@ protected:
     /// 下一帧额外参数
     AVRational nextPtsTb;
 
-public:
-    void setStartPts(int64_t startPts);
+    ///
+    AVDictionary *opts = nullptr;
 
-    void setStartPtsTb(const AVRational &startPtsTb);
+    MessageCenter *messageCenter = nullptr;
+
+
 };
 
 

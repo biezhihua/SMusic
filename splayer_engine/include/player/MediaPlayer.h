@@ -11,7 +11,7 @@ class Stream;
 #include <device/AudioDevice.h>
 #include <device/VideoDevice.h>
 #include <sync/MediaSync.h>
-#include <convertor/AudioReSampler.h>
+#include <convertor/AudioResample.h>
 #include <common/Log.h>
 #include <message/MessageCenter.h>
 #include <stream/IStreamListener.h>
@@ -54,7 +54,7 @@ protected:
     AudioDevice *audioDevice = nullptr;
 
     /// 音频重采样器
-    AudioReSampler *audioResampler = nullptr;
+    AudioResample *audioResample = nullptr;
 
     /// 消息事件处理
     MessageCenter *messageCenter = nullptr;
@@ -106,7 +106,7 @@ public:
 
     long getDuration();
 
-    int isPlaying();
+    bool isPlaying();
 
     int isLooping();
 
@@ -120,9 +120,9 @@ public:
 
     void setVideoDevice(VideoDevice *videoDevice);
 
-    void onStartOpenStream() override;
+    int onStartOpenStream() override;
 
-    void onEndOpenStream(int videoIndex, int audioIndex) override;
+    int onEndOpenStream(int videoIndex, int audioIndex) override;
 
     void setMessageListener(IMessageListener *messageListener);
 
@@ -130,23 +130,11 @@ public:
 
 protected:
 
-    int seek(int64_t pos, int64_t rel, int seekByBytes);
+    int _seek(float increment);
 
-    int togglePause();
+    int _seek(int64_t pos, int64_t rel, int seekByBytes);
 
-    int openDecoder(int streamIndex);
-
-    int closeDecoder(int streamIndex, AVCodecContext *codecContext, AVDictionary *opts);
-
-    int openAudioDevice(int64_t wantedChannelLayout, int wantedNbChannels, int wantedSampleRate);
-
-    int checkParams();
-
-    int notifyMsg(int what);
-
-    int notifyMsg(int what, int arg1);
-
-    int notifyMsg(int what, int arg1, int arg2);
+    int _togglePause();
 
     int _stop();
 
@@ -157,6 +145,18 @@ protected:
     int _start();
 
     int _setDataSource(const char *url, int64_t offset, const char *headers) const;
+
+    int openDecoder(int streamIndex);
+
+    int openAudioDevice(int64_t wantedChannelLayout, int wantedNbChannels, int wantedSampleRate);
+
+    int checkParams();
+
+    int notifyMsg(int what);
+
+    int notifyMsg(int what, int arg1);
+
+    int notifyMsg(int what, int arg1, int arg2);
 };
 
 

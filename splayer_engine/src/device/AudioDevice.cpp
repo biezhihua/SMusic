@@ -43,8 +43,8 @@ void AudioDevice::run() {
     // do nothing
 }
 
-void AudioDevice::create() {
-
+int AudioDevice::create() {
+    return SUCCESS;
 }
 
 void AudioDevice::destroy() {

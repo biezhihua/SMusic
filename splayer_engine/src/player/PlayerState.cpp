@@ -236,6 +236,10 @@ void PlayerState::parse_int(const char *type, int64_t option) {
 const char *PlayerState::getSyncType() {
     if (syncType == AV_SYNC_AUDIO) {
         return "AV_SYNC_AUDIO";
+    } else if (syncType == AV_SYNC_VIDEO) {
+        return "AV_SYNC_VIDEO";
+    } else if (syncType == AV_SYNC_EXTERNAL) {
+        return "AV_SYNC_EXTERNAL";
     }
     return "NONE";
 }

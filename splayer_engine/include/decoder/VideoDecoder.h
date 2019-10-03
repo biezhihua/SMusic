@@ -8,8 +8,15 @@
 class VideoDecoder : public MediaDecoder {
     const char *const TAG = "VideoDecoder";
 public:
-    VideoDecoder(AVFormatContext *formatCtx, AVCodecContext *avctx, AVStream *stream, int streamIndex,
-                 PlayerState *playerState, AVPacket *flushPacket, Condition *pCondition);
+    VideoDecoder(AVFormatContext *formatCtx,
+                 AVCodecContext *avctx,
+                 AVStream *stream,
+                 int streamIndex,
+                 PlayerState *playerState,
+                 AVPacket *flushPacket,
+                 Condition *pCondition,
+                 AVDictionary *opts,
+                 MessageCenter *messageCenter);
 
     virtual ~VideoDecoder();
 
@@ -60,9 +67,6 @@ private:
 
     int pushFrame(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial);
 
-    double getFrameDuration(const AVRational &frame_rate) const;
-
-    double getFramePts(const AVFrame *frame, const AVRational &time_base) const;
 };
 
 

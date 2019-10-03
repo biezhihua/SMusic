@@ -6,13 +6,13 @@ AudioDecoder::AudioDecoder(AVFormatContext *formatCtx,
                            int streamIndex,
                            PlayerState *playerState,
                            AVPacket *flushPacket,
-                           Condition *readWaitCond)
+                           Condition *readWaitCond, AVDictionary *opts, MessageCenter *messageCenter)
         : MediaDecoder(avctx,
                        stream,
                        streamIndex,
                        playerState,
                        flushPacket,
-                       readWaitCond) {
+                       readWaitCond, opts, messageCenter) {
     formatContext = formatCtx;
     frameQueue = new FrameQueue(AUDIO_QUEUE_SIZE, 0, packetQueue);
     decodeThread = nullptr;
@@ -28,7 +28,7 @@ AudioDecoder::~AudioDecoder() {
 void AudioDecoder::start() {
     MediaDecoder::start();
     frameQueue->start();
-    if (decodeThread == nullptr) {
+    if (!decodeThread) {
         decodeThread = new Thread(this);
         decodeThread->start();
     }
@@ -37,7 +37,7 @@ void AudioDecoder::start() {
 void AudioDecoder::stop() {
     MediaDecoder::stop();
     frameQueue->abort();
-    if (decodeThread != nullptr) {
+    if (decodeThread) {
         decodeThread->join();
         delete decodeThread;
         decodeThread = nullptr;
@@ -59,11 +59,15 @@ FrameQueue *AudioDecoder::getFrameQueue() {
 
 void AudioDecoder::run() {
     if (DEBUG) {
-        ALOGD(TAG, "start audio decoder");
+        ALOGD(TAG, "audio decoder - start");
     }
-    decodeAudio();
+    int ret = 0;
+    if ((ret = decodeAudio()) < 0) {
+        notifyMsg(Msg::MSG_ERROR, ret);
+        notifyMsg(Msg::MSG_REQUEST_ERROR, Msg::MSG_REQUEST_STOP);
+    }
     if (DEBUG) {
-        ALOGD(TAG, "end audio decoder");
+        ALOGD(TAG, "audio decoder - end");
     }
 }
 
@@ -189,7 +193,7 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
                 if (ret == AVERROR_EOF) {
                     finished = packetQueue->getFirstSeekSerial();
                     avcodec_flush_buffers(codecContext);
-                    return 0;
+                    return SUCCESS;
                 }
 
                 if (ret >= 0) {
@@ -201,7 +205,7 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
 
         do {
 
-            // 通知读取线程读取Packet
+            // 同步读取序列
             if (getPacketQueueSize() == 0) {
                 readWaitCond->signal();
             }
@@ -210,7 +214,6 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
                 av_packet_move_ref(&packet, &pendingPacket);
                 isPendingPacket = false;
             } else {
-                // 获取Packet
                 if (packetQueue->getPacket(&packet) < 0) {
                     if (DEBUG) {
                         ALOGE(TAG, "%s audio get packet", __func__);
@@ -221,9 +224,6 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
         } while (!isSamePacketSerial());
 
         if (packet.data == flushPacket->data) {
-            if (DEBUG) {
-                ALOGD(TAG, "%s flush packet", __func__);
-            }
             avcodec_flush_buffers(codecContext);
             finished = 0;
             nextPts = startPts;
@@ -232,9 +232,7 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
             if (codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
                 if (avcodec_send_packet(codecContext, &packet) == AVERROR(EAGAIN)) {
                     if (DEBUG) {
-                        ALOGE(TAG,
-                              "%s audio Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
-                              __func__);
+                        ALOGE(TAG, "%s audio Receive_frame and send_packet both returned EAGAIN, which is an API violation.", __func__);
                     }
                     isPendingPacket = true;
                     av_packet_move_ref(&pendingPacket, &packet);
@@ -243,7 +241,6 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
             av_packet_unref(&packet);
         }
     }
-    return ret;
 }
 
 bool AudioDecoder::isFinished() {
@@ -251,9 +248,8 @@ bool AudioDecoder::isFinished() {
 }
 
 int64_t AudioDecoder::getFrameQueueLastPos() {
-    return frameQueue->lastPos();
+    return frameQueue->currentPos();
 }
-
 
 int AudioDecoder::getAudioFrame(AVFrame *frame) {
     int got_frame = 0;

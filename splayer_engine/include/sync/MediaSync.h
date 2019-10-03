@@ -65,7 +65,7 @@ public:
 
     void resetRemainingTime();
 
-    void refreshVideo();
+    int refreshVideo();
 
     void setForceRefresh(int forceRefresh);
 
@@ -73,7 +73,7 @@ public:
 
 private:
 
-    void refreshVideo(double *remaining_time);
+    int refreshVideo(double *remaining_time);
 
     void checkExternalClockSpeed();
 

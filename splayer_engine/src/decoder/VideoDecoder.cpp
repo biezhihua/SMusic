@@ -6,8 +6,8 @@ VideoDecoder::VideoDecoder(AVFormatContext *formatCtx,
                            int streamIndex,
                            PlayerState *playerState,
                            AVPacket *flushPacket,
-                           Condition *readWaitCond)
-        : MediaDecoder(avctx, stream, streamIndex, playerState, flushPacket, readWaitCond) {
+                           Condition *readWaitCond, AVDictionary *opts, MessageCenter *messageCenter)
+        : MediaDecoder(avctx, stream, streamIndex, playerState, flushPacket, readWaitCond, opts, messageCenter) {
     formatContext = formatCtx;
     frameQueue = new FrameQueue(VIDEO_QUEUE_SIZE, 1, packetQueue);
     decodeThread = nullptr;
@@ -36,7 +36,7 @@ void VideoDecoder::setMasterClock(MediaClock *masterClock) {
 void VideoDecoder::start() {
     MediaDecoder::start();
     frameQueue->start();
-    if (decodeThread == nullptr) {
+    if (!decodeThread) {
         decodeThread = new Thread(this);
         decodeThread->start();
     }
@@ -45,7 +45,7 @@ void VideoDecoder::start() {
 void VideoDecoder::stop() {
     MediaDecoder::stop();
     frameQueue->abort();
-    if (decodeThread != nullptr) {
+    if (decodeThread) {
         // https://baike.baidu.com/item/pthread_join
         decodeThread->join();
         delete decodeThread;
@@ -72,11 +72,15 @@ FrameQueue *VideoDecoder::getFrameQueue() {
 
 void VideoDecoder::run() {
     if (DEBUG) {
-        ALOGD(TAG, "start video decoder");
+        ALOGD(TAG, "video decoder - start ");
     }
-    decodeVideo();
+    int ret = 0;
+    if ((ret = decodeVideo()) < 0) {
+        notifyMsg(Msg::MSG_ERROR, ret);
+        notifyMsg(Msg::MSG_REQUEST_ERROR, Msg::MSG_REQUEST_STOP);
+    }
     if (DEBUG) {
-        ALOGD(TAG, "end video decoder");
+        ALOGD(TAG, "video decoder - end");
     }
 }
 
@@ -93,7 +97,9 @@ int VideoDecoder::decodeVideo() {
     AVRational frameRate = av_guess_frame_rate(formatContext, stream, nullptr);
 
     if (!frame) {
-        if (DEBUG) ALOGE(TAG, "%s not memory", __func__);
+        if (DEBUG) {
+            ALOGE(TAG, "%s not memory", __func__);
+        }
         return ERROR_NOT_MEMORY;
     }
 
@@ -116,17 +122,16 @@ int VideoDecoder::decodeVideo() {
         }
 
         // 计算帧的pts、duration等
-        duration = getFrameDuration(frameRate);
-        pts = getFramePts(frame, timeBase);
+        duration = frameRate.num && frameRate.den ? av_q2d((AVRational) {frameRate.den, frameRate.num}) : 0;
+        pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(timeBase);
 
         // 放入到已解码队列
-        ret = pushFrame(frame, pts, duration, frame->pkt_pos, packetQueue->getLastSeekSerial());
+        ret = pushFrame(frame, pts, duration, frame->pkt_pos, packetQueue->getFirstSeekSerial());
 
         // 重置帧
         av_frame_unref(frame);
 
         if (ret < 0) {
-            av_frame_free(&frame);
             if (DEBUG) {
                 ALOGE(TAG, "%s not queue picture", __func__);
             }
@@ -139,14 +144,6 @@ int VideoDecoder::decodeVideo() {
     frame = nullptr;
 
     return ret;
-}
-
-double VideoDecoder::getFramePts(const AVFrame *frame, const AVRational &time_base) const {
-    return (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(time_base);
-}
-
-double VideoDecoder::getFrameDuration(const AVRational &frame_rate) const {
-    return (frame_rate.num && frame_rate.den ? av_q2d((AVRational) {frame_rate.den, frame_rate.num}) : 0);
 }
 
 bool VideoDecoder::isFinished() {
@@ -175,10 +172,8 @@ int VideoDecoder::decodeFrameFromPacketQueue(AVFrame *frame) {
         frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(formatContext, stream, frame);
 
         // 判断是否需要舍弃该帧
-        if (playerState->dropFrameWhenSlow > 0 ||
-            (playerState->dropFrameWhenSlow && playerState->syncType != AV_SYNC_VIDEO)) {
+        if (playerState->dropFrameWhenSlow > 0 || (playerState->dropFrameWhenSlow && playerState->syncType != AV_SYNC_VIDEO)) {
             if (frame->pts != AV_NOPTS_VALUE) {
-
                 // diff > 0 当前帧显示时间略超于出主时钟
                 // diff < 0 当前帧显示时间慢于主时钟
                 double diff = dpts - masterClock->getClock();
@@ -200,9 +195,7 @@ int VideoDecoder::decodeFrameFromPacketQueue(AVFrame *frame) {
 }
 
 int VideoDecoder::decodeFrame(AVFrame *frame) {
-
     int ret = AVERROR(EAGAIN);
-
     for (;;) {
         AVPacket packet;
 
@@ -227,16 +220,6 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
                             // This is also the Presentation time of this AVFrame calculated from
                             // only AVPacket.dts values without pts values.
                             frame->pts = frame->pkt_dts;
-                        }
-                    } else {
-                        if (DEBUG) {
-                            ALOGD(TAG, "%s video receive frame error = %d", __func__, ret);
-                        }
-                        if (ret == AVERROR(EAGAIN)) {
-                            if (DEBUG)
-                                ALOGD(TAG,
-                                      "%s video output is not available in this state - user must try to send new input",
-                                      __func__);
                         }
                     }
                 }
@@ -264,8 +247,10 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
                 av_packet_move_ref(&packet, &pendingPacket);
                 isPendingPacket = false;
             } else {
-                // 更新packetSerial
                 if (packetQueue->getPacket(&packet) < 0) {
+                    if (DEBUG) {
+                        ALOGE(TAG, "%s video get packet", __func__);
+                    }
                     return ERROR_ABORT_REQUEST;
                 }
             }
@@ -278,13 +263,10 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
             nextPtsTb = startPtsTb;
         } else {
             if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
-                if (DEBUG)
-                    ALOGD(TAG, "%s video send frame", __func__);
                 if (avcodec_send_packet(codecContext, &packet) == AVERROR(EAGAIN)) {
-                    if (DEBUG)
-                        ALOGE(TAG,
-                              "%s video Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
-                              __func__);
+                    if (DEBUG) {
+                        ALOGE(TAG, "%s video Receive_frame and send_packet both returned EAGAIN, which is an API violation.", __func__);
+                    }
                     isPendingPacket = true;
                     av_packet_move_ref(&pendingPacket, &packet);
                 }
@@ -292,8 +274,6 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
             av_packet_unref(&packet);
         }
     }
-
-    return ret;
 }
 
 int VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
@@ -318,17 +298,15 @@ int VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int6
     av_frame_move_ref(frame->frame, srcFrame);
 
     frameQueue->pushFrame();
+
     if (DEBUG) {
-        ALOGD(TAG, "%s video frame = %p ptd = %lf duration = %lf pos = %lld serial = %d", __func__, srcFrame, pts,
-              duration,
-              pos,
-              serial);
+        ALOGD(TAG, "%s video frame = %p ptd = %lf duration = %lf pos = %lld serial = %d", __func__, srcFrame, pts, duration, pos, serial);
     }
 
     return SUCCESS;
 }
 
 int64_t VideoDecoder::getFrameQueueLastPos() {
-    return frameQueue->lastPos();
+    return frameQueue->currentPos();
 }
 

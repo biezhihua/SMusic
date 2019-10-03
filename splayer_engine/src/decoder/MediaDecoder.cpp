@@ -2,7 +2,7 @@
 
 MediaDecoder::MediaDecoder(AVCodecContext *codecContext, AVStream *stream,
                            int streamIndex, PlayerState *playerState,
-                           AVPacket *flushPacket, Condition *readWaitCond) {
+                           AVPacket *flushPacket, Condition *readWaitCond, AVDictionary *opts, MessageCenter *messageCenter) {
     this->packetQueue = new PacketQueue(flushPacket);
     this->codecContext = codecContext;
     this->stream = stream;
@@ -10,6 +10,8 @@ MediaDecoder::MediaDecoder(AVCodecContext *codecContext, AVStream *stream,
     this->playerState = playerState;
     this->flushPacket = flushPacket;
     this->readWaitCond = readWaitCond;
+    this->opts = opts;
+    this->messageCenter = messageCenter;
 }
 
 MediaDecoder::~MediaDecoder() {
@@ -21,6 +23,11 @@ MediaDecoder::~MediaDecoder() {
         avcodec_free_context(&codecContext);
         codecContext = nullptr;
     }
+    if (opts) {
+        av_dict_free(&opts);
+        opts = nullptr;
+    }
+    messageCenter = nullptr;
     playerState = nullptr;
 }
 
@@ -84,4 +91,28 @@ void MediaDecoder::setStartPts(int64_t startPts) {
 
 void MediaDecoder::setStartPtsTb(const AVRational &startPtsTb) {
     MediaDecoder::startPtsTb = startPtsTb;
+}
+
+int MediaDecoder::notifyMsg(int what) {
+    if (messageCenter) {
+        messageCenter->notifyMsg(what);
+        return SUCCESS;
+    }
+    return ERROR;
+}
+
+int MediaDecoder::notifyMsg(int what, int arg1) {
+    if (messageCenter) {
+        messageCenter->notifyMsg(what, arg1);
+        return SUCCESS;
+    }
+    return ERROR;
+}
+
+int MediaDecoder::notifyMsg(int what, int arg1, int arg2) {
+    if (messageCenter) {
+        messageCenter->notifyMsg(what, arg1, arg2);
+        return SUCCESS;
+    }
+    return ERROR;
 }
