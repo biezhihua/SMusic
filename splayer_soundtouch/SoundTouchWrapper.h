@@ -18,8 +18,7 @@ public:
     void create();
 
     // 转换
-    int
-    translate(short *data, float speed, float pitch, int len, int bytes_per_sample, int n_channel, int n_sampleRate);
+    int translate(short *data, float speed, float pitch, int len, int bytes_per_sample, int n_channel, int n_sampleRate);
 
     // 销毁
     void destroy();

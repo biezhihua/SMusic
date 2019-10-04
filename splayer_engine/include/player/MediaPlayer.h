@@ -15,8 +15,9 @@ class Stream;
 #include <common/Log.h>
 #include <message/MessageCenter.h>
 #include <stream/IStreamListener.h>
+#include "IMediaPlayer.h"
 
-class MediaPlayer : public IStreamListener {
+class MediaPlayer : public IMediaPlayer, IStreamListener {
 
     const char *const TAG = "MediaPlayer";
 
@@ -70,17 +71,17 @@ public:
 
     virtual ~MediaPlayer();
 
-    int create();
+    int create() override;
 
-    int start();
+    int start() override;
 
-    int play();
+    int play() override;
 
-    int pause();
+    int pause() override;
 
-    int stop();
+    int stop() override;
 
-    virtual int destroy();
+    int destroy() override;
 
     int setDataSource(const char *url, int64_t offset = 0, const char *headers = nullptr);
 

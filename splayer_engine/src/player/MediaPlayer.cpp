@@ -6,7 +6,7 @@ void audioPCMQueueCallback(void *opaque, uint8_t *stream, int len) {
 }
 
 MediaPlayer::MediaPlayer() {
-    messageCenter = new MessageCenter();
+    messageCenter = new MessageCenter(this);
     messageCenter->startMsgQueue();
 };
 

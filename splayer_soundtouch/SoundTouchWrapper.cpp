@@ -31,8 +31,7 @@ void SoundTouchWrapper::destroy() {
  * @param n_sampleRate      采样率
  * @return
  */
-int SoundTouchWrapper::translate(short *data, float speed, float pitch, int len,
-                                 int bytes_per_sample, int n_channel, int n_sampleRate) {
+int SoundTouchWrapper::translate(short *data, float speed, float pitch, int len, int bytes_per_sample, int n_channel, int n_sampleRate) {
     // 每个声道采样数量
     int put_n_sample = len / n_channel;
     int nb = 0;

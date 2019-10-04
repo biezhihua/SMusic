@@ -4,6 +4,8 @@
 #include <common/Thread.h>
 #include <message/IMessageListener.h>
 #include <message/MessageQueue.h>
+#include <player/IMediaPlayer.h>
+
 
 class MessageCenter : public Runnable {
 
@@ -17,6 +19,8 @@ private:
 
     Thread *msgThread = nullptr;
 
+    IMediaPlayer * mediaPlayer = nullptr;
+
 protected:
 
     MessageQueue *msgQueue = nullptr;
@@ -24,8 +28,7 @@ protected:
     IMessageListener *msgListener = nullptr;
 
 public:
-
-    MessageCenter();
+    MessageCenter(IMediaPlayer *mediaPlayer);
 
     ~MessageCenter() override;
 

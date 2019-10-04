@@ -1,8 +1,12 @@
-#include <message/MessageCenter.h>
+#include "message/MessageCenter.h"
 
-MessageCenter::MessageCenter() { msgQueue = new MessageQueue(); }
+MessageCenter::MessageCenter(IMediaPlayer *mediaPlayer) {
+    this->msgQueue = new MessageQueue();
+    this->mediaPlayer = mediaPlayer;
+}
 
 MessageCenter::~MessageCenter() {
+    mediaPlayer = nullptr;
     delete msgQueue;
     msgQueue = nullptr;
 }
@@ -26,12 +30,11 @@ void MessageCenter::executeMsg(bool block) {
             int target = msg.arg1;
             if (Msg::MSG_REQUEST_DESTROY == target) {
             } else if (Msg::MSG_REQUEST_STOP == target) {
-
             }
-        } else {
-            if (msgListener != nullptr) {
-                msgListener->onMessage(&msg);
-            }
+            return;
+        }
+        if (msgListener != nullptr) {
+            msgListener->onMessage(&msg);
         }
     }
     msg.free();
@@ -90,3 +93,4 @@ int MessageCenter::notifyMsg(int what, int arg1, int arg2) {
 }
 
 int MessageCenter::removeMsg(int what) { return msgQueue->removeMsg(what); }
+
