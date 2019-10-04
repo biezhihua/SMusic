@@ -1,5 +1,5 @@
-#ifndef GLINPUTFILTER_H
-#define GLINPUTFILTER_H
+#ifndef ENGINE_GLINPUTFILTER_H
+#define ENGINE_GLINPUTFILTER_H
 
 #include <cstdint>
 

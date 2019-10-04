@@ -1,5 +1,5 @@
-#ifndef VIDEODECODER_H
-#define VIDEODECODER_H
+#ifndef ENGINE_VIDEO_DECODER_H
+#define ENGINE_VIDEO_DECODER_H
 
 #include <decoder/MediaDecoder.h>
 #include <player/PlayerState.h>
@@ -70,4 +70,4 @@ private:
 };
 
 
-#endif //VIDEODECODER_H
+#endif //ENGINE_VIDEO_DECODER_H

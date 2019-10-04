@@ -1,5 +1,5 @@
-#ifndef PACKETQUEUE_H
-#define PACKETQUEUE_H
+#ifndef ENGINE_PACKETQUEUE_H
+#define ENGINE_PACKETQUEUE_H
 
 #include <queue>
 #include <common/Mutex.h>

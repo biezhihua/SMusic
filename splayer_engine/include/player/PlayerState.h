@@ -1,5 +1,5 @@
-#ifndef PLAYERSTATE_H
-#define PLAYERSTATE_H
+#ifndef  ENGINE_PLAYER_STATE_H
+#define  ENGINE_PLAYER_STATE_H
 
 #include <common/Mutex.h>
 #include <common/Condition.h>

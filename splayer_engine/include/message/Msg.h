@@ -1,4 +1,5 @@
-#ifndef SPLAYER_CORE_MESSAGE_H
+#ifndef ENGINE_MSG_H
+#define ENGINE_MSG_H
 
 class Msg {
 
@@ -125,7 +126,6 @@ public:
 
     static const char *getMsgSimpleName(int what);
 
-
 };
 
-#endif //SPLAYER_CORE_MESSAGE_H
+#endif //ENGINE_MSG_H

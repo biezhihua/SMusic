@@ -1,5 +1,5 @@
-#ifndef MEDIACLOCK_H
-#define MEDIACLOCK_H
+#ifndef ENGINE_MEDIACLOCK_H
+#define ENGINE_MEDIACLOCK_H
 
 #include <math.h>
 #include <player/PlayerState.h>

@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_DEMO_IMESSAGELISTENER_H
-#define SPLAYER_MAC_DEMO_IMESSAGELISTENER_H
+#ifndef ENGINE_MESSAGE_LISTENER_H
+#define ENGINE_MESSAGE_LISTENER_H
 
 class Msg;
 
@@ -8,4 +8,4 @@ public:
     virtual void onMessage(Msg *msg) = 0;
 };
 
-#endif //SPLAYER_MAC_DEMO_IMESSAGELISTENER_H
+#endif //ENGINE_MESSAGE_LISTENER_H

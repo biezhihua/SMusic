@@ -1,5 +1,5 @@
-#ifndef MUTEX_H
-#define MUTEX_H
+#ifndef ENGINE_MUTEX_H
+#define ENGINE_MUTEX_H
 
 #include <stdint.h>
 #include <sys/types.h>
@@ -97,4 +97,4 @@ inline int Mutex::tryLock() {
 
 typedef Mutex::Autolock AutoMutex;
 
-#endif //MUTEX_H
+#endif //ENGINE_MUTEX_H

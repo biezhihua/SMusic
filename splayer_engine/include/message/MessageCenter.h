@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_DEMO_MESSAGE_H
-#define SPLAYER_MAC_DEMO_MESSAGE_H
+#ifndef ENGINE_MESSAGE_CENTER_H
+#define ENGINE_MESSAGE_CENTER_H
 
 #include <common/Thread.h>
 #include <message/IMessageListener.h>
@@ -56,4 +56,4 @@ public:
 };
 
 
-#endif //SPLAYER_MAC_DEMO_MESSAGE_H
+#endif //ENGINE_MESSAGE_CENTER_H

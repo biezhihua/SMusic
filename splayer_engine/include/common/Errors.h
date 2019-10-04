@@ -1,5 +1,5 @@
-#ifndef ERRORS_H
-#define ERRORS_H
+#ifndef ENGINE_ERRORS_H
+#define ENGINE_ERRORS_H
 
 #include <sys/types.h>
 #include <cerrno>
@@ -41,4 +41,4 @@
 #define  ERROR_ATTACHMENT                   -33
 
 
-#endif //ERRORS_H
+#endif //ENGINE_ERRORS_H

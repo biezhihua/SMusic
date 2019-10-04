@@ -1,6 +1,6 @@
 
-#ifndef SPLAYER_MAC_DEMO_MACAUDIODEVICE_H
-#define SPLAYER_MAC_DEMO_MACAUDIODEVICE_H
+#ifndef SDL_AUDIODEVICE_H
+#define SDL_AUDIODEVICE_H
 
 #include <device/AudioDevice.h>
 #include <SDL_audio.h>

@@ -1,5 +1,5 @@
-#ifndef AUDIODECODER_H
-#define AUDIODECODER_H
+#ifndef ENGINE_AUDIO_DECODER_H
+#define ENGINE_AUDIO_DECODER_H
 
 #include <decoder/MediaDecoder.h>
 #include <player/PlayerState.h>
@@ -62,4 +62,4 @@ private:
 };
 
 
-#endif //AUDIODECODER_H
+#endif //ENGINE_AUDIO_DECODER_H

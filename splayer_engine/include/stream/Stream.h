@@ -1,6 +1,5 @@
-#ifndef SPLAYER_MAC_DEMO_STREAM_H
-#define SPLAYER_MAC_DEMO_STREAM_H
-
+#ifndef ENGINE_STREAM_H
+#define ENGINE_STREAM_H
 
 class MediaPlayer;
 

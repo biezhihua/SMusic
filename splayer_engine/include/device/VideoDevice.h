@@ -1,5 +1,5 @@
-#ifndef VIDEODEVICE_H
-#define VIDEODEVICE_H
+#ifndef ENGINE_VIDEO_DEVICE_H
+#define ENGINE_VIDEO_DEVICE_H
 
 #include <player/PlayerState.h>
 #include <renderer/GLInputFilter.h>
@@ -51,4 +51,4 @@ public:
 
 };
 
-#endif //VIDEODEVICE_H
+#endif //ENGINE_VIDEO_DEVICE_H

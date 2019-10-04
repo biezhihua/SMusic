@@ -1,5 +1,5 @@
-#ifndef SPLAYER_CORE_MESSAGEQUEUE_H
-#define SPLAYER_CORE_MESSAGEQUEUE_H
+#ifndef ENGINE_MESSAGE_QUEUE_H
+#define ENGINE_MESSAGE_QUEUE_H
 
 #include <list>
 #include <queue>

@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_DEMO_SDLVIDEODEVICE_H
-#define SPLAYER_MAC_DEMO_SDLVIDEODEVICE_H
+#ifndef SDL_VIDEODEVICE_H
+#define SDL_VIDEODEVICE_H
 
 #include <device/VideoDevice.h>
 #include <SDL_video.h>

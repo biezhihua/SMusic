@@ -1,5 +1,5 @@
-#ifndef MEDIASYNC_H
-#define MEDIASYNC_H
+#ifndef ENGINE_MEDIASYNC_H
+#define ENGINE_MEDIASYNC_H
 
 #include <sync/MediaClock.h>
 #include <player/PlayerState.h>

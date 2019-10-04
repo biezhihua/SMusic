@@ -1,5 +1,5 @@
-#ifndef MEDIAPLAYER_FRAMEQUEUE_H
-#define MEDIAPLAYER_FRAMEQUEUE_H
+#ifndef ENGINE_FRAMEQUEUE_H
+#define ENGINE_FRAMEQUEUE_H
 
 #include <common/Mutex.h>
 #include <common/Condition.h>

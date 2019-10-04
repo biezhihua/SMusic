@@ -1,5 +1,5 @@
-#ifndef CONDITION_H
-#define CONDITION_H
+#ifndef ENGINE_CONDITION_H
+#define ENGINE_CONDITION_H
 
 #include <stdint.h>
 #include <sys/types.h>
@@ -99,4 +99,4 @@ inline void Condition::broadcast() {
     pthread_cond_broadcast(&mCond);
 }
 
-#endif //CONDITION_H
+#endif //ENGINE_CONDITION_H

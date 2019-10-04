@@ -1,5 +1,5 @@
-#ifndef AUDIODEVICE_H
-#define AUDIODEVICE_H
+#ifndef ENGINE_AUDIO_DEVICE_H
+#define ENGINE_AUDIO_DEVICE_H
 
 #include <player/PlayerState.h>
 
@@ -58,4 +58,4 @@ public:
 };
 
 
-#endif //AUDIODEVICE_H
+#endif //ENGINE_AUDIO_DEVICE_H

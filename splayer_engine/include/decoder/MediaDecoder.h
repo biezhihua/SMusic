@@ -1,5 +1,5 @@
-#ifndef MEDIADECODER_H
-#define MEDIADECODER_H
+#ifndef ENGINE_MEDIA_DECODER_H
+#define ENGINE_MEDIA_DECODER_H
 
 #include <common/Thread.h>
 #include <common/Log.h>
@@ -117,4 +117,4 @@ protected:
 };
 
 
-#endif //MEDIADECODER_H
+#endif //ENGINE_MEDIA_DECODER_H

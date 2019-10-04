@@ -1,5 +1,5 @@
-#ifndef IMEDIAPLAYER_H
-#define IMEDIAPLAYER_H
+#ifndef ENGINE_IMEDIA_PLAYER_H
+#define ENGINE_IMEDIA_PLAYER_H
 
 class IMediaPlayer {
 

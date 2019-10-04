@@ -1,5 +1,5 @@
-#ifndef FFMPEGUTILS_H
-#define FFMPEGUTILS_H
+#ifndef ENGINE_FFMPEGUTILS_H
+#define ENGINE_FFMPEGUTILS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,4 +34,4 @@ int isRealTime(AVFormatContext *s);
 };
 #endif
 
-#endif //FFMPEGUTILS_H
+#endif //ENGINE_FFMPEGUTILS_H

@@ -1,5 +1,5 @@
-#ifndef SPLAYER_CORE_LOG_H
-#define SPLAYER_CORE_LOG_H
+#ifndef ENGINE_LOG_H
+#define ENGINE_LOG_H
 
 #define LOG_TAG "Media"
 
@@ -111,4 +111,4 @@ LOG_MUTEX->unlock(); \
 #define ALOGW(TAG, ...)  _ALOGW(TAG, __VA_ARGS__)
 
 
-#endif //SPLAYER_CORE_LOG_H
+#endif //ENGINE_LOG_H

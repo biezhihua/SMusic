@@ -1,5 +1,5 @@
-#ifndef MEDIAPLAYER_H
-#define MEDIAPLAYER_H
+#ifndef ENGINE_MEDIAPLAYER_H
+#define ENGINE_MEDIAPLAYER_H
 
 class Stream;
 

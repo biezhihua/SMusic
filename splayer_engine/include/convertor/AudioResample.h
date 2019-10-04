@@ -1,5 +1,5 @@
-#ifndef AUDIORESAMPLER_H
-#define AUDIORESAMPLER_H
+#ifndef ENGINE_AUDIORESAMPLER_H
+#define ENGINE_AUDIORESAMPLER_H
 
 #include <player/PlayerState.h>
 #include <sync/MediaSync.h>
@@ -139,4 +139,4 @@ private:
 };
 
 
-#endif //AUDIORESAMPLER_H
+#endif //ENGINE_AUDIORESAMPLER_H

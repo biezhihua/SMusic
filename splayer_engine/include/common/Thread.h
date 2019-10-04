@@ -1,5 +1,5 @@
-#ifndef THREAD_H
-#define THREAD_H
+#ifndef ENGINE_THREAD_H
+#define ENGINE_THREAD_H
 
 #include <common/Mutex.h>
 #include <common/Condition.h>
@@ -186,4 +186,4 @@ inline void Thread::run() {
 }
 
 
-#endif //THREAD_H
+#endif //ENGINE_THREAD_H

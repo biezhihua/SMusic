@@ -1,5 +1,5 @@
-#ifndef SPLAYER_MAC_MACMEDIAPLAYER_H
-#define SPLAYER_MAC_MACMEDIAPLAYER_H
+#ifndef SDL_EDIAPLAYER_H
+#define SDL_MEDIAPLAYER_H
 
 #include <player/MediaPlayer.h>
 #include <message/MessageCenter.h>
