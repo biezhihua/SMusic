@@ -1,4 +1,4 @@
-#ifndef SDL_EDIAPLAYER_H
+#ifndef SDL_MEDIAPLAYER_H
 #define SDL_MEDIAPLAYER_H
 
 #include <player/MediaPlayer.h>
