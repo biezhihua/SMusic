@@ -1,0 +1,10 @@
+.idea
+cmake-build-debug
+.vscode
+CMakeFiles
+libsplayer_core.a
+cmake_install.cmake
+Makefile
+CMakeCache.txt
+CMakeFiles
+splayer_core.cbp

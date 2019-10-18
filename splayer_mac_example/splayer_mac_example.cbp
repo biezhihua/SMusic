@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="splayer_mac_example"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\splayer_engine\;CMake Files\..\splayer_soundtouch\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\usr\local\;CMake Files\..\..\..\..\..\usr\local\lib\;CMake Files\..\..\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\..\..\usr\local\lib\cmake\SDL2\;CMake Files\..\splayer_sdl\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_example"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_example"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_example"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="splayer_mac_example">
+				<Option output="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/splayer_mac_example" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_example"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../distribution/macos/ffmpeg/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../splayer_soundtouch/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../splayer_soundtouch"/>
+					<Add directory="/usr/local/Cellar/sdl2/2.0.9_1/include/SDL2"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../splayer_sdl/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../splayer_engine/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 splayer_mac_example"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="splayer_mac_example/fast">
+				<Option output="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/splayer_mac_example" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_example"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../distribution/macos/ffmpeg/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../splayer_soundtouch/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../splayer_soundtouch"/>
+					<Add directory="/usr/local/Cellar/sdl2/2.0.9_1/include/SDL2"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../splayer_sdl/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../splayer_engine/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 splayer_mac_example/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="splayer_sdl">
+				<Option output="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/libsplayer_sdl.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_sdl/../distribution/macos/ffmpeg/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_sdl/../splayer_soundtouch/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_sdl/../splayer_soundtouch"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_sdl/../splayer_engine/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_sdl/include"/>
+					<Add directory="/usr/local/Cellar/sdl2/2.0.9_1/include/SDL2"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/Makefile&quot;  VERBOSE=1 splayer_sdl"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="splayer_sdl/fast">
+				<Option output="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/libsplayer_sdl.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_sdl/../distribution/macos/ffmpeg/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_sdl/../splayer_soundtouch/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_sdl/../splayer_soundtouch"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_sdl/../splayer_engine/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_sdl/include"/>
+					<Add directory="/usr/local/Cellar/sdl2/2.0.9_1/include/SDL2"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/Makefile&quot;  VERBOSE=1 splayer_sdl/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="splayer_engine">
+				<Option output="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/libsplayer_engine.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/../distribution/macos/ffmpeg/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/../splayer_soundtouch/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/../splayer_soundtouch"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/Makefile&quot;  VERBOSE=1 splayer_engine"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="splayer_engine/fast">
+				<Option output="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/libsplayer_engine.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/../distribution/macos/ffmpeg/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/../splayer_soundtouch/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/../splayer_soundtouch"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/Makefile&quot;  VERBOSE=1 splayer_engine/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="splayer_soundtouch">
+				<Option output="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/alias_splayer_soundtouch/libsplayer_soundtouch.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/alias_splayer_soundtouch"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/alias_splayer_soundtouch/Makefile&quot;  VERBOSE=1 splayer_soundtouch"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/alias_splayer_soundtouch/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/alias_splayer_soundtouch/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/alias_splayer_soundtouch/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="splayer_soundtouch/fast">
+				<Option output="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/alias_splayer_soundtouch/libsplayer_soundtouch.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/alias_splayer_soundtouch"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/alias_splayer_soundtouch/Makefile&quot;  VERBOSE=1 splayer_soundtouch/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/alias_splayer_soundtouch/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/alias_splayer_soundtouch/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/biezhihua/StudySpace/splayer/splayer_mac_example/alias_splayer_sdl/alias_splayer_engine/alias_splayer_soundtouch/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/common/FFmpegUtils.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/common/Log.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/convertor/AudioResample.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/decoder/AudioDecoder.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/decoder/MediaDecoder.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/decoder/VideoDecoder.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/device/AudioDevice.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/device/VideoDevice.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/message/MessageCenter.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/message/MessageQueue.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/message/Msg.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/player/MediaPlayer.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/player/PlayerState.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/queue/FrameQueue.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/queue/PacketQueue.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/stream/Stream.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/sync/MediaClock.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/sync/MediaSync.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/main.cpp">
+			<Option target="splayer_mac_example"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_sdl/src/SDLAudioDevice.cpp">
+			<Option target="splayer_sdl"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_sdl/src/SDLMediaPlayer.cpp">
+			<Option target="splayer_sdl"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_sdl/src/SDLVideoDevice.cpp">
+			<Option target="splayer_sdl"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/SoundTouchWrapper.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/SoundTouchWrapper.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/AAFilter.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/BPMDetect.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/FIFOSampleBuffer.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/FIRFilter.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/InterpolateCubic.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/InterpolateLinear.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/InterpolateShannon.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/PeakFinder.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/RateTransposer.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/SoundTouch.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/TDStretch.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/cpu_detect_x86.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/mmx_optimized.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/sse_optimized.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../splayer_engine/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\..\splayer_engine\"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../splayer_soundtouch/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\..\splayer_soundtouch\"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../../../../../usr/local/lib/cmake/SDL2/sdl2-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\local\lib\cmake\SDL2\"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_mac_example/../splayer_sdl/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\..\splayer_sdl\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

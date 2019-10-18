@@ -1,0 +1,22 @@
+@startuml
+autonumber
+loop
+
+ff_ffplay -> time:av_usleep(remaining_time)
+
+ff_ffplay -> ff_ffplay:video_refresh()
+
+ff_ffplay -> ff_ffplay:vp_duration()
+
+ff_ffplay -> ff_ffplay:compute_target_delay()
+
+ff_ffplay -> ff_ffplay:video_display2()
+
+ff_ffplay -> ff_ffplay:video_image_display2()
+
+ff_ffplay -> ijksdl_vout:SDL_VoutDisplayYUVOverlay()
+
+ff_ffplay -> ijksdl_vout_android_nativewindow:func_display_overlay_l()
+
+end
+@enduml

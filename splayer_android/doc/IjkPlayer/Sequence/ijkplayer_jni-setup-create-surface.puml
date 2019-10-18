@@ -1,0 +1,38 @@
+@startuml
+autonumber
+
+ijksdl_vout_android_surface -> ijksdk_vout_android:SDL_VoutAndroid_CreateForANativeWindow()
+
+ijksdl_vout_android_nativewindow -> ijksdl_vout_internal:SDL_Vout_CreateInternal()
+
+ijksdl_vout_android_nativewindow -> ijksdl_egl:IJK_EGL_create()
+
+alt create overlay
+
+    ijksdl_vout_android_nativewindow -> ijksdl_vout_android_nativewindow: fun_create_overlay()
+
+    ijksdl_vout_android_nativewindow -> ijksdl_vout_android_nativewindow: func_create_overlay_l()
+
+    alt IJK_AV_PIX_FMT__ANDROID_MEDIACODEC
+        ijksdl_vout_android_nativewindow -> ijksdl_vout_overlay_android_mediacodec: SDL_VoutAMediaCodec_CreateOverlay()
+    else
+        ijksdl_vout_android_nativewindow -> ijksdl_vout_overlay_ffmpeg: SDL_VoutFFmpeg_CreateOverlay()
+    end
+
+else free
+
+    ijksdl_vout_android_nativewindow -> ijksdl_vout_android_nativewindow: func_free_l()
+
+else display
+
+    ijksdl_vout_android_nativewindow -> ijksdl_vout_android_nativewindow: func_display_overlay()
+
+    ijksdl_vout_android_nativewindow -> ijksdl_vout_android_nativewindow: func_display_overlay_l()
+
+    ijksdl_vout_android_nativewindow -> android_nativewindow: SDL_Android_NativeWindow_display_l()
+
+end
+
+
+
+@enduml

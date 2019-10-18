@@ -1,0 +1,22 @@
+@startuml
+autonumber
+
+IjkMediaPlayer -> ijkplayer_jni:setDataSourceAndHeaders()
+
+ijkplayer_jni -> ijkplayer:ijkmp_set_data_source()
+
+ijkplayer -> ijkplayer:ijkmp_set_data_source_l()
+
+ijkplayer -> ijkplayer:ijkmp_change_state_l(MP_STATE_INITIALIZED)
+
+ijkplayer -> ff_ffplay_def:ffp_notify_msg1(FFP_MSG_PLAYBACK_STATE_CHANGED)
+
+ff_ffplay_def -> ff_ffmsg_queue:msg_queue_put_simple3()
+
+ff_ffmsg_queue -> ff_ffmsg_queue:msg_queue_put()
+
+ff_ffmsg_queue -> ff_ffmsg_queue:msg_queue_put_private()
+
+
+
+@enduml

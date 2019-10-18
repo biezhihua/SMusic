@@ -1,0 +1,5 @@
+macos/ffmpeg/lib
+macos/openssl/lib
+
+windows/ffmpeg/lib
+windows/openssl/lib

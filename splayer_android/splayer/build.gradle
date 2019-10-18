@@ -1,0 +1,57 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags "-frtti -fexceptions -Wc++11-extensions"
+            }
+        }
+
+        ndk {
+            abiFilters 'armeabi-v7a'
+        }
+    }
+
+    sourceSets {
+        main {
+            // let gradle pack the shared library into apk
+            jniLibs.srcDirs = ['../distribution/ffmpeg/lib', '../distribution/openssl/lib']
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            version '3.10.2'
+            path "src/main/cpp/CMakeLists.txt"
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha04'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
+}

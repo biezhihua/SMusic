@@ -1,0 +1,52 @@
+@startuml
+autonumber
+
+IjkMediaPlayer -> ijkplayer_jni:native_setup
+
+ijkplayer_jni -> ijkplayer_android:ijkmp_android_create(message_loop)
+note left:创建MediaPlayer，并设置消息循环\nmessage_loop()
+
+group ijkmp_android_create
+
+    ijkplayer_android -> ijkplayer:ijkmp_create(message_loop)
+
+    group ijkmp_create
+
+        ijkplayer -> ffp_create:ffp_create()
+
+        ijkplayer -> ff_ffmsg_queue:msg_queue_init()
+
+        ijkplayer -> ff_ffplay_def:ffp_reset_internal()
+
+        ijkplayer -> ijkmeta:ijkmeta_create()
+    end
+
+    ijkplayer_android -> ijksdl_vout_android_surface:SDL_VoutAndroid_CreateForAndroidSurface()
+
+    ijkplayer_android -> ffpipeline_android:ffpipeline_create_from_android()
+
+    ijkplayer_android -> ffpipeline_android:ffpipeline_set_vout()
+
+end
+
+ijkplayer_jni -> ijkplayer_jni:jni_set_media_player()
+
+ijkplayer_jni -> IjkMediaPlayer:mNativeMediaPlayer
+
+ijkplayer_jni -> ijkplayer_jni:ijkmp_set_weak_thiz()
+note left:设置IjkMediaPlayer引用
+
+ijkplayer_jni -> ijkplayer:ijkmp_set_inject_opaque()
+
+ijkplayer_jni -> ijkplayer:ijkmp_set_ijkio_inject_opaque()
+
+ijkplayer -> ff_ffplay:ffp_set_ijkio_inject_opaque()
+
+ff_ffplay -> ijkiomananger:ijkio_manager_create()
+
+ijkplayer_jni -> ijkplayer_android:ijkmp_android_set_mediacodec_select_callback()
+
+ijkplayer_android -> ffpipeline_android:ffpipeline_set_mediacodec_select_callback()
+
+
+@enduml

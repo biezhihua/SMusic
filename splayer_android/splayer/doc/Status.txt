@@ -1,0 +1,60 @@
+
+
+Instance Status:
+
+    Init
+
+        * Player
+
+        * JavaMethod
+
+    Release
+
+        * JavaMethod
+
+        * Player
+
+
+Player Status:
+
+    * Create
+
+        * Create FFmpeg
+
+        * Create OpenSLES
+
+        * onPlayerCreate();
+
+    * Start
+
+        * Init Media Info
+
+        * onPlayerStart();
+
+    * FFPlay
+
+        * FFPlay Decode Media
+
+        * FFPlay Enqueue Buffer
+
+        * onPlayerPlay();
+
+    * Pause
+
+        * Pause Decode Media
+
+        * Pause Enqueue Buffer
+
+        * onPlayerPause();
+
+    * stop
+
+        * OnPlayerStop();
+
+    * Destroy
+
+        * Destroy OpenSLES
+
+        * Destroy FFmpeg
+
+        * onPlayerDestroy();

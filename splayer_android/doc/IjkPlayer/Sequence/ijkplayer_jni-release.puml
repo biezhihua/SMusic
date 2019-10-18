@@ -1,0 +1,60 @@
+@startuml
+autonumber
+
+IjkMediaPlayer -> ijkplayer_jni:close()
+
+ijkplayer_jni -> ijkplayer_android:ijkmp_android_set_surface()
+
+group ijkmp_android_set_surface
+
+    ijkplayer_android -> ijkplayer_android:ijkmp_android_set_surface_l()
+
+    ijkplayer_android -> ijksdl_vout_android_surface:SDL_VoutAndroid_SetAndroidSurface()
+
+    group SDL_VoutAndroid_SetAndroidSurface
+
+        ijksdl_vout_android_surface -> native_window_jni:ANativeWindow_fromSurface()
+
+        ijksdl_vout_android_surface -> ijksdl_vout_android_nativewindow:SDL_VoutAndroid_SetNativeWindow()
+
+        ijksdl_vout_android_nativewindow -> ijksdl_vout_android_nativewindow:SDL_VoutAndroid_SetNativeWindow_l()
+
+        ijksdl_vout_android_surface -> native_window_jni:ANativeWindow_release()
+
+    end
+    ijkplayer_android -> ffpipeline_android:ffpipeline_set_surface()
+
+
+end
+
+ijkplayer_jni -> ijkplayer:ijkmp_shutdown()
+
+ijkplayer -> ijkplayer:ijkmp_shutdown_l()
+
+ijkplayer -> ff_ffplay:ffp_stop_l()
+
+ijkplayer -> ff_ffplay:ffp_wait_stop_l()
+
+ijkplayer -> ff_ffplay:stream_close()
+
+group stream_close
+
+    ff_ffplay -> ff_ffplay:packet_queue_abort()
+
+    ff_ffplay -> ff_ffplay:stream_component_close()
+
+    ff_ffplay [#red]-> utils:avformat_close_input()
+
+    ff_ffplay -> ff_ffplay:packet_queue_destroy()
+
+    ff_ffplay -> ff_ffplay:frame_queue_destory()
+
+    ff_ffplay -> ijksoundtouch_wrap:ijk_soundtouch_destroy()
+
+end
+
+ijkplayer_jni -> ijkplayer_jni:jni_set_media_player(NULL)
+
+ijkplayer_jni -> ijkplayer_jni:jni_set_media_data_source(NULL)
+
+@enduml

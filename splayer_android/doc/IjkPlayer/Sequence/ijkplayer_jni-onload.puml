@@ -1,0 +1,33 @@
+@startuml
+autonumber
+
+IjkMediaPlayer -> IjkMediaPlayer:initPlayer
+
+IjkMediaPlayer -> IjkMediaPlayer:loadLibrariesOnce(
+
+IjkMediaPlayer -> System:loadLibrary("ijkplayer")
+
+System -> ijkplayer_jni:JNI_OnLoad()
+
+ijkplayer_jni -> JNIEnv:RegisterNatives()
+note left : Java方法注册到Native方法的映射关系
+
+ijkplayer_jni -> ijkplayer:ijkmp_global_init()
+
+ijkplayer -> ff_ffplay:ffp_global_init()
+
+ff_ffplay [#red]-> allformats:av_register_all()
+
+ff_ffplay -> allformats:ijkav_register_all()
+
+ff_ffplay [#red]-> utils:avformat_network_init()
+
+ff_ffplay [#red]-> apacket:av_init_packet()
+
+ijkplayer_jni -> ijkplayer:ijkmp_global_set_inject_callback()
+
+ijkplayer -> ff_ffplay:ffp_global_set_inject_callback()
+
+ijkplayer_jni -> ffmpeg_api_jni:FFmpegApi_global_init()
+
+@enduml
