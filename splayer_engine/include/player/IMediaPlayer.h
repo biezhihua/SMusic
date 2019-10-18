@@ -4,6 +4,7 @@
 class IMediaPlayer {
 
 protected:
+
     virtual int create() = 0;
 
     virtual int start() = 0;

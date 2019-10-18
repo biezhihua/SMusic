@@ -1,6 +1,3 @@
-android/ffmpeg/lib
-android/openssl/lib
-
 macos/ffmpeg/lib
 macos/openssl/lib
 
