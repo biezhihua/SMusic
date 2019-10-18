@@ -100,4 +100,4 @@ private:
 };
 
 
-#endif //PACKETQUEUE_H
+#endif

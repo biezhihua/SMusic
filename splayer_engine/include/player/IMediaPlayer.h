@@ -19,4 +19,4 @@ protected:
 };
 
 
-#endif //MEDIAPLAYER_H
+#endif

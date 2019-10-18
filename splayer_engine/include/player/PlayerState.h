@@ -279,4 +279,4 @@ public:
 };
 
 
-#endif //PLAYERSTATE_H
+#endif

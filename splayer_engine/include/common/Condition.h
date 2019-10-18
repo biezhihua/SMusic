@@ -99,4 +99,4 @@ inline void Condition::broadcast() {
     pthread_cond_broadcast(&mCond);
 }
 
-#endif //ENGINE_CONDITION_H
+#endif

@@ -70,4 +70,4 @@ private:
 };
 
 
-#endif //ENGINE_VIDEO_DECODER_H
+#endif

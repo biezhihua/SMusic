@@ -51,4 +51,4 @@ public:
 
 };
 
-#endif //ENGINE_VIDEO_DEVICE_H
+#endif

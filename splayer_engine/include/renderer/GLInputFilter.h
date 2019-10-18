@@ -87,4 +87,4 @@ typedef struct Texture {
 } Texture;
 
 
-#endif //GLINPUTFILTER_H
+#endif

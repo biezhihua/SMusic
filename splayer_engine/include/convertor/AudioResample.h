@@ -139,4 +139,4 @@ private:
 };
 
 
-#endif //ENGINE_AUDIORESAMPLER_H
+#endif

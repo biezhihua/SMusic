@@ -56,4 +56,4 @@ public:
 };
 
 
-#endif //ENGINE_MESSAGE_CENTER_H
+#endif

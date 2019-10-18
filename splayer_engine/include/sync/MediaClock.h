@@ -68,4 +68,4 @@ private:
 };
 
 
-#endif //MEDIACLOCK_H
+#endif

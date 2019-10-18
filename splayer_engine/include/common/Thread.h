@@ -186,4 +186,4 @@ inline void Thread::run() {
 }
 
 
-#endif //ENGINE_THREAD_H
+#endif

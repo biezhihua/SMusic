@@ -134,4 +134,4 @@ protected:
 };
 
 
-#endif //MEDIASYNC_H
+#endif

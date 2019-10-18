@@ -34,4 +34,4 @@ int isRealTime(AVFormatContext *s);
 };
 #endif
 
-#endif //ENGINE_FFMPEGUTILS_H
+#endif

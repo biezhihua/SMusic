@@ -97,4 +97,4 @@ inline int Mutex::tryLock() {
 
 typedef Mutex::Autolock AutoMutex;
 
-#endif //ENGINE_MUTEX_H
+#endif

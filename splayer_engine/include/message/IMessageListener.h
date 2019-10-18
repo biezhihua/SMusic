@@ -8,4 +8,4 @@ public:
     virtual void onMessage(Msg *msg) = 0;
 };
 
-#endif //ENGINE_MESSAGE_LISTENER_H
+#endif

@@ -118,4 +118,4 @@ private:
 };
 
 
-#endif //SPLAYER_MAC_DEMO_STREAM_H
+#endif

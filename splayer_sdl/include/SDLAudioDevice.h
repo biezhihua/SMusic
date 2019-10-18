@@ -40,4 +40,4 @@ public:
 };
 
 
-#endif //SPLAYER_MAC_DEMO_MACAUDIODEVICE_H
+#endif
