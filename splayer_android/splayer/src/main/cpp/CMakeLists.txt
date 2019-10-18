@@ -9,34 +9,57 @@ cmake_minimum_required(VERSION 3.4.1)
 set(DISTRIBUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../distribution)
 set(SPLAYER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../splayer_core)
 
+# 设置引擎目录
+set(SPLAYER_ENGINE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../splayer_engine)
+
+# 设置SoundTouch目录
+set(SPLAYER_SOUND_TOUCH_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../splayer_soundtouch)
+
+# 添加引擎子模块目录
+add_subdirectory(${SPLAYER_ENGINE_DIR} alias_splayer_engine)
+
+# 引入FFmpegLib
 add_library(splayer_ffmpeg SHARED IMPORTED)
 set_target_properties(splayer_ffmpeg PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/ffmpeg/lib/${ANDROID_ABI}/libsffmpeg.so)
 
+# 引入OpenSSLLib
 add_library(splayer_openssl_crypto STATIC IMPORTED)
 set_target_properties(splayer_openssl_crypto PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/openssl/lib/${ANDROID_ABI}/libcrypto.a)
-
 add_library(splayer_openssl_ssl STATIC IMPORTED)
 set_target_properties(splayer_openssl_ssl PROPERTIES IMPORTED_LOCATION ${DISTRIBUTION_DIR}/openssl/lib/${ANDROID_ABI}/libssl.a)
 
-add_subdirectory(${SPLAYER_DIR} splayer_core)
+# 设置代码源
+aux_source_directory(src src_source)
 
-aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src splayer_android)
-
+# 组合Lib
 add_library(${PROJECT_NAME} SHARED
         SMainJni.cpp
-        ${splayer_android}
+        ${src_source}
         )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${SPLAYER_DIR}/include
+
+        # 引入FFmpeg头文件
         ${DISTRIBUTION_DIR}/ffmpeg/include
+
+        # 引入OPENSSL头文件
         ${DISTRIBUTION_DIR}/openssl/include
+
+        # 引入SoundTouch头文件
+        ${SPLAYER_SOUND_TOUCH_DIR}/include
+        ${SPLAYER_SOUND_TOUCH_DIR}
+
+        # 引入引擎头文件
+        ${SPLAYER_ENGINE_DIR}/include
+
+        # 引入自有代码头文件
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+
         )
 
 target_link_libraries(${PROJECT_NAME}
         log
-        splayer_core
+        splayer_engine
         splayer_ffmpeg
         splayer_openssl_ssl
         splayer_openssl_crypto
