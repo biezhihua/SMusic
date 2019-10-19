@@ -2,6 +2,27 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 
+
+buildscript {
+    ext.kotlin_version = '1.3.50'
+    repositories {
+        google()
+        jcenter()
+
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
 //def platformVersion = 24      // openGLES 3.2 min api level
 def platformVersion = 21    // 18: openGLES 3 min api level
 // def platformVersion = 12    //openGLES 2 min api level
@@ -61,3 +82,4 @@ dependencies {
 repositories {
     mavenCentral()
 }
+
