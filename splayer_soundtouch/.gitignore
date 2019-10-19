@@ -15,3 +15,4 @@ splayer_sdl.cbp
 splayer_sdl/libsplayer_sdl.a
 splayer_sdl/splayer_engine/libsplayer_engine.a
 splayer_sdl/splayer_engine
+.idea
