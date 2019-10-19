@@ -7,9 +7,6 @@
 //#include "include/AndroidMediaPlayer.h"
 //#include "splayer/media/MediaPlayer.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-
 JavaVM *sJavaVM = nullptr;
 //SPlayer *sPlayer = nullptr;
 //SStatus *sStatus = nullptr;
@@ -274,5 +271,4 @@ Java_com_bzh_splayer_SPlayer_nativeGetCurrentPitch(JNIEnv *env,
     return 0;
 }
 
-#pragma clang diagnostic pop
 #endif

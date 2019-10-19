@@ -51,11 +51,16 @@ android {
         }
     }
 
-//    sourceSets {
-//        main {
-//            jniLibs.srcDirs = ['../distribution/android/ffmpeg/lib', '../distribution/android/openssl/lib']
-//        }
-//    }
+    sourceSets {
+        main {
+            // 设置依赖库
+            // armeabi-v7a
+            jniLibs.srcDirs = [
+                    '../distribution/android/ffmpeg/lib',
+                    '../distribution/android/openssl/lib'
+            ]
+        }
+    }
 
     buildTypes {
         release {
