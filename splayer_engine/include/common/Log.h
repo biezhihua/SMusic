@@ -20,8 +20,10 @@ extern bool DEBUG;
 #define LOG_FATAL       ANDROID_LOG_FATAL
 #define LOG_SILENT      ANDROID_LOG_SILENT
 
-#define VLOG(level, TAG, ...)    ((void)__android_log_vprint(level, TAG, __VA_ARGS__))
-#define ALOG(level, TAG, ...)    ((void)__android_log_print(level, TAG, __VA_ARGS__))
+#define _ALOGD(LOG_DEBUG, TAG, ...)    ((void)__android_log_vprint(level, TAG, __VA_ARGS__))
+#define _ALOGI(LOG_INFO, TAG, ...)    ((void)__android_log_print(level, TAG, __VA_ARGS__))
+#define _ALOGE(LOG_ERROR, TAG, ...)    ((void)__android_log_print(level, TAG, __VA_ARGS__))
+#define _ALOGW(LOG_WARN, TAG, ...)    ((void)__android_log_print(level, TAG, __VA_ARGS__))
 
 #else
 

@@ -1,0 +1,3 @@
+include ':app'
+include ':splayer_android'
+project(':splayer_android').projectDir = file('../splayer_android')

@@ -81,11 +81,7 @@ AVDictionary *filterCodecOptions(AVDictionary *opts, enum AVCodecID codec_id, AV
 int checkStreamSpecifier(AVFormatContext *s, AVStream *st, const char *spec) {
     int ret = avformat_match_stream_specifier(s, st, spec);
     if (ret < 0) {
-#if defined(__ANDROID__)
-        ALOGE("Invalid stream specifier: %s.\n", spec);
-#else
-        av_log(s, AV_LOG_ERROR, "Invalid stream specifier: %s.\n", spec);
-#endif
+        ALOGE("Invalid stream specifier: %s.", spec);
     }
     return ret;
 }
@@ -126,11 +122,11 @@ void printError(const char *filename, int err) {
     if (av_strerror(err, errbuf, sizeof(errbuf)) < 0) {
         errbuf_ptr = strerror(AVUNERROR(err));
     }
-#if defined(__ANDROID__)
-    ALOGE("%s: %s\n", filename, errbuf_ptr);
-#else
-    av_log(NULL, AV_LOG_ERROR, "%s: %s\n", filename, errbuf_ptr);
-#endif
+//#if defined(__ANDROID__)
+//    ALOGE("%s: %s\n", filename, errbuf_ptr);
+//#else
+//    av_log(NULL, AV_LOG_ERROR, "%s: %s\n", filename, errbuf_ptr);
+//#endif
 }
 
 /**
@@ -159,17 +155,17 @@ double getRotation(AVStream *st) {
 
     if (fabs(theta - 90 * round(theta / 90)) > 2) {
 
-#if defined(__ANDROID__)
-        ALOGW("Odd rotation angle.\n"
-                      "If you want to help, upload a sample "
-                      "of this file to ftp://upload.ffmpeg.org/incoming/ "
-                      "and contact the ffmpeg-devel mailing list. (ffmpeg-devel@ffmpeg.org)");
-#else
-        av_log(NULL, AV_LOG_WARNING, "Odd rotation angle.\n"
-                                     "If you want to help, upload a sample "
-                                     "of this file to ftp://upload.ffmpeg.org/incoming/ "
-                                     "and contact the ffmpeg-devel mailing list. (ffmpeg-devel@ffmpeg.org)");
-#endif
+//#if defined(__ANDROID__)
+//        ALOGW("Odd rotation angle.\n"
+//                      "If you want to help, upload a sample "
+//                      "of this file to ftp://upload.ffmpeg.org/incoming/ "
+//                      "and contact the ffmpeg-devel mailing list. (ffmpeg-devel@ffmpeg.org)");
+//#else
+//        av_log(NULL, AV_LOG_WARNING, "Odd rotation angle.\n"
+//                                     "If you want to help, upload a sample "
+//                                     "of this file to ftp://upload.ffmpeg.org/incoming/ "
+//                                     "and contact the ffmpeg-devel mailing list. (ffmpeg-devel@ffmpeg.org)");
+//#endif
     }
 
     return theta;
