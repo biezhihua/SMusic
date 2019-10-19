@@ -2,11 +2,15 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 
+//def platformVersion = 24      // openGLES 3.2 min api level
+def platformVersion = 21    // 18: openGLES 3 min api level
+// def platformVersion = 12    //openGLES 2 min api level
+
 android {
     compileSdkVersion 29
 
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion "${platformVersion}"
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -15,7 +19,9 @@ android {
 
         externalNativeBuild {
             cmake {
-                cppFlags "-frtti -fexceptions -Wc++11-extensions"
+                cppFlags "-std=c++11"
+                arguments "-DANDROID_PLATFORM_LEVEL=${platformVersion}",
+                        '-DANDROID_TOOLCHAIN=clang'
             }
         }
 
@@ -24,11 +30,11 @@ android {
         }
     }
 
-    sourceSets {
-        main {
-            jniLibs.srcDirs = ['../distribution/android/ffmpeg/lib', '../distribution/android/openssl/lib']
-        }
-    }
+//    sourceSets {
+//        main {
+//            jniLibs.srcDirs = ['../distribution/android/ffmpeg/lib', '../distribution/android/openssl/lib']
+//        }
+//    }
 
     buildTypes {
         release {

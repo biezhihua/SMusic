@@ -239,10 +239,17 @@ class SPlayer {
         }
     }
 
+    @SuppressLint("WrongThread")
     @WorkerThread
     @CalledByNative
     @Keep
-    fun onPlayerRenderYUVFromNative(width: Int, height: Int, y: ByteArray, u: ByteArray, v: ByteArray) {
+    fun onPlayerRenderYUVFromNative(
+        width: Int,
+        height: Int,
+        y: ByteArray,
+        u: ByteArray,
+        v: ByteArray
+    ) {
         surfaceView?.render?.renderType = SRender.RenderType.SOFT
         surfaceView?.updateYUVData(width, height, y, u, v)
     }
@@ -257,7 +264,13 @@ class SPlayer {
     @WorkerThread
     @CalledByNative
     @Keep
-    fun initMediaCodecFromNative(codecName: String, width: Int, height: Int, csd0: ByteArray, cds1: ByteArray) {
+    fun initMediaCodecFromNative(
+        codecName: String,
+        width: Int,
+        height: Int,
+        csd0: ByteArray,
+        cds1: ByteArray
+    ) {
         Log.d(
             TAG, "initMediaCodecFromNative() called with: " +
                     "codecName = [$codecName], " +
@@ -289,7 +302,10 @@ class SPlayer {
     @CalledByNative
     @Keep
     fun mediaCodecDecodeAvPacketFromNative(dataSize: Int, data: ByteArray?) {
-        Log.d(TAG, "mediaCodecDecodeAvPacketFromNative() called with: dataSize = [$dataSize], data = [$data]")
+        Log.d(
+            TAG,
+            "mediaCodecDecodeAvPacketFromNative() called with: dataSize = [$dataSize], data = [$data]"
+        )
         if (mediaCodec != null && surface != null && dataSize > 0 && data != null) {
 //            val inputBufferIndex = mediaCodec?.dequeueInputBuffer(10000)
 //            if (inputBufferIndex != null && inputBufferIndex >= 0) {

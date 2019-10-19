@@ -6,7 +6,7 @@ import android.opengl.GLES11Ext
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.view.Surface
-import com.bzh.splayer.lib.R
+import com.bzh.splayer.R
 import com.bzh.splayer.common.RawResourceReader
 import com.bzh.splayer.common.ShaderHelper
 import java.nio.ByteBuffer
@@ -102,14 +102,17 @@ class SRender(private val context: Context) : GLSurfaceView.Renderer {
 
 
     private fun initSoftRenderYUV() {
-        val vertexSource = RawResourceReader.readTextFileFromRawResource(context, R.raw.vertex_shader)
-        val fragmentSource = RawResourceReader.readTextFileFromRawResource(context, R.raw.fragment_softcodec)
+        val vertexSource =
+            RawResourceReader.readTextFileFromRawResource(context, R.raw.vertex_shader)
+        val fragmentSource =
+            RawResourceReader.readTextFileFromRawResource(context, R.raw.fragment_softcodec)
 
         if (vertexSource == null || fragmentSource == null) {
             return
         }
         val vertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, vertexSource)
-        val fragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentSource)
+        val fragmentShaderHandle =
+            ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentSource)
 
         softProgram = ShaderHelper.createAndLinkProgram(
             vertexShaderHandle, fragmentShaderHandle,
@@ -133,20 +136,31 @@ class SRender(private val context: Context) : GLSurfaceView.Renderer {
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT)
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT)
             // Set filtering
-            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
-            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
+            GLES20.glTexParameteri(
+                GLES20.GL_TEXTURE_2D,
+                GLES20.GL_TEXTURE_MIN_FILTER,
+                GLES20.GL_LINEAR
+            )
+            GLES20.glTexParameteri(
+                GLES20.GL_TEXTURE_2D,
+                GLES20.GL_TEXTURE_MAG_FILTER,
+                GLES20.GL_LINEAR
+            )
         }
     }
 
     private fun initMediaRender() {
-        val vertexSource = RawResourceReader.readTextFileFromRawResource(context, R.raw.vertex_shader)
-        val fragmentSource = RawResourceReader.readTextFileFromRawResource(context, R.raw.fragment_mediacodec)
+        val vertexSource =
+            RawResourceReader.readTextFileFromRawResource(context, R.raw.vertex_shader)
+        val fragmentSource =
+            RawResourceReader.readTextFileFromRawResource(context, R.raw.fragment_mediacodec)
 
         if (vertexSource == null || fragmentSource == null) {
             return
         }
         val vertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, vertexSource)
-        val fragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentSource)
+        val fragmentShaderHandle =
+            ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentSource)
 
         mediaProgram = ShaderHelper.createAndLinkProgram(
             vertexShaderHandle, fragmentShaderHandle,
@@ -161,10 +175,26 @@ class SRender(private val context: Context) : GLSurfaceView.Renderer {
         GLES20.glGenTextures(1, textureIds, 0)
         mediaTextureId = textureIds[0]
 
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT)
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT)
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
+        GLES20.glTexParameteri(
+            GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+            GLES20.GL_TEXTURE_WRAP_S,
+            GLES20.GL_REPEAT
+        )
+        GLES20.glTexParameteri(
+            GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+            GLES20.GL_TEXTURE_WRAP_T,
+            GLES20.GL_REPEAT
+        )
+        GLES20.glTexParameteri(
+            GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+            GLES20.GL_TEXTURE_MIN_FILTER,
+            GLES20.GL_LINEAR
+        )
+        GLES20.glTexParameteri(
+            GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+            GLES20.GL_TEXTURE_MAG_FILTER,
+            GLES20.GL_LINEAR
+        )
 
         mediaSurfaceTexture = SurfaceTexture(mediaTextureId)
         mediaSurface = Surface(mediaSurfaceTexture)
@@ -188,10 +218,24 @@ class SRender(private val context: Context) : GLSurfaceView.Renderer {
             GLES20.glUseProgram(mediaProgram)
 
             GLES20.glEnableVertexAttribArray(mediaAvPositionAttribute)
-            GLES20.glVertexAttribPointer(mediaAvPositionAttribute, 2, GLES20.GL_FLOAT, false, 8, vertexBuffer)
+            GLES20.glVertexAttribPointer(
+                mediaAvPositionAttribute,
+                2,
+                GLES20.GL_FLOAT,
+                false,
+                8,
+                vertexBuffer
+            )
 
             GLES20.glEnableVertexAttribArray(mediaAfPositionAttribute)
-            GLES20.glVertexAttribPointer(mediaAfPositionAttribute, 2, GLES20.GL_FLOAT, false, 8, textureBuffer)
+            GLES20.glVertexAttribPointer(
+                mediaAfPositionAttribute,
+                2,
+                GLES20.GL_FLOAT,
+                false,
+                8,
+                textureBuffer
+            )
 
             GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
             GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, mediaTextureId)
@@ -205,10 +249,24 @@ class SRender(private val context: Context) : GLSurfaceView.Renderer {
             GLES20.glUseProgram(softProgram)
 
             GLES20.glEnableVertexAttribArray(softAvPositionAttribute)
-            GLES20.glVertexAttribPointer(softAvPositionAttribute, 2, GLES20.GL_FLOAT, false, 8, vertexBuffer)
+            GLES20.glVertexAttribPointer(
+                softAvPositionAttribute,
+                2,
+                GLES20.GL_FLOAT,
+                false,
+                8,
+                vertexBuffer
+            )
 
             GLES20.glEnableVertexAttribArray(softAfPositionAttribute)
-            GLES20.glVertexAttribPointer(softAfPositionAttribute, 2, GLES20.GL_FLOAT, false, 8, textureBuffer)
+            GLES20.glVertexAttribPointer(
+                softAfPositionAttribute,
+                2,
+                GLES20.GL_FLOAT,
+                false,
+                8,
+                textureBuffer
+            )
 
             GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, softTextureHandle!![0])
