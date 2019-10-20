@@ -2,6 +2,8 @@
 #define SPLAYER_ANDROID_MEDIAPLAYER_H
 
 #include <player/MediaPlayer.h>
+#include <android/native_window.h>
+#include <GLESVideoDevice.h>
 
 class AndroidMediaPlayer : MediaPlayer {
 
@@ -11,6 +13,8 @@ private:
 
 public:
     class Builder;
+
+    int setVideoSurface(ANativeWindow *nativeWindow);
 
 };
 

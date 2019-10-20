@@ -13,6 +13,9 @@ protected:
 
     PlayerState *playerState = nullptr;
 
+    Mutex mutex;
+    Condition condition;
+
 public:
     VideoDevice();
 

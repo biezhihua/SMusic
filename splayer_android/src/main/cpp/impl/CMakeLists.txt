@@ -47,12 +47,14 @@ include_directories(
 # 设置库
 add_library(${PROJECT_NAME} ${ANDROID_IMPL_SOURCE_FILES})
 
-
+# EGL
+# https://woshijpf.github.io/android/2017/09/04/Android%E7%B3%BB%E7%BB%9F%E5%9B%BE%E5%BD%A2%E6%A0%88OpenGLES%E5%92%8CEGL%E4%BB%8B%E7%BB%8D.html
 # 链接静态库
 target_link_libraries(${PROJECT_NAME}
         splayer_engine
         -landroid
         -llog
-        -lOpenSLES
         -lEGL
-        ${GLES-lib})
+        -lOpenSLES
+        ${GLES-lib}
+        )
