@@ -5,4 +5,4 @@ project(splayer_andorid_impl)
 cmake_minimum_required(VERSION 3.4.1)
 
 # 添加引擎子模块目录
-# add_subdirectory(${ANDROID_ROOT_DIR}/splayer_engine splayer_engine)
+add_subdirectory(${ANDROID_ROOT_DIR}/splayer_engine splayer_engine)

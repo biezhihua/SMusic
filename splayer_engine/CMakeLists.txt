@@ -46,32 +46,44 @@ message("LOG ENGINE CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
 # 添加SoundTouch子模块目录
 add_subdirectory(${SPLAYER_SOUND_TOUCH_DIR} splayer_soundtouch)
 
-# 添加源码子目录
-aux_source_directory(src/common common)
-aux_source_directory(src/convertor convertor)
-aux_source_directory(src/decoder decoder)
-aux_source_directory(src/device device)
-aux_source_directory(src/player player)
-aux_source_directory(src/queue queue)
-aux_source_directory(src/renderer renderer)
-aux_source_directory(src/sync sync)
-aux_source_directory(src/message message)
-aux_source_directory(src/stream stream)
-aux_source_directory(src/tools tools)
+# 设置子文件夹源码依赖
+# https://discourse.urho3d.io/t/how-do-you-include-source-in-subdirectories/871
 
-add_library(${PROJECT_NAME}
-        ${common}
-        ${convertor}
-        ${decoder}
-        ${device}
-        ${player}
-        ${queue}
-        ${renderer}
-        ${sync}
-        ${message}
-        ${stream}
-        ${tools}
+# 添加源码子目录
+file(GLOB CPP_FILES
+        src/common/*.cpp
+        src/convertor/*.cpp
+        src/decoder/*.cpp
+        src/device/*.cpp
+        src/player/*.cpp
+        src/queue/*.cpp
+        src/renderer/*.cpp
+        src/sync/*.cpp
+        src/message/*.cpp
+        src/stream/*.cpp
+        src/tools/*.cpp
         )
+
+# 添加头文件子目录
+file(GLOB H_FILES
+        src/common/*.h
+        src/convertor/*.h
+        src/decoder/*.h
+        src/device/*.h
+        src/player/*.h
+        src/queue/*.h
+        src/renderer/*.h
+        src/sync/*.h
+        src/message/*.h
+        src/stream/*.h
+        src/tools/*.h
+        )
+
+# 设置源文件集合
+set(SOURCE_FILES ${CPP_FILES} ${H_FILES})
+
+# 设置库
+add_library(${PROJECT_NAME} ${SOURCE_FILES})
 
 # 链接头文件
 target_include_directories(${PROJECT_NAME} PRIVATE
