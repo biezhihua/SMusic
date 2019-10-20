@@ -38,13 +38,23 @@ set_target_properties(splayer_openssl_crypto PROPERTIES IMPORTED_LOCATION ${ANDR
 add_library(splayer_openssl_ssl STATIC IMPORTED)
 set_target_properties(splayer_openssl_ssl PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/openssl/lib/${ANDROID_ABI}/libssl.a)
 
-# 设置ffmpeg和openssl头文件
-include_directories(
-        # 设置ffmpeg头文件目录
-        ${ANDROID_DISTRIBUTION_ANDROID_DIR}/ffmpeg/include
-        # 设置openssl头文件目录
-        ${ANDROID_DISTRIBUTION_ANDROID_DIR}/openssl/include
-)
+# 设置依赖库头文件
+#include_directories(
+#
+#        # 设置ffmpeg头文件目录
+#        ${ANDROID_DISTRIBUTION_ANDROID_DIR}/ffmpeg/include
+#
+#        # 设置openssl头文件目录
+#        ${ANDROID_DISTRIBUTION_ANDROID_DIR}/openssl/include
+#
+#        # 引入SoundTouch头文件
+#        ${ANDROID_ROOT_DIR}/splayer_soundtouch/include
+#        ${ANDROID_ROOT_DIR}/splayer_soundtouch/
+#
+#        # 引入引擎头文件
+#        ${ANDROID_ROOT_DIR}/splayer_engine/include
+#
+#)
 
 # 打印消息
 message("LOG ANDROID ANDROID_ROOT_DIR = ${ANDROID_ROOT_DIR}")
@@ -56,3 +66,20 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/impl)
 
 # android splayer 接口库
 add_subdirectory(${CMAKE_SOURCE_DIR}/jni)
+
+#target_include_directories(${PROJECT_NAME} PRIVATE
+#
+#        # 设置ffmpeg头文件目录
+#        ${ANDROID_DISTRIBUTION_ANDROID_DIR}/ffmpeg/include
+#
+#        # 设置openssl头文件目录
+#        ${ANDROID_DISTRIBUTION_ANDROID_DIR}/openssl/include
+#
+#        # 引入SoundTouch头文件
+#        ${ANDROID_ROOT_DIR}/splayer_soundtouch/include
+#        ${ANDROID_ROOT_DIR}/splayer_soundtouch/
+#
+#        # 引入引擎头文件
+#        ${ANDROID_ROOT_DIR}/splayer_engine/include
+#
+#        )

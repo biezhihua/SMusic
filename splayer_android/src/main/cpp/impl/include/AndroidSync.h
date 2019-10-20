@@ -1,0 +1,10 @@
+#ifndef SPLAYER_ANDROID_SYNC_H
+#define SPLAYER_ANDROID_SYNC_H
+
+
+class AndroidSync {
+
+};
+
+
+#endif //SPLAYER_ANDROID_EXAMPLE_ANDROIDSYNC_H

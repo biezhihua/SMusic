@@ -50,7 +50,7 @@ add_subdirectory(${SPLAYER_SOUND_TOUCH_DIR} splayer_soundtouch)
 # https://discourse.urho3d.io/t/how-do-you-include-source-in-subdirectories/871
 
 # 添加源码子目录
-file(GLOB CPP_FILES
+file(GLOB ENGINE_CPP_FILES
         src/common/*.cpp
         src/convertor/*.cpp
         src/decoder/*.cpp
@@ -65,25 +65,25 @@ file(GLOB CPP_FILES
         )
 
 # 添加头文件子目录
-file(GLOB H_FILES
-        src/common/*.h
-        src/convertor/*.h
-        src/decoder/*.h
-        src/device/*.h
-        src/player/*.h
-        src/queue/*.h
-        src/renderer/*.h
-        src/sync/*.h
-        src/message/*.h
-        src/stream/*.h
-        src/tools/*.h
+file(GLOB ENGINE_H_FILES
+        include/common/*.h
+        include/convertor/*.h
+        include/decoder/*.h
+        include/device/*.h
+        include/player/*.h
+        include/queue/*.h
+        include/renderer/*.h
+        include/sync/*.h
+        include/message/*.h
+        include/stream/*.h
+        include/tools/*.h
         )
 
 # 设置源文件集合
-set(SOURCE_FILES ${CPP_FILES} ${H_FILES})
+set(ENGINE_SOURCE_FILES ${ENGINE_CPP_FILES} ${ENGINE_H_FILES})
 
 # 设置库
-add_library(${PROJECT_NAME} ${SOURCE_FILES})
+add_library(${PROJECT_NAME} ${ENGINE_SOURCE_FILES})
 
 # 链接头文件
 target_include_directories(${PROJECT_NAME} PRIVATE
