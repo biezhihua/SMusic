@@ -24,9 +24,9 @@ public:
 
     int destroy();
 
-    void start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder);
+    virtual void start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder);
 
-    void stop();
+    virtual void stop();
 
     // 设置视频输出设备
     void setVideoDevice(VideoDevice *device);
@@ -71,6 +71,10 @@ public:
 
     void setMessageCenter(MessageCenter *messageCenter);
 
+    void setMutex(Mutex *mMutex);
+
+    void setCondition(Condition *mCondition);
+
 private:
 
     int refreshVideo(double *remaining_time);
@@ -84,6 +88,10 @@ private:
     void renderVideo();
 
 protected:
+
+    Mutex *playerMutex;
+
+    Condition *playerCondition;
 
     /// 停止
     bool abortRequest;

@@ -479,3 +479,11 @@ int MediaSync::destroy() {
 void MediaSync::setMessageCenter(MessageCenter *messageCenter) {
     MediaSync::messageCenter = messageCenter;
 }
+
+void MediaSync::setMutex(Mutex *mutex) {
+    MediaSync::playerMutex = mutex;
+}
+
+void MediaSync::setCondition(Condition *condition) {
+    MediaSync::playerCondition = condition;
+}

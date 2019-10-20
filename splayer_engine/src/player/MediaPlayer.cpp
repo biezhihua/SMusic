@@ -334,7 +334,8 @@ int MediaPlayer::openDecoder(int streamIndex) {
     }
 
     // 复制解码上下文参数
-    ret = avcodec_parameters_to_context(codecContext, formatContext->streams[streamIndex]->codecpar);
+    ret = avcodec_parameters_to_context(codecContext,
+                                        formatContext->streams[streamIndex]->codecpar);
     if (ret < 0) {
         if (DEBUG) {
             ALOGE(TAG, "%s copy codec params to context failure", __func__);
@@ -382,7 +383,8 @@ int MediaPlayer::openDecoder(int streamIndex) {
     int streamLowResolution = playerState->lowResolution;
     if (streamLowResolution > codec->max_lowres) {
         if (DEBUG) {
-            ALOGD(TAG, "%s The maximum value for low Resolution supported by the decoder is %d", __func__, codec->max_lowres);
+            ALOGD(TAG, "%s The maximum value for low Resolution supported by the decoder is %d",
+                  __func__, codec->max_lowres);
         }
         streamLowResolution = codec->max_lowres;
     }
@@ -404,7 +406,8 @@ int MediaPlayer::openDecoder(int streamIndex) {
     }
 #endif
 
-    opts = filterCodecOptions(playerState->codecOpts, codecContext->codec_id, formatContext, formatContext->streams[streamIndex], codec);
+    opts = filterCodecOptions(playerState->codecOpts, codecContext->codec_id, formatContext,
+                              formatContext->streams[streamIndex], codec);
     if (!av_dict_get(opts, OPT_THREADS, nullptr, 0)) {
         av_dict_set(&opts, OPT_THREADS, "auto", 0);
     }
@@ -413,7 +416,8 @@ int MediaPlayer::openDecoder(int streamIndex) {
         av_dict_set_int(&opts, OPT_LOW_RESOLUTION, streamLowResolution, 0);
     }
 
-    if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO || codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
+    if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO ||
+        codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
         av_dict_set(&opts, OPT_REF_COUNTED_FRAMES, "1", 0);
     }
 
@@ -441,14 +445,16 @@ int MediaPlayer::openDecoder(int streamIndex) {
         audioDecoder = new AudioDecoder(formatContext, codecContext,
                                         formatContext->streams[streamIndex], streamIndex,
                                         playerState,
-                                        mediaStream->getFlushPacket(), mediaStream->getWaitCondition(),
+                                        mediaStream->getFlushPacket(),
+                                        mediaStream->getWaitCondition(),
                                         opts, messageCenter);
         mediaStream->setAudioDecoder(audioDecoder);
     } else if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
         videoDecoder = new VideoDecoder(formatContext, codecContext,
                                         formatContext->streams[streamIndex], streamIndex,
                                         playerState,
-                                        mediaStream->getFlushPacket(), mediaStream->getWaitCondition(), opts,
+                                        mediaStream->getFlushPacket(),
+                                        mediaStream->getWaitCondition(), opts,
                                         messageCenter);
         mediaStream->setVideoDecoder(videoDecoder);
         playerState->attachmentRequest = 1;
@@ -457,9 +463,11 @@ int MediaPlayer::openDecoder(int streamIndex) {
     return SUCCESS;
 }
 
-int MediaPlayer::openAudioDevice(int64_t wantedChannelLayout, int wantedNbChannels, int wantedSampleRate) {
+int MediaPlayer::openAudioDevice(int64_t wantedChannelLayout, int wantedNbChannels,
+                                 int wantedSampleRate) {
     if (DEBUG) {
-        ALOGD(TAG, "%s wantedChannelLayout = %lld wantedNbChannels = %d wantedSampleRate = %d", __func__, wantedChannelLayout, wantedNbChannels, wantedSampleRate);
+        ALOGD(TAG, "%s wantedChannelLayout = %lld wantedNbChannels = %d wantedSampleRate = %d",
+              __func__, wantedChannelLayout, wantedNbChannels, wantedSampleRate);
     }
     AudioDeviceSpec desired, obtained;
 
@@ -468,7 +476,8 @@ int MediaPlayer::openAudioDevice(int64_t wantedChannelLayout, int wantedNbChanne
 
     int nextSampleRateIdx = FF_ARRAY_ELEMS(nextSampleRates) - 1;
 
-    if (!wantedChannelLayout || wantedNbChannels != av_get_channel_layout_nb_channels((uint64_t) wantedChannelLayout)) {
+    if (!wantedChannelLayout ||
+        wantedNbChannels != av_get_channel_layout_nb_channels((uint64_t) wantedChannelLayout)) {
         wantedChannelLayout = av_get_default_channel_layout(wantedNbChannels);
         wantedChannelLayout &= ~AV_CH_LAYOUT_STEREO_DOWNMIX;
     }
@@ -502,7 +511,8 @@ int MediaPlayer::openAudioDevice(int64_t wantedChannelLayout, int wantedNbChanne
     // 打开音频设备
     while (audioDevice->open(&desired, &obtained) < 0) {
         if (DEBUG) {
-            ALOGD(TAG, "%s failed to open audio device: (%d channels, %d Hz)!", __func__, desired.channels, desired.sampleRate);
+            ALOGD(TAG, "%s failed to open audio device: (%d channels, %d Hz)!", __func__,
+                  desired.channels, desired.sampleRate);
         }
         desired.channels = (uint8_t) nextNbChannels[FFMIN(7, desired.channels)];
         if (!desired.channels) {
@@ -649,7 +659,8 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     // 打开音频输出设备
     if (audioDevice && audioDecoder) {
         AVCodecContext *codecContext = audioDecoder->getCodecContext();
-        if (openAudioDevice(codecContext->channel_layout, codecContext->channels, codecContext->sample_rate) < 0) {
+        if (openAudioDevice(codecContext->channel_layout, codecContext->channels,
+                            codecContext->sample_rate) < 0) {
             if (DEBUG) {
                 ALOGE(TAG, "%s could not open audio device", __func__);
             }
@@ -764,6 +775,8 @@ int MediaPlayer::_create() {
         notifyMsg(Msg::MSG_REQUEST_ERROR, Msg::MSG_REQUEST_DESTROY);
         return ERROR;
     }
+    mediaSync->setMutex(&mutex);
+    mediaSync->setCondition(&condition);
     mediaSync->setMessageCenter(messageCenter);
     mediaSync->setPlayerState(playerState);
 
@@ -1007,6 +1020,8 @@ int MediaPlayer::_destroy() {
     if (mediaSync) {
         mediaSync->setMessageCenter(nullptr);
         mediaSync->setPlayerState(nullptr);
+        mediaSync->setMutex(nullptr);
+        mediaSync->setCondition(nullptr);
         mediaSync->destroy();
         mediaSync = nullptr;
     }
