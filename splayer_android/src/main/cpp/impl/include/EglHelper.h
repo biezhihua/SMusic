@@ -32,6 +32,8 @@ class EglHelper {
 
     const char *const TAG = "EglHelper";
 
+public:
+
     EglHelper();
 
     virtual ~EglHelper();

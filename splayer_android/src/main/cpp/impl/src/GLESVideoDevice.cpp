@@ -1,7 +1,14 @@
 #include <GLESVideoDevice.h>
 
 GLESVideoDevice::GLESVideoDevice() : VideoDevice() {
-
+    window = nullptr;
+    surfaceWidth = 0;
+    surfaceHeight = 0;
+    eglSurface = EGL_NO_SURFACE;
+    eglHelper = new EglHelper();
+    haveEGLSurface = false;
+    haveEGlContext = false;
+    hasSurface = false;
 }
 
 GLESVideoDevice::~GLESVideoDevice() {
@@ -16,10 +23,13 @@ int GLESVideoDevice::destroy() {
     return VideoDevice::destroy();
 }
 
-int
-GLESVideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight, TextureFormat format,
-                               BlendMode blendMode, int rotate) {
-    return VideoDevice::onInitTexture(initTexture, newWidth, newHeight, format, blendMode, rotate);
+int GLESVideoDevice::onInitTexture(int initTexture,
+                               int newWidth, int newHeight,
+                               TextureFormat format, BlendMode blendMode,
+                               int rotate) {
+
+
+    return SUCCESS;
 }
 
 int

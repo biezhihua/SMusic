@@ -5,9 +5,7 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include <EGL/egl.h>
-//#include <GLES2/gl2.h>
-//#include <GLES2/gl2ext.h>
-//#include <GLES2/gl2platform.h>
+#include <EglHelper.h>
 
 class GLESVideoDevice : VideoDevice {
 
@@ -18,8 +16,11 @@ private:
     /// Surface窗口
     ANativeWindow *window = nullptr;
 
+    /// EGL帮助器
+    EglHelper *eglHelper = nullptr;
+
     /// eglSurface
-    EGLSurface eglSurface;
+    EGLSurface eglSurface = nullptr;
 
     /// 重新设置Surface
     bool surfaceReset;
@@ -32,6 +33,12 @@ private:
 
     /// 窗口高度
     int surfaceHeight;
+
+    /// EGLSurface
+    bool haveEGLSurface;
+
+    /// 释放资源
+    bool haveEGlContext;
 
 public:
 
