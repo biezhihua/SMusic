@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package com.bzh.splayer
 
 import android.content.Context
@@ -101,7 +103,7 @@ class MediaPlayer : IMediaPlayer {
             }
             else -> null
         }
-        native_setup(WeakReference(this))
+        _native_setup(WeakReference(this))
     }
 
     override fun setDisplay(sh: SurfaceHolder?) {
@@ -305,7 +307,7 @@ class MediaPlayer : IMediaPlayer {
 
     @Throws(Throwable::class)
     protected fun finalize() {
-        native_finalize()
+        _native_finalize()
     }
 
     override fun setOnPreparedListener(listener: IMediaPlayer.OnPreparedListener) {
@@ -494,10 +496,10 @@ class MediaPlayer : IMediaPlayer {
     private external fun _setOption(category: Int, type: String, option: String)
 
     @Throws(IllegalStateException::class)
-    private external fun native_setup(mediaplayer_this: Any)
+    private external fun _native_setup(mediaplayer_this: Any)
 
     @Throws(IllegalStateException::class)
-    private external fun native_finalize()
+    private external fun _native_finalize()
 
     @Throws(IllegalStateException::class)
     private external fun _setLooping(looping: Boolean)
@@ -601,7 +603,7 @@ class MediaPlayer : IMediaPlayer {
 //            System.loadLibrary("ffmpeg")
 //            System.loadLibrary("soundtouch")
 //            System.loadLibrary("media_player")
-            native_init()
+            _native_init()
         }
 
         @JvmOverloads
@@ -652,9 +654,9 @@ class MediaPlayer : IMediaPlayer {
             return null
         }
 
-        private external fun native_init()
+        private external fun _native_init()
 
-        private fun postEventFromNative(
+        fun postEventFromNative(
             mediaplayer_ref: Any,
             what: Int,
             arg1: Int,
