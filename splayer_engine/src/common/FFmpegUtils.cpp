@@ -81,7 +81,7 @@ AVDictionary *filterCodecOptions(AVDictionary *opts, enum AVCodecID codec_id, AV
 int checkStreamSpecifier(AVFormatContext *s, AVStream *st, const char *spec) {
     int ret = avformat_match_stream_specifier(s, st, spec);
     if (ret < 0) {
-        ALOGE("Invalid stream specifier: %s.", spec);
+        ALOGE("FFmpegUtils", "Invalid stream specifier: %s.", spec);
     }
     return ret;
 }

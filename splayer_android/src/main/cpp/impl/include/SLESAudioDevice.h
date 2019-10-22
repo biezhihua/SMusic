@@ -1,7 +1,9 @@
 #ifndef SPLAYER_ANDROID_SLESAUDIODEVICE_H
 #define SPLAYER_ANDROID_SLESAUDIODEVICE_H
 
-class SLESAudioDevice {
+#include <device/AudioDevice.h>
+
+class SLESAudioDevice : AudioDevice {
 
 };
 

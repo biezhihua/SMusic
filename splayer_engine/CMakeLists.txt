@@ -8,15 +8,15 @@ project(splayer_engine)
 # 指定C++版本
 set(CMAKE_CXX_STANDARD 11)
 
-# 设置GCC编译器的编译选项
-if (CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-declarations -Wmissing-prototypes")
-endif (CMAKE_COMPILER_IS_GNUCC)
-
-# 设置clang编译器的编译选项
-if (CMAKE_COMPILER_IS_CLANG)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-declarations -Wmissing-prototypes -Wdocumentation -Wunreachable-code")
-endif (CMAKE_COMPILER_IS_CLANG)
+## 设置GCC编译器的编译选项
+#if (CMAKE_COMPILER_IS_GNUCC)
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-declarations -Wmissing-prototypes")
+#endif (CMAKE_COMPILER_IS_GNUCC)
+#
+## 设置clang编译器的编译选项
+#if (CMAKE_COMPILER_IS_CLANG)
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-declarations -Wmissing-prototypes -Wdocumentation -Wunreachable-code")
+#endif (CMAKE_COMPILER_IS_CLANG)
 
 # 设置根目录
 get_filename_component(ENGINE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../ ABSOLUTE)
@@ -49,41 +49,46 @@ add_subdirectory(${SPLAYER_SOUND_TOUCH_DIR} splayer_soundtouch)
 # 设置子文件夹源码依赖
 # https://discourse.urho3d.io/t/how-do-you-include-source-in-subdirectories/871
 
+# 添加头文件路径
+include_directories(include)
+
 # 添加源码子目录
 file(GLOB ENGINE_CPP_FILES
-        src/common/*.cpp
-        src/convertor/*.cpp
-        src/decoder/*.cpp
-        src/device/*.cpp
-        src/player/*.cpp
-        src/queue/*.cpp
-        src/renderer/*.cpp
-        src/sync/*.cpp
-        src/message/*.cpp
-        src/stream/*.cpp
-        src/tools/*.cpp
+        src/*/*.cpp
+#        src/common/*.cpp
+#        src/convertor/*.cpp
+#        src/decoder/*.cpp
+#        src/device/*.cpp
+#        src/player/*.cpp
+#        src/queue/*.cpp
+#        src/renderer/*.cpp
+#        src/sync/*.cpp
+#        src/message/*.cpp
+#        src/stream/*.cpp
+#        src/tools/*.cpp
         )
 
 # 添加头文件子目录
 file(GLOB ENGINE_H_FILES
-        include/common/*.h
-        include/convertor/*.h
-        include/decoder/*.h
-        include/device/*.h
-        include/player/*.h
-        include/queue/*.h
-        include/renderer/*.h
-        include/sync/*.h
-        include/message/*.h
-        include/stream/*.h
-        include/tools/*.h
+        include/*/*.h
+#        include/common/*.h
+#        include/convertor/*.h
+#        include/decoder/*.h
+#        include/device/*.h
+#        include/player/*.h
+#        include/queue/*.h
+#        include/renderer/*.h
+#        include/sync/*.h
+#        include/message/*.h
+#        include/stream/*.h
+#        include/tools/*.h
         )
 
 # 设置源文件集合
 set(ENGINE_SOURCE_FILES ${ENGINE_CPP_FILES} ${ENGINE_H_FILES})
 
 # 设置库
-add_library(${PROJECT_NAME} ${ENGINE_SOURCE_FILES})
+add_library(${PROJECT_NAME} SHARED ${ENGINE_SOURCE_FILES})
 
 # 链接头文件
 target_include_directories(${PROJECT_NAME} PRIVATE

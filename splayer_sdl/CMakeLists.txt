@@ -45,7 +45,7 @@ add_subdirectory(${SPLAYER_ENGINE_DIR} splayer_engine)
 
 aux_source_directory(src src_source)
 
-add_library(splayer_sdl ${src_source})
+add_library(splayer_sdl SHARED ${src_source})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         # 引入FFmpeg头文件

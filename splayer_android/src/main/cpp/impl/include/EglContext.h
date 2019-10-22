@@ -26,7 +26,7 @@ public:
 
 private:
 
-    static EglContext *instance = nullptr;
+    static EglContext *instance;
     static std::mutex mutex;
 
     EGLContext eglContext = nullptr;

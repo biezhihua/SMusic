@@ -241,19 +241,20 @@ extern "C" int jniThrowException(C_JNIEnv *env, const char *className, const cha
         if (exception.get() != NULL) {
             std::string text;
             getExceptionSummary(env, exception.get(), text);
-            ALOGW("Discarding pending exception (%s) to throw %s", text.c_str(), className);
+            ALOGW("JniHelp", "Discarding pending exception (%s) to throw %s", text.c_str(),
+                  className);
         }
     }
 
     scoped_local_ref<jclass> exceptionClass(env, findClass(env, className));
     if (exceptionClass.get() == NULL) {
-        ALOGE("Unable to find exception class %s", className);
+        ALOGE("JniHelp", "Unable to find exception class %s", className);
         /* ClassNotFoundException now pending */
         return -1;
     }
 
     if ((*env)->ThrowNew(e, exceptionClass.get(), msg) != JNI_OK) {
-        ALOGE("Failed throwing '%s' '%s'", className, msg);
+        ALOGE("JniHelp", "Failed throwing '%s' '%s'", className, msg);
         /* an exception, most likely OOM, will now be pending */
         return -1;
     }

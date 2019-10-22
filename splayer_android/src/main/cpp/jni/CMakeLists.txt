@@ -2,7 +2,7 @@
 project(splayer_andorid_jni)
 
 # 设置cmake最低版本
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.10.2)
 
 # 添加源码子目录
 file(GLOB ANDROID_JNI_CPP_FILES src/*.cpp)
@@ -16,6 +16,9 @@ set(ANDROID_JNI_SOURCE_FILES ${ANDROID_JNI_CPP_FILES} ${ANDROID_JNI_H_FILES})
 # 设置头文件
 include_directories(
 
+        # 设置IMPL头文件目录
+        ${CMAKE_SOURCE_DIR}/impl/include
+
         # 设置ffmpeg头文件目录
         ${ANDROID_DISTRIBUTION_ANDROID_DIR}/ffmpeg/include
 
@@ -27,7 +30,9 @@ include_directories(
 )
 
 # 设置库
-add_library(${PROJECT_NAME} ${ANDROID_JNI_SOURCE_FILES})
+add_library(${PROJECT_NAME}
+#        SHARED
+        ${ANDROID_JNI_SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME}
         -landroid

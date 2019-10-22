@@ -600,9 +600,9 @@ class MediaPlayer : IMediaPlayer {
         private val MEDIA_CURRENT = 300
 
         init {
-//            System.loadLibrary("ffmpeg")
-//            System.loadLibrary("soundtouch")
-//            System.loadLibrary("media_player")
+            System.loadLibrary("sffmpeg")
+            System.loadLibrary("splayer_engine")
+            System.loadLibrary("splayer_andorid")
             _native_init()
         }
 

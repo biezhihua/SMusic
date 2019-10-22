@@ -1046,3 +1046,16 @@ int MediaPlayer::_setDataSource(const char *url, int64_t offset, const char *hea
     }
     return ERROR;
 }
+
+void MediaPlayer::setOption(int category, const char *type, const char *option) {
+    if (playerState) {
+        playerState->setOption(category, type, option);
+    }
+}
+
+void MediaPlayer::setOption(int category, const char *type, int64_t option) {
+    if (playerState) {
+        playerState->setOptionLong(category, type, option);
+    }
+}
+

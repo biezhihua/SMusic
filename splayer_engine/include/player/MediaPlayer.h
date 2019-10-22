@@ -129,6 +129,10 @@ public:
 
     void setFormatContext(AVFormatContext *formatContext);
 
+    void setOption(int category, const char *type, const char *option);
+
+    void setOption(int category, const char *type, int64_t option);
+
 protected:
 
     int _seek(float increment);

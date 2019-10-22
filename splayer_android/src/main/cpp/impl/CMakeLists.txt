@@ -2,7 +2,7 @@
 project(splayer_andorid_impl)
 
 # 设置cmake最低版本
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.10.2)
 
 # 根据API版本判断使用哪个版本的OpenGLES
 if (${ANDROID_PLATFORM_LEVEL} LESS 18)
@@ -45,7 +45,9 @@ include_directories(
 )
 
 # 设置库
-add_library(${PROJECT_NAME} ${ANDROID_IMPL_SOURCE_FILES})
+add_library(${PROJECT_NAME}
+#        SHARED
+        ${ANDROID_IMPL_SOURCE_FILES})
 
 # EGL
 # https://woshijpf.github.io/android/2017/09/04/Android%E7%B3%BB%E7%BB%9F%E5%9B%BE%E5%BD%A2%E6%A0%88OpenGLES%E5%92%8CEGL%E4%BB%8B%E7%BB%8D.html

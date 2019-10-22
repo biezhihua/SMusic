@@ -18,10 +18,10 @@
 				</MakeCommands>
 			</Target>
 			<Target title="splayer_sdl">
-				<Option output="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/libsplayer_sdl.a" prefix_auto="0" extension_auto="0"/>
+				<Option output="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/libsplayer_sdl.dylib" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl"/>
 				<Option object_output="./"/>
-				<Option type="2"/>
+				<Option type="3"/>
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/distribution/macos/ffmpeg/include"/>
@@ -45,10 +45,10 @@
 				</MakeCommands>
 			</Target>
 			<Target title="splayer_sdl/fast">
-				<Option output="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/libsplayer_sdl.a" prefix_auto="0" extension_auto="0"/>
+				<Option output="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/libsplayer_sdl.dylib" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl"/>
 				<Option object_output="./"/>
-				<Option type="2"/>
+				<Option type="3"/>
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/distribution/macos/ffmpeg/include"/>
@@ -72,16 +72,16 @@
 				</MakeCommands>
 			</Target>
 			<Target title="splayer_engine">
-				<Option output="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/splayer_engine/libsplayer_engine.a" prefix_auto="0" extension_auto="0"/>
+				<Option output="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/splayer_engine/libsplayer_engine.dylib" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/splayer_engine"/>
 				<Option object_output="./"/>
-				<Option type="2"/>
+				<Option type="3"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/distribution/macos/ffmpeg/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
 					<Add directory="/usr/local/include"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/include"/>
@@ -97,16 +97,16 @@
 				</MakeCommands>
 			</Target>
 			<Target title="splayer_engine/fast">
-				<Option output="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/splayer_engine/libsplayer_engine.a" prefix_auto="0" extension_auto="0"/>
+				<Option output="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/splayer_engine/libsplayer_engine.dylib" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/splayer_engine"/>
 				<Option object_output="./"/>
-				<Option type="2"/>
+				<Option type="3"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/distribution/macos/ffmpeg/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
 					<Add directory="/usr/local/include"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/include"/>
@@ -122,10 +122,10 @@
 				</MakeCommands>
 			</Target>
 			<Target title="splayer_soundtouch">
-				<Option output="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/splayer_engine/splayer_soundtouch/libsplayer_soundtouch.a" prefix_auto="0" extension_auto="0"/>
+				<Option output="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/splayer_engine/splayer_soundtouch/libsplayer_soundtouch.dylib" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/splayer_engine/splayer_soundtouch"/>
 				<Option object_output="./"/>
-				<Option type="2"/>
+				<Option type="3"/>
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include"/>
@@ -145,10 +145,10 @@
 				</MakeCommands>
 			</Target>
 			<Target title="splayer_soundtouch/fast">
-				<Option output="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/splayer_engine/splayer_soundtouch/libsplayer_soundtouch.a" prefix_auto="0" extension_auto="0"/>
+				<Option output="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/splayer_engine/splayer_soundtouch/libsplayer_soundtouch.dylib" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/Users/biezhihua/StudySpace/splayer/example/splayer_mac_example/splayer_sdl/splayer_engine/splayer_soundtouch"/>
 				<Option object_output="./"/>
-				<Option type="2"/>
+				<Option type="3"/>
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include"/>
@@ -313,6 +313,51 @@
 			<Option target="splayer_soundtouch"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/SoundTouchWrapper.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/AAFilter.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/BPMDetect.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/FIFOSampleBuffer.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/FIFOSamplePipe.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/FIRFilter.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/InterpolateCubic.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/InterpolateLinear.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/InterpolateShannon.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/PeakFinder.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/RateTransposer.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/STTypes.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/SoundTouch.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/TDStretch.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/cpu_detect.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/soundtouch_config.h">
 			<Option target="splayer_soundtouch"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/AAFilter.cpp">
