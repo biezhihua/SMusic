@@ -118,8 +118,8 @@ public:
 };
 
 
-static AndroidMediaPlayer *getMediaPlayer(JNIEnv *env, jobject thiz) {
-    AndroidMediaPlayer *const mp = (AndroidMediaPlayer *) env->GetLongField(thiz, fields.context);
+static MediaPlayer *getMediaPlayer(JNIEnv *env, jobject thiz) {
+    AndroidMediaPlayer *mp = (AndroidMediaPlayer *) env->GetLongField(thiz, fields.context);
     return mp;
 }
 

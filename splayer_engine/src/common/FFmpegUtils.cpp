@@ -37,6 +37,10 @@ AVDictionary *filterCodecOptions(AVDictionary *opts, enum AVCodecID codec_id, AV
             flags |= AV_OPT_FLAG_SUBTITLE_PARAM;
             break;
         }
+        case AVMEDIA_TYPE_UNKNOWN:break;
+        case AVMEDIA_TYPE_DATA:break;
+        case AVMEDIA_TYPE_ATTACHMENT:break;
+        case AVMEDIA_TYPE_NB:break;
     }
 
     while ((t = av_dict_get(opts, "", t, AV_DICT_IGNORE_SUFFIX))) {

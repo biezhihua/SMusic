@@ -3,7 +3,7 @@
 
 #include <device/AudioDevice.h>
 
-class SLESAudioDevice : AudioDevice {
+class SLESAudioDevice : public AudioDevice {
 
 };
 

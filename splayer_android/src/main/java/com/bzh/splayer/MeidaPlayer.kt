@@ -601,8 +601,10 @@ class MediaPlayer : IMediaPlayer {
 
         init {
             System.loadLibrary("sffmpeg")
+            System.loadLibrary("splayer_soundtouch")
             System.loadLibrary("splayer_engine")
-            System.loadLibrary("splayer_andorid")
+            System.loadLibrary("splayer_andorid_impl")
+            System.loadLibrary("splayer_andorid_jni")
             _native_init()
         }
 

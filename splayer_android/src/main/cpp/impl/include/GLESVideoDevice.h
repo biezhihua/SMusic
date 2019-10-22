@@ -7,7 +7,7 @@
 #include <EGL/egl.h>
 #include <EglHelper.h>
 
-class GLESVideoDevice : VideoDevice {
+class GLESVideoDevice : public VideoDevice {
 
     const char *const TAG = "GLESVideoDevice";
 

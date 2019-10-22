@@ -7,16 +7,6 @@ cmake_minimum_required(VERSION 3.10.2)
 # 设置C++版本
 set(CMAKE_CXX_STANDARD 11)
 
-## 设置GCC编译器的编译选项
-#if (CMAKE_COMPILER_IS_GNUCC)
-#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-declarations -Wmissing-prototypes")
-#endif (CMAKE_COMPILER_IS_GNUCC)
-#
-## 设置clang编译器的编译选项
-#if (CMAKE_COMPILER_IS_CLANG)
-#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-declarations -Wmissing-prototypes -Wdocumentation -Wunreachable-code")
-#endif (CMAKE_COMPILER_IS_CLANG)
-
 # 设置Root目录
 get_filename_component(ANDROID_ROOT_DIR ${CMAKE_SOURCE_DIR}/../../../../ ABSOLUTE)
 
@@ -34,11 +24,6 @@ set_target_properties(splayer_openssl_crypto PROPERTIES IMPORTED_LOCATION ${ANDR
 # 设置openssl依赖库
 add_library(splayer_openssl_ssl STATIC IMPORTED)
 set_target_properties(splayer_openssl_ssl PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/openssl/lib/${ANDROID_ABI}/libssl.a)
-
-# 打印消息
-message("LOG ANDROID ANDROID_ROOT_DIR = ${ANDROID_ROOT_DIR}")
-message("LOG ANDROID CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
-message("LOG ANDROID ANDROID_DISTRIBUTION_ANDROID_DIR = ${ANDROID_DISTRIBUTION_ANDROID_DIR}")
 
 # android splayer 实现库
 add_subdirectory(${CMAKE_SOURCE_DIR}/impl)

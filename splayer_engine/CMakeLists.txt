@@ -90,5 +90,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Android")
+    target_link_libraries(${PROJECT_NAME}
+            splayer_ffmpeg
+            splayer_openssl_crypto
+            splayer_openssl_ssl
+            )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "iOS")
 endif ()

@@ -3,9 +3,9 @@
 
 #include <MediaPlayer.h>
 #include <android/native_window.h>
-#include <include/GLESVideoDevice.h>
+#include <GLESVideoDevice.h>
 
-class AndroidMediaPlayer : MediaPlayer {
+class AndroidMediaPlayer : public MediaPlayer {
 
     const char *const TAG = "AndroidMediaPlayer";
 

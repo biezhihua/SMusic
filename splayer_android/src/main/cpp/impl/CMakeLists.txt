@@ -52,7 +52,7 @@ include_directories(
 
 # 设置库
 add_library(${PROJECT_NAME}
-        #        SHARED
+        SHARED
         ${ANDROID_IMPL_SOURCE_FILES})
 
 # EGL
