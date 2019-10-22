@@ -6,7 +6,7 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <EGL/eglplatform.h>
-#include <EglHelper.h>
+#include "EglHelper.h"
 
 /**
  * EGLContext 上下文，为了方便使用SharedContext而造的

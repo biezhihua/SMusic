@@ -7,7 +7,7 @@
 #include <EGL/eglplatform.h>
 #include <common/Log.h>
 #include <common/Errors.h>
-#include <EglContext.h>
+#include "EglContext.h"
 
 /**
  * Constructor flag:
