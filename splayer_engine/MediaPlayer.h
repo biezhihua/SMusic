@@ -15,7 +15,7 @@ class Stream;
 #include <common/Log.h>
 #include <message/MessageCenter.h>
 #include <stream/IStreamListener.h>
-#include "IMediaPlayer.h"
+#include <player/IMediaPlayer.h>
 
 class MediaPlayer : public IMediaPlayer, IStreamListener {
 

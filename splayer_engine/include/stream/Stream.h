@@ -3,7 +3,7 @@
 
 class MediaPlayer;
 
-#include <player/MediaPlayer.h>
+#include <MediaPlayer.h>
 #include <common/Thread.h>
 #include <player/PlayerState.h>
 #include <decoder/AudioDecoder.h>

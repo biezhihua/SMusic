@@ -24,16 +24,10 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "iOS")
     set(SDL_DISTRIBUTION_DIR ${SDL_ROOT_DIR}/distribution/ios)
 endif ()
 
-# 设置引擎目录
-set(SPLAYER_ENGINE_DIR ${SDL_ROOT_DIR}/splayer_engine)
-
-# 设置SoundTouch目录
-set(SPLAYER_SOUND_TOUCH_DIR ${SDL_ROOT_DIR}/splayer_soundtouch)
 
 #
 message("LOG SDL SDL_ROOT_DIR = ${SDL_ROOT_DIR}")
 message("LOG SDL SDL_DISTRIBUTION_DIR = ${SDL_DISTRIBUTION_DIR}")
-message("LOG SDL SPLAYER_SOUND_TOUCH_DIR = ${SPLAYER_SOUND_TOUCH_DIR}")
 message("LOG SDL CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
 
 # 设置SDL2包
@@ -41,7 +35,7 @@ set(SDL2_FOUND TRUE)
 find_package(SDL2 REQUIRED)
 
 # 添加引擎子模块目录
-add_subdirectory(${SPLAYER_ENGINE_DIR} splayer_engine)
+add_subdirectory(${SDL_ROOT_DIR}/splayer_engine splayer_engine)
 
 aux_source_directory(src src_source)
 
@@ -52,11 +46,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         ${SDL_DISTRIBUTION_DIR}/ffmpeg/include
 
         # 引入SoundTouch头文件
-        ${SPLAYER_SOUND_TOUCH_DIR}/include
-        ${SPLAYER_SOUND_TOUCH_DIR}
+        ${SDL_ROOT_DIR}/splayer_soundtouch/include
+        ${SDL_ROOT_DIR}/splayer_soundtouch
 
         # 引入引擎头文件
-        ${SPLAYER_ENGINE_DIR}/include
+        ${SDL_ROOT_DIR}/splayer_engine/include
+        ${SDL_ROOT_DIR}/splayer_engine
 
         # 引入自有代码头文件
         ${CMAKE_CURRENT_SOURCE_DIR}/include

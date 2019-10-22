@@ -1,4 +1,4 @@
-#include <player/MediaPlayer.h>
+#include "MediaPlayer.h"
 
 void audioPCMQueueCallback(void *opaque, uint8_t *stream, int len) {
     MediaPlayer *mediaPlayer = (MediaPlayer *) opaque;
@@ -219,7 +219,7 @@ long MediaPlayer::getCurrentPosition() {
         if (isnan(clock)) {
             pos = playerState->seekPos;
         } else {
-            pos = (int64_t) (clock * 1000);
+            pos = (int64_t)(clock * 1000);
         }
         if (pos < 0 || pos < start_diff) {
             return 0;
@@ -895,7 +895,7 @@ int MediaPlayer::_seek(float increment) {
             pos < playerState->formatContext->start_time / (double) AV_TIME_BASE) {
             pos = playerState->formatContext->start_time / (double) AV_TIME_BASE;
         }
-        _seek((int64_t) (pos * AV_TIME_BASE), (int64_t) (increment * AV_TIME_BASE), 0);
+        _seek((int64_t)(pos * AV_TIME_BASE), (int64_t)(increment * AV_TIME_BASE), 0);
     }
     return SUCCESS;
 }

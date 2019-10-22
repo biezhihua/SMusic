@@ -1,7 +1,7 @@
 #ifndef SDL_MEDIAPLAYER_H
 #define SDL_MEDIAPLAYER_H
 
-#include <player/MediaPlayer.h>
+#include <MediaPlayer.h>
 #include <message/MessageCenter.h>
 #include <message/IMessageListener.h>
 #include <sync/MediaSync.h>

@@ -16,10 +16,14 @@ endif (${ANDROID_PLATFORM_LEVEL} LESS 11)
 add_subdirectory(${ANDROID_ROOT_DIR}/splayer_engine splayer_engine)
 
 # 添加源码子目录
-file(GLOB ANDROID_IMPL_CPP_FILES src/*.cpp)
+file(GLOB ANDROID_IMPL_CPP_FILES
+        src/*.cpp
+        )
 
 # 添加头文件子目录
-file(GLOB ANDROID_IMPL_H_FILES include/*.h)
+file(GLOB ANDROID_IMPL_H_FILES
+        include/*.h
+        )
 
 # 设置源文件集合
 set(ANDROID_IMPL_SOURCE_FILES ${ANDROID_IMPL_CPP_FILES} ${ANDROID_IMPL_H_FILES})
@@ -35,18 +39,20 @@ include_directories(
 
         # 引入SoundTouch头文件
         ${ANDROID_ROOT_DIR}/splayer_soundtouch/include
-        ${ANDROID_ROOT_DIR}/splayer_soundtouch/
+        ${ANDROID_ROOT_DIR}/splayer_soundtouch
 
         # 引入引擎头文件
         ${ANDROID_ROOT_DIR}/splayer_engine/include
+        ${ANDROID_ROOT_DIR}/splayer_engine
 
         # 引入自有代码头文件
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # 设置库
 add_library(${PROJECT_NAME}
-#        SHARED
+        #        SHARED
         ${ANDROID_IMPL_SOURCE_FILES})
 
 # EGL

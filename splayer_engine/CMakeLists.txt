@@ -40,48 +40,24 @@ set(SPLAYER_SOUND_TOUCH_DIR ${ENGINE_ROOT_DIR}/splayer_soundtouch)
 # 打印消息
 message("LOG ENGINE ENGINE_ROOT_DIR = ${ENGINE_ROOT_DIR}")
 message("LOG ENGINE ENGINE_DISTRIBUTION_DIR = ${ENGINE_DISTRIBUTION_DIR}")
-message("LOG ENGINE SPLAYER_SOUND_TOUCH_DIR = ${SPLAYER_SOUND_TOUCH_DIR}")
 message("LOG ENGINE CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
 
 # 添加SoundTouch子模块目录
-add_subdirectory(${SPLAYER_SOUND_TOUCH_DIR} splayer_soundtouch)
+add_subdirectory(${ENGINE_ROOT_DIR}/splayer_soundtouch splayer_soundtouch)
 
 # 设置子文件夹源码依赖
 # https://discourse.urho3d.io/t/how-do-you-include-source-in-subdirectories/871
 
-# 添加头文件路径
-include_directories(include)
-
 # 添加源码子目录
 file(GLOB ENGINE_CPP_FILES
         src/*/*.cpp
-#        src/common/*.cpp
-#        src/convertor/*.cpp
-#        src/decoder/*.cpp
-#        src/device/*.cpp
-#        src/player/*.cpp
-#        src/queue/*.cpp
-#        src/renderer/*.cpp
-#        src/sync/*.cpp
-#        src/message/*.cpp
-#        src/stream/*.cpp
-#        src/tools/*.cpp
+        *.cpp
         )
 
 # 添加头文件子目录
 file(GLOB ENGINE_H_FILES
         include/*/*.h
-#        include/common/*.h
-#        include/convertor/*.h
-#        include/decoder/*.h
-#        include/device/*.h
-#        include/player/*.h
-#        include/queue/*.h
-#        include/renderer/*.h
-#        include/sync/*.h
-#        include/message/*.h
-#        include/stream/*.h
-#        include/tools/*.h
+        *.h
         )
 
 # 设置源文件集合
@@ -96,11 +72,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         ${ENGINE_DISTRIBUTION_DIR}/ffmpeg/include
 
         # 引入SoundTouch头文件
-        ${SPLAYER_SOUND_TOUCH_DIR}/include
-        ${SPLAYER_SOUND_TOUCH_DIR}
+        ${ENGINE_ROOT_DIR}/splayer_soundtouch/include
+        ${ENGINE_ROOT_DIR}/splayer_soundtouch
 
         # 引入自有代码头文件
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
 # 链接子模块

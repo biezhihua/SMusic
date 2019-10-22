@@ -1,9 +1,9 @@
 #ifndef SPLAYER_ANDROID_MEDIAPLAYER_H
 #define SPLAYER_ANDROID_MEDIAPLAYER_H
 
-#include <player/MediaPlayer.h>
+#include <MediaPlayer.h>
 #include <android/native_window.h>
-#include <GLESVideoDevice.h>
+#include <include/GLESVideoDevice.h>
 
 class AndroidMediaPlayer : MediaPlayer {
 
