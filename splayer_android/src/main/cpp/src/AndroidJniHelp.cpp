@@ -28,7 +28,7 @@
 
 #include <string>
 #include <jni.h>
-#include <JNIHelp.h>
+#include <AndroidJniHelp.h>
 
 
 /**

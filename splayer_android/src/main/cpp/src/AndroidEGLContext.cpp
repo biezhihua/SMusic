@@ -1,30 +1,30 @@
-#include <EglContext.h>
+#include <AndroidEGLContext.h>
 
-EglContext *EglContext::instance;
+AndroidEGLContext *AndroidEGLContext::instance;
 
-std::mutex  EglContext::mutex;
+std::mutex  AndroidEGLContext::mutex;
 
-EglContext::EglContext() {
+AndroidEGLContext::AndroidEGLContext() {
     eglDisplay = EGL_NO_DISPLAY;
     eglContext = EGL_NO_CONTEXT;
     init(FLAG_TRY_GLES3);
 }
 
-EglContext::~EglContext() {
+AndroidEGLContext::~AndroidEGLContext() {
     release();
 }
 
-EglContext *EglContext::getInstance() {
+AndroidEGLContext *AndroidEGLContext::getInstance() {
     if (!instance) {
         std::unique_lock<std::mutex> lock(mutex);
         if (!instance) {
-            instance = new(std::nothrow) EglContext();
+            instance = new(std::nothrow) AndroidEGLContext();
         }
     }
     return instance;
 }
 
-int EglContext::init(int flags) {
+int AndroidEGLContext::init(int flags) {
 
     if (eglDisplay != EGL_NO_DISPLAY) {
         if (DEBUG) {
@@ -91,7 +91,7 @@ int EglContext::init(int flags) {
 }
 
 /// https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglChooseConfig.xhtml
-EGLConfig EglContext::getConfig(int flags, int version) {
+EGLConfig AndroidEGLContext::getConfig(int flags, int version) {
     int renderType = EGL_OPENGL_ES2_BIT;
     if (version >= 3) {
         renderType |= EGL_OPENGL_ES3_BIT_KHR;
@@ -121,7 +121,7 @@ EGLConfig EglContext::getConfig(int flags, int version) {
     return configs;
 }
 
-int EglContext::release() {
+int AndroidEGLContext::release() {
     if (eglDisplay != EGL_NO_DISPLAY) {
         eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     }
@@ -133,7 +133,7 @@ int EglContext::release() {
     return SUCCESS;
 }
 
-void EglContext::destroy() {
+void AndroidEGLContext::destroy() {
     if (instance) {
         std::unique_lock<std::mutex> lock(mutex);
         if (!instance) {
@@ -143,7 +143,7 @@ void EglContext::destroy() {
     }
 }
 
-void EglContext::checkEglError(const char *msg) {
+void AndroidEGLContext::checkEglError(const char *msg) {
     int error;
     if ((error = eglGetError()) != EGL_SUCCESS) {
         if (DEBUG) {
@@ -152,7 +152,7 @@ void EglContext::checkEglError(const char *msg) {
     }
 }
 
-EGLContext EglContext::getContext() {
+EGLContext AndroidEGLContext::getContext() {
     return eglContext;
 }
 

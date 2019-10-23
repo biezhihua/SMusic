@@ -1,6 +1,6 @@
-#include "EglHelper.h"
+#include "AndroidEGLHelper.h"
 
-EglHelper::EglHelper() {
+AndroidEGLHelper::AndroidEGLHelper() {
     eglDisplay = EGL_NO_DISPLAY;
     eglConfig = nullptr;
     eglContext = EGL_NO_CONTEXT;
@@ -9,15 +9,15 @@ EglHelper::EglHelper() {
     eglPresentationTimeANDROID = nullptr;
 }
 
-EglHelper::~EglHelper() {
+AndroidEGLHelper::~AndroidEGLHelper() {
     release();
 }
 
-int EglHelper::init(int flags) {
-    return init(EglContext::getInstance()->getContext(), flags);
+int AndroidEGLHelper::init(int flags) {
+    return init(AndroidEGLContext::getInstance()->getContext(), flags);
 }
 
-int EglHelper::init(EGLContext sharedContext, int flags) {
+int AndroidEGLHelper::init(EGLContext sharedContext, int flags) {
 
     if (eglDisplay != EGL_NO_DISPLAY) {
         if (DEBUG) {
@@ -109,7 +109,7 @@ int EglHelper::init(EGLContext sharedContext, int flags) {
     return SUCCESS;
 }
 
-void EglHelper::release() {
+void AndroidEGLHelper::release() {
     if (eglDisplay != EGL_NO_DISPLAY) {
         eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     }
@@ -125,15 +125,15 @@ void EglHelper::release() {
     eglContext = EGL_NO_CONTEXT;
 }
 
-EGLContext EglHelper::getEglContext() {
+EGLContext AndroidEGLHelper::getEglContext() {
     return eglContext;
 }
 
-void EglHelper::destroySurface(EGLSurface eglSurface) {
+void AndroidEGLHelper::destroySurface(EGLSurface eglSurface) {
     eglDestroySurface(eglDisplay, eglSurface);
 }
 
-EGLSurface EglHelper::createSurface(ANativeWindow *surface) {
+EGLSurface AndroidEGLHelper::createSurface(ANativeWindow *surface) {
     if (surface == nullptr) {
         if (DEBUG) {
             ALOGE(TAG, "Window surface is NULL!");
@@ -153,7 +153,7 @@ EGLSurface EglHelper::createSurface(ANativeWindow *surface) {
     return eglSurface;
 }
 
-EGLSurface EglHelper::createSurface(int width, int height) {
+EGLSurface AndroidEGLHelper::createSurface(int width, int height) {
     int attributeList[] = {
             EGL_WIDTH, width,
             EGL_HEIGHT, height,
@@ -169,7 +169,7 @@ EGLSurface EglHelper::createSurface(int width, int height) {
     return eglSurface;
 }
 
-void EglHelper::makeCurrent(EGLSurface eglSurface) {
+void AndroidEGLHelper::makeCurrent(EGLSurface eglSurface) {
     if (eglDisplay == EGL_NO_DISPLAY) {
         if (DEBUG) {
             ALOGD(TAG, "Note: makeCurrent w/o display.");
@@ -182,7 +182,7 @@ void EglHelper::makeCurrent(EGLSurface eglSurface) {
     }
 }
 
-void EglHelper::makeCurrent(EGLSurface drawSurface, EGLSurface readSurface) {
+void AndroidEGLHelper::makeCurrent(EGLSurface drawSurface, EGLSurface readSurface) {
     if (eglDisplay == EGL_NO_DISPLAY) {
         if (DEBUG) {
             ALOGD(TAG, "Note: makeCurrent w/o display.");
@@ -195,7 +195,7 @@ void EglHelper::makeCurrent(EGLSurface drawSurface, EGLSurface readSurface) {
     }
 }
 
-void EglHelper::makeNothingCurrent() {
+void AndroidEGLHelper::makeNothingCurrent() {
     if (!eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
         if (DEBUG) {
             ALOGE(TAG, "egl mark current error");
@@ -203,39 +203,39 @@ void EglHelper::makeNothingCurrent() {
     }
 }
 
-int EglHelper::swapBuffers(EGLSurface eglSurface) {
+int AndroidEGLHelper::swapBuffers(EGLSurface eglSurface) {
     if (!eglSwapBuffers(eglDisplay, eglSurface)) {
         return eglGetError();
     }
     return EGL_SUCCESS;
 }
 
-void EglHelper::setPresentationTime(EGLSurface eglSurface, long nsecs) {
+void AndroidEGLHelper::setPresentationTime(EGLSurface eglSurface, long nsecs) {
     if (eglPresentationTimeANDROID != nullptr) {
         eglPresentationTimeANDROID(eglDisplay, eglSurface, nsecs);
     }
 }
 
-bool EglHelper::isCurrent(EGLSurface eglSurface) {
+bool AndroidEGLHelper::isCurrent(EGLSurface eglSurface) {
     return (eglContext == eglGetCurrentContext())
            && (eglSurface == eglGetCurrentSurface(EGL_DRAW));
 }
 
-int EglHelper::querySurface(EGLSurface eglSurface, int what) {
+int AndroidEGLHelper::querySurface(EGLSurface eglSurface, int what) {
     int value;
     eglQuerySurface(eglContext, eglSurface, what, &value);
     return value;
 }
 
-const char *EglHelper::queryString(int what) {
+const char *AndroidEGLHelper::queryString(int what) {
     return eglQueryString(eglDisplay, what);
 }
 
-int EglHelper::getGlVersion() {
+int AndroidEGLHelper::getGlVersion() {
     return glVersion;
 }
 
-void EglHelper::checkEglError(const char *msg) {
+void AndroidEGLHelper::checkEglError(const char *msg) {
     int error;
     if ((error = eglGetError()) != EGL_SUCCESS) {
         if (DEBUG) {
@@ -244,7 +244,7 @@ void EglHelper::checkEglError(const char *msg) {
     }
 }
 
-EGLConfig EglHelper::getConfig(int flags, int version) {
+EGLConfig AndroidEGLHelper::getConfig(int flags, int version) {
     int renderType = EGL_OPENGL_ES2_BIT;
     if (version >= 3) {
         renderType |= EGL_OPENGL_ES3_BIT_KHR;

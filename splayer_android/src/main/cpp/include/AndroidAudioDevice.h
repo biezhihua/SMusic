@@ -3,7 +3,9 @@
 
 #include <device/AudioDevice.h>
 
-class SLESAudioDevice : public AudioDevice {
+class AndroidAudioDevice : public AudioDevice {
+
+    const char *const TAG = "AndroidAudioDevice";
 
 };
 

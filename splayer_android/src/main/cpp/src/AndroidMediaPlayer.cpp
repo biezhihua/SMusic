@@ -8,7 +8,7 @@ int AndroidMediaPlayer::setVideoSurface(ANativeWindow *nativeWindow) {
         return ERROR;
     }
     if (videoDevice) {
-        GLESVideoDevice *device = dynamic_cast<GLESVideoDevice *>(videoDevice);
+        AndroidVideoDevice *device = dynamic_cast<AndroidVideoDevice *>(videoDevice);
         if (device) {
             device->onSurfaceCreated(nativeWindow);
         }

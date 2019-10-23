@@ -7,7 +7,7 @@
 #include <EGL/eglplatform.h>
 #include <common/Log.h>
 #include <common/Errors.h>
-#include "EglContext.h"
+#include "AndroidEGLContext.h"
 
 /**
  * Constructor flag:
@@ -28,15 +28,15 @@ typedef EGLBoolean (EGLAPIENTRYP EGL_PRESENTATION_TIME_ANDROIDPROC)(EGLDisplay d
                                                                     EGLSurface surface,
                                                                     khronos_stime_nanoseconds_t time);
 
-class EglHelper {
+class AndroidEGLHelper {
 
-    const char *const TAG = "EglHelper";
+    const char *const TAG = "AndroidEGLHelper";
 
 public:
 
-    EglHelper();
+    AndroidEGLHelper();
 
-    virtual ~EglHelper();
+    virtual ~AndroidEGLHelper();
 
     /// 初始化
     int init(int flags);

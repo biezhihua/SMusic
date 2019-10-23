@@ -5,11 +5,11 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include <EGL/egl.h>
-#include "EglHelper.h"
+#include "AndroidEGLHelper.h"
 
-class GLESVideoDevice : public VideoDevice {
+class AndroidVideoDevice : public VideoDevice {
 
-    const char *const TAG = "GLESVideoDevice";
+    const char *const TAG = "AndroidVideoDevice";
 
 private:
 
@@ -17,7 +17,7 @@ private:
     ANativeWindow *window = nullptr;
 
     /// EGL帮助器
-    EglHelper *eglHelper = nullptr;
+    AndroidEGLHelper *eglHelper = nullptr;
 
     /// eglSurface
     EGLSurface eglSurface = nullptr;
@@ -42,9 +42,9 @@ private:
 
 public:
 
-    GLESVideoDevice();
+    AndroidVideoDevice();
 
-    ~GLESVideoDevice() override;
+    ~AndroidVideoDevice() override;
 
     int create() override;
 

@@ -1,11 +1,11 @@
 #include <jni.h>
 #include <cassert>
 #include <common/Log.h>
-#include <JNIHelp.h>
+#include <AndroidJniHelp.h>
 #include <android/native_window_jni.h>
 #include <AndroidMediaPlayer.h>
 #include <AndroidMediaSync.h>
-#include <SLESAudioDevice.h>
+#include <AndroidAudioDevice.h>
 
 extern "C" {
 #include <libavcodec/jni.h>
@@ -332,11 +332,11 @@ void MediaPlayer_create(JNIEnv *env, jobject thiz, jobject mediaplayer_this) {
     }
 
     MediaPlayer *mp = AndroidMediaPlayer::Builder{}
-            .withAudioDevice(new SLESAudioDevice())
-            .withVideoDevice(new GLESVideoDevice())
+            .withAudioDevice(new AndroidAudioDevice())
+            .withVideoDevice(new AndroidVideoDevice())
             .withMediaSync(new AndroidMediaSync())
             .withMessageListener(new MessageListener(env, thiz, mediaplayer_this))
-            .withDebug(true)
+            .withDebug(JNI_DEBUG)
             .build();
 
     if (mp == nullptr) {

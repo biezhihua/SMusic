@@ -3,7 +3,7 @@
 
 #include <MediaPlayer.h>
 #include <android/native_window.h>
-#include "GLESVideoDevice.h"
+#include "AndroidVideoDevice.h"
 
 class AndroidMediaPlayer : public MediaPlayer {
 
