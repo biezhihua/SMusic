@@ -3,7 +3,7 @@
 
 #include <sync/MediaSync.h>
 
-class AndroidMediaSync : MediaSync {
+class AndroidMediaSync : public MediaSync {
 
     const char *const TAG = "AndroidMediaSync";
 private:

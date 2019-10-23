@@ -94,6 +94,8 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Android")
             splayer_ffmpeg
             splayer_openssl_crypto
             splayer_openssl_ssl
+            -landroid
+            -llog
             )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "iOS")
 endif ()

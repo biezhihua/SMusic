@@ -572,6 +572,9 @@ class MediaPlayer : IMediaPlayer {
 
     companion object {
 
+        @JvmStatic
+        val DEBUG = true
+
         private val TAG = "CainMediaPlayer"
 
         //
@@ -607,7 +610,7 @@ class MediaPlayer : IMediaPlayer {
             _native_init()
         }
 
-        @JvmOverloads
+        @JvmStatic
         fun create(context: Context, uri: Uri, holder: SurfaceHolder? = null): MediaPlayer? {
 
             try {
@@ -632,6 +635,7 @@ class MediaPlayer : IMediaPlayer {
             return null
         }
 
+        @JvmStatic
         fun create(context: Context, resid: Int): MediaPlayer? {
             try {
                 val afd = context.resources.openRawResourceFd(resid) ?: return null
@@ -655,8 +659,10 @@ class MediaPlayer : IMediaPlayer {
             return null
         }
 
+        @JvmStatic
         private external fun _native_init()
 
+        @JvmStatic
         fun postEventFromNative(
             mediaplayer_ref: Any,
             what: Int,

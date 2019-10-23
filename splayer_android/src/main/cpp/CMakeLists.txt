@@ -25,13 +25,6 @@ set_target_properties(splayer_openssl_crypto PROPERTIES IMPORTED_LOCATION ${ANDR
 add_library(splayer_openssl_ssl STATIC IMPORTED)
 set_target_properties(splayer_openssl_ssl PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/openssl/lib/${ANDROID_ABI}/libssl.a)
 
-# android splayer 实现库
-#add_subdirectory(${CMAKE_SOURCE_DIR}/impl)
-
-# android splayer 接口库
-#add_subdirectory(${CMAKE_SOURCE_DIR}/jni)
-
-
 # 根据API版本判断使用哪个版本的OpenGLES
 if (${ANDROID_PLATFORM_LEVEL} LESS 18)
     add_definitions("-DDYNAMIC_ES3")
@@ -46,6 +39,7 @@ add_subdirectory(${ANDROID_ROOT_DIR}/splayer_engine splayer_engine)
 # 添加源码子目录
 file(GLOB ANDROID_CPP_FILES
         src/*.cpp
+        *.cpp
         )
 
 # 添加头文件子目录
@@ -75,6 +69,7 @@ include_directories(
 
         # 引入自有代码头文件
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # 设置库
