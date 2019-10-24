@@ -1,14 +1,12 @@
-#ifndef SPLAYER_ANDROID_EGLHELPER_H
-#define SPLAYER_ANDROID_EGLHELPER_H
+#ifndef RENDERER_EGLHELPER_H
+#define RENDERER_EGLHELPER_H
 
 #include <android/native_window.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <EGL/eglplatform.h>
-#include <common/Log.h>
-#include <common/Errors.h>
-#include "AndroidEGLContext.h"
-
+#include "EglContext.h"
+#include "Log.h"
 /**
  * Constructor flag:
  * surface must be recordable.  This discourages EGL from using a
@@ -28,15 +26,15 @@ typedef EGLBoolean (EGLAPIENTRYP EGL_PRESENTATION_TIME_ANDROIDPROC)(EGLDisplay d
                                                                     EGLSurface surface,
                                                                     khronos_stime_nanoseconds_t time);
 
-class AndroidEGLHelper {
+class EglHelper {
 
-    const char *const TAG = "AndroidEGLHelper";
+    const char *const TAG = "EglHelper";
 
 public:
 
-    AndroidEGLHelper();
+    EglHelper();
 
-    virtual ~AndroidEGLHelper();
+    virtual ~EglHelper();
 
     /// 初始化
     int init(int flags);

@@ -1,24 +1,25 @@
-#ifndef CAINEGLCONTEXT_H
-#define CAINEGLCONTEXT_H
+#ifndef RENDERER_EGLCONTEXT_H
+#define RENDERER_EGLCONTEXT_H
 
 #include <mutex>
 #include <android/native_window.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <EGL/eglplatform.h>
-#include "AndroidEGLHelper.h"
+#include "EglHelper.h"
+#include "Log.h"
 
 /**
  * EGLContext 上下文，为了方便使用SharedContext而造的
  * https://woshijpf.github.io/android/2017/09/04/Android%E7%B3%BB%E7%BB%9F%E5%9B%BE%E5%BD%A2%E6%A0%88OpenGLES%E5%92%8CEGL%E4%BB%8B%E7%BB%8D.html
  * https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglGetDisplay.xhtml
  */
-class AndroidEGLContext {
+class EglContext {
 
-    const char *const TAG = "AndroidEGLContext";
+    const char *const TAG = "EglContext";
 
 public:
-    static AndroidEGLContext *getInstance();
+    static EglContext *getInstance();
 
     void destroy();
 
@@ -26,7 +27,7 @@ public:
 
 private:
 
-    static AndroidEGLContext *instance;
+    static EglContext *instance;
     static std::mutex mutex;
 
     EGLContext eglContext = nullptr;
@@ -34,9 +35,9 @@ private:
 
 private:
 
-    AndroidEGLContext();
+    EglContext();
 
-    virtual ~AndroidEGLContext();
+    virtual ~EglContext();
 
     int init(int flags);
 

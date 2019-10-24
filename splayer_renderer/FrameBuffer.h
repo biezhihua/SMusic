@@ -1,8 +1,12 @@
-#ifndef SPLAYER_ANDROID_FRAMEBUFFER_H
-#define SPLAYER_ANDROID_FRAMEBUFFER_H
+#ifndef RENDERER_FRAME_BUFFER_H
+#define RENDERER_FRAME_BUFFER_H
+
+#if defined(__ANDROID__)
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+
+#endif
 
 /**
  * 纹理Attribute参数

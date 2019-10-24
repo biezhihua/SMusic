@@ -36,17 +36,17 @@ endif (${ANDROID_PLATFORM_LEVEL} LESS 11)
 # 添加引擎子模块目录
 add_subdirectory(${ANDROID_ROOT_DIR}/splayer_engine splayer_engine)
 
+add_subdirectory(${ANDROID_ROOT_DIR}/splayer_renderer splayer_renderer)
+
 # 添加源码子目录
 file(GLOB ANDROID_CPP_FILES
         src/*.cpp
-        src/renderer/*.cpp
         *.cpp
         )
 
 # 添加头文件子目录
 file(GLOB ANDROID_H_FILES
         include/*.h
-        include/renderer/*.h
         *.h
         )
 
@@ -62,13 +62,17 @@ include_directories(
         # 设置openssl头文件目录
         ${ANDROID_DISTRIBUTION_ANDROID_DIR}/openssl/include
 
-        # 引入SoundTouch头文件
-        ${ANDROID_ROOT_DIR}/splayer_soundtouch/include
-        ${ANDROID_ROOT_DIR}/splayer_soundtouch
-
         # 引入引擎头文件
         ${ANDROID_ROOT_DIR}/splayer_engine/include
         ${ANDROID_ROOT_DIR}/splayer_engine
+
+        # 引入渲染器头文件
+        ${ANDROID_ROOT_DIR}/splayer_renderer/include
+        ${ANDROID_ROOT_DIR}/splayer_renderer
+
+        # 引入SoundTouch头文件
+        ${ANDROID_ROOT_DIR}/splayer_soundtouch/include
+        ${ANDROID_ROOT_DIR}/splayer_soundtouch
 
         # 引入自有代码头文件
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -86,6 +90,7 @@ add_library(${PROJECT_NAME}
 # 链接静态库
 target_link_libraries(${PROJECT_NAME}
         splayer_engine
+        splayer_renderer
         -landroid
         -llog
         -lEGL

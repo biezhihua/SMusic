@@ -6,6 +6,7 @@
 #include <AndroidMediaPlayer.h>
 #include <AndroidMediaSync.h>
 #include <AndroidAudioDevice.h>
+#include <Log.h>
 
 extern "C" {
 #include <libavcodec/jni.h>
@@ -293,6 +294,8 @@ void MediaPlayer_init(JNIEnv *env) {
 
     // 获取DEBUG
     JNI_DEBUG = env->GetStaticBooleanField(clazz, env->GetStaticFieldID(clazz, "DEBUG", "Z"));
+
+    RENDERER_DEBUG = JNI_DEBUG;
 
     if (JNI_DEBUG) {
         ALOGD(TAG, __func__);

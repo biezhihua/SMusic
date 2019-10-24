@@ -1,10 +1,6 @@
 #ifndef ENGINE_GLINPUTFILTER_H
 #define ENGINE_GLINPUTFILTER_H
 
-#include <cstdint>
-
-#define GLES_MAX_PLANE 3
-
 /**
  * 纹理图像格式
  */

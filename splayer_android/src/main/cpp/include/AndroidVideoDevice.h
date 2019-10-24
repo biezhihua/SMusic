@@ -5,7 +5,7 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include <EGL/egl.h>
-#include "AndroidEGLHelper.h"
+#include <EglHelper.h>
 
 class AndroidVideoDevice : public VideoDevice {
 
@@ -17,7 +17,7 @@ private:
     ANativeWindow *window = nullptr;
 
     /// EGL帮助器
-    AndroidEGLHelper *eglHelper = nullptr;
+    EglHelper *eglHelper = nullptr;
 
     /// eglSurface
     EGLSurface eglSurface = nullptr;

@@ -1,54 +1,54 @@
-#include <AndroidEGLContext.h>
+#include <EglContext.h>
 
-AndroidEGLContext *AndroidEGLContext::instance;
+EglContext *EglContext::instance;
 
-std::mutex  AndroidEGLContext::mutex;
+std::mutex  EglContext::mutex;
 
-AndroidEGLContext::AndroidEGLContext() {
+EglContext::EglContext() {
     eglDisplay = EGL_NO_DISPLAY;
     eglContext = EGL_NO_CONTEXT;
     init(FLAG_TRY_GLES3);
 }
 
-AndroidEGLContext::~AndroidEGLContext() {
+EglContext::~EglContext() {
     release();
 }
 
-AndroidEGLContext *AndroidEGLContext::getInstance() {
+EglContext *EglContext::getInstance() {
     if (!instance) {
         std::unique_lock<std::mutex> lock(mutex);
         if (!instance) {
-            instance = new(std::nothrow) AndroidEGLContext();
+            instance = new(std::nothrow) EglContext();
         }
     }
     return instance;
 }
 
-int AndroidEGLContext::init(int flags) {
+int EglContext::init(int flags) {
 
     if (eglDisplay != EGL_NO_DISPLAY) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "EGL already set up");
         }
-        return ERROR;
+        return -1;
     }
 
     // 获取EGLDisplay
     eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (eglDisplay == EGL_NO_DISPLAY) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "unable to get EGLDisplay");
         }
-        return ERROR;
+        return -1;
     }
 
     // 初始化mEGLDisplay
     if (!eglInitialize(eglDisplay, nullptr, nullptr)) {
         eglDisplay = EGL_NO_DISPLAY;
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "unable to initialize EGLDisplay.");
         }
-        return ERROR;
+        return -1;
     }
 
     // 判断是否尝试使用GLES3
@@ -84,14 +84,14 @@ int AndroidEGLContext::init(int flags) {
 
     int values[1] = {0};
     eglQueryContext(eglDisplay, eglContext, EGL_CONTEXT_CLIENT_VERSION, values);
-    if (DEBUG) {
+    if (RENDERER_DEBUG) {
         ALOGD(TAG, "EGLContext created, client version %d", values[0]);
     }
-    return SUCCESS;
+    return 1;
 }
 
 /// https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglChooseConfig.xhtml
-EGLConfig AndroidEGLContext::getConfig(int flags, int version) {
+EGLConfig EglContext::getConfig(int flags, int version) {
     int renderType = EGL_OPENGL_ES2_BIT;
     if (version >= 3) {
         renderType |= EGL_OPENGL_ES3_BIT_KHR;
@@ -113,7 +113,7 @@ EGLConfig AndroidEGLContext::getConfig(int flags, int version) {
     EGLConfig configs = nullptr;
     int numConfigs;
     if (!eglChooseConfig(eglDisplay, attributeList, &configs, 1, &numConfigs)) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGW(TAG, "unable to find RGB8888 / %d  EGLConfig", version);
         }
         return nullptr;
@@ -121,7 +121,7 @@ EGLConfig AndroidEGLContext::getConfig(int flags, int version) {
     return configs;
 }
 
-int AndroidEGLContext::release() {
+int EglContext::release() {
     if (eglDisplay != EGL_NO_DISPLAY) {
         eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     }
@@ -130,10 +130,10 @@ int AndroidEGLContext::release() {
     }
     eglDisplay = EGL_NO_DISPLAY;
     eglContext = EGL_NO_CONTEXT;
-    return SUCCESS;
+    return 1;
 }
 
-void AndroidEGLContext::destroy() {
+void EglContext::destroy() {
     if (instance) {
         std::unique_lock<std::mutex> lock(mutex);
         if (!instance) {
@@ -143,16 +143,16 @@ void AndroidEGLContext::destroy() {
     }
 }
 
-void AndroidEGLContext::checkEglError(const char *msg) {
+void EglContext::checkEglError(const char *msg) {
     int error;
     if ((error = eglGetError()) != EGL_SUCCESS) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "%s: EGL error: %x", msg, error);
         }
     }
 }
 
-EGLContext AndroidEGLContext::getContext() {
+EGLContext EglContext::getContext() {
     return eglContext;
 }
 

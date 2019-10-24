@@ -1,6 +1,7 @@
-#include "AndroidEGLHelper.h"
+#include "EglHelper.h"
 
-AndroidEGLHelper::AndroidEGLHelper() {
+
+EglHelper::EglHelper() {
     eglDisplay = EGL_NO_DISPLAY;
     eglConfig = nullptr;
     eglContext = EGL_NO_CONTEXT;
@@ -9,30 +10,30 @@ AndroidEGLHelper::AndroidEGLHelper() {
     eglPresentationTimeANDROID = nullptr;
 }
 
-AndroidEGLHelper::~AndroidEGLHelper() {
+EglHelper::~EglHelper() {
     release();
 }
 
-int AndroidEGLHelper::init(int flags) {
-    return init(AndroidEGLContext::getInstance()->getContext(), flags);
+int EglHelper::init(int flags) {
+    return init(EglContext::getInstance()->getContext(), flags);
 }
 
-int AndroidEGLHelper::init(EGLContext sharedContext, int flags) {
+int EglHelper::init(EGLContext sharedContext, int flags) {
 
     if (eglDisplay != EGL_NO_DISPLAY) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "EGL already set up");
         }
-        return ERROR;
+        return -1;
     }
 
     if (sharedContext == nullptr) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "Shared Context is null");
         }
         sharedContext = EGL_NO_CONTEXT;
     } else {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "Main EGLContext is created!");
         }
     }
@@ -40,19 +41,19 @@ int AndroidEGLHelper::init(EGLContext sharedContext, int flags) {
     // 获取EGLDisplay
     eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (eglDisplay == EGL_NO_DISPLAY) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "unable to get EGLDisplay.");
         }
-        return ERROR;
+        return -1;
     }
 
     // 初始化mEGLDisplay
     if (!eglInitialize(eglDisplay, nullptr, nullptr)) {
         eglDisplay = EGL_NO_DISPLAY;
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "unable to initialize EGLDisplay");
         }
-        return ERROR;
+        return -1;
     }
 
     // 判断是否尝试使用GLES3
@@ -94,7 +95,7 @@ int AndroidEGLHelper::init(EGLContext sharedContext, int flags) {
             "eglPresentationTimeANDROID");
 
     if (!eglPresentationTimeANDROID) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "eglPresentationTimeANDROID is not available!");
         }
     }
@@ -102,14 +103,14 @@ int AndroidEGLHelper::init(EGLContext sharedContext, int flags) {
     int values[1] = {0};
     eglQueryContext(eglDisplay, eglContext, EGL_CONTEXT_CLIENT_VERSION, values);
 
-    if (DEBUG) {
+    if (RENDERER_DEBUG) {
         ALOGD(TAG, "EGLContext created, client version %d", values[0]);
     }
 
-    return SUCCESS;
+    return 1;
 }
 
-void AndroidEGLHelper::release() {
+void EglHelper::release() {
     if (eglDisplay != EGL_NO_DISPLAY) {
         eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     }
@@ -125,17 +126,17 @@ void AndroidEGLHelper::release() {
     eglContext = EGL_NO_CONTEXT;
 }
 
-EGLContext AndroidEGLHelper::getEglContext() {
+EGLContext EglHelper::getEglContext() {
     return eglContext;
 }
 
-void AndroidEGLHelper::destroySurface(EGLSurface eglSurface) {
+void EglHelper::destroySurface(EGLSurface eglSurface) {
     eglDestroySurface(eglDisplay, eglSurface);
 }
 
-EGLSurface AndroidEGLHelper::createSurface(ANativeWindow *surface) {
+EGLSurface EglHelper::createSurface(ANativeWindow *surface) {
     if (surface == nullptr) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "Window surface is NULL!");
         }
         return nullptr;
@@ -146,14 +147,14 @@ EGLSurface AndroidEGLHelper::createSurface(ANativeWindow *surface) {
     EGLSurface eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, surface, attributeList);
     checkEglError("eglCreateWindowSurface");
     if (eglSurface == EGL_NO_SURFACE) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "EGLSurface was null");
         }
     }
     return eglSurface;
 }
 
-EGLSurface AndroidEGLHelper::createSurface(int width, int height) {
+EGLSurface EglHelper::createSurface(int width, int height) {
     int attributeList[] = {
             EGL_WIDTH, width,
             EGL_HEIGHT, height,
@@ -162,89 +163,89 @@ EGLSurface AndroidEGLHelper::createSurface(int width, int height) {
     EGLSurface eglSurface = eglCreatePbufferSurface(eglDisplay, eglConfig, attributeList);
     checkEglError("eglCreatePbufferSurface");
     if (eglSurface == EGL_NO_SURFACE) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "EGLSurface was null");
         }
     }
     return eglSurface;
 }
 
-void AndroidEGLHelper::makeCurrent(EGLSurface eglSurface) {
+void EglHelper::makeCurrent(EGLSurface eglSurface) {
     if (eglDisplay == EGL_NO_DISPLAY) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGD(TAG, "Note: makeCurrent w/o display.");
         }
     }
     if (!eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "egl mark current error");
         }
     }
 }
 
-void AndroidEGLHelper::makeCurrent(EGLSurface drawSurface, EGLSurface readSurface) {
+void EglHelper::makeCurrent(EGLSurface drawSurface, EGLSurface readSurface) {
     if (eglDisplay == EGL_NO_DISPLAY) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGD(TAG, "Note: makeCurrent w/o display.");
         }
     }
     if (!eglMakeCurrent(eglDisplay, drawSurface, readSurface, eglContext)) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "egl mark current error");
         }
     }
 }
 
-void AndroidEGLHelper::makeNothingCurrent() {
+void EglHelper::makeNothingCurrent() {
     if (!eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "egl mark current error");
         }
     }
 }
 
-int AndroidEGLHelper::swapBuffers(EGLSurface eglSurface) {
+int EglHelper::swapBuffers(EGLSurface eglSurface) {
     if (!eglSwapBuffers(eglDisplay, eglSurface)) {
         return eglGetError();
     }
     return EGL_SUCCESS;
 }
 
-void AndroidEGLHelper::setPresentationTime(EGLSurface eglSurface, long nsecs) {
+void EglHelper::setPresentationTime(EGLSurface eglSurface, long nsecs) {
     if (eglPresentationTimeANDROID != nullptr) {
         eglPresentationTimeANDROID(eglDisplay, eglSurface, nsecs);
     }
 }
 
-bool AndroidEGLHelper::isCurrent(EGLSurface eglSurface) {
+bool EglHelper::isCurrent(EGLSurface eglSurface) {
     return (eglContext == eglGetCurrentContext())
            && (eglSurface == eglGetCurrentSurface(EGL_DRAW));
 }
 
-int AndroidEGLHelper::querySurface(EGLSurface eglSurface, int what) {
+int EglHelper::querySurface(EGLSurface eglSurface, int what) {
     int value;
     eglQuerySurface(eglContext, eglSurface, what, &value);
     return value;
 }
 
-const char *AndroidEGLHelper::queryString(int what) {
+const char *EglHelper::queryString(int what) {
     return eglQueryString(eglDisplay, what);
 }
 
-int AndroidEGLHelper::getGlVersion() {
+int EglHelper::getGlVersion() {
     return glVersion;
 }
 
-void AndroidEGLHelper::checkEglError(const char *msg) {
+void EglHelper::checkEglError(const char *msg) {
     int error;
     if ((error = eglGetError()) != EGL_SUCCESS) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGE(TAG, "%s: EGL error: %x", msg, error);
         }
     }
 }
 
-EGLConfig AndroidEGLHelper::getConfig(int flags, int version) {
+EGLConfig EglHelper::getConfig(int flags, int version) {
     int renderType = EGL_OPENGL_ES2_BIT;
     if (version >= 3) {
         renderType |= EGL_OPENGL_ES3_BIT_KHR;
@@ -266,7 +267,7 @@ EGLConfig AndroidEGLHelper::getConfig(int flags, int version) {
     EGLConfig configs = nullptr;
     int numConfigs;
     if (!eglChooseConfig(eglDisplay, attributeList, &configs, 1, &numConfigs)) {
-        if (DEBUG) {
+        if (RENDERER_DEBUG) {
             ALOGW(TAG, "unable to find RGB8888 / %d  EGLConfig", version);
         }
         return nullptr;

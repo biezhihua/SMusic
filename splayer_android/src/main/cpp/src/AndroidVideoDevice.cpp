@@ -5,7 +5,7 @@ AndroidVideoDevice::AndroidVideoDevice() : VideoDevice() {
     surfaceWidth = 0;
     surfaceHeight = 0;
     eglSurface = EGL_NO_SURFACE;
-    eglHelper = new AndroidEGLHelper();
+    eglHelper = new EglHelper();
     haveEGLSurface = false;
     haveEGlContext = false;
     hasSurface = false;
