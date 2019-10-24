@@ -85,8 +85,8 @@ target_link_libraries(${PROJECT_NAME} splayer_soundtouch)
 
 # 链接FFmpeg模块
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    file(GLOB libs "${ENGINE_DISTRIBUTION_DIR}/ffmpeg/lib/*.dylib")
-    target_link_libraries(${PROJECT_NAME} ${libs})
+    file(GLOB ffmpegLibs "${ENGINE_DISTRIBUTION_DIR}/ffmpeg/lib/*.dylib")
+    target_link_libraries(${PROJECT_NAME} ${ffmpegLibs} ${openglesLibs})
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Android")

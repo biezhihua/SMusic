@@ -9,21 +9,16 @@ extern bool DEBUG;
 
 #include <android/log.h>
 
-#define LOG_UNKNOWN     ANDROID_LOG_UNKNOWN
-#define LOG_DEFAULT     ANDROID_LOG_DEFAULT
-
-#define LOG_VERBOSE     ANDROID_LOG_VERBOSE
-#define LOG_DEBUG       ANDROID_LOG_DEBUG
-#define LOG_INFO        ANDROID_LOG_INFO
-#define LOG_WARN        ANDROID_LOG_WARN
-#define LOG_ERROR       ANDROID_LOG_ERROR
-#define LOG_FATAL       ANDROID_LOG_FATAL
-#define LOG_SILENT      ANDROID_LOG_SILENT
-
-//#define _ALOGD(TAG, ...)    ((void)__android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__))
-//#define _ALOGI(TAG, ...)    ((void)__android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__))
-//#define _ALOGE(TAG, ...)    ((void)__android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__))
-//#define _ALOGW(TAG, ...)    ((void)__android_log_print(ANDROID_LOG_WARN, TAG, __VA_ARGS__))
+//#define LOG_UNKNOWN     ANDROID_LOG_UNKNOWN
+//#define LOG_DEFAULT     ANDROID_LOG_DEFAULT
+//
+//#define LOG_VERBOSE     ANDROID_LOG_VERBOSE
+//#define LOG_DEBUG       ANDROID_LOG_DEBUG
+//#define LOG_INFO        ANDROID_LOG_INFO
+//#define LOG_WARN        ANDROID_LOG_WARN
+//#define LOG_ERROR       ANDROID_LOG_ERROR
+//#define LOG_FATAL       ANDROID_LOG_FATAL
+//#define LOG_SILENT      ANDROID_LOG_SILENT
 
 #define _ALOGD(TAG, ...)    ((void)__android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__))
 #define _ALOGI(TAG, ...)    ((void)__android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__))

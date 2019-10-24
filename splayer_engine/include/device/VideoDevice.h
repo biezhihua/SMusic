@@ -2,7 +2,7 @@
 #define ENGINE_VIDEO_DEVICE_H
 
 #include <player/PlayerState.h>
-#include <renderer/GLInputFilter.h>
+#include <renderer/Texture.h>
 #include <queue/FrameQueue.h>
 
 class VideoDevice {

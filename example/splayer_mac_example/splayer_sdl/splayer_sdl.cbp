@@ -238,7 +238,7 @@
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/queue/PacketQueue.h">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/renderer/GLInputFilter.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/renderer/Texture.h">
 			<Option target="splayer_engine"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/stream/IStreamListener.h">

@@ -28,9 +28,9 @@ set_target_properties(splayer_openssl_ssl PROPERTIES IMPORTED_LOCATION ${ANDROID
 # 根据API版本判断使用哪个版本的OpenGLES
 if (${ANDROID_PLATFORM_LEVEL} LESS 18)
     add_definitions("-DDYNAMIC_ES3")
-    set(GLES-lib GLESv2)
+    set(GLES-lib -lGLESv2)
 else ()
-    set(GLES-lib GLESv3)
+    set(GLES-lib -lGLESv3)
 endif (${ANDROID_PLATFORM_LEVEL} LESS 11)
 
 # 添加引擎子模块目录
@@ -39,12 +39,15 @@ add_subdirectory(${ANDROID_ROOT_DIR}/splayer_engine splayer_engine)
 # 添加源码子目录
 file(GLOB ANDROID_CPP_FILES
         src/*.cpp
+        src/renderer/*.cpp
         *.cpp
         )
 
 # 添加头文件子目录
 file(GLOB ANDROID_H_FILES
         include/*.h
+        include/renderer/*.h
+        *.h
         )
 
 # 设置源文件集合
@@ -69,6 +72,7 @@ include_directories(
 
         # 引入自有代码头文件
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/renderer
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

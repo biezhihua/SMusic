@@ -333,7 +333,7 @@ interface IMediaPlayer {
      * done using the MediaPlayer. In particular, whenever an Activity
      * of an application is paused (its onPause() method is called),
      * or stopped (its onStop() method is called), this method should be
-     * invoked to release the MediaPlayer object, unless the application
+     * invoked to destroy the MediaPlayer object, unless the application
      * has a special need to keep the object around. In addition to
      * unnecessary resources (such as memory and instances of codecs)
      * being held, failure to call this method immediately if a
@@ -621,7 +621,7 @@ interface IMediaPlayer {
          */
         const val MEDIA_ERROR_UNKNOWN = 1
 
-        /** Media server died. In this case, the application must release the
+        /** Media server died. In this case, the application must destroy the
          * MediaPlayer object and instantiate a new one.
          * @see com.bzh.splayer.IMediaPlayer.OnInfoListener
          */

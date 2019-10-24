@@ -40,6 +40,17 @@ private:
     /// 释放资源
     bool haveEGlContext;
 
+    /// 视频纹理
+    Texture *videoTexture = nullptr;
+
+    // 输入渲染结点
+    // InputRenderNode *renderNode = nullptr;
+
+    /// 顶点坐标
+    // float vertices[8];
+
+    /// 纹理坐标
+    // float textureVertices[8];
 public:
 
     AndroidVideoDevice();
@@ -67,6 +78,14 @@ public:
     BlendMode getBlendMode(TextureFormat format) override;
 
     int onSurfaceCreated(ANativeWindow *nativeWindow);
+
+private:
+
+    void destroy(bool releaseContext);
+
+    // void resetVertices();
+
+    //void resetTexVertices();
 };
 
 
