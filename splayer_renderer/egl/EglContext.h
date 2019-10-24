@@ -7,7 +7,7 @@
 #include <EGL/eglext.h>
 #include <EGL/eglplatform.h>
 #include "EglHelper.h"
-#include "Log.h"
+#include "utils/Log.h"
 
 /**
  * EGLContext 上下文，为了方便使用SharedContext而造的

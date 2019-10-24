@@ -6,7 +6,7 @@
 #include <AndroidMediaPlayer.h>
 #include <AndroidMediaSync.h>
 #include <AndroidAudioDevice.h>
-#include <Log.h>
+#include <utils/Log.h>
 
 extern "C" {
 #include <libavcodec/jni.h>

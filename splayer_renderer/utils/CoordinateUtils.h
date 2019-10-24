@@ -19,16 +19,16 @@ typedef enum {
 class CoordinateUtils {
 
 public:
-    // 获取顶点坐标
+    /// 获取顶点坐标
     static const float *getVertexCoordinates();
 
-    // 获取默认索引
+    /// 获取默认索引
     static const short *getDefaultIndices();
 
-    // 获取纹理坐标
+    /// 获取纹理坐标
     static const float *getTextureCoordinates(const RotationMode &rotationMode);
 
-    // 获取纹理坐标
+    /// 获取纹理坐标
     static const float *getInputTextureCoordinates(const RotationMode &rotationMode);
 
 private:

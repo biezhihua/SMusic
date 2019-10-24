@@ -1,4 +1,4 @@
-#include <OpenGLUtils.h>
+#include "OpenGLUtils.h"
 
 GLuint OpenGLUtils::createProgram(const char *vertexShader, const char *fragShader) {
     GLuint vertex;

@@ -1,6 +1,5 @@
 #include "GLFilter.h"
 
-
 GLFilter::GLFilter() : initialized(false), programHandle(-1), positionHandle(-1),
                        texCoordinateHandle(-1),
                        nb_textures(1), vertexCount(4), timeStamp(0), intensity(1.0),
@@ -41,7 +40,7 @@ void GLFilter::initProgram(const char *vertexShader, const char *fragmentShader)
 
 void GLFilter::destroyProgram() {
     if (initialized) {
-        glDeleteProgram(programHandle);
+        glDeleteProgram((GLuint) (programHandle));
     }
     programHandle = -1;
 }
@@ -78,7 +77,7 @@ void GLFilter::updateViewPort() {
     } else {
         glViewport(0, 0, textureWidth, textureHeight);
     }
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -93,21 +92,29 @@ void GLFilter::drawTexture(GLuint texture, const float *vertices, const float *t
     }
 
     // 绑定program
-    glUseProgram(programHandle);
+    glUseProgram((GLuint) (programHandle));
+
     // 绑定纹理
     bindTexture(texture);
+
     // 绑定属性值
     bindAttributes(vertices, textureVertices);
+
     // 绘制前处理
     onDrawBegin();
+
     // 绘制纹理
     onDrawFrame();
+
     // 绘制后处理
     onDrawAfter();
+
     // 解绑属性
     unbindAttributes();
+
     // 解绑纹理
     unbindTextures();
+
     // 解绑program
     glUseProgram(0);
 }
@@ -125,12 +132,13 @@ void GLFilter::drawTexture(FrameBuffer *frameBuffer, GLuint texture, const float
 
 void GLFilter::bindAttributes(const float *vertices, const float *textureVertices) {
     // 绑定顶点坐标
-    glVertexAttribPointer(positionHandle, 2, GL_FLOAT, GL_FALSE, 0, vertices);
-    glEnableVertexAttribArray(positionHandle);
+    glVertexAttribPointer((GLuint) (positionHandle), 2, GL_FLOAT, GL_FALSE, 0, vertices);
+    glEnableVertexAttribArray((GLuint) (positionHandle));
 
     // 绑定纹理坐标
-    glVertexAttribPointer(texCoordinateHandle, 2, GL_FLOAT, GL_FALSE, 0, textureVertices);
-    glEnableVertexAttribArray(texCoordinateHandle);
+    glVertexAttribPointer((GLuint) (texCoordinateHandle), 2, GL_FLOAT, GL_FALSE, 0,
+                          textureVertices);
+    glEnableVertexAttribArray((GLuint) (texCoordinateHandle));
 
 }
 
@@ -154,8 +162,8 @@ void GLFilter::onDrawFrame() {
 }
 
 void GLFilter::unbindAttributes() {
-    glDisableVertexAttribArray(texCoordinateHandle);
-    glDisableVertexAttribArray(positionHandle);
+    glDisableVertexAttribArray((GLuint) (texCoordinateHandle));
+    glDisableVertexAttribArray((GLuint) (positionHandle));
 }
 
 void GLFilter::unbindTextures() {

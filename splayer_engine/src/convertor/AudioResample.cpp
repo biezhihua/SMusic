@@ -314,7 +314,7 @@ int AudioResample::initConvertSwrContext(int64_t desireChannelLayout, AVFrame *f
     if (!audioState->swrContext || swr_init(audioState->swrContext) < 0) {
         if (DEBUG) {
             ALOGE(TAG,
-                  "Cannot create sample rate converter for conversion of %d Hz "
+                  "Cannot init sample rate converter for conversion of %d Hz "
                   "%s %d channels to %d Hz %s %d channels!",
                   frame->sample_rate,
                   av_get_sample_fmt_name((AVSampleFormat) frame->format),

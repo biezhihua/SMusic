@@ -7,7 +7,7 @@ ijksdl_vout_android_nativewindow -> ijksdl_vout_internal:SDL_Vout_CreateInternal
 
 ijksdl_vout_android_nativewindow -> ijksdl_egl:IJK_EGL_create()
 
-alt create overlay
+alt init overlay
 
     ijksdl_vout_android_nativewindow -> ijksdl_vout_android_nativewindow: fun_create_overlay()
 

@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <renderer/Texture.h>
-#include "GLFilter.h"
+#include "gles/GLFilter.h"
 
 #define GLES_MAX_PLANE 3
 

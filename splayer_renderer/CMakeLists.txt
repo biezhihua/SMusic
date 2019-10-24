@@ -12,13 +12,19 @@ get_filename_component(RENDERER_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../ ABSOLUT
 
 # 添加源码子目录
 file(GLOB RENDERER_CPP_FILES
-        src/*.cpp
+        egl/*.cpp
+        gles/*.cpp
+        gles/input/*.cpp
+        utils/*.cpp
         *.cpp
         )
 
 # 添加头文件子目录
 file(GLOB RENDERER_H_FILES
-        include/*.h
+        egl/*.h
+        gles/*.h
+        gles/input/*.h
+        utils/*.h
         *.h
         )
 

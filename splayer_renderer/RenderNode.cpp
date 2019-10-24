@@ -21,6 +21,7 @@ void RenderNode::destroy() {
     if (glFilter != nullptr) {
         glFilter->destroyProgram();
     }
+
     // 将FrameBuffer放入管理器中
     if (frameBuffer != nullptr) {
         frameBuffer->destroy();

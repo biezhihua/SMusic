@@ -5,7 +5,7 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include <EGL/egl.h>
-#include <EglHelper.h>
+#include <egl/EglHelper.h>
 
 class AndroidVideoDevice : public VideoDevice {
 

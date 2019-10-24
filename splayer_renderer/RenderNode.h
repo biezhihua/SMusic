@@ -4,7 +4,7 @@
 #include <string>
 #include "FrameBuffer.h"
 #include "NodeType.h"
-#include "GLFilter.h"
+#include "gles/GLFilter.h"
 
 /**
  * 渲染结点
@@ -22,34 +22,34 @@ public:
 
     virtual ~RenderNode();
 
-    // 初始化
+    /// 初始化
     void init();
 
-    // 销毁结点
+    /// 销毁结点
     void destroy();
 
-    // 设置纹理大小
+    /// 设置纹理大小
     void setTextureSize(int width, int height);
 
-    // 设置显示大小
+    /// 设置显示大小
     void setDisplaySize(int width, int height);
 
-    // 设置FrameBuffer
+    /// 设置FrameBuffer
     void setFrameBuffer(FrameBuffer *buffer);
 
-    // 切换Filter
+    /// 切换Filter
     void changeFilter(GLFilter *filter);
 
-    // 设置时间戳
+    /// 设置时间戳
     void setTimeStamp(double timeStamp);
 
-    // 设置强度
+    /// 设置强度
     void setIntensity(float intensity);
 
-    // 直接绘制输出
+    /// 直接绘制输出
     virtual bool drawFrame(GLuint texture, const float *vertices, const float *textureVertices);
 
-    // 绘制到FBO
+    /// 绘制到FBO
     virtual int
     drawFrameBuffer(GLuint texture, const float *vertices, const float *textureVertices);
 
@@ -76,7 +76,7 @@ protected:
     int displayWidth, displayHeight;
 
     /// 滤镜
-    GLFilter *glFilter;
+    GLFilter *glFilter = nullptr;
 
     /// FrameBuffer 对象
     FrameBuffer *frameBuffer = nullptr;

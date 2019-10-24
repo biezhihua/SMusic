@@ -622,13 +622,13 @@ class MediaPlayer : IMediaPlayer {
                 mp.prepare()
                 return mp
             } catch (ex: IOException) {
-                Log.d(TAG, "create failed:", ex)
+                Log.d(TAG, "init failed:", ex)
                 // fall through
             } catch (ex: IllegalArgumentException) {
-                Log.d(TAG, "create failed:", ex)
+                Log.d(TAG, "init failed:", ex)
                 // fall through
             } catch (ex: SecurityException) {
-                Log.d(TAG, "create failed:", ex)
+                Log.d(TAG, "init failed:", ex)
                 // fall through
             }
 
@@ -646,13 +646,13 @@ class MediaPlayer : IMediaPlayer {
                 mp.prepare()
                 return mp
             } catch (ex: IOException) {
-                Log.d(TAG, "create failed:", ex)
+                Log.d(TAG, "init failed:", ex)
                 // fall through
             } catch (ex: IllegalArgumentException) {
-                Log.d(TAG, "create failed:", ex)
+                Log.d(TAG, "init failed:", ex)
                 // fall through
             } catch (ex: SecurityException) {
-                Log.d(TAG, "create failed:", ex)
+                Log.d(TAG, "init failed:", ex)
                 // fall through
             }
 

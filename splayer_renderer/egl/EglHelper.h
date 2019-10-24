@@ -6,7 +6,7 @@
 #include <EGL/eglext.h>
 #include <EGL/eglplatform.h>
 #include "EglContext.h"
-#include "Log.h"
+#include "utils/Log.h"
 /**
  * Constructor flag:
  * surface must be recordable.  This discourages EGL from using a

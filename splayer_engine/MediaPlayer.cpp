@@ -32,13 +32,13 @@ MediaPlayer::~MediaPlayer() {
 
 int MediaPlayer::create() {
     if (DEBUG) {
-        ALOGD(TAG, "create media player - start");
+        ALOGD(TAG, "init media player - start");
     }
     mutex.lock();
     _create();
     mutex.unlock();
     if (DEBUG) {
-        ALOGD(TAG, "create media player - end");
+        ALOGD(TAG, "init media player - end");
     }
     return SUCCESS;
 }
@@ -586,7 +586,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
         playerState->videoIndex = videoIndex;
         if (openDecoder(videoIndex) < 0) {
             if (DEBUG) {
-                ALOGE(TAG, "%s failed to create video decoder", __func__);
+                ALOGE(TAG, "%s failed to init video decoder", __func__);
             }
             return ERROR_CREATE_VIDEO_DECODER;
         }
@@ -597,7 +597,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
         playerState->audioIndex = audioIndex;
         if (openDecoder(audioIndex) < 0) {
             if (DEBUG) {
-                ALOGE(TAG, "%s failed to create audio decoder", __func__);
+                ALOGE(TAG, "%s failed to init audio decoder", __func__);
             }
             return ERROR_CREATE_AUDIO_DECODER;
         }
@@ -605,7 +605,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     if (!audioDecoder && !videoDecoder) {
         if (DEBUG) {
-            ALOGE(TAG, "%s failed to create audio and video decoder", __func__);
+            ALOGE(TAG, "%s failed to init audio and video decoder", __func__);
         }
         return ERROR_CREATE_VIDEO_AUDIO_DECODER;
     }
@@ -769,7 +769,7 @@ int MediaPlayer::_create() {
     }
     if (mediaSync->create() < 0) {
         if (DEBUG) {
-            ALOGE(TAG, "media stream create failure");
+            ALOGE(TAG, "media stream init failure");
         }
         notifyMsg(Msg::MSG_ERROR, ERROR);
         notifyMsg(Msg::MSG_REQUEST_ERROR, Msg::MSG_REQUEST_DESTROY);
@@ -787,7 +787,7 @@ int MediaPlayer::_create() {
     mediaStream->setMediaSync(mediaSync);
     if (mediaStream->create() < 0) {
         if (DEBUG) {
-            ALOGE(TAG, "media stream create failure");
+            ALOGE(TAG, "media stream init failure");
         }
         notifyMsg(Msg::MSG_ERROR, ERROR);
         notifyMsg(Msg::MSG_REQUEST_ERROR, Msg::MSG_REQUEST_DESTROY);
@@ -798,7 +798,7 @@ int MediaPlayer::_create() {
     if (audioDevice) {
         if (audioDevice->create() < 0) {
             if (DEBUG) {
-                ALOGE(TAG, "create audio device failure");
+                ALOGE(TAG, "init audio device failure");
             }
         } else {
             // 初始化音频重采样器
@@ -807,7 +807,7 @@ int MediaPlayer::_create() {
             audioResample->setMediaSync(mediaSync);
             if (audioResample->create() < 0) {
                 if (DEBUG) {
-                    ALOGE(TAG, "create audio resample failure");
+                    ALOGE(TAG, "init audio resample failure");
                 }
             }
         }
@@ -818,7 +818,7 @@ int MediaPlayer::_create() {
         videoDevice->setPlayerState(playerState);
         if (videoDevice->create() < 0) {
             if (DEBUG) {
-                ALOGE(TAG, "create video device failure");
+                ALOGE(TAG, "init video device failure");
             }
         } else {
             mediaSync->setVideoDevice(videoDevice);

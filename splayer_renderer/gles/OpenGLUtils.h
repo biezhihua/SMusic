@@ -11,7 +11,7 @@
 
 #endif
 
-#include <Log.h>
+#include <utils/Log.h>
 
 class OpenGLUtils {
 
