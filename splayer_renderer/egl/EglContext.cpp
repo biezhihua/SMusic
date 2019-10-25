@@ -52,34 +52,13 @@ int EglContext::init(int flags) {
     }
 
     // 判断是否尝试使用GLES3
-    if ((flags & FLAG_TRY_GLES3) != 0) {
-        EGLConfig config = getConfig(flags, 3);
-        if (config != nullptr) {
-            int attributeList[] = {
-                    EGL_CONTEXT_CLIENT_VERSION, 3,
-                    EGL_NONE
-            };
-            EGLContext context = eglCreateContext(eglDisplay, config, EGL_NO_CONTEXT,
-                                                  attributeList);
-            checkEglError("eglCreateContext");
-            if (eglGetError() == EGL_SUCCESS) {
-                eglContext = context;
-            }
-        }
+    if (isGLES3(flags)) {
+        eglContext = createGLES3Context(flags);
     }
 
     // 判断如果GLES3的EGLContext没有获取到，则尝试使用GLES2
-    if (eglContext == EGL_NO_CONTEXT) {
-        EGLConfig config = getConfig(flags, 2);
-        int attributeList[] = {
-                EGL_CONTEXT_CLIENT_VERSION, 2,
-                EGL_NONE
-        };
-        EGLContext context = eglCreateContext(eglDisplay, config, EGL_NO_CONTEXT, attributeList);
-        checkEglError("eglCreateContext");
-        if (eglGetError() == EGL_SUCCESS) {
-            eglContext = context;
-        }
+    if (isNeedGLES2()) {
+        eglContext = createGLES2Context(flags);
     }
 
     int values[1] = {0};
@@ -89,6 +68,41 @@ int EglContext::init(int flags) {
     }
     return 1;
 }
+
+void *EglContext::createGLES2Context(int flags) {
+    EGLConfig config = getConfig(flags, 2);
+    int attributeList[] = {
+            EGL_CONTEXT_CLIENT_VERSION, 2,
+            EGL_NONE
+    };
+    EGLContext context = eglCreateContext(eglDisplay, config, EGL_NO_CONTEXT, attributeList);
+    checkEglError("eglCreateContext");
+    if (eglGetError() == EGL_SUCCESS) {
+        return context;
+    }
+    return nullptr;
+}
+
+bool EglContext::isNeedGLES2() const { return eglContext == EGL_NO_CONTEXT; }
+
+EGLContext EglContext::createGLES3Context(int flags) {
+    EGLConfig config = getConfig(flags, 3);
+    if (config != nullptr) {
+        int attributeList[] = {
+                EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL_NONE
+        };
+        EGLContext context = eglCreateContext(eglDisplay, config, EGL_NO_CONTEXT,
+                                              attributeList);
+        checkEglError("eglCreateContext");
+        if (eglGetError() == EGL_SUCCESS) {
+            return context;
+        }
+    }
+    return nullptr;
+}
+
+bool EglContext::isGLES3(int flags) const { return (flags & FLAG_TRY_GLES3) != 0; }
 
 /// https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglChooseConfig.xhtml
 EGLConfig EglContext::getConfig(int flags, int version) {

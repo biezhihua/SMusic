@@ -1,6 +1,5 @@
 #include "EglHelper.h"
 
-
 EglHelper::EglHelper() {
     eglDisplay = EGL_NO_DISPLAY;
     eglConfig = nullptr;
@@ -273,4 +272,26 @@ EGLConfig EglHelper::getConfig(int flags, int version) {
         return nullptr;
     }
     return configs;
+}
+
+int EglHelper::getSurfaceWidth(EGLSurface surface) {
+    EGLint width = 0;
+    if (!eglQuerySurface(eglDisplay, surface, EGL_WIDTH, &width)) {
+        if (RENDERER_DEBUG) {
+            ALOGE(TAG, "[EGL] eglQuerySurface(EGL_WIDTH) returned error %d", eglGetError());
+        }
+        return 0;
+    }
+    return width;
+}
+
+int EglHelper::getSurfaceHeight(EGLSurface surface) {
+    EGLint height = 0;
+    if (!eglQuerySurface(eglDisplay, surface, EGL_HEIGHT, &height)) {
+        if (RENDERER_DEBUG) {
+            ALOGE(TAG, "[EGL] eglQuerySurface(EGL_HEIGHT) returned error %d", eglGetError());
+        }
+        return 0;
+    }
+    return height;
 }

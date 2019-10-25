@@ -13,6 +13,8 @@ typedef enum {
     ROTATE_FLIP_HORIZONTAL,    // 横向翻转
 } RotationMode;
 
+#define COORDINATES_SIZE 8
+
 /**
  * 坐标点工具
  */

@@ -613,7 +613,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     // 视频解码器开始解码
     if (videoDecoder) {
         if (DEBUG) {
-            ALOGD(TAG, "%s  start video decoder", __func__);
+            ALOGD(TAG, "%s start video decoder", __func__);
         }
         videoDecoder->start();
         notifyMsg(Msg::MSG_VIDEO_DECODER_START);

@@ -1,12 +1,18 @@
 #ifndef RENDERER_EGLHELPER_H
 #define RENDERER_EGLHELPER_H
 
-#include <android/native_window.h>
+#ifdef __APPLE__
+#else
+
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <EGL/eglplatform.h>
+
+#endif
+
 #include "EglContext.h"
 #include "utils/Log.h"
+
 /**
  * Constructor flag:
  * surface must be recordable.  This discourages EGL from using a
@@ -51,7 +57,7 @@ public:
     /// 销毁Surface
     void destroySurface(EGLSurface eglSurface);
 
-    ///  创建EGLSurface
+    /// 创建EGLSurface
     EGLSurface createSurface(ANativeWindow *surface);
 
     /// 创建离屏EGLSurface
@@ -87,6 +93,12 @@ public:
     /// 检查是否出错
     void checkEglError(const char *msg);
 
+    /// 查询Surface宽度
+    int getSurfaceWidth(EGLSurface surface);
+
+    /// 查询Surface高度
+    int getSurfaceHeight(EGLSurface surface);
+
 private:
 
     /// 查找合适的EGLConfig
@@ -94,6 +106,7 @@ private:
 
 private:
 
+    /// 是对实际显示设备的抽象
     EGLDisplay eglDisplay = nullptr;
 
     EGLConfig eglConfig = nullptr;

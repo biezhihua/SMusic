@@ -11,9 +11,12 @@ private:
     /// 同步线程
     Thread *syncThread = nullptr;
 
-public:
+    /// 退出标记
+    bool isQuit;
 
+public:
 private:
+
     void start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) override;
 
     void stop() override;

@@ -6,6 +6,7 @@
 #include <android/native_window_jni.h>
 #include <EGL/egl.h>
 #include <egl/EglHelper.h>
+#include <InputRenderNode.h>
 
 class AndroidVideoDevice : public VideoDevice {
 
@@ -23,16 +24,16 @@ private:
     EGLSurface eglSurface = nullptr;
 
     /// 重新设置Surface
-    bool surfaceReset;
+    bool windowReset;
 
     /// 是否存在Surface
-    bool hasSurface;
+    bool hasWindow;
 
     /// 窗口宽度
-    int surfaceWidth;
+    int windowWidth;
 
     /// 窗口高度
-    int surfaceHeight;
+    int windowHeight;
 
     /// EGLSurface
     bool haveEGLSurface;
@@ -44,13 +45,13 @@ private:
     Texture *videoTexture = nullptr;
 
     // 输入渲染结点
-    // InputRenderNode *renderNode = nullptr;
+    InputRenderNode *renderNode = nullptr;
 
     /// 顶点坐标
-    // float vertices[8];
+    float vertices[8];
 
     /// 纹理坐标
-    // float textureVertices[8];
+    float textureVertices[8];
 public:
 
     AndroidVideoDevice();
@@ -77,15 +78,15 @@ public:
 
     BlendMode getBlendMode(TextureFormat format) override;
 
-    int onSurfaceCreated(ANativeWindow *nativeWindow);
+    int setNativeWindow(ANativeWindow *nativeWindow);
 
 private:
 
     void destroy(bool releaseContext);
 
-    // void resetVertices();
+    void resetVertices();
 
-    //void resetTexVertices();
+    void resetTexVertices();
 };
 
 

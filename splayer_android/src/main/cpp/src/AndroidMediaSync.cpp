@@ -2,6 +2,9 @@
 
 void AndroidMediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
     MediaSync::start(videoDecoder, audioDecoder);
+    if (DEBUG) {
+        ALOGD(TAG, __func__);
+    }
     if (playerMutex) {
         playerMutex->lock();
     }
@@ -9,6 +12,7 @@ void AndroidMediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDeco
         syncThread = new Thread(this);
         syncThread->start();
     }
+    isQuit = false;
     if (playerMutex) {
         playerMutex->unlock();
     }
@@ -16,9 +20,13 @@ void AndroidMediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDeco
 
 void AndroidMediaSync::stop() {
     MediaSync::stop();
+    if (DEBUG) {
+        ALOGD(TAG, __func__);
+    }
     if (playerMutex) {
         playerMutex->lock();
     }
+    isQuit = true;
     if (syncThread) {
         syncThread->join();
         delete syncThread;
@@ -27,15 +35,18 @@ void AndroidMediaSync::stop() {
     if (playerMutex) {
         playerMutex->unlock();
     }
+
 }
 
 void AndroidMediaSync::run() {
-    MediaSync::run();
-    if (playerMutex) {
-        playerMutex->lock();
-    }
-    refreshVideo();
-    if (playerMutex) {
-        playerMutex->unlock();
+    resetRemainingTime();
+    while (!isQuit) {
+        if (playerMutex) {
+            playerMutex->lock();
+        }
+        refreshVideo();
+        if (playerMutex) {
+            playerMutex->unlock();
+        }
     }
 }

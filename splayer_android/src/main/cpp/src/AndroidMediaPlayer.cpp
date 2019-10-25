@@ -2,7 +2,7 @@
 
 int AndroidMediaPlayer::setVideoSurface(ANativeWindow *nativeWindow) {
     if (DEBUG) {
-        ALOGD(TAG, "%s nativeWindow=%p", __func__, nativeWindow);
+        ALOGD(TAG, "%s nativeWindow = %p", __func__, nativeWindow);
     }
     if (!nativeWindow) {
         return ERROR;
@@ -10,7 +10,7 @@ int AndroidMediaPlayer::setVideoSurface(ANativeWindow *nativeWindow) {
     if (videoDevice) {
         AndroidVideoDevice *device = dynamic_cast<AndroidVideoDevice *>(videoDevice);
         if (device) {
-            device->onSurfaceCreated(nativeWindow);
+            device->setNativeWindow(nativeWindow);
         }
     }
     return SUCCESS;
