@@ -143,7 +143,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
             if (previousFrame->seekSerial != packetQueue->getLastSeekSerial()) {
                 frameQueue->popFrame();
                 if (DEBUG) {
-                    ALOGE(TAG, "%s drop no same serial of frame", __func__);
+                    ALOGD(TAG, "%s drop no same serial of frame", __func__);
                 }
                 continue;
             }
@@ -327,9 +327,7 @@ double MediaSync::calculateDuration(Frame *current, Frame *next) {
 void MediaSync::renderVideo() {
 
     if (!videoDecoder || !videoDevice) {
-        if (DEBUG) {
-            ALOGE(TAG, "%s videoDecoder is null or videoDevice is null", __func__);
-        }
+        ALOGE(TAG, "%s videoDecoder is null or videoDevice is null", __func__);
         return;
     }
 
@@ -366,9 +364,7 @@ void MediaSync::renderVideo() {
                             frame->data[2], frame->linesize[2]
                     );
                     if (ret < 0) {
-                        if (DEBUG) {
-                            ALOGE(TAG, "%s update FMT_YUV420P error", __func__);
-                        }
+                        ALOGE(TAG, "%s update FMT_YUV420P error", __func__);
                         return;
                     }
                 } else if (frame->linesize[0] < 0 && frame->linesize[1] < 0 &&
@@ -384,9 +380,7 @@ void MediaSync::renderVideo() {
                             -frame->linesize[2]
                     );
                     if (ret < 0) {
-                        if (DEBUG) {
-                            ALOGE(TAG, "%s update FMT_YUV420P error", __func__);
-                        }
+                        ALOGE(TAG, "%s update FMT_YUV420P error", __func__);
                         return;
                     }
                 }
@@ -395,9 +389,7 @@ void MediaSync::renderVideo() {
                 // 直接渲染BGRA，对应的是shader->argb格式
                 ret = videoDevice->onUpdateARGB(frame->data[0], frame->linesize[0]);
                 if (ret < 0) {
-                    if (DEBUG) {
-                        ALOGE(TAG, "%s update FMT_ARGB error", __func__);
-                    }
+                    ALOGE(TAG, "%s update FMT_ARGB error", __func__);
                     return;
                 }
                 break;
@@ -425,9 +417,7 @@ void MediaSync::renderVideo() {
                 ret = videoDevice->onUpdateARGB(frameARGB->data[0], frameARGB->linesize[0]);
 
                 if (ret < 0) {
-                    if (DEBUG) {
-                        ALOGE(TAG, "%s update FMT_NONE error", __func__);
-                    }
+                    ALOGE(TAG, "%s update FMT_NONE error", __func__);
                     return;
                 }
                 break;

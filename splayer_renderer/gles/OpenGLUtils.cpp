@@ -45,11 +45,7 @@ GLuint OpenGLUtils::createProgram(const char *vertexShader, const char *fragShad
             char *infoLog = (char *) malloc(sizeof(char) * infoLen);
             // 检索日志信息
             glGetProgramInfoLog(program, infoLen, nullptr, infoLog);
-
-            if (RENDERER_DEBUG) {
-                ALOGE("OpenGLUtils", "Error linking program:\n%s\n", infoLog);
-            }
-
+            ALOGE("OpenGLUtils", "Error linking program:\n%s\n", infoLog);
             // 使用完成后需要释放字符串分配的内存
             free(infoLog);
         }
@@ -99,9 +95,7 @@ GLuint OpenGLUtils::loadShader(GLenum type, const char *shaderSrc) {
             char *infoLog = (char *) malloc(sizeof(char) * infoLen);
             // 检索日志信息
             glGetShaderInfoLog(shader, infoLen, nullptr, infoLog);
-            if (RENDERER_DEBUG) {
-                ALOGE("OpenGLUtils", "Error compiling shader:\n%s\n", infoLog);
-            }
+            ALOGE("OpenGLUtils", "Error compiling shader:\n%s\n", infoLog);
             // 使用完成后需要释放字符串分配的内存
             free(infoLog);
         }

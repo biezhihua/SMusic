@@ -68,14 +68,14 @@ int InputRenderNode::drawFrameBuffer(GLuint texture, const float *vertices,
 
 void InputRenderNode::resetVertices() {
     const float *verticesCoord = CoordinateUtils::getVertexCoordinates();
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < COORDINATES_SIZE; ++i) {
         vertices[i] = verticesCoord[i];
     }
 }
 
 void InputRenderNode::resetTextureVertices(Texture *texture) {
     const float *vertices = CoordinateUtils::getInputTextureCoordinates(getRotateMode(texture));
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < COORDINATES_SIZE; ++i) {
         textureVertices[i] = vertices[i];
     }
 }

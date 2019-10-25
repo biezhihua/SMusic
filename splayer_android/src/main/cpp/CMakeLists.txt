@@ -26,12 +26,17 @@ add_library(splayer_openssl_ssl STATIC IMPORTED)
 set_target_properties(splayer_openssl_ssl PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/openssl/lib/${ANDROID_ABI}/libssl.a)
 
 # 根据API版本判断使用哪个版本的OpenGLES
-if (${ANDROID_PLATFORM_LEVEL} LESS 18)
+if (${ANDROID_PLATFORM_LEVEL} LESS 12)
+    message(FATAL_ERROR "OpenGL 2 is not supported before API level 11 \
+                      (currently using ${ANDROID_PLATFORM_LEVEL}).")
+    return()
+elseif (${ANDROID_PLATFORM_LEVEL} LESS 18)
     add_definitions("-DDYNAMIC_ES3")
-    set(GLES-lib -lGLESv2)
+    set(GL3STUB_SRC gl3stub.c)
+    set(OPENGL_LIB GLESv2)
 else ()
-    set(GLES-lib -lGLESv3)
-endif (${ANDROID_PLATFORM_LEVEL} LESS 11)
+    set(OPENGL_LIB GLESv3)
+endif (${ANDROID_PLATFORM_LEVEL} LESS 12)
 
 # 添加引擎子模块目录
 add_subdirectory(${ANDROID_ROOT_DIR}/splayer_engine splayer_engine)
@@ -95,5 +100,5 @@ target_link_libraries(${PROJECT_NAME}
         -llog
         -lEGL
         -lOpenSLES
-        ${GLES-lib}
+        ${OPENGL_LIB}
         )

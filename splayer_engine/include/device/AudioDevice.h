@@ -36,11 +36,12 @@ public:
 
     virtual ~AudioDevice();
 
-    virtual int open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained);
-
     virtual int create();
 
     virtual void destroy();
+
+    /// 打开音频设备
+    virtual int open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained);
 
     virtual void start();
 

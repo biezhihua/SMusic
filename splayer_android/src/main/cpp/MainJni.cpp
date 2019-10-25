@@ -335,7 +335,7 @@ void MediaPlayer_create(JNIEnv *env, jobject thiz, jobject mediaplayer_this) {
     }
 
     MediaPlayer *mp = AndroidMediaPlayer::Builder{}
-//            .withAudioDevice(new AndroidAudioDevice())
+            .withAudioDevice(new AndroidAudioDevice())
             .withVideoDevice(new AndroidVideoDevice())
             .withMediaSync(new AndroidMediaSync())
             .withMessageListener(new MessageListener(env, thiz, mediaplayer_this))

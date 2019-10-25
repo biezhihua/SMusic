@@ -6,7 +6,8 @@ AudioDecoder::AudioDecoder(AVFormatContext *formatCtx,
                            int streamIndex,
                            PlayerState *playerState,
                            AVPacket *flushPacket,
-                           Condition *readWaitCond, AVDictionary *opts, MessageCenter *messageCenter)
+                           Condition *readWaitCond, AVDictionary *opts,
+                           MessageCenter *messageCenter)
         : MediaDecoder(avctx,
                        stream,
                        streamIndex,
@@ -79,9 +80,7 @@ int AudioDecoder::decodeAudio() {
     int ret = 0;
 
     if (!avFrame) {
-        if (DEBUG) {
-            ALOGE(TAG, "%s not memory", __func__);
-        }
+        ALOGE(TAG, "%s not memory", __func__);
         return ERROR_NOT_MEMORY;
     }
 
@@ -99,9 +98,7 @@ int AudioDecoder::decodeAudio() {
         ret = decodeFrameFromPacketQueue(avFrame);
 
         if (ret < 0) {
-            if (DEBUG) {
-                ALOGE(TAG, "%s audio not get audio srcFrame ret = %d ", __func__, ret);
-            }
+            ALOGE(TAG, "%s audio not get audio srcFrame ret = %d ", __func__, ret);
             break;
         }
 
@@ -114,9 +111,7 @@ int AudioDecoder::decodeAudio() {
 
         // 从队列中获取一个可写的Frame对象
         if (!(frame = frameQueue->peekWritable())) {
-            if (DEBUG) {
-                ALOGE(TAG, "%s audio peek not writable", __func__);
-            }
+            ALOGE(TAG, "%s audio peek not writable", __func__);
             break;
         }
 
@@ -169,7 +164,7 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
             do {
                 if (packetQueue->isAbort()) {
                     if (DEBUG) {
-                        ALOGE(TAG, "%s audio abort", __func__);
+                        ALOGD(TAG, "%s audio abort", __func__);
                     }
                     return ERROR_ABORT_REQUEST;
                 }
@@ -215,9 +210,7 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
                 isPendingPacket = false;
             } else {
                 if (packetQueue->getPacket(&packet) < 0) {
-                    if (DEBUG) {
-                        ALOGE(TAG, "%s audio get packet", __func__);
-                    }
+                    ALOGE(TAG, "%s audio get packet", __func__);
                     return ERROR_ABORT_REQUEST;
                 }
             }
@@ -231,9 +224,9 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
         } else {
             if (codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
                 if (avcodec_send_packet(codecContext, &packet) == AVERROR(EAGAIN)) {
-                    if (DEBUG) {
-                        ALOGE(TAG, "%s audio Receive_frame and send_packet both returned EAGAIN, which is an API violation.", __func__);
-                    }
+                    ALOGE(TAG,
+                          "%s audio Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
+                          __func__);
                     isPendingPacket = true;
                     av_packet_move_ref(&pendingPacket, &packet);
                 }

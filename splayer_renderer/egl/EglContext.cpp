@@ -27,27 +27,21 @@ EglContext *EglContext::getInstance() {
 int EglContext::init(int flags) {
 
     if (eglDisplay != EGL_NO_DISPLAY) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "EGL already set up");
-        }
+        ALOGE(TAG, "EGL already set up");
         return -1;
     }
 
     // 获取EGLDisplay
     eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (eglDisplay == EGL_NO_DISPLAY) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "unable to get EGLDisplay");
-        }
+        ALOGE(TAG, "unable to get EGLDisplay");
         return -1;
     }
 
     // 初始化mEGLDisplay
     if (!eglInitialize(eglDisplay, nullptr, nullptr)) {
         eglDisplay = EGL_NO_DISPLAY;
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "unable to initialize EGLDisplay.");
-        }
+        ALOGE(TAG, "unable to initialize EGLDisplay.");
         return -1;
     }
 
@@ -160,9 +154,7 @@ void EglContext::destroy() {
 void EglContext::checkEglError(const char *msg) {
     int error;
     if ((error = eglGetError()) != EGL_SUCCESS) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "%s: EGL error: %x", msg, error);
-        }
+        ALOGE(TAG, "%s: EGL error: %x", msg, error);
     }
 }
 

@@ -20,38 +20,30 @@ int EglHelper::init(int flags) {
 int EglHelper::init(EGLContext sharedContext, int flags) {
 
     if (eglDisplay != EGL_NO_DISPLAY) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "EGL already set up");
-        }
+        ALOGE(TAG, "EGL already set up");
         return -1;
     }
 
     if (sharedContext == nullptr) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "Shared Context is null");
-        }
+        ALOGE(TAG, "Shared Context is null");
         sharedContext = EGL_NO_CONTEXT;
     } else {
         if (RENDERER_DEBUG) {
-            ALOGE(TAG, "Main EGLContext is created!");
+            ALOGD(TAG, "Main EGLContext is created!");
         }
     }
 
     // 获取EGLDisplay
     eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (eglDisplay == EGL_NO_DISPLAY) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "unable to get EGLDisplay.");
-        }
+        ALOGE(TAG, "unable to get EGLDisplay.");
         return -1;
     }
 
     // 初始化mEGLDisplay
     if (!eglInitialize(eglDisplay, nullptr, nullptr)) {
         eglDisplay = EGL_NO_DISPLAY;
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "unable to initialize EGLDisplay");
-        }
+        ALOGE(TAG, "unable to initialize EGLDisplay");
         return -1;
     }
 
@@ -95,7 +87,7 @@ int EglHelper::init(EGLContext sharedContext, int flags) {
 
     if (!eglPresentationTimeANDROID) {
         if (RENDERER_DEBUG) {
-            ALOGE(TAG, "eglPresentationTimeANDROID is not available!");
+            ALOGD(TAG, "eglPresentationTimeANDROID is not available!");
         }
     }
 
@@ -135,9 +127,7 @@ void EglHelper::destroySurface(EGLSurface eglSurface) {
 
 EGLSurface EglHelper::createSurface(ANativeWindow *surface) {
     if (surface == nullptr) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "Window surface is NULL!");
-        }
+        ALOGE(TAG, "Window surface is NULL!");
         return nullptr;
     }
     int attributeList[] = {
@@ -146,9 +136,7 @@ EGLSurface EglHelper::createSurface(ANativeWindow *surface) {
     EGLSurface eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, surface, attributeList);
     checkEglError("eglCreateWindowSurface");
     if (eglSurface == EGL_NO_SURFACE) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "EGLSurface was null");
-        }
+        ALOGE(TAG, "EGLSurface was null");
     }
     return eglSurface;
 }
@@ -162,9 +150,7 @@ EGLSurface EglHelper::createSurface(int width, int height) {
     EGLSurface eglSurface = eglCreatePbufferSurface(eglDisplay, eglConfig, attributeList);
     checkEglError("eglCreatePbufferSurface");
     if (eglSurface == EGL_NO_SURFACE) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "EGLSurface was null");
-        }
+        ALOGE(TAG, "EGLSurface was null");
     }
     return eglSurface;
 }
@@ -176,9 +162,7 @@ void EglHelper::makeCurrent(EGLSurface eglSurface) {
         }
     }
     if (!eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "egl mark current error");
-        }
+        ALOGE(TAG, "egl mark current error");
     }
 }
 
@@ -189,17 +173,13 @@ void EglHelper::makeCurrent(EGLSurface drawSurface, EGLSurface readSurface) {
         }
     }
     if (!eglMakeCurrent(eglDisplay, drawSurface, readSurface, eglContext)) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "egl mark current error");
-        }
+        ALOGE(TAG, "egl mark current error");
     }
 }
 
 void EglHelper::makeNothingCurrent() {
     if (!eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "egl mark current error");
-        }
+        ALOGE(TAG, "egl mark current error");
     }
 }
 
@@ -238,9 +218,7 @@ int EglHelper::getGlVersion() {
 void EglHelper::checkEglError(const char *msg) {
     int error;
     if ((error = eglGetError()) != EGL_SUCCESS) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "%s: EGL error: %x", msg, error);
-        }
+        ALOGE(TAG, "%s: EGL error: %x", msg, error);
     }
 }
 
@@ -277,9 +255,7 @@ EGLConfig EglHelper::getConfig(int flags, int version) {
 int EglHelper::getSurfaceWidth(EGLSurface surface) {
     EGLint width = 0;
     if (!eglQuerySurface(eglDisplay, surface, EGL_WIDTH, &width)) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "[EGL] eglQuerySurface(EGL_WIDTH) returned error %d", eglGetError());
-        }
+        ALOGE(TAG, "[EGL] eglQuerySurface(EGL_WIDTH) returned error %d", eglGetError());
         return 0;
     }
     return width;
@@ -288,9 +264,7 @@ int EglHelper::getSurfaceWidth(EGLSurface surface) {
 int EglHelper::getSurfaceHeight(EGLSurface surface) {
     EGLint height = 0;
     if (!eglQuerySurface(eglDisplay, surface, EGL_HEIGHT, &height)) {
-        if (RENDERER_DEBUG) {
-            ALOGE(TAG, "[EGL] eglQuerySurface(EGL_HEIGHT) returned error %d", eglGetError());
-        }
+        ALOGE(TAG, "[EGL] eglQuerySurface(EGL_HEIGHT) returned error %d", eglGetError());
         return 0;
     }
     return height;

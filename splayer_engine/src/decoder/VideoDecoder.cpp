@@ -6,8 +6,10 @@ VideoDecoder::VideoDecoder(AVFormatContext *formatCtx,
                            int streamIndex,
                            PlayerState *playerState,
                            AVPacket *flushPacket,
-                           Condition *readWaitCond, AVDictionary *opts, MessageCenter *messageCenter)
-        : MediaDecoder(avctx, stream, streamIndex, playerState, flushPacket, readWaitCond, opts, messageCenter) {
+                           Condition *readWaitCond, AVDictionary *opts,
+                           MessageCenter *messageCenter)
+        : MediaDecoder(avctx, stream, streamIndex, playerState, flushPacket, readWaitCond, opts,
+                       messageCenter) {
     formatContext = formatCtx;
     frameQueue = new FrameQueue(VIDEO_QUEUE_SIZE, 1, packetQueue);
     decodeThread = nullptr;
@@ -97,9 +99,7 @@ int VideoDecoder::decodeVideo() {
     AVRational frameRate = av_guess_frame_rate(formatContext, stream, nullptr);
 
     if (!frame) {
-        if (DEBUG) {
-            ALOGE(TAG, "%s not memory", __func__);
-        }
+        ALOGE(TAG, "%s not memory", __func__);
         return ERROR_NOT_MEMORY;
     }
 
@@ -108,9 +108,7 @@ int VideoDecoder::decodeVideo() {
         ret = decodeFrameFromPacketQueue(frame);
 
         if (ret < 0) {
-            if (DEBUG) {
-                ALOGE(TAG, "%s not get video frame ret = %d ", __func__, ret);
-            }
+            ALOGE(TAG, "%s not get video frame ret = %d ", __func__, ret);
             break;
         }
 
@@ -122,7 +120,9 @@ int VideoDecoder::decodeVideo() {
         }
 
         // 计算帧的pts、duration等
-        duration = frameRate.num && frameRate.den ? av_q2d((AVRational) {frameRate.den, frameRate.num}) : 0;
+        duration =
+                frameRate.num && frameRate.den ? av_q2d((AVRational) {frameRate.den, frameRate.num})
+                                               : 0;
         pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(timeBase);
 
         // 放入到已解码队列
@@ -132,9 +132,7 @@ int VideoDecoder::decodeVideo() {
         av_frame_unref(frame);
 
         if (ret < 0) {
-            if (DEBUG) {
-                ALOGE(TAG, "%s not queue picture", __func__);
-            }
+            ALOGE(TAG, "%s not queue picture", __func__);
             break;
         }
     }
@@ -155,9 +153,7 @@ int VideoDecoder::decodeFrameFromPacketQueue(AVFrame *frame) {
 
     // 解码视频帧
     if ((ret = decodeFrame(frame)) < 0) {
-        if (DEBUG) {
-            ALOGE(TAG, "%s video decodeFrame failure ret = %d", __func__, ret);
-        }
+        ALOGE(TAG, "%s video decodeFrame failure ret = %d", __func__, ret);
         return ERROR_VIDEO_DECODE_FRAME;
     }
 
@@ -172,7 +168,8 @@ int VideoDecoder::decodeFrameFromPacketQueue(AVFrame *frame) {
         frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(formatContext, stream, frame);
 
         // 判断是否需要舍弃该帧
-        if (playerState->dropFrameWhenSlow > 0 || (playerState->dropFrameWhenSlow && playerState->syncType != AV_SYNC_VIDEO)) {
+        if (playerState->dropFrameWhenSlow > 0 ||
+            (playerState->dropFrameWhenSlow && playerState->syncType != AV_SYNC_VIDEO)) {
             if (frame->pts != AV_NOPTS_VALUE) {
                 // diff > 0 当前帧显示时间略超于出主时钟
                 // diff < 0 当前帧显示时间慢于主时钟
@@ -204,7 +201,7 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
             do {
                 if (packetQueue->isAbort()) {
                     if (DEBUG) {
-                        ALOGE(TAG, "%s video abort", __func__);
+                        ALOGD(TAG, "%s video abort", __func__);
                     }
                     return ERROR_ABORT_REQUEST;
                 }
@@ -248,9 +245,7 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
                 isPendingPacket = false;
             } else {
                 if (packetQueue->getPacket(&packet) < 0) {
-                    if (DEBUG) {
-                        ALOGE(TAG, "%s video get packet", __func__);
-                    }
+                    ALOGE(TAG, "%s video get packet", __func__);
                     return ERROR_ABORT_REQUEST;
                 }
             }
@@ -264,9 +259,9 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
         } else {
             if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
                 if (avcodec_send_packet(codecContext, &packet) == AVERROR(EAGAIN)) {
-                    if (DEBUG) {
-                        ALOGE(TAG, "%s video Receive_frame and send_packet both returned EAGAIN, which is an API violation.", __func__);
-                    }
+                    ALOGE(TAG,
+                          "%s video Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
+                          __func__);
                     isPendingPacket = true;
                     av_packet_move_ref(&pendingPacket, &packet);
                 }
@@ -276,7 +271,8 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
     }
 }
 
-int VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
+int
+VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int64_t pos, int serial) {
     Frame *frame;
 
     if (!(frame = frameQueue->peekWritable())) {
@@ -300,7 +296,8 @@ int VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int6
     frameQueue->pushFrame();
 
     if (DEBUG) {
-        ALOGD(TAG, "%s video frame = %p ptd = %lf duration = %lf pos = %lld serial = %d", __func__, srcFrame, pts, duration, pos, serial);
+        ALOGD(TAG, "%s video frame = %p ptd = %lf duration = %lf pos = %lld serial = %d", __func__,
+              srcFrame, pts, duration, pos, serial);
     }
 
     return SUCCESS;

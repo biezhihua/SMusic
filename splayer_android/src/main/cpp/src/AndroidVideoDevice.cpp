@@ -121,9 +121,9 @@ AndroidVideoDevice::onUpdateYUV(uint8_t *yData, int yPitch,
         return ERROR;
     }
     mutex.lock();
-    videoTexture->pitches[0] = yPitch;
-    videoTexture->pitches[1] = uPitch;
-    videoTexture->pitches[2] = vPitch;
+    videoTexture->pitches[0] = static_cast<uint16_t>(yPitch);
+    videoTexture->pitches[1] = static_cast<uint16_t>(uPitch);
+    videoTexture->pitches[2] = static_cast<uint16_t>(vPitch);
     videoTexture->pixels[0] = yData;
     videoTexture->pixels[1] = uData;
     videoTexture->pixels[2] = vData;
@@ -142,7 +142,7 @@ int AndroidVideoDevice::onUpdateARGB(uint8_t *rgba, int pitch) {
         return ERROR;
     }
     mutex.lock();
-    videoTexture->pitches[0] = pitch;
+    videoTexture->pitches[0] = static_cast<uint16_t>(pitch);
     videoTexture->pixels[0] = rgba;
     if (renderNode != nullptr && eglSurface != EGL_NO_SURFACE) {
         eglHelper->makeCurrent(eglSurface);
@@ -155,15 +155,9 @@ int AndroidVideoDevice::onUpdateARGB(uint8_t *rgba, int pitch) {
 }
 
 void AndroidVideoDevice::onRequestRenderStart(Frame *frame) {
-    if (DEBUG) {
-        ALOGD(TAG, "%s frame=%p", __func__, frame);
-    }
 }
 
 int AndroidVideoDevice::onRequestRenderEnd(Frame *frame, bool flip) {
-    if (DEBUG) {
-        ALOGD(TAG, "%s frame=%p flip=%d", __func__, frame, flip);
-    }
     if (!haveEGlContext) {
         return -1;
     }

@@ -125,6 +125,9 @@ void PlayerState::reset() {
 }
 
 void PlayerState::setOption(int category, const char *type, const char *option) {
+    if (DEBUG) {
+        ALOGD("PlayerState", "%s category=%d type=%s option=%s", __func__, category, type, option);
+    }
     switch (category) {
         case OPT_CATEGORY_FORMAT: {
             av_dict_set(&formatOpts, type, option, 0);
