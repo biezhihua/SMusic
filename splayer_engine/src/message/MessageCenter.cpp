@@ -3,11 +3,11 @@
 MessageCenter::MessageCenter(IMediaPlayer *mediaPlayer, ISyncMediaPlayer *innerMediaPlayer) {
     this->msgQueue = new MessageQueue();
     this->mediaPlayer = mediaPlayer;
-    this->innerMediaPlayer = innerMediaPlayer;
+    this->syncMediaPlayer = innerMediaPlayer;
 }
 
 MessageCenter::~MessageCenter() {
-    innerMediaPlayer = nullptr;
+    syncMediaPlayer = nullptr;
     mediaPlayer = nullptr;
     delete msgQueue;
     msgQueue = nullptr;
@@ -40,15 +40,15 @@ void MessageCenter::executeMsg(bool block) {
                 return;
             }
             case Msg::MSG_REQUEST_STOP: {
-                innerMediaPlayer->syncStop();
+                syncMediaPlayer->syncStop();
             }
                 break;
             case Msg::MSG_REQUEST_PAUSE: {
-                innerMediaPlayer->syncPause();
+                syncMediaPlayer->syncPause();
             }
                 break;
             case Msg::MSG_REQUEST_PLAY: {
-                innerMediaPlayer->syncPlay();
+                syncMediaPlayer->syncPlay();
             }
                 break;
             case Msg::MSG_STARTED: {

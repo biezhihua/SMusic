@@ -21,7 +21,7 @@ private:
 
     IMediaPlayer *mediaPlayer = nullptr;
 
-    ISyncMediaPlayer *innerMediaPlayer = nullptr;
+    ISyncMediaPlayer *syncMediaPlayer = nullptr;
 
 protected:
 
