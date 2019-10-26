@@ -99,6 +99,81 @@ struct AVDictionary {
     AVDictionaryEntry *elements;
 };
 
+
+/**
+ * MediaPlayer Status 播放器状态
+ *
+ * IDLED            -> 已闲置态
+ * CREATED          -> 已创建态
+ * STARTED          -> 已启动态
+ * PLAYING          -> 已播放态
+ * PAUSED           -> 已暂停态
+ * STOPED           -> 已停止态
+ * DESTROYED        -> 已销毁态
+ * ERRORED          -> 已错误态
+ */
+enum MediaPlayerState {
+    /**
+     * new MediaPlayer()        => self
+     * destroy()                => self
+     * reset()                  => self
+     * create()                 => CREATED
+     */
+            IDLED,
+    /**
+     * create()                 => self
+     * start()                  => STARTED
+     * destroy()                => DESTROYED -> IDLE
+     * reset()                  => DESTROYED -> IDLE
+     */
+            CREATED,
+    /**
+     * start()                  => self
+     * play()                   => self
+     * pause()                  => PAUSED
+     * stop()                   => STOPED
+     * destroy()                => STOPED -> DESTROYED -> IDLE
+     * reset()                  => STOPED -> DESTROYED -> IDLE
+     */
+            STARTED,
+    /**
+     * STARTED & read a frame   => self
+     * seek()                   => self
+     * pause()                  => PAUSED
+     * stop()                   => STOPED
+     * destroy()                => STOPED -> DESTROYED -> IDLE
+     * reset()                  => STOPED -> DESTROYED -> IDLE
+     */
+            PLAYING,
+    /**
+     * seek()                   => self
+     * paused()                 => self
+     * play()                   => STARTED
+     * stop()                   => STOPED
+     * destroy()                => STOPED -> DESTROYED -> IDLE
+     * reset()                  => STOPED -> DESTROYED -> IDLE
+     */
+            PAUSED,
+    /**
+     * stop()                   => self
+     * start()                  => STARTED
+     * destroy()                => DESTROYED -> IDLE
+     * reset()                  => DESTROYED -> IDLE
+     */
+            STOPED,
+    /**
+     * destroy()                => self -> IDLE
+     * reset()                  => self -> IDLE
+     */
+            DESTROYED,
+    /**
+     *  any error               => ERRORED
+     *  reset()                 => DESTROYED -> IDLE
+     *  destroy()               => any -> DESTROY -> IDLE
+     */
+            ERRORED
+};
+
 class PlayerState {
 
     const char *const TAG = "PlayerState";
