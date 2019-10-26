@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun play(v: View) {
-        mediaPlayer.resume()
+        mediaPlayer.play()
     }
 
     fun pause(v: View) {
@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-//        mediaPlayer.resume();
+//        mediaPlayer.play();
     }
 
     override fun onPause() {

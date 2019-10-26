@@ -267,7 +267,7 @@ interface IMediaPlayer {
     fun stop()
 
     /**
-     * Pauses playback. Call start() to resume.
+     * Pauses playback. Call start() to play.
      *
      * @throws IllegalStateException if the internal player engine has not been
      * initialized.
@@ -277,13 +277,13 @@ interface IMediaPlayer {
 
 
     /**
-     * Pauses playback. Call resume() to resume.
+     * Pauses playback. Call play() to play.
      *
      * @throws IllegalStateException if the internal player engine has not been
      * initialized.
      */
     @Throws(IllegalStateException::class)
-    fun resume()
+    fun play()
 
     /**
      * Set the low-level power management behavior for this MediaPlayer.  This

@@ -32,7 +32,7 @@ static JNIEnv *getJNIEnv() {
 }
 
 const char *CLASS_NAME = "com/bzh/splayer/MediaPlayer";
-const char *TAG = "MainJni";
+const char *TAG = "MediaPlayer_MainJni";
 
 class MessageListener : public IMessageListener {
     const char *const TAG = "MessageListener";
@@ -48,7 +48,7 @@ public:
         // that posts events to the application thread.
         jclass clazz = env->GetObjectClass(thiz);
         if (clazz == nullptr) {
-            ALOGE(TAG, "Can't find com/bzh/splayer/MediaPlayer");
+            ALOGE(TAG, "[%s] Can't find com/bzh/splayer/MediaPlayer", __func__);
             jniThrowException(env, "java/lang/Exception");
             return;
         }
@@ -73,7 +73,7 @@ public:
 
         if (env->ExceptionCheck()) {
             if (DEBUG) {
-                ALOGW(TAG, "An exception occurred while notifying an event.");
+                ALOGW(TAG, "[%s] An exception occurred while notifying an event.", __func__);
             }
             env->ExceptionClear();
         }
@@ -85,7 +85,7 @@ public:
 
     void onMessage(Msg *msg) override {
         if (DEBUG) {
-            ALOGD(TAG, "%s what = %s arg1 = %d arg2 = %d", __func__,
+            ALOGD(TAG, "[%s] what = %s arg1 = %d arg2 = %d", __func__,
                   Msg::getMsgSimpleName(msg->what),
                   msg->arg1,
                   msg->arg2);
@@ -185,7 +185,7 @@ void MediaPlayer_setDataSourceAndHeaders(JNIEnv *env, jobject thiz, jstring path
     }
 
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s path = %s", __func__, path);
+        ALOGD(TAG, "[%s] path = %s", __func__, path);
     }
 
     const char *restrict = strstr(path, "mms://");
@@ -202,7 +202,7 @@ void MediaPlayer_setDataSourceAndHeaders(JNIEnv *env, jobject thiz, jstring path
 
         if (keysCount != valuesCount) {
             if (DEBUG) {
-                ALOGE(TAG, "keys and values arrays have different length");
+                ALOGE(TAG, "[%s] keys and values arrays have different length", __func__);
             }
             jniThrowException(env, "java/lang/IllegalArgumentException");
             return;
@@ -255,17 +255,17 @@ void MediaPlayer_setDataSourceFD(JNIEnv *env, jobject thiz, jobject fileDescript
     if (offset < 0 || length < 0 || fd < 0) {
         if (offset < 0) {
             if (DEBUG) {
-                ALOGE(TAG, "negative offset (%lld)", offset);
+                ALOGE(TAG, "[%s] negative offset (%lld)", __func__, offset);
             }
         }
         if (length < 0) {
             if (DEBUG) {
-                ALOGE(TAG, "negative length (%lld)", length);
+                ALOGE(TAG, "[%s] negative length (%lld)", __func__, length);
             }
         }
         if (fd < 0) {
             if (DEBUG) {
-                ALOGE(TAG, "invalid file descriptor");
+                ALOGE(TAG, "[%s] invalid file descriptor", __func__);
             }
         }
         jniThrowException(env, "java/lang/IllegalArgumentException");
@@ -288,7 +288,7 @@ void MediaPlayer_init(JNIEnv *env) {
 
     jclass clazz = env->FindClass(CLASS_NAME);
     if (clazz == nullptr) {
-        ALOGE(TAG, "not find class, class=%s", CLASS_NAME);
+        ALOGE(TAG, "[%s] not find class, class=%s", __func__, CLASS_NAME);
         return;
     }
 
@@ -298,18 +298,18 @@ void MediaPlayer_init(JNIEnv *env) {
     RENDERER_DEBUG = JNI_DEBUG;
 
     if (JNI_DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
 
     // 获取Context Id
     fields.context = env->GetFieldID(clazz, "mNativeContext", "J");
     if (fields.context == nullptr) {
-        ALOGE(TAG, "not find field mNativeContext");
+        ALOGE(TAG, "[%s] not find field mNativeContext", __func__);
         return;
     }
 
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s context = %p", __func__, fields.context);
+        ALOGD(TAG, "[%s] context = %p", __func__, fields.context);
     }
 
     // 获取PostEvent Id
@@ -317,12 +317,12 @@ void MediaPlayer_init(JNIEnv *env) {
                                                "postEventFromNative",
                                                "(Ljava/lang/Object;IIILjava/lang/Object;)V");
     if (fields.post_event == nullptr) {
-        ALOGE(TAG, "not find static method postEventFromNative");
+        ALOGE(TAG, "[%s] not find static method postEventFromNative", __func__);
         return;
     }
 
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s post_event = %p", __func__, fields.post_event);
+        ALOGD(TAG, "[%s] post_event = %p", __func__, fields.post_event);
     }
 
     env->DeleteLocalRef(clazz);
@@ -331,7 +331,7 @@ void MediaPlayer_init(JNIEnv *env) {
 void MediaPlayer_create(JNIEnv *env, jobject thiz, jobject mediaplayer_this) {
 
     if (JNI_DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
 
     MediaPlayer *mp = AndroidMediaPlayer::Builder{}
@@ -348,7 +348,7 @@ void MediaPlayer_create(JNIEnv *env, jobject thiz, jobject mediaplayer_this) {
     }
 
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s media player = %p", __func__, mp);
+        ALOGD(TAG, "[%s] media player = %p", __func__, mp);
     }
 
     int result = mp->create();
@@ -358,7 +358,7 @@ void MediaPlayer_create(JNIEnv *env, jobject thiz, jobject mediaplayer_this) {
     }
 
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s media player created", __func__);
+        ALOGD(TAG, "[%s] media player created", __func__);
     }
 
     // Stow our new C++ MediaPlayer in an opaque field in the Java object.
@@ -367,7 +367,7 @@ void MediaPlayer_create(JNIEnv *env, jobject thiz, jobject mediaplayer_this) {
 
 void MediaPlayer_destroy(JNIEnv *env, jobject thiz) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp != nullptr) {
@@ -379,7 +379,7 @@ void MediaPlayer_destroy(JNIEnv *env, jobject thiz) {
 
 void MediaPlayer_reset(JNIEnv *env, jobject thiz) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -391,18 +391,18 @@ void MediaPlayer_reset(JNIEnv *env, jobject thiz) {
 
 void MediaPlayer_finalize(JNIEnv *env, jobject thiz) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp != nullptr) {
-        ALOGE(TAG, "%s MediaPlayer finalized without being released", __func__);
+        ALOGE(TAG, "[%s] MediaPlayer finalized without being released", __func__);
     }
     MediaPlayer_destroy(env, thiz);
 }
 
 void MediaPlayer_setVideoSurface(JNIEnv *env, jobject thiz, jobject surface) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s surface=%p", __func__, surface);
+        ALOGD(TAG, "[%s] surface=%p", __func__, surface);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -418,7 +418,7 @@ void MediaPlayer_setVideoSurface(JNIEnv *env, jobject thiz, jobject surface) {
 
 void MediaPlayer_setLooping(JNIEnv *env, jobject thiz, jboolean looping) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s looping=%d", __func__, looping);
+        ALOGD(TAG, "[%s] looping=%d", __func__, looping);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -439,7 +439,7 @@ jboolean MediaPlayer_isLooping(JNIEnv *env, jobject thiz) {
 
 void MediaPlayer_prepare(JNIEnv *env, jobject thiz) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -451,7 +451,7 @@ void MediaPlayer_prepare(JNIEnv *env, jobject thiz) {
 
 void MediaPlayer_prepareAsync(JNIEnv *env, jobject thiz) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -463,7 +463,7 @@ void MediaPlayer_prepareAsync(JNIEnv *env, jobject thiz) {
 
 void MediaPlayer_start(JNIEnv *env, jobject thiz) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -475,7 +475,7 @@ void MediaPlayer_start(JNIEnv *env, jobject thiz) {
 
 void MediaPlayer_pause(JNIEnv *env, jobject thiz) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -487,7 +487,7 @@ void MediaPlayer_pause(JNIEnv *env, jobject thiz) {
 
 void MediaPlayer_play(JNIEnv *env, jobject thiz) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -499,7 +499,7 @@ void MediaPlayer_play(JNIEnv *env, jobject thiz) {
 
 void MediaPlayer_stop(JNIEnv *env, jobject thiz) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -511,7 +511,7 @@ void MediaPlayer_stop(JNIEnv *env, jobject thiz) {
 
 void MediaPlayer_seekTo(JNIEnv *env, jobject thiz, jfloat timeMs) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s timeMs=%ld", __func__, timeMs);
+        ALOGD(TAG, "[%s] timeMs=%ld", __func__, timeMs);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -523,7 +523,7 @@ void MediaPlayer_seekTo(JNIEnv *env, jobject thiz, jfloat timeMs) {
 
 void MediaPlayer_setMute(JNIEnv *env, jobject thiz, jboolean mute) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s mute=%d", __func__, mute);
+        ALOGD(TAG, "[%s] mute=%d", __func__, mute);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -535,7 +535,7 @@ void MediaPlayer_setMute(JNIEnv *env, jobject thiz, jboolean mute) {
 
 void MediaPlayer_setVolume(JNIEnv *env, jobject thiz, jfloat leftVolume, jfloat rightVolume) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s leftVolume=%lf rightVolume=%lf", __func__, leftVolume, rightVolume);
+        ALOGD(TAG, "[%s] leftVolume=%lf rightVolume=%lf", __func__, leftVolume, rightVolume);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -547,7 +547,7 @@ void MediaPlayer_setVolume(JNIEnv *env, jobject thiz, jfloat leftVolume, jfloat 
 
 void MediaPlayer_setRate(JNIEnv *env, jobject thiz, jfloat speed) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s speed=%lf", __func__, speed);
+        ALOGD(TAG, "[%s] speed=%lf", __func__, speed);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -559,7 +559,7 @@ void MediaPlayer_setRate(JNIEnv *env, jobject thiz, jfloat speed) {
 
 void MediaPlayer_setPitch(JNIEnv *env, jobject thiz, jfloat pitch) {
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s pitch=%lf", __func__, pitch);
+        ALOGD(TAG, "[%s] pitch=%lf", __func__, pitch);
     }
     MediaPlayer *mp = getMediaPlayer(env, thiz);
     if (mp == nullptr) {
@@ -636,7 +636,7 @@ void MediaPlayer_setOption(JNIEnv *env,
     const char *type = env->GetStringUTFChars(type_, 0);
     const char *option = env->GetStringUTFChars(option_, 0);
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s type=%s option=%s", __func__, type, option);
+        ALOGD(TAG, "[%s] type=%s option=%s", __func__, type, option);
     }
     if (type == nullptr || option == nullptr) {
         return;
@@ -659,7 +659,7 @@ void MediaPlayer_setOptionLong(JNIEnv *env,
     }
     const char *type = env->GetStringUTFChars(type_, 0);
     if (JNI_DEBUG) {
-        ALOGD(TAG, "%s type=%s option=%d", __func__, type, option_);
+        ALOGD(TAG, "[%s] type=%s option=%d", __func__, type, option_);
     }
     if (type == nullptr) {
         return;
@@ -678,7 +678,7 @@ static const JNINativeMethod gMethods[] = {
         {"_prepareAsync",       "()V",                                                         (void *) MediaPlayer_prepareAsync},
         {"_start",              "()V",                                                         (void *) MediaPlayer_start},
         {"_stop",               "()V",                                                         (void *) MediaPlayer_stop},
-        {"_resume",             "()V",                                                         (void *) MediaPlayer_play},
+        {"_play",               "()V",                                                         (void *) MediaPlayer_play},
         {"_getRotate",          "()I",                                                         (void *) MediaPlayer_getRotate},
         {"_getVideoWidth",      "()I",                                                         (void *) MediaPlayer_getVideoWidth},
         {"_getVideoHeight",     "()I",                                                         (void *) MediaPlayer_getVideoHeight},
@@ -707,11 +707,11 @@ static int registerMediaPlayerMethod(JNIEnv *env) {
     int numMethods = (sizeof(gMethods) / sizeof((gMethods)[0]));
     jclass clazz = env->FindClass(CLASS_NAME);
     if (clazz == nullptr) {
-        ALOGE(TAG, "Native registration unable to find class '%s'", CLASS_NAME);
+        ALOGE(TAG, "[%s] Native registration unable to find class '%s'", __func__, CLASS_NAME);
         return JNI_ERR;
     }
     if (env->RegisterNatives(clazz, gMethods, numMethods) < 0) {
-        ALOGE(TAG, "Native registration unable to find class '%s'", CLASS_NAME);
+        ALOGE(TAG, "[%s] Native registration unable to find class '%s'", __func__, CLASS_NAME);
         return JNI_ERR;
     }
     env->DeleteLocalRef(clazz);

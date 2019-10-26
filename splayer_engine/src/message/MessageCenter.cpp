@@ -26,13 +26,25 @@ void MessageCenter::run() {
 void MessageCenter::executeMsg(bool block) {
     int ret = msgQueue->getMsg(&msg, block);
     if (ret >= 0 && msg.what != -1) {
-        if (Msg::MSG_REQUEST_ERROR == msg.what) {
-            int target = msg.arg1;
-            if (Msg::MSG_REQUEST_DESTROY == target) {
-            } else if (Msg::MSG_REQUEST_STOP == target) {
+
+        switch (msg.what) {
+            case Msg::MSG_REQUEST_ERROR: {
+                int target = msg.arg1;
+                if (Msg::MSG_REQUEST_DESTROY == target) {
+                } else if (Msg::MSG_REQUEST_STOP == target) {
+                }
             }
-            return;
+                return;
+            case Msg::MSG_STARTED: {
+                mediaPlayer->setPlaying(true);
+            }
+                break;
+            case Msg::MSG_STOP: {
+                mediaPlayer->setPlaying(false);
+            }
+                break;
         }
+
         if (msgListener != nullptr) {
             msgListener->onMessage(&msg);
         }

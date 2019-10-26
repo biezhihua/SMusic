@@ -211,13 +211,19 @@ class MediaPlayer : IMediaPlayer {
     }
 
     override fun pause() {
+        if (DEBUG) {
+            Log.d(TAG, "pause() called")
+        }
         stayAwake(false)
         _pause()
     }
 
-    override fun resume() {
+    override fun play() {
+        if (DEBUG) {
+            Log.d(TAG, "play() called")
+        }
         stayAwake(true)
-        _resume()
+        _play()
     }
 
     override fun setWakeMode(context: Context, mode: Int) {
@@ -541,7 +547,7 @@ class MediaPlayer : IMediaPlayer {
     private external fun _pause()
 
     @Throws(IllegalStateException::class)
-    private external fun _resume()
+    private external fun _play()
 
     @Throws(IllegalStateException::class)
     private external fun _getRotate(): Int
@@ -575,7 +581,7 @@ class MediaPlayer : IMediaPlayer {
         @JvmStatic
         val DEBUG = true
 
-        private val TAG = "CainMediaPlayer"
+        private const val TAG = "MediaPlayer_Java"
 
         //
         val METADATA_UPDATE_ONLY = true

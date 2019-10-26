@@ -439,9 +439,10 @@ void MediaSync::setPlayerState(PlayerState *playerState) {
     MediaSync::playerState = playerState;
 }
 
-void MediaSync::resetRemainingTime() { remainingTime = 0.0f; }
+void MediaSync::resetRemainingTime() { remainingTime = 0.0F; }
 
-void MediaSync::togglePause() {
+int MediaSync::togglePause() {
+    mutex.lock();
     if (playerState) {
         if (playerState->pauseRequest) {
             frameTimer += (av_gettime_relative() * 1.0F / AV_TIME_BASE -
@@ -457,6 +458,8 @@ void MediaSync::togglePause() {
         videoClock->setPaused(playerState->pauseRequest);
         externalClock->setPaused(playerState->pauseRequest);
     }
+    mutex.unlock();
+    return SUCCESS;
 }
 
 int MediaSync::notifyMsg(int what) {

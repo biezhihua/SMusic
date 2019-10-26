@@ -55,7 +55,7 @@ public:
 
     void setPlayerState(PlayerState *playerState);
 
-    void togglePause();
+    int togglePause();
 
     int notifyMsg(int what);
 
@@ -88,6 +88,10 @@ private:
     void renderVideo();
 
 protected:
+
+    Mutex mutex;
+
+    Condition condition;
 
     Mutex *playerMutex;
 
