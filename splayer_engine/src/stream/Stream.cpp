@@ -24,6 +24,7 @@ Stream::~Stream() {
 }
 
 int Stream::start() {
+    Mutex::Autolock lock(mutex);
     if (!readThread) {
         readThread = new Thread(this);
         if (readThread) {

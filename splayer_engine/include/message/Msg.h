@@ -10,8 +10,10 @@ public:
     ~Msg();
 
     int what = -1;
-    int arg1 = -1;
-    int arg2 = -1;
+    int arg1I = -1;
+    int arg2I = -1;
+    float arg1F = -1.F;
+    float arg2F = -1.F;
 
     void free();
 

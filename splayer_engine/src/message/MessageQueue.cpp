@@ -101,7 +101,15 @@ int MessageQueue::notifyMsg(int what) {
 int MessageQueue::notifyMsg(int what, int arg1) {
     auto *message = new Msg();
     message->what = what;
-    message->arg1 = arg1;
+    message->arg1I = arg1;
+    putMsg(message);
+    return SUCCESS;
+}
+
+int MessageQueue::notifyMsg(int what, float arg1) {
+    auto *message = new Msg();
+    message->what = what;
+    message->arg1F = arg1;
     putMsg(message);
     return SUCCESS;
 }
@@ -109,8 +117,8 @@ int MessageQueue::notifyMsg(int what, int arg1) {
 int MessageQueue::notifyMsg(int what, int arg1, int arg2) {
     auto *message = new Msg();
     message->what = what;
-    message->arg1 = arg1;
-    message->arg2 = arg2;
+    message->arg1I = arg1;
+    message->arg2I = arg2;
     putMsg(message);
     return SUCCESS;
 }

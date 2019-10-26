@@ -214,7 +214,7 @@ void SDLMediaPlayer::doExit() {
 }
 
 void SDLMediaPlayer::doSeek(int increment) {
-    notifyMsg(Msg::MSG_REQUEST_SEEK, increment);
+    notifyMsg(MSG_REQUEST_SEEK_SDL, increment);
 }
 
 int SDLMediaPlayer::destroy() {
@@ -222,7 +222,7 @@ int SDLMediaPlayer::destroy() {
         ALOGD(TAG, "destroy sdl media player - start");
     }
     mutex.lock();
-    MediaPlayer::_destroy();
+    MediaPlayer::syncDestroy();
     quit = true;
     mutex.unlock();
     if (DEBUG) {

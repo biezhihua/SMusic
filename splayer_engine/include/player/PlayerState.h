@@ -166,10 +166,10 @@ public:
     char *videoCodecName = nullptr;
 
     /// 退出标志
-    int abortRequest;
+    volatile int abortRequest;
 
     /// 暂停标志
-    int pauseRequest;
+    volatile int pauseRequest;
 
     /// 上一次暂停状态
     int lastPaused;
@@ -224,10 +224,10 @@ public:
     float seekInterval = 10;
 
     /// 是否以字节定位
-    int seekByBytes;
+    volatile int seekByBytes;
 
     /// 定位请求
-    int seekRequest;
+    volatile int seekRequest;
 
     /// 定位标志
     int seekFlags;
@@ -277,6 +277,12 @@ public:
     int audioIndex;
 
     const char *getSyncType();
+
+    void setAbortRequest(int abortRequest);
+
+    void setPauseRequest(int pauseRequest);
+
+    void setSeekRequest(int seekRequest);
 
 };
 

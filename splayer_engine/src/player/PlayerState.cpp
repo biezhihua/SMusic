@@ -257,3 +257,24 @@ const char *PlayerState::getSyncType() {
 void PlayerState::setFormatContext(AVFormatContext *formatContext) {
     PlayerState::formatContext = formatContext;
 }
+
+
+void PlayerState::setAbortRequest(int abortRequest) {
+    mutex.lock();
+    PlayerState::abortRequest = abortRequest;
+    mutex.unlock();
+}
+
+void PlayerState::setPauseRequest(int pauseRequest) {
+    mutex.lock();
+    PlayerState::pauseRequest = pauseRequest;
+    mutex.unlock();
+}
+
+void PlayerState::setSeekRequest(int seekRequest) {
+    mutex.lock();
+    PlayerState::seekRequest = seekRequest;
+    mutex.unlock();
+}
+
+

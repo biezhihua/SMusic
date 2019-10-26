@@ -47,6 +47,8 @@ public:
 
     int notifyMsg(int what, int arg1);
 
+    int notifyMsg(int what, float arg1);
+
     int notifyMsg(int what, int arg1, int arg2);
 
 };

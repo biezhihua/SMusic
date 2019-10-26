@@ -32,14 +32,11 @@ MediaPlayer::~MediaPlayer() {
 
 int MediaPlayer::create() {
     if (DEBUG) {
-        ALOGD(TAG, "init media player - start");
+        ALOGD(TAG, "[%s]", __func__);
     }
     mutex.lock();
-    _create();
+    syncCreate();
     mutex.unlock();
-    if (DEBUG) {
-        ALOGD(TAG, "init media player - end");
-    }
     return SUCCESS;
 }
 
@@ -47,10 +44,7 @@ int MediaPlayer::start() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    mutex.lock();
-    _start();
-    mutex.unlock();
-    return SUCCESS;
+    return notifyMsg(Msg::MSG_REQUEST_START);
 }
 
 int MediaPlayer::pause() {
@@ -76,14 +70,11 @@ int MediaPlayer::stop() {
 
 int MediaPlayer::destroy() {
     if (DEBUG) {
-        ALOGD(TAG, "destroy media player - start");
+        ALOGD(TAG, "[%s]", __func__);
     }
     mutex.lock();
-    _destroy();
+    syncDestroy();
     mutex.unlock();
-    if (DEBUG) {
-        ALOGD(TAG, "destroy media player - end");
-    }
     return SUCCESS;
 }
 
@@ -91,23 +82,14 @@ int MediaPlayer::setDataSource(const char *url, int64_t offset, const char *head
     if (DEBUG) {
         ALOGD(TAG, "[%s] url = %s offset = %lld headers = %p", __func__, url, offset, headers);
     }
-    mutex.lock();
-    _setDataSource(url, offset, headers);
-    mutex.unlock();
-    return SUCCESS;
+    return syncSetDataSource(url, offset, headers);
 }
 
 int MediaPlayer::seekTo(float increment) {
     if (DEBUG) {
-        ALOGD(TAG, "seek to - start increment = %lf", increment);
+        ALOGD(TAG, "[%s] increment = %lf", __func__, increment);
     }
-    mutex.lock();
-    _seek(increment);
-    mutex.unlock();
-    if (DEBUG) {
-        ALOGD(TAG, "seek to - end");
-    }
-    return SUCCESS;
+    return notifyMsg(Msg::MSG_REQUEST_SEEK, increment);
 }
 
 void MediaPlayer::setLooping(int looping) {
@@ -675,6 +657,15 @@ int MediaPlayer::notifyMsg(int what, int arg1) {
     return ERROR;
 }
 
+int MediaPlayer::notifyMsg(int what, float arg1) {
+    if (messageCenter) {
+        messageCenter->notifyMsg(what, arg1);
+        return SUCCESS;
+    }
+    return ERROR;
+}
+
+
 int MediaPlayer::notifyMsg(int what, int arg1, int arg2) {
     if (messageCenter) {
         messageCenter->notifyMsg(what, arg1, arg2);
@@ -698,7 +689,7 @@ void MediaPlayer::setFormatContext(AVFormatContext *formatContext) {
     this->formatContext = formatContext;
 }
 
-int MediaPlayer::_create() {
+int MediaPlayer::syncCreate() {
     if (messageCenter) {
         messageCenter->setMsgListener(messageListener);
     }
@@ -763,30 +754,30 @@ int MediaPlayer::_create() {
     return SUCCESS;
 }
 
-int MediaPlayer::_start() {
+int MediaPlayer::syncStart() {
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
+    }
     if (checkParams() < 0) {
         notifyMsg(Msg::MSG_ERROR, ERROR_PARAMS);
         return ERROR_PARAMS;
     }
-    playerState->abortRequest = 0;
-    playerState->pauseRequest = 0;
-    if (DEBUG) {
-        ALOGD(TAG, "start media stream");
-    }
+    playerState->setAbortRequest(0);
+    playerState->setPauseRequest(0);
     mediaStream->start();
     notifyMsg(Msg::MSG_START);
     notifyMsg(Msg::MSG_MEDIA_STREAM_START);
     return SUCCESS;
 }
 
-int MediaPlayer::_togglePause() {
+int MediaPlayer::syncTogglePause() {
     if (mediaSync) {
         return mediaSync->togglePause();
     }
     return SUCCESS;
 }
 
-int MediaPlayer::_seek(float increment) {
+int MediaPlayer::syncSeekTo(float increment) {
     if (DEBUG) {
         ALOGD(TAG, "[%s] increment = %lf", __func__, increment);
     }
@@ -815,7 +806,7 @@ int MediaPlayer::_seek(float increment) {
             increment *= 180000.0;
         }
         pos += increment;
-        _seek((int64_t) pos, (int64_t) increment, 1);
+        syncSeekTo((int64_t) pos, (int64_t) increment, 1);
     } else {
         pos = mediaSync->getMasterClock();
         if (isnan(pos)) {
@@ -826,13 +817,15 @@ int MediaPlayer::_seek(float increment) {
             pos < playerState->formatContext->start_time / (double) AV_TIME_BASE) {
             pos = playerState->formatContext->start_time / (double) AV_TIME_BASE;
         }
-        _seek((int64_t) (pos * AV_TIME_BASE), (int64_t) (increment * AV_TIME_BASE), 0);
+        syncSeekTo((int64_t) (pos * AV_TIME_BASE), (int64_t) (increment * AV_TIME_BASE), 0);
     }
     return SUCCESS;
 }
 
-int MediaPlayer::_seek(int64_t pos, int64_t rel, int seekByBytes) {
-    // * _seek in the stream
+int MediaPlayer::syncSeekTo(int64_t pos, int64_t rel, int seekByBytes) {
+    if (DEBUG) {
+        ALOGD(TAG, "[%s] pos=%lld rel=%lld seekByBytes=%d", __func__, pos, rel, seekByBytes);
+    }
     if (playerState && !playerState->seekRequest) {
         playerState->seekPos = pos;
         playerState->seekRel = rel;
@@ -840,7 +833,7 @@ int MediaPlayer::_seek(int64_t pos, int64_t rel, int seekByBytes) {
         if (seekByBytes) {
             playerState->seekFlags |= AVSEEK_FLAG_BYTE;
         }
-        playerState->seekRequest = true;
+        playerState->setSeekRequest(true);
         if (mediaStream) {
             mediaStream->getWaitCondition()->signal();
         }
@@ -856,7 +849,7 @@ int MediaPlayer::syncStop() {
     notifyMsg(Msg::MSG_STOP);
 
     if (playerState) {
-        playerState->abortRequest = 1;
+        playerState->setAbortRequest(1);
     }
 
     if (mediaSync) {
@@ -905,7 +898,7 @@ int MediaPlayer::syncStop() {
     return SUCCESS;
 }
 
-int MediaPlayer::_destroy() {
+int MediaPlayer::syncDestroy() {
     syncStop();
 
     if (videoDevice) {
@@ -954,7 +947,7 @@ int MediaPlayer::_destroy() {
     return SUCCESS;
 }
 
-int MediaPlayer::_setDataSource(const char *url, int64_t offset, const char *headers) const {
+int MediaPlayer::syncSetDataSource(const char *url, int64_t offset, const char *headers) const {
     if (playerState) {
         playerState->url = av_strdup(url);
         playerState->offset = offset;
@@ -989,7 +982,7 @@ int MediaPlayer::syncPause() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    if (isPlaying() && _togglePause()) {
+    if (isPlaying() && syncTogglePause()) {
         setPlaying(false);
         notifyMsg(Msg::MSG_PAUSE);
         return SUCCESS;
@@ -1001,11 +994,12 @@ int MediaPlayer::syncPlay() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    if (!isPlaying() && _togglePause()) {
+    if (!isPlaying() && syncTogglePause()) {
         setPlaying(true);
         notifyMsg(Msg::MSG_PLAY);
         return SUCCESS;
     }
     return ERROR;
 }
+
 

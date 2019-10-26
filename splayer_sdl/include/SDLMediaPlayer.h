@@ -8,6 +8,8 @@
 #include <SDL.h>
 #include <SDLVideoDevice.h>
 
+#define MSG_REQUEST_SEEK_SDL 29000
+
 class SDLMediaPlayer : public MediaPlayer {
 
     const char *const TAG = "SDLMediaPlayer";

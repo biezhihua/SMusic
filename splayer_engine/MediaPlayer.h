@@ -137,14 +137,13 @@ public:
 
     void setOption(int category, const char *type, int64_t option);
 
-
 protected:
 
-    int _seek(float increment);
+    int syncSeekTo(float increment) override;
 
-    int _seek(int64_t pos, int64_t rel, int seekByBytes);
+    int syncSeekTo(int64_t pos, int64_t rel, int seekByBytes);
 
-    int _togglePause();
+    int syncTogglePause();
 
     int syncStop() override;
 
@@ -152,13 +151,13 @@ protected:
 
     int syncPlay() override;
 
-    int _destroy();
+    int syncDestroy() override;
 
-    int _create();
+    int syncCreate() override;
 
-    int _start();
+    int syncStart();
 
-    int _setDataSource(const char *url, int64_t offset, const char *headers) const;
+    int syncSetDataSource(const char *url, int64_t offset, const char *headers) const;
 
     int openDecoder(int streamIndex);
 
@@ -169,6 +168,8 @@ protected:
     int notifyMsg(int what);
 
     int notifyMsg(int what, int arg1);
+
+    int notifyMsg(int what, float arg1);
 
     int notifyMsg(int what, int arg1, int arg2);
 

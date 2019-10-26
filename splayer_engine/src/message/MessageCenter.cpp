@@ -1,3 +1,6 @@
+
+#include <message/MessageCenter.h>
+
 #include "message/MessageCenter.h"
 
 MessageCenter::MessageCenter(IMediaPlayer *mediaPlayer, ISyncMediaPlayer *innerMediaPlayer) {
@@ -33,12 +36,20 @@ void MessageCenter::executeMsg(bool block) {
         }
         switch (msg.what) {
             case Msg::MSG_REQUEST_ERROR: {
-                int target = msg.arg1;
+                int target = msg.arg1I;
                 if (Msg::MSG_REQUEST_DESTROY == target) {
                 } else if (Msg::MSG_REQUEST_STOP == target) {
                 }
                 return;
             }
+            case Msg::MSG_REQUEST_START: {
+                syncMediaPlayer->syncStart();
+            }
+                break;
+            case Msg::MSG_REQUEST_SEEK: {
+                syncMediaPlayer->syncSeekTo(msg.arg1F);
+            }
+                break;
             case Msg::MSG_REQUEST_STOP: {
                 syncMediaPlayer->syncStop();
             }
@@ -115,6 +126,10 @@ void MessageCenter::stopMsgQueue() {
 int MessageCenter::notifyMsg(int what) { return msgQueue->notifyMsg(what); }
 
 int MessageCenter::notifyMsg(int what, int arg1) {
+    return msgQueue->notifyMsg(what, arg1);
+}
+
+int MessageCenter::notifyMsg(int what, float arg1) {
     return msgQueue->notifyMsg(what, arg1);
 }
 

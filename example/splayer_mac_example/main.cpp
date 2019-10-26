@@ -10,10 +10,10 @@ class MessageListener : public IMessageListener {
 public:
     void onMessage(Msg *msg) override {
         if (DEBUG) {
-            ALOGD(TAG, "%s what = %s arg1 = %d arg2 = %d", __func__,
+            ALOGD(TAG, "%s what = %s arg1I = %d arg2I = %d", __func__,
                   Msg::getMsgSimpleName(msg->what),
-                  msg->arg1,
-                  msg->arg2);
+                  msg->arg1I,
+                  msg->arg2I);
         }
         if (mediaPlayer) {
             switch (msg->what) {
@@ -31,8 +31,8 @@ public:
                     break;
                 case Msg::MSG_REQUEST_START:
                     break;
-                case Msg::MSG_REQUEST_SEEK:
-                    int increment = msg->arg1;
+                case MSG_REQUEST_SEEK_SDL:
+                    int increment = msg->arg1I;
                     if (mediaPlayer) {
                         mediaPlayer->seekTo(increment);
                     }
