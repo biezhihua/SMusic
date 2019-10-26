@@ -171,6 +171,9 @@ public:
     /// 暂停标志
     volatile int pauseRequest;
 
+    /// 是否处于播放中
+    volatile bool isPlaying;
+
     /// 上一次暂停状态
     int lastPaused;
 

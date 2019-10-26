@@ -67,9 +67,6 @@ protected:
     /// 消息监听回调
     IMessageListener *messageListener = nullptr;
 
-    /// 是否处于播放中
-    volatile bool _isPlaying = false;
-
 public:
     MediaPlayer();
 
@@ -173,7 +170,6 @@ protected:
 
     int notifyMsg(int what, int arg1, int arg2);
 
-    int setPlaying(bool isPlaying) override;
 };
 
 

@@ -201,7 +201,7 @@ long MediaPlayer::getDuration() {
 bool MediaPlayer::isPlaying() {
     bool ret = false;
     if (playerState) {
-        ret = _isPlaying && !playerState->abortRequest && !playerState->pauseRequest;
+        ret = playerState->isPlaying && !playerState->abortRequest && !playerState->pauseRequest;
     }
     return ret;
 }
@@ -971,19 +971,11 @@ void MediaPlayer::setOption(int category, const char *type, int64_t option) {
     }
 }
 
-int MediaPlayer::setPlaying(bool isPlaying) {
-    mutex.lock();
-    _isPlaying = isPlaying;
-    mutex.unlock();
-    return SUCCESS;
-}
-
 int MediaPlayer::syncPause() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     if (isPlaying() && syncTogglePause()) {
-        setPlaying(false);
         notifyMsg(Msg::MSG_PAUSE);
         return SUCCESS;
     }
@@ -995,7 +987,6 @@ int MediaPlayer::syncPlay() {
         ALOGD(TAG, "[%s]", __func__);
     }
     if (!isPlaying() && syncTogglePause()) {
-        setPlaying(true);
         notifyMsg(Msg::MSG_PLAY);
         return SUCCESS;
     }

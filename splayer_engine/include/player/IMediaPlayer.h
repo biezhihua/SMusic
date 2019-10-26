@@ -19,8 +19,6 @@ public:
 
     virtual bool isPlaying() = 0;
 
-    /// 设置播放状态
-    virtual int setPlaying(bool isPlaying) = 0;
 
 };
 

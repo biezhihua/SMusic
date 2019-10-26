@@ -84,12 +84,6 @@ public:
     }
 
     void onMessage(Msg *msg) override {
-        if (DEBUG) {
-            ALOGD(TAG, "[%s] what = %s arg1 = %d arg2 = %d", __func__,
-                  Msg::getMsgSimpleName(msg->what),
-                  msg->arg1,
-                  msg->arg2);
-        }
 //        if (mediaPlayer) {
 //            switch (msg->what) {
 //                case Msg::MSG_REQUEST_PLAY_OR_PAUSE:

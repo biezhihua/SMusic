@@ -17,14 +17,8 @@ MessageCenter::~MessageCenter() {
 }
 
 void MessageCenter::run() {
-    if (DEBUG) {
-        ALOGD(TAG, "start message center thread");
-    }
     while (!abortRequest) {
         executeMsg(true);
-    }
-    if (DEBUG) {
-        ALOGD(TAG, "end message center thread");
     }
 }
 
@@ -63,11 +57,9 @@ void MessageCenter::executeMsg(bool block) {
             }
                 break;
             case Msg::MSG_STARTED: {
-                mediaPlayer->setPlaying(true);
             }
                 break;
             case Msg::MSG_STOP: {
-                mediaPlayer->setPlaying(false);
             }
                 break;
             default:
