@@ -1,11 +1,11 @@
 #ifndef ENGINE_MESSAGE_CENTER_H
 #define ENGINE_MESSAGE_CENTER_H
 
-#include <common/Thread.h>
-#include <message/IMessageListener.h>
-#include <message/MessageQueue.h>
-#include <player/IMediaPlayer.h>
-
+#include "common/Thread.h"
+#include "message/IMessageListener.h"
+#include "message/MessageQueue.h"
+#include "player/IMediaPlayer.h"
+#include "player/ISyncMediaPlayer.h"
 
 class MessageCenter : public Runnable {
 
@@ -19,7 +19,9 @@ private:
 
     Thread *msgThread = nullptr;
 
-    IMediaPlayer * mediaPlayer = nullptr;
+    IMediaPlayer *mediaPlayer = nullptr;
+
+    ISyncMediaPlayer *innerMediaPlayer = nullptr;
 
 protected:
 
@@ -28,7 +30,7 @@ protected:
     IMessageListener *msgListener = nullptr;
 
 public:
-    MessageCenter(IMediaPlayer *mediaPlayer);
+    MessageCenter(IMediaPlayer *mediaPlayer, ISyncMediaPlayer *innerMediaPlayer);
 
     ~MessageCenter() override;
 

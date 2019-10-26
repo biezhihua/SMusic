@@ -107,6 +107,9 @@ inline void Thread::start() {
     mMutex.unlock();
 }
 
+/// http://man7.org/linux/man-pages/man3/pthread_join.3.html
+/// The pthread_join() function waits for the thread specified by thread
+//  to terminate.
 inline void Thread::join() {
     Mutex::Autolock lock(mMutex);
     if (mNeedJoin) {

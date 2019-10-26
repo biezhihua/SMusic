@@ -201,11 +201,17 @@ class MediaPlayer : IMediaPlayer {
     }
 
     override fun start() {
+        if (DEBUG) {
+            Log.d(TAG, "start() called")
+        }
         stayAwake(true)
         _start()
     }
 
     override fun stop() {
+        if (DEBUG) {
+            Log.d(TAG, "stop() called")
+        }
         stayAwake(false)
         _stop()
     }

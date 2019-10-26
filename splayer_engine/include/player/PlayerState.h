@@ -101,6 +101,8 @@ struct AVDictionary {
 
 class PlayerState {
 
+    const char *const TAG = "PlayerState";
+
 public:
     PlayerState();
 

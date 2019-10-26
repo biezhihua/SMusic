@@ -113,6 +113,12 @@ public:
     /// 请求错误
     static const int MSG_REQUEST_ERROR = 20008;
 
+    /// 请求暂停
+    static const int MSG_REQUEST_PAUSE = 20009;
+
+    /// 请求播放
+    static const int MSG_REQUEST_PLAY = 20010;
+
     /////////////////////////////////////////////
     /////////////////////////////////////////////
     ///  扩展消息范围 30000 ~ 39999

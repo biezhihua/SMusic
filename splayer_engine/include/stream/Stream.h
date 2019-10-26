@@ -60,6 +60,10 @@ private:
 
     Condition waitCondition;
 
+    Mutex mutex;
+
+    Condition condition;
+
 public:
 
     Stream(MediaPlayer *mediaPlayer, PlayerState *playerState);

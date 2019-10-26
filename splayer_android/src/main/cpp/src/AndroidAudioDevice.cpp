@@ -253,10 +253,15 @@ void AndroidAudioDevice::start() {
 }
 
 void AndroidAudioDevice::stop() {
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
+    }
+
     mutex.lock();
     abortRequest = 1;
     condition.signal();
     mutex.unlock();
+
     if (audioThread) {
         audioThread->join();
         delete audioThread;

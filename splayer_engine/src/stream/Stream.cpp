@@ -36,6 +36,10 @@ int Stream::start() {
 }
 
 int Stream::stop() {
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
+    }
+    mutex.lock();
     audioDecoder = nullptr;
     videoDecoder = nullptr;
     if (formatContext) {
@@ -43,6 +47,7 @@ int Stream::stop() {
         avformat_free_context(formatContext);
         formatContext = nullptr;
     }
+    mutex.unlock();
     if (readThread) {
         readThread->join();
         delete readThread;

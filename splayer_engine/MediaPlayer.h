@@ -16,8 +16,9 @@ class Stream;
 #include <message/MessageCenter.h>
 #include <stream/IStreamListener.h>
 #include <player/IMediaPlayer.h>
+#include <player/ISyncMediaPlayer.h>
 
-class MediaPlayer : public IMediaPlayer, IStreamListener {
+class MediaPlayer : public ISyncMediaPlayer, IMediaPlayer, IStreamListener {
 
     const char *const TAG = "MediaPlayer_Native";
 
@@ -136,6 +137,7 @@ public:
 
     void setOption(int category, const char *type, int64_t option);
 
+
 protected:
 
     int _seek(float increment);
@@ -144,7 +146,11 @@ protected:
 
     int _togglePause();
 
-    int _stop();
+    int syncStop() override;
+
+    int syncPause() override;
+
+    int syncPlay() override;
 
     int _destroy();
 

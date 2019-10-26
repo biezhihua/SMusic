@@ -20,7 +20,9 @@ void AudioDevice::start() {
 }
 
 void AudioDevice::stop() {
-
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
+    }
 }
 
 void AudioDevice::pause() {

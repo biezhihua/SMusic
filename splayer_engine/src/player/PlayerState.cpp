@@ -29,6 +29,11 @@ void PlayerState::init() {
 }
 
 void PlayerState::reset() {
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
+    }
+
+    mutex.lock();
 
     if (swsOpts) {
         av_dict_free(&swsOpts);
@@ -122,6 +127,8 @@ void PlayerState::reset() {
     videoIndex = -1;
 
     audioIndex = -1;
+
+    mutex.unlock();
 }
 
 void PlayerState::setOption(int category, const char *type, const char *option) {

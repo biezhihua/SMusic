@@ -36,8 +36,13 @@ void AudioDecoder::start() {
 }
 
 void AudioDecoder::stop() {
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
+    }
+    mutex.lock();
     MediaDecoder::stop();
     frameQueue->abort();
+    mutex.unlock();
     if (decodeThread) {
         decodeThread->join();
         delete decodeThread;

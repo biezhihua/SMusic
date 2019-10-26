@@ -15,8 +15,9 @@ void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
 
 void MediaSync::stop() {
     if (DEBUG) {
-        ALOGD(TAG, "stop media sync");
+        ALOGD(TAG, "[%s]", __func__);
     }
+    mutex.lock();
     abortRequest = true;
     playerState = nullptr;
     videoDecoder = nullptr;
@@ -35,6 +36,7 @@ void MediaSync::stop() {
         sws_freeContext(swsContext);
         swsContext = nullptr;
     }
+    mutex.unlock();
 }
 
 void MediaSync::setVideoDevice(VideoDevice *device) {

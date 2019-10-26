@@ -67,6 +67,10 @@ public:
 
 protected:
 
+    Mutex mutex;
+
+    Condition condition;
+
     /// 播放器状态
     PlayerState *playerState = nullptr;
 

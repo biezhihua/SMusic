@@ -2,7 +2,8 @@
 
 MediaDecoder::MediaDecoder(AVCodecContext *codecContext, AVStream *stream,
                            int streamIndex, PlayerState *playerState,
-                           AVPacket *flushPacket, Condition *readWaitCond, AVDictionary *opts, MessageCenter *messageCenter) {
+                           AVPacket *flushPacket, Condition *readWaitCond, AVDictionary *opts,
+                           MessageCenter *messageCenter) {
     this->packetQueue = new PacketQueue(flushPacket);
     this->codecContext = codecContext;
     this->stream = stream;
@@ -33,7 +34,9 @@ MediaDecoder::~MediaDecoder() {
 
 void MediaDecoder::start() { packetQueue->start(); }
 
-void MediaDecoder::stop() { packetQueue->abort(); }
+void MediaDecoder::stop() {
+    packetQueue->abort();
+}
 
 void MediaDecoder::pushFlushPacket() { packetQueue->pushPacket(flushPacket); }
 

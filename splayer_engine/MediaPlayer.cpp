@@ -6,7 +6,7 @@ void audioPCMQueueCallback(void *opaque, uint8_t *stream, int len) {
 }
 
 MediaPlayer::MediaPlayer() {
-    messageCenter = new MessageCenter(this);
+    messageCenter = new MessageCenter(this, this);
     messageCenter->startMsgQueue();
 };
 
@@ -45,46 +45,33 @@ int MediaPlayer::create() {
 
 int MediaPlayer::start() {
     if (DEBUG) {
-        ALOGD(TAG, "start media player - start");
+        ALOGD(TAG, "[%s]", __func__);
     }
     mutex.lock();
     _start();
     mutex.unlock();
-    if (DEBUG) {
-        ALOGD(TAG, "start media player - end");
-    }
     return SUCCESS;
 }
 
 int MediaPlayer::pause() {
-    if (isPlaying() && _togglePause()) {
-        setPlaying(false);
-        notifyMsg(Msg::MSG_PAUSE);
-        return SUCCESS;
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
     }
-    return ERROR;
+    return notifyMsg(Msg::MSG_REQUEST_PAUSE);
 }
 
 int MediaPlayer::play() {
-    if (!isPlaying() && _togglePause()) {
-        setPlaying(true);
-        notifyMsg(Msg::MSG_PLAY);
-        return SUCCESS;
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
     }
-    return ERROR;
+    return notifyMsg(Msg::MSG_REQUEST_PLAY);
 }
 
 int MediaPlayer::stop() {
     if (DEBUG) {
-        ALOGD(TAG, "stop media player - start");
+        ALOGD(TAG, "[%s]", __func__);
     }
-    mutex.lock();
-    _stop();
-    mutex.unlock();
-    if (DEBUG) {
-        ALOGD(TAG, "stop media player - end");
-    }
-    return SUCCESS;
+    return notifyMsg(Msg::MSG_REQUEST_STOP);
 }
 
 int MediaPlayer::destroy() {
@@ -861,7 +848,10 @@ int MediaPlayer::_seek(int64_t pos, int64_t rel, int seekByBytes) {
     return SUCCESS;
 }
 
-int MediaPlayer::_stop() {
+int MediaPlayer::syncStop() {
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
+    }
 
     notifyMsg(Msg::MSG_STOP);
 
@@ -870,32 +860,20 @@ int MediaPlayer::_stop() {
     }
 
     if (mediaSync) {
-        if (DEBUG) {
-            ALOGD(TAG, "stop media sync");
-        }
         mediaSync->stop();
         notifyMsg(Msg::MSG_MEDIA_SYNC_STOP);
     }
 
     if (audioDevice) {
-        if (DEBUG) {
-            ALOGD(TAG, "stop audio device");
-        }
         audioDevice->stop();
         notifyMsg(Msg::MSG_AUDIO_DEVICE_STOP);
     }
 
     if (videoDevice) {
-        if (DEBUG) {
-            ALOGD(TAG, "stop video device");
-        }
         notifyMsg(Msg::MSG_VIDEO_DEVICE_STOP);
     }
 
     if (audioDecoder) {
-        if (DEBUG) {
-            ALOGD(TAG, "stop audio decoder");
-        }
         audioDecoder->stop();
         notifyMsg(Msg::MSG_AUDIO_DECODER_STOP);
         delete audioDecoder;
@@ -903,9 +881,6 @@ int MediaPlayer::_stop() {
     }
 
     if (videoDecoder) {
-        if (DEBUG) {
-            ALOGD(TAG, "stop video decoder");
-        }
         videoDecoder->stop();
         notifyMsg(Msg::MSG_VIDEO_DECODER_STOP);
         delete videoDecoder;
@@ -913,9 +888,6 @@ int MediaPlayer::_stop() {
     }
 
     if (mediaStream) {
-        if (DEBUG) {
-            ALOGD(TAG, "stop media stream");
-        }
         mediaStream->stop();
         notifyMsg(Msg::MSG_MEDIA_STREAM_STOP);
     }
@@ -929,11 +901,12 @@ int MediaPlayer::_stop() {
     }
 
     notifyMsg(Msg::MSG_STOPED);
+
     return SUCCESS;
 }
 
 int MediaPlayer::_destroy() {
-    _stop();
+    syncStop();
 
     if (videoDevice) {
         videoDevice->setPlayerState(nullptr);
@@ -1006,7 +979,33 @@ void MediaPlayer::setOption(int category, const char *type, int64_t option) {
 }
 
 int MediaPlayer::setPlaying(bool isPlaying) {
+    mutex.lock();
     _isPlaying = isPlaying;
+    mutex.unlock();
     return SUCCESS;
+}
+
+int MediaPlayer::syncPause() {
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
+    }
+    if (isPlaying() && _togglePause()) {
+        setPlaying(false);
+        notifyMsg(Msg::MSG_PAUSE);
+        return SUCCESS;
+    }
+    return ERROR;
+}
+
+int MediaPlayer::syncPlay() {
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
+    }
+    if (!isPlaying() && _togglePause()) {
+        setPlaying(true);
+        notifyMsg(Msg::MSG_PLAY);
+        return SUCCESS;
+    }
+    return ERROR;
 }
 

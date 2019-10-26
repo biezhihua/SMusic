@@ -1,11 +1,13 @@
 #include "message/MessageCenter.h"
 
-MessageCenter::MessageCenter(IMediaPlayer *mediaPlayer) {
+MessageCenter::MessageCenter(IMediaPlayer *mediaPlayer, ISyncMediaPlayer *innerMediaPlayer) {
     this->msgQueue = new MessageQueue();
     this->mediaPlayer = mediaPlayer;
+    this->innerMediaPlayer = innerMediaPlayer;
 }
 
 MessageCenter::~MessageCenter() {
+    innerMediaPlayer = nullptr;
     mediaPlayer = nullptr;
     delete msgQueue;
     msgQueue = nullptr;
@@ -26,15 +28,29 @@ void MessageCenter::run() {
 void MessageCenter::executeMsg(bool block) {
     int ret = msgQueue->getMsg(&msg, block);
     if (ret >= 0 && msg.what != -1) {
-
+        if (DEBUG) {
+            ALOGD("MediaPlayer_Msg", "[%s] what = %d", __func__, msg.what);
+        }
         switch (msg.what) {
             case Msg::MSG_REQUEST_ERROR: {
                 int target = msg.arg1;
                 if (Msg::MSG_REQUEST_DESTROY == target) {
                 } else if (Msg::MSG_REQUEST_STOP == target) {
                 }
-            }
                 return;
+            }
+            case Msg::MSG_REQUEST_STOP: {
+                innerMediaPlayer->syncStop();
+            }
+                break;
+            case Msg::MSG_REQUEST_PAUSE: {
+                innerMediaPlayer->syncPause();
+            }
+                break;
+            case Msg::MSG_REQUEST_PLAY: {
+                innerMediaPlayer->syncPlay();
+            }
+                break;
             case Msg::MSG_STARTED: {
                 mediaPlayer->setPlaying(true);
             }
@@ -42,6 +58,8 @@ void MessageCenter::executeMsg(bool block) {
             case Msg::MSG_STOP: {
                 mediaPlayer->setPlaying(false);
             }
+                break;
+            default:
                 break;
         }
 
