@@ -119,14 +119,14 @@ enum MediaPlayerState {
      * reset()                  => self
      * create()                 => CREATED
      */
-            IDLED,
+            IDLED = 1,
     /**
      * create()                 => self
      * start()                  => STARTED
      * destroy()                => DESTROYED -> IDLE
      * reset()                  => DESTROYED -> IDLE
      */
-            CREATED,
+            CREATED = 2,
     /**
      * start()                  => self
      * play()                   => self
@@ -135,7 +135,7 @@ enum MediaPlayerState {
      * destroy()                => STOPED -> DESTROYED -> IDLE
      * reset()                  => STOPED -> DESTROYED -> IDLE
      */
-            STARTED,
+            STARTED = 3,
     /**
      * STARTED & read a frame   => self
      * seek()                   => self
@@ -144,7 +144,7 @@ enum MediaPlayerState {
      * destroy()                => STOPED -> DESTROYED -> IDLE
      * reset()                  => STOPED -> DESTROYED -> IDLE
      */
-            PLAYING,
+            PLAYING = 4,
     /**
      * seek()                   => self
      * paused()                 => self
@@ -153,25 +153,25 @@ enum MediaPlayerState {
      * destroy()                => STOPED -> DESTROYED -> IDLE
      * reset()                  => STOPED -> DESTROYED -> IDLE
      */
-            PAUSED,
+            PAUSED = 5,
     /**
      * stop()                   => self
      * start()                  => STARTED
      * destroy()                => DESTROYED -> IDLE
      * reset()                  => DESTROYED -> IDLE
      */
-            STOPED,
+            STOPED = 6,
     /**
      * destroy()                => self -> IDLE
      * reset()                  => self -> IDLE
      */
-            DESTROYED,
+            DESTROYED = 7,
     /**
      *  any error               => ERRORED
      *  reset()                 => DESTROYED -> IDLE
      *  destroy()               => any -> DESTROY -> IDLE
      */
-            ERRORED
+            ERRORED = 8
 };
 
 class PlayerState {
