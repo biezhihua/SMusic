@@ -1,7 +1,7 @@
 #ifndef ENGINE_AUDIORESAMPLER_H
 #define ENGINE_AUDIORESAMPLER_H
 
-#include <player/PlayerState.h>
+#include <player/PlayerInfoStatus.h>
 #include <sync/MediaSync.h>
 #include <device/AudioDevice.h>
 #include <SoundTouchWrapper.h>
@@ -104,7 +104,7 @@ public:
 
     virtual int destroy();
 
-    void setPlayerState(PlayerState *playerState);
+    void setPlayerState(PlayerInfoStatus *playerState);
 
     void setMediaSync(MediaSync *mediaSync);
 
@@ -120,7 +120,7 @@ private:
 
     AVFrame *srcFrame = nullptr;
 
-    PlayerState *playerState = nullptr;
+    PlayerInfoStatus *playerState = nullptr;
 
     MediaSync *mediaSync = nullptr;
 

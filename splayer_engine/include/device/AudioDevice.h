@@ -1,7 +1,7 @@
 #ifndef ENGINE_AUDIO_DEVICE_H
 #define ENGINE_AUDIO_DEVICE_H
 
-#include <player/PlayerState.h>
+#include <player/PlayerInfoStatus.h>
 
 // 音频PCM填充回调
 typedef void (*AudioPCMCallback)(void *userdata, uint8_t *stream, int len);

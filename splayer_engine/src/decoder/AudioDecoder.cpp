@@ -4,7 +4,7 @@ AudioDecoder::AudioDecoder(AVFormatContext *formatCtx,
                            AVCodecContext *avctx,
                            AVStream *stream,
                            int streamIndex,
-                           PlayerState *playerState,
+                           PlayerInfoStatus *playerState,
                            AVPacket *flushPacket,
                            Condition *readWaitCond, AVDictionary *opts,
                            MessageCenter *messageCenter)
@@ -85,14 +85,14 @@ int AudioDecoder::decodeAudio() {
     int ret = 0;
 
     if (!avFrame) {
-        ALOGE(TAG, "%s not memory", __func__);
+        ALOGE(TAG, "[%s] not memory", __func__);
         return ERROR_NOT_MEMORY;
     }
 
     for (;;) {
 
         if (DEBUG) {
-            ALOGD(TAG, "%s start audio decode frame "
+            ALOGD(TAG, "[%s] start audio decode frame "
                        "firstSeekSerial = %d "
                        "lastSeekSerial = %d ",
                   __func__,
@@ -103,20 +103,20 @@ int AudioDecoder::decodeAudio() {
         ret = decodeFrameFromPacketQueue(avFrame);
 
         if (ret < 0) {
-            ALOGE(TAG, "%s audio not get audio srcFrame ret = %d ", __func__, ret);
+            ALOGE(TAG, "[%s] audio not get audio srcFrame ret = %d ", __func__, ret);
             break;
         }
 
         if (ret == 0) {
             if (DEBUG) {
-                ALOGW(TAG, "%s audio drop srcFrame", __func__);
+                ALOGW(TAG, "[%s] audio drop srcFrame", __func__);
             }
             continue;
         }
 
         // 从队列中获取一个可写的Frame对象
         if (!(frame = frameQueue->peekWritable())) {
-            ALOGE(TAG, "%s audio peek not writable", __func__);
+            ALOGE(TAG, "[%s] audio peek not writable", __func__);
             break;
         }
 
@@ -131,7 +131,7 @@ int AudioDecoder::decodeAudio() {
         frameQueue->pushFrame();
 
         if (DEBUG) {
-            ALOGD(TAG, "%s end audio decode frame "
+            ALOGD(TAG, "[%s] end audio decode frame "
                        "pts = %lf "
                        "pos = %lld "
                        "seekSerial = %d "
@@ -169,7 +169,7 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
             do {
                 if (packetQueue->isAbort()) {
                     if (DEBUG) {
-                        ALOGD(TAG, "%s audio abort", __func__);
+                        ALOGD(TAG, "[%s] audio abort", __func__);
                     }
                     return ERROR_ABORT_REQUEST;
                 }
@@ -215,7 +215,7 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
                 isPendingPacket = false;
             } else {
                 if (packetQueue->getPacket(&packet) < 0) {
-                    ALOGE(TAG, "%s audio get packet", __func__);
+                    ALOGE(TAG, "[%s] audio get packet", __func__);
                     return ERROR_ABORT_REQUEST;
                 }
             }
@@ -230,7 +230,7 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
             if (codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
                 if (avcodec_send_packet(codecContext, &packet) == AVERROR(EAGAIN)) {
                     ALOGE(TAG,
-                          "%s audio Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
+                          "[%s] audio Receive_frame and send_packet both returned EAGAIN, which is an API violation.",
                           __func__);
                     isPendingPacket = true;
                     av_packet_move_ref(&pendingPacket, &packet);

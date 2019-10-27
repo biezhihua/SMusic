@@ -8,6 +8,7 @@ void audioPCMQueueCallback(void *opaque, uint8_t *stream, int len) {
 MediaPlayer::MediaPlayer() {
     messageCenter = new MessageCenter(this, this);
     messageCenter->startMsgQueue();
+    changeStatus(IDLED);
 };
 
 MediaPlayer::~MediaPlayer() {
@@ -34,18 +35,27 @@ int MediaPlayer::create() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    mutex.lock();
-    syncCreate();
-    mutex.unlock();
-    return SUCCESS;
+    if (isIDLED()) {
+        return syncCreate();
+    } else {
+        notExecuteWarning();
+    }
+    return ERROR;
 }
 
 int MediaPlayer::start() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    return notifyMsg(Msg::MSG_REQUEST_START);
+    if (isCREATED() || isSTOPPED()) {
+        notifyMsg(Msg::MSG_STATUS_PREPARE_START);
+        return notifyMsg(Msg::MSG_REQUEST_START);
+    } else {
+        notExecuteWarning();
+    };
+    return ERROR;
 }
+
 
 int MediaPlayer::pause() {
     if (DEBUG) {
@@ -72,9 +82,11 @@ int MediaPlayer::destroy() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    mutex.lock();
-    syncDestroy();
-    mutex.unlock();
+    if (isCREATED() || isSTARTED() || isPLAYING() || isPAUSED() || isSTOPPED() || isERRORED()) {
+        return syncDestroy();
+    } else {
+        notExecuteWarning();
+    }
     return SUCCESS;
 }
 
@@ -94,8 +106,8 @@ int MediaPlayer::seekTo(float increment) {
 
 void MediaPlayer::setLooping(int looping) {
     mutex.lock();
-    if (playerState) {
-        playerState->loopTimes = looping;
+    if (playerInfoStatus) {
+        playerInfoStatus->loopTimes = looping;
     }
     condition.signal();
     mutex.unlock();
@@ -108,34 +120,24 @@ void MediaPlayer::setVolume(float leftVolume, float rightVolume) {
 }
 
 void MediaPlayer::setMute(int mute) {
-    mutex.lock();
-    if (playerState) {
-        playerState->audioMute = mute;
+    if (playerInfoStatus) {
+        playerInfoStatus->audioMute = mute;
     }
-    condition.signal();
-    mutex.unlock();
 }
 
 void MediaPlayer::setRate(float rate) {
-    mutex.lock();
-    if (playerState) {
-        playerState->playbackRate = rate;
+    if (playerInfoStatus) {
+        playerInfoStatus->playbackRate = rate;
     }
-    condition.signal();
-    mutex.unlock();
 }
 
 void MediaPlayer::setPitch(float pitch) {
-    mutex.lock();
-    if (playerState) {
-        playerState->playbackPitch = pitch;
+    if (playerInfoStatus) {
+        playerInfoStatus->playbackPitch = pitch;
     }
-    condition.signal();
-    mutex.unlock();
 }
 
 int MediaPlayer::getRotate() {
-    Mutex::Autolock lock(mutex);
     if (videoDecoder) {
         return videoDecoder->getRotate();
     }
@@ -143,7 +145,6 @@ int MediaPlayer::getRotate() {
 }
 
 int MediaPlayer::getVideoWidth() {
-    Mutex::Autolock lock(mutex);
     if (videoDecoder) {
         return videoDecoder->getCodecContext()->width;
     }
@@ -151,7 +152,6 @@ int MediaPlayer::getVideoWidth() {
 }
 
 int MediaPlayer::getVideoHeight() {
-    Mutex::Autolock lock(mutex);
     if (videoDecoder) {
         return videoDecoder->getCodecContext()->height;
     }
@@ -159,11 +159,10 @@ int MediaPlayer::getVideoHeight() {
 }
 
 long MediaPlayer::getCurrentPosition() {
-    Mutex::Autolock lock(mutex);
     int64_t currentPosition = 0;
     // 处于定位
-    if (playerState->seekRequest) {
-        currentPosition = playerState->seekPos;
+    if (playerInfoStatus->seekRequest) {
+        currentPosition = playerInfoStatus->seekPos;
     } else {
         // 起始延时
         int64_t start_time = formatContext->start_time;
@@ -176,7 +175,7 @@ long MediaPlayer::getCurrentPosition() {
         int64_t pos = 0;
         double clock = mediaSync->getMasterClock();
         if (isnan(clock)) {
-            pos = playerState->seekPos;
+            pos = playerInfoStatus->seekPos;
         } else {
             pos = (int64_t) (clock * 1000);
         }
@@ -190,24 +189,23 @@ long MediaPlayer::getCurrentPosition() {
 
 long MediaPlayer::getDuration() {
     long ret = 0;
-    mutex.lock();
-    if (playerState) {
-        ret = playerState->duration;
+    if (playerInfoStatus) {
+        ret = playerInfoStatus->duration;
     }
-    mutex.unlock();
     return ret;
 }
 
 bool MediaPlayer::isPlaying() {
     bool ret = false;
-    if (playerState) {
-        ret = playerState->isPlaying && !playerState->abortRequest && !playerState->pauseRequest;
+    if (playerInfoStatus) {
+        ret = !playerInfoStatus->abortRequest &&
+              !playerInfoStatus->pauseRequest;
     }
     return ret;
 }
 
 int MediaPlayer::isLooping() {
-    return playerState->loopTimes;
+    return playerInfoStatus->loopTimes;
 }
 
 int MediaPlayer::getMetadata(AVDictionary **metadata) {
@@ -291,9 +289,9 @@ int MediaPlayer::openDecoder(int streamIndex) {
 
     // 优先使用指定的解码器
     if (codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
-        forcedCodecName = playerState->audioCodecName;
+        forcedCodecName = playerInfoStatus->audioCodecName;
     } else if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
-        forcedCodecName = playerState->videoCodecName;
+        forcedCodecName = playerInfoStatus->videoCodecName;
     }
 
     // 如果指定了解码器，则查找指定解码器
@@ -323,7 +321,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
     codecContext->codec_id = codec->id;
 
     // 判断是否需要重新设置lowres的值
-    int streamLowResolution = playerState->lowResolution;
+    int streamLowResolution = playerInfoStatus->lowResolution;
     if (streamLowResolution > codec->max_lowres) {
         if (DEBUG) {
             ALOGD(TAG, "[%s] The maximum value for low Resolution supported by the decoder is %d",
@@ -339,7 +337,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
     }
 #endif
 
-    if (playerState->fast) {
+    if (playerInfoStatus->fast) {
         codecContext->flags2 |= AV_CODEC_FLAG2_FAST;
     }
 
@@ -349,7 +347,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
     }
 #endif
 
-    opts = filterCodecOptions(playerState->codecOpts, codecContext->codec_id, formatContext,
+    opts = filterCodecOptions(playerInfoStatus->codecOpts, codecContext->codec_id, formatContext,
                               formatContext->streams[streamIndex], codec);
     if (!av_dict_get(opts, OPT_THREADS, nullptr, 0)) {
         av_dict_set(&opts, OPT_THREADS, "auto", 0);
@@ -375,7 +373,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
         return ERROR_CODEC_OPTIONS;
     }
 
-    playerState->eof = 0;
+    playerInfoStatus->eof = 0;
 
     // 根据解码器类型创建解码器
     formatContext->streams[streamIndex]->discard = AVDISCARD_DEFAULT;
@@ -383,7 +381,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
     if (codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
         audioDecoder = new AudioDecoder(formatContext, codecContext,
                                         formatContext->streams[streamIndex], streamIndex,
-                                        playerState,
+                                        playerInfoStatus,
                                         mediaStream->getFlushPacket(),
                                         mediaStream->getWaitCondition(),
                                         opts, messageCenter);
@@ -391,12 +389,12 @@ int MediaPlayer::openDecoder(int streamIndex) {
     } else if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
         videoDecoder = new VideoDecoder(formatContext, codecContext,
                                         formatContext->streams[streamIndex], streamIndex,
-                                        playerState,
+                                        playerInfoStatus,
                                         mediaStream->getFlushPacket(),
                                         mediaStream->getWaitCondition(), opts,
                                         messageCenter);
         mediaStream->setVideoDecoder(videoDecoder);
-        playerState->attachmentRequest = 1;
+        playerInfoStatus->attachmentRequest = 1;
     }
 
     return SUCCESS;
@@ -514,7 +512,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 准备视频解码器
     if (videoIndex >= 0 && videoDevice) {
-        playerState->videoIndex = videoIndex;
+        playerInfoStatus->videoIndex = videoIndex;
         if (openDecoder(videoIndex) < 0) {
             ALOGE(TAG, "[%s] failed to init video decoder", __func__);
             return ERROR_CREATE_VIDEO_DECODER;
@@ -523,7 +521,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 准备音频解码器
     if (audioIndex >= 0 && audioDevice) {
-        playerState->audioIndex = audioIndex;
+        playerInfoStatus->audioIndex = audioIndex;
         if (openDecoder(audioIndex) < 0) {
             ALOGE(TAG, "[%s] failed to init audio decoder", __func__);
             if (videoDecoder == nullptr) {
@@ -547,8 +545,8 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
         videoDecoder->start();
         notifyMsg(Msg::MSG_VIDEO_DECODER_START);
     } else {
-        if (playerState->syncType == AV_SYNC_VIDEO) {
-            playerState->syncType = AV_SYNC_AUDIO;
+        if (playerInfoStatus->syncType == AV_SYNC_VIDEO) {
+            playerInfoStatus->syncType = AV_SYNC_AUDIO;
             if (DEBUG) {
                 ALOGD(TAG, "[%s] change sync type to AV_SYNC_AUDIO", __func__);
             }
@@ -566,22 +564,19 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
         audioDecoder->start();
         notifyMsg(Msg::MSG_AUDIO_DECODER_START);
     } else {
-        if (playerState->syncType == AV_SYNC_AUDIO) {
-            playerState->syncType = AV_SYNC_EXTERNAL;
+        if (playerInfoStatus->syncType == AV_SYNC_AUDIO) {
+            playerInfoStatus->syncType = AV_SYNC_EXTERNAL;
             if (DEBUG)
                 ALOGD(TAG, "[%s] change sync type to AV_SYNC_EXTERNAL", __func__);
         }
     }
 
     if (DEBUG) {
-        ALOGD(TAG, "[%s] sync type = %s", __func__, playerState->getSyncType());
+        ALOGD(TAG, "[%s] sync type = %s", __func__, playerInfoStatus->getSyncType());
     }
 
     // 打开视频输出设备
     if (videoDevice) {
-        if (DEBUG) {
-            ALOGD(TAG, "start video device");
-        }
         notifyMsg(Msg::MSG_VIDEO_DEVICE_START);
     }
 
@@ -593,30 +588,27 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
             ALOGE(TAG, "[%s] could not open audio device", __func__);
             notifyMsg(Msg::MSG_NOT_OPEN_AUDIO_DEVICE);
             // 如果音频设备打开失败，则调整时钟的同步类型
-            if (playerState->syncType == AV_SYNC_AUDIO) {
+            if (playerInfoStatus->syncType == AV_SYNC_AUDIO) {
                 if (videoDecoder) {
-                    playerState->syncType = AV_SYNC_VIDEO;
+                    playerInfoStatus->syncType = AV_SYNC_VIDEO;
                 } else {
-                    playerState->syncType = AV_SYNC_EXTERNAL;
+                    playerInfoStatus->syncType = AV_SYNC_EXTERNAL;
                 }
             }
         } else {
             // 启动音频输出设备
-            if (DEBUG) {
-                ALOGD(TAG, "start audio device");
-            }
             audioDevice->start();
             notifyMsg(Msg::MSG_AUDIO_DEVICE_START);
         }
     }
 
     if (videoDecoder) {
-        if (playerState->syncType == AV_SYNC_AUDIO) {
+        if (playerInfoStatus->syncType == AV_SYNC_AUDIO) {
             if (DEBUG) {
                 ALOGD(TAG, "[%s] change master clock to audio clock", __func__);
             }
             videoDecoder->setMasterClock(mediaSync->getAudioClock());
-        } else if (playerState->syncType == AV_SYNC_VIDEO) {
+        } else if (playerInfoStatus->syncType == AV_SYNC_VIDEO) {
             if (DEBUG) {
                 ALOGD(TAG, "[%s] change master clock to video clock", __func__);
             }
@@ -631,9 +623,6 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 开始同步
     if (mediaSync) {
-        if (DEBUG) {
-            ALOGD(TAG, "start media sync");
-        }
         mediaSync->start(videoDecoder, audioDecoder);
         notifyMsg(Msg::MSG_MEDIA_SYNC_START);
     }
@@ -675,7 +664,7 @@ int MediaPlayer::notifyMsg(int what, int arg1, int arg2) {
 }
 
 int MediaPlayer::checkParams() {
-    if (!playerState->url) {
+    if (!playerInfoStatus->url) {
         ALOGE(TAG, "[%s] url is null", __func__);
         return ERROR_PARAMS;
     }
@@ -695,14 +684,14 @@ int MediaPlayer::syncCreate() {
     }
 
     // Player State
-    playerState = new PlayerState();
+    playerInfoStatus = new PlayerInfoStatus();
 
     // Media Sync
     if (!mediaSync) {
         mediaSync = new MediaSync();
     }
     if (mediaSync->create() < 0) {
-        ALOGE(TAG, "media stream init failure");
+        ALOGE(TAG, "[%s] media stream init failure", __func__);
         notifyMsg(Msg::MSG_ERROR, ERROR);
         notifyMsg(Msg::MSG_REQUEST_ERROR, Msg::MSG_REQUEST_DESTROY);
         return ERROR;
@@ -710,15 +699,15 @@ int MediaPlayer::syncCreate() {
     mediaSync->setMutex(&mutex);
     mediaSync->setCondition(&condition);
     mediaSync->setMessageCenter(messageCenter);
-    mediaSync->setPlayerState(playerState);
+    mediaSync->setPlayerState(playerInfoStatus);
 
     // Media Stream
-    mediaStream = new Stream(this, playerState);
+    mediaStream = new Stream(this, playerInfoStatus);
     mediaStream->setMessageCenter(messageCenter);
     mediaStream->setStreamListener(this);
     mediaStream->setMediaSync(mediaSync);
     if (mediaStream->create() < 0) {
-        ALOGE(TAG, "media stream init failure");
+        ALOGE(TAG, "[%s] media stream init failure", __func__);
         notifyMsg(Msg::MSG_ERROR, ERROR);
         notifyMsg(Msg::MSG_REQUEST_ERROR, Msg::MSG_REQUEST_DESTROY);
         return ERROR;
@@ -727,29 +716,30 @@ int MediaPlayer::syncCreate() {
     // Audio Device
     if (audioDevice) {
         if (audioDevice->create() < 0) {
-            ALOGE(TAG, "init audio device failure");
+            ALOGE(TAG, "[%s] init audio device failure", __func__);
         } else {
             // 初始化音频重采样器
             audioResample = new AudioResample();
-            audioResample->setPlayerState(playerState);
+            audioResample->setPlayerState(playerInfoStatus);
             audioResample->setMediaSync(mediaSync);
             if (audioResample->create() < 0) {
-                ALOGE(TAG, "init audio resample failure");
+                ALOGE(TAG, "[%s] init audio resample failure", __func__);
             }
         }
     }
 
     // Video Device
     if (videoDevice) {
-        videoDevice->setPlayerState(playerState);
+        videoDevice->setPlayerInfoStatus(playerInfoStatus);
         if (videoDevice->create() < 0) {
-            ALOGE(TAG, "init video device failure");
+            ALOGE(TAG, "[%s] init video device failure", __func__);
         } else {
             mediaSync->setVideoDevice(videoDevice);
         }
     }
 
-    notifyMsg(Msg::MSG_CREATE);
+    changeStatus(CREATED);
+    notifyMsg(Msg::MSG_STATUS_CREATED);
 
     return SUCCESS;
 }
@@ -760,12 +750,12 @@ int MediaPlayer::syncStart() {
     }
     if (checkParams() < 0) {
         notifyMsg(Msg::MSG_ERROR, ERROR_PARAMS);
+        ALOGE(TAG, "[%s] incorrect parameter", __func__);
         return ERROR_PARAMS;
     }
-    playerState->setAbortRequest(0);
-    playerState->setPauseRequest(0);
+    playerInfoStatus->setAbortRequest(0);
+    playerInfoStatus->setPauseRequest(0);
     mediaStream->start();
-    notifyMsg(Msg::MSG_START);
     notifyMsg(Msg::MSG_MEDIA_STREAM_START);
     return SUCCESS;
 }
@@ -781,27 +771,31 @@ int MediaPlayer::syncSeekTo(float increment) {
     if (DEBUG) {
         ALOGD(TAG, "[%s] increment = %lf", __func__, increment);
     }
-    if (!playerState) {
+    if (!(isPlaying() || isPAUSED())) {
+        notExecuteWarning();
+        return ERRORED;
+    }
+    if (!playerInfoStatus) {
         ALOGE(TAG, "[%s] player state is null", __func__);
         return ERROR;
     }
-    if (!playerState->realTime && playerState->duration < 0) {
+    if (!playerInfoStatus->realTime && playerInfoStatus->duration < 0) {
         return ERROR_DURATION;
     }
-    if (playerState->seekRequest) {
+    if (playerInfoStatus->seekRequest) {
         return ERROR_LAST_SEEK_REQUEST;
     }
     double pos;
-    if (playerState->seekByBytes) {
+    if (playerInfoStatus->seekByBytes) {
         pos = -1;
-        if (pos < 0 && playerState->videoIndex >= 0) {
+        if (pos < 0 && playerInfoStatus->videoIndex >= 0) {
             pos = videoDecoder->getFrameQueueLastPos();
         }
         if (pos < 0) {
-            pos = avio_tell(playerState->formatContext->pb);
+            pos = avio_tell(playerInfoStatus->formatContext->pb);
         }
-        if (playerState->formatContext->bit_rate) {
-            increment *= playerState->formatContext->bit_rate / 8.0;
+        if (playerInfoStatus->formatContext->bit_rate) {
+            increment *= playerInfoStatus->formatContext->bit_rate / 8.0;
         } else {
             increment *= 180000.0;
         }
@@ -810,12 +804,12 @@ int MediaPlayer::syncSeekTo(float increment) {
     } else {
         pos = mediaSync->getMasterClock();
         if (isnan(pos)) {
-            pos = (double) playerState->seekPos / AV_TIME_BASE;
+            pos = (double) playerInfoStatus->seekPos / AV_TIME_BASE;
         }
         pos += increment;
-        if (playerState->formatContext->start_time != AV_NOPTS_VALUE &&
-            pos < playerState->formatContext->start_time / (double) AV_TIME_BASE) {
-            pos = playerState->formatContext->start_time / (double) AV_TIME_BASE;
+        if (playerInfoStatus->formatContext->start_time != AV_NOPTS_VALUE &&
+            pos < playerInfoStatus->formatContext->start_time / (double) AV_TIME_BASE) {
+            pos = playerInfoStatus->formatContext->start_time / (double) AV_TIME_BASE;
         }
         syncSeekTo((int64_t) (pos * AV_TIME_BASE), (int64_t) (increment * AV_TIME_BASE), 0);
     }
@@ -826,14 +820,14 @@ int MediaPlayer::syncSeekTo(int64_t pos, int64_t rel, int seekByBytes) {
     if (DEBUG) {
         ALOGD(TAG, "[%s] pos=%lld rel=%lld seekByBytes=%d", __func__, pos, rel, seekByBytes);
     }
-    if (playerState && !playerState->seekRequest) {
-        playerState->seekPos = pos;
-        playerState->seekRel = rel;
-        playerState->seekFlags &= ~AVSEEK_FLAG_BYTE;
+    if (playerInfoStatus && !playerInfoStatus->seekRequest) {
+        playerInfoStatus->seekPos = pos;
+        playerInfoStatus->seekRel = rel;
+        playerInfoStatus->seekFlags &= ~AVSEEK_FLAG_BYTE;
         if (seekByBytes) {
-            playerState->seekFlags |= AVSEEK_FLAG_BYTE;
+            playerInfoStatus->seekFlags |= AVSEEK_FLAG_BYTE;
         }
-        playerState->setSeekRequest(true);
+        playerInfoStatus->setSeekRequest(true);
         if (mediaStream) {
             mediaStream->getWaitCondition()->signal();
         }
@@ -846,10 +840,15 @@ int MediaPlayer::syncStop() {
         ALOGD(TAG, "[%s]", __func__);
     }
 
-    notifyMsg(Msg::MSG_STOP);
+    if (!(isSTARTED() || isPAUSED() || isPLAYING())) {
+        notExecuteWarning();
+        return ERROR;
+    }
 
-    if (playerState) {
-        playerState->setAbortRequest(1);
+    notifyMsg(Msg::MSG_STATUS_PREPARE_STOP);
+
+    if (playerInfoStatus) {
+        playerInfoStatus->setAbortRequest(1);
     }
 
     if (mediaSync) {
@@ -889,11 +888,12 @@ int MediaPlayer::syncStop() {
         formatContext = nullptr;
     }
 
-    if (playerState) {
-        playerState->reset();
+    if (playerInfoStatus) {
+        playerInfoStatus->reset();
     }
 
-    notifyMsg(Msg::MSG_STOPED);
+    changeStatus(STOPPED);
+    notifyMsg(Msg::MSG_STATUS_STOPPED);
 
     return SUCCESS;
 }
@@ -901,8 +901,10 @@ int MediaPlayer::syncStop() {
 int MediaPlayer::syncDestroy() {
     syncStop();
 
+    notifyMsg(Msg::MSG_STATUS_PREPARE_DESTROY);
+
     if (videoDevice) {
-        videoDevice->setPlayerState(nullptr);
+        videoDevice->setPlayerInfoStatus(nullptr);
         if (mediaSync) {
             mediaSync->setVideoDevice(nullptr);
         }
@@ -938,21 +940,26 @@ int MediaPlayer::syncDestroy() {
         mediaSync = nullptr;
     }
 
-    if (playerState) {
-        delete playerState;
-        playerState = nullptr;
+    changeStatus(DESTROYED);
+    notifyMsg(Msg::MSG_STATUS_DESTROYED);
+
+    if (playerInfoStatus) {
+        delete playerInfoStatus;
+        playerInfoStatus = nullptr;
     }
 
-    notifyMsg(Msg::MSG_DESTROY);
+    changeStatus(IDLED);
+    notifyMsg(Msg::MSG_STATUS_IDLED);
+
     return SUCCESS;
 }
 
 int MediaPlayer::syncSetDataSource(const char *url, int64_t offset, const char *headers) const {
-    if (playerState) {
-        playerState->url = av_strdup(url);
-        playerState->offset = offset;
+    if (playerInfoStatus) {
+        playerInfoStatus->url = av_strdup(url);
+        playerInfoStatus->offset = offset;
         if (headers) {
-            playerState->headers = av_strdup(headers);
+            playerInfoStatus->headers = av_strdup(headers);
         }
         return SUCCESS;
     }
@@ -960,14 +967,14 @@ int MediaPlayer::syncSetDataSource(const char *url, int64_t offset, const char *
 }
 
 void MediaPlayer::setOption(int category, const char *type, const char *option) {
-    if (playerState) {
-        playerState->setOption(category, type, option);
+    if (playerInfoStatus) {
+        playerInfoStatus->setOption(category, type, option);
     }
 }
 
 void MediaPlayer::setOption(int category, const char *type, int64_t option) {
-    if (playerState) {
-        playerState->setOptionLong(category, type, option);
+    if (playerInfoStatus) {
+        playerInfoStatus->setOptionLong(category, type, option);
     }
 }
 
@@ -975,22 +982,67 @@ int MediaPlayer::syncPause() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    if (isPlaying() && syncTogglePause()) {
-        notifyMsg(Msg::MSG_PAUSE);
-        return SUCCESS;
+    if (isPLAYING()) {
+        if (isPlaying() && syncTogglePause()) {
+            changeStatus(PAUSED);
+            notifyMsg(Msg::MSG_STATUS_PAUSED);
+            return SUCCESS;
+        } else {
+            if (DEBUG) {
+                ALOGD(TAG, "[%s] not playing or toggle pause error", __func__);
+            }
+        }
+    } else {
+        notExecuteWarning();
     }
     return ERROR;
 }
+
 
 int MediaPlayer::syncPlay() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    if (!isPlaying() && syncTogglePause()) {
-        notifyMsg(Msg::MSG_PLAY);
-        return SUCCESS;
+    if (isPAUSED()) {
+        if (!isPlaying() && syncTogglePause()) {
+            changeStatus(PLAYING);
+            notifyMsg(Msg::MSG_STATUS_PLAYING);
+            return SUCCESS;
+        } else {
+            if (DEBUG) {
+                ALOGD(TAG, "[%s] not pause or toggle pause error", __func__);
+            }
+        }
+    } else {
+        notExecuteWarning();
     }
     return ERROR;
 }
 
 
+int MediaPlayer::changeStatus(PlayerStatus state) {
+    playerStatus = state;
+    return SUCCESS;
+}
+
+bool MediaPlayer::isIDLED() const { return playerStatus == IDLED; }
+
+bool MediaPlayer::isCREATED() const { return playerStatus == CREATED; }
+
+bool MediaPlayer::isSTARTED() const {
+    return playerStatus == STARTED;
+}
+
+bool MediaPlayer::isSTOPPED() const { return playerStatus == STOPPED; }
+
+bool MediaPlayer::isPLAYING() const { return playerStatus == PLAYING; }
+
+bool MediaPlayer::isPAUSED() const { return playerStatus == PAUSED; }
+
+bool MediaPlayer::isERRORED() const { return playerStatus == ERRORED; }
+
+void MediaPlayer::notExecuteWarning() const {
+    if (DEBUG) {
+        ALOGW(TAG, "[%s] incorrect status, current status=%d", __func__, playerStatus);
+    }
+}

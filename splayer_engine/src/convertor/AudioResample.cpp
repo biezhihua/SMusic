@@ -37,7 +37,7 @@ int AudioResample::setReSampleParams(AudioDeviceSpec *obtainedSpec, int64_t want
     // 判断目标参数合法性
     if (audioState->audioParamsTarget.bytesPerSec <= 0 ||
         audioState->audioParamsTarget.frameSize <= 0) {
-        ALOGE(TAG, "%s audio target params set fail", __func__);
+        ALOGE(TAG, "[%s] audio target params set fail", __func__);
         return ERROR;
     }
 
@@ -60,7 +60,7 @@ int AudioResample::setReSampleParams(AudioDeviceSpec *obtainedSpec, int64_t want
     }
 
     if (DEBUG) {
-        ALOGD(TAG, "%s "
+        ALOGD(TAG, "[%s] "
                    "sampleFormat = %s "
                    "sampleRate = %d "
                    "channelLayout = %lld "
@@ -76,7 +76,7 @@ int AudioResample::setReSampleParams(AudioDeviceSpec *obtainedSpec, int64_t want
               audioState->audioParamsTarget.bytesPerSec
         );
 
-        ALOGD(TAG, "%s "
+        ALOGD(TAG, "[%s] "
                    "audioHardwareBufSize = %d "
                    "audioBufferSize = %d "
                    "audioBufferIndex = %d "
@@ -208,7 +208,7 @@ int AudioResample::audioFrameReSample() {
         // 判断已解码的缓存队列是否可读
         if (!(frame = audioDecoder->getFrameQueue()->peekReadable())) {
             if (DEBUG) {
-                ALOGD(TAG, "%s audio peek readable ", __func__);
+                ALOGD(TAG, "[%s] audio peek readable ", __func__);
             }
             return ERROR_AUDIO_PEEK_READABLE;
         }
@@ -236,7 +236,7 @@ int AudioResample::audioFrameReSample() {
                          isNotSameNbSamples;
 
     if (DEBUG) {
-        ALOGD(TAG, "%s "
+        ALOGD(TAG, "[%s] "
                    "isNotSameSampleFormat = %d "
                    "isNotSameChannelLayout = %d "
                    "isNotSameSampleRate = %d "
@@ -268,9 +268,9 @@ int AudioResample::audioFrameReSample() {
             // 这里可以做变声变速处理，请参考ijkplayer 的做法
 
 // 变速变调处理
-//            if ((playerState->playbackRate != 1.0f ||
-//                 playerState->playbackPitch != 1.0f) &&
-//                !playerState->abortRequest) {
+//            if ((playerInfoStatus->playbackRate != 1.0f ||
+//                 playerInfoStatus->playbackPitch != 1.0f) &&
+//                !playerInfoStatus->abortRequest) {
 //                int bytes_per_sample =
 //                        av_get_bytes_per_sample(audioState->audioParamsTarget.sampleFormat);
 //                av_fast_malloc(&audioState->soundTouchBuffer,
@@ -285,10 +285,10 @@ int AudioResample::audioFrameReSample() {
 //                    soundTouchWrapper = new SoundTouchWrapper();
 //                }
 //                int ret_len = soundTouchWrapper->translate(
-//                        audioState->soundTouchBuffer, (float) (playerState->playbackRate),
-//                        (float) (playerState->playbackPitch != 1.0f
-//                                 ? playerState->playbackPitch
-//                                 : 1.0f / playerState->playbackRate),
+//                        audioState->soundTouchBuffer, (float) (playerInfoStatus->playbackRate),
+//                        (float) (playerInfoStatus->playbackPitch != 1.0f
+//                                 ? playerInfoStatus->playbackPitch
+//                                 : 1.0f / playerInfoStatus->playbackRate),
 //                        reSampledDataSize / 2, bytes_per_sample,
 //                        audioState->audioParamsTarget.channels, frame->frame->sample_rate);
 //                if (ret_len > 0) {
@@ -342,8 +342,9 @@ int AudioResample::initConvertSwrContext(int64_t desireChannelLayout, AVFrame *f
 
     if (!audioState->swrContext || swr_init(audioState->swrContext) < 0) {
         ALOGE(TAG,
-              "Cannot init sample rate converter for conversion of %d Hz "
+              "[%s] Cannot init sample rate converter for conversion of %d Hz "
               "%s %d channels to %d Hz %s %d channels!",
+              __func__,
               frame->sample_rate,
               av_get_sample_fmt_name((AVSampleFormat) frame->format),
               frame->channels, audioState->audioParamsTarget.sampleRate,
@@ -359,7 +360,7 @@ int AudioResample::initConvertSwrContext(int64_t desireChannelLayout, AVFrame *f
     audioState->audioParamsSrc.sampleFormat = (AVSampleFormat) frame->format;
 
     if (DEBUG) {
-        ALOGD(TAG, "%s "
+        ALOGD(TAG, "[%s] "
                    "sampleFormat = %s "
                    "sampleRate = %d "
                    "channelLayout = %lld "
@@ -419,14 +420,14 @@ int AudioResample::convertAudio(int wantedNbSamples, AVFrame *frame) const {
     length = swr_convert(audioState->swrContext, out, outCount, in, frame->nb_samples);
 
     if (length < 0) {
-        ALOGE(TAG, "%s swr_convert() failed", __func__);
+        ALOGE(TAG, "[%s] swr_convert() failed", __func__);
         return ERROR;
     }
 
     // 音频buffer缓冲太小了？
     if (length == outCount) {
         if (DEBUG) {
-            ALOGD(TAG, "%s audio buffer is probably too small", __func__);
+            ALOGD(TAG, "[%s] audio buffer is probably too small", __func__);
         }
         if (swr_init(audioState->swrContext) < 0) {
             swr_free(&audioState->swrContext);
@@ -457,7 +458,7 @@ int AudioResample::destroy() {
     return SUCCESS;
 }
 
-void AudioResample::setPlayerState(PlayerState *playerState) {
+void AudioResample::setPlayerState(PlayerInfoStatus *playerState) {
     AudioResample::playerState = playerState;
 }
 

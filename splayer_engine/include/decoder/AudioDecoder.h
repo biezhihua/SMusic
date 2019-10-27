@@ -2,7 +2,7 @@
 #define ENGINE_AUDIO_DECODER_H
 
 #include <decoder/MediaDecoder.h>
-#include <player/PlayerState.h>
+#include <player/PlayerInfoStatus.h>
 
 class AudioDecoder : public MediaDecoder {
     const char *const TAG = "AudioDecoder";
@@ -12,7 +12,7 @@ public:
                  AVCodecContext *avctx,
                  AVStream *stream,
                  int streamIndex,
-                 PlayerState *playerState,
+                 PlayerInfoStatus *playerState,
                  AVPacket *flushPacket,
                  Condition *pCondition,
                  AVDictionary *opts,

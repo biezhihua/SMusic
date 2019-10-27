@@ -5,7 +5,7 @@ class MediaPlayer;
 
 #include <MediaPlayer.h>
 #include <common/Thread.h>
-#include <player/PlayerState.h>
+#include <player/PlayerInfoStatus.h>
 #include <decoder/AudioDecoder.h>
 #include <decoder/VideoDecoder.h>
 #include <sync/MediaSync.h>
@@ -35,7 +35,7 @@ private:
     MediaPlayer *mediaPlayer = nullptr;
 
     /// 播放器状态
-    PlayerState *playerState = nullptr;
+    PlayerInfoStatus *playerState = nullptr;
 
     /// 音频解码器
     AudioDecoder *audioDecoder = nullptr;
@@ -66,7 +66,7 @@ private:
 
 public:
 
-    Stream(MediaPlayer *mediaPlayer, PlayerState *playerState);
+    Stream(MediaPlayer *mediaPlayer, PlayerInfoStatus *playerState);
 
     ~Stream() override;
 

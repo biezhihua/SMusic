@@ -37,13 +37,22 @@ public:
     static const int MSG_STATUS_PAUSED = 5;
 
     /// 已停止态
-    static const int MSG_STATUS_STOPED = 6;
+    static const int MSG_STATUS_STOPPED = 6;
 
     /// 已销毁态
     static const int MSG_STATUS_DESTROYED = 7;
 
     /// 已错误态
     static const int MSG_STATUS_ERRORED = 8;
+
+    /// 准备启动
+    static const int MSG_STATUS_PREPARE_START = 10;
+
+    /// 准备停止
+    static const int MSG_STATUS_PREPARE_STOP = 11;
+
+    /// 准备销毁
+    static const int MSG_STATUS_PREPARE_DESTROY = 12;
 
 
     /////////////////////////////////////////////
@@ -56,65 +65,41 @@ public:
     /// 出错
     static const int MSG_ERROR = 1001;
 
-    /// 创建
-    static const int MSG_CREATE = 1002;
-
-    /// 启动
-    static const int MSG_START = 1003;
-
-    /// 已经开始
-    static const int MSG_STARTED = 1004;
-
-    /// 暂停
-    static const int MSG_PAUSE = 1005;
-
-    /// 播放
-    static const int MSG_PLAY = 1006;
-
-    /// 停止
-    static const int MSG_STOP = 1007;
-
-    /// 已停止
-    static const int MSG_STOPED = 1008;
-
-    /// 销毁
-    static const int MSG_DESTROY = 1009;
-
     /// 开始音视频同步
-    static const int MSG_MEDIA_SYNC_START = 10010;
+    static const int MSG_MEDIA_SYNC_START = 1010;
 
     /// 停止音视频同步
-    static const int MSG_MEDIA_SYNC_STOP = 10011;
+    static const int MSG_MEDIA_SYNC_STOP = 1011;
 
     /// 音频设备启动
-    static const int MSG_AUDIO_DEVICE_START = 10012;
+    static const int MSG_AUDIO_DEVICE_START = 1012;
 
     /// 音频设备停止
-    static const int MSG_AUDIO_DEVICE_STOP = 10013;
+    static const int MSG_AUDIO_DEVICE_STOP = 1013;
 
     /// 视频设备启动
-    static const int MSG_VIDEO_DEVICE_START = 10014;
+    static const int MSG_VIDEO_DEVICE_START = 1014;
 
     /// 视频设备停止
-    static const int MSG_VIDEO_DEVICE_STOP = 10015;
+    static const int MSG_VIDEO_DEVICE_STOP = 1015;
 
     /// 视频解码线程启动
-    static const int MSG_VIDEO_DECODER_START = 10016;
+    static const int MSG_VIDEO_DECODER_START = 1016;
 
     /// 视频解码线程停止
-    static const int MSG_VIDEO_DECODER_STOP = 10018;
+    static const int MSG_VIDEO_DECODER_STOP = 1018;
 
     /// 音频解码线程启动
-    static const int MSG_AUDIO_DECODER_START = 10019;
+    static const int MSG_AUDIO_DECODER_START = 1019;
 
     /// 音频解码线程停止
-    static const int MSG_AUDIO_DECODER_STOP = 10020;
+    static const int MSG_AUDIO_DECODER_STOP = 1020;
 
     /// 开始读取包
-    static const int MSG_MEDIA_STREAM_START = 10021;
+    static const int MSG_MEDIA_STREAM_START = 1021;
 
     /// 停止读取包
-    static const int MSG_MEDIA_STREAM_STOP = 10022;
+    static const int MSG_MEDIA_STREAM_STOP = 1022;
 
     /////////////////////////////////////////////
     /////////////////////////////////////////////
@@ -164,7 +149,6 @@ public:
     /////////////////////////////////////////////
     ///  错误消息范围 40000 ~ 49999
 
-    static const char *getMsgSimpleName(int what);
 
 };
 

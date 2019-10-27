@@ -10,8 +10,8 @@ class MessageListener : public IMessageListener {
 public:
     void onMessage(Msg *msg) override {
         if (DEBUG) {
-            ALOGD(TAG, "%s what = %s arg1I = %d arg2I = %d", __func__,
-                  Msg::getMsgSimpleName(msg->what),
+            ALOGD(TAG, "%s what = %d arg1I = %d arg2I = %d", __func__,
+                  msg->what,
                   msg->arg1I,
                   msg->arg2I);
         }

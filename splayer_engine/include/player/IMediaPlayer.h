@@ -1,6 +1,8 @@
 #ifndef ENGINE_IMEDIA_PLAYER_H
 #define ENGINE_IMEDIA_PLAYER_H
 
+#include "player/PlayerStatus.h"
+
 class IMediaPlayer {
 
 public:
@@ -19,6 +21,7 @@ public:
 
     virtual bool isPlaying() = 0;
 
+    virtual int changeStatus(PlayerStatus state) = 0;
 
 };
 

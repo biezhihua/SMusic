@@ -295,15 +295,15 @@ TextureFormat SDLVideoDevice::getTextureFormat(Uint32 format) {
 
 void SDLVideoDevice::displayWindow() {
 
-    if (!playerState->videoTitle) {
-        playerState->videoTitle = playerState->url;
+    if (!playerInfoStatus->videoTitle) {
+        playerInfoStatus->videoTitle = playerInfoStatus->url;
     }
 
     int width = surfaceWidth ? surfaceWidth : defaultWidth;
     int height = surfaceHeight ? surfaceHeight : defaultHeight;
 
     if (window) {
-        SDL_SetWindowTitle(window, playerState->videoTitle);
+        SDL_SetWindowTitle(window, playerInfoStatus->videoTitle);
         SDL_SetWindowSize(window, width, height);
         SDL_SetWindowPosition(window, surfaceLeftOffset, surfaceTopOffset);
         SDL_ShowWindow(window);
@@ -311,7 +311,7 @@ void SDLVideoDevice::displayWindow() {
             ALOGD(TAG,
                   "%s videoTitle = %s videoWidth = %d videoHeight = %d surfaceLeftOffset = %d surfaceTopOffset = %d",
                   __func__,
-                  playerState->videoTitle,
+                  playerInfoStatus->videoTitle,
                   width, height,
                   surfaceLeftOffset, surfaceTopOffset
             );

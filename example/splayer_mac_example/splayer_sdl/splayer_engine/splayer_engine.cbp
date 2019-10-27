@@ -173,7 +173,13 @@
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/player/IMediaPlayer.h">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/player/PlayerState.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/player/ISyncMediaPlayer.h">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/player/PlayerInfoStatus.h">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/player/PlayerStatus.h">
 			<Option target="splayer_engine"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/queue/FrameQueue.h">
@@ -230,7 +236,7 @@
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/message/Msg.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/player/PlayerState.cpp">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/player/PlayerInfoStatus.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/queue/FrameQueue.cpp">

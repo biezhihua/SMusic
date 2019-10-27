@@ -1,15 +1,15 @@
-#include <player/PlayerState.h>
+#include <player/PlayerInfoStatus.h>
 
-PlayerState::PlayerState() {
+PlayerInfoStatus::PlayerInfoStatus() {
     init();
     reset();
 }
 
-PlayerState::~PlayerState() {
+PlayerInfoStatus::~PlayerInfoStatus() {
     reset();
 }
 
-void PlayerState::init() {
+void PlayerInfoStatus::init() {
     swsOpts = (AVDictionary *) malloc(sizeof(AVDictionary));
     memset(swsOpts, 0, sizeof(AVDictionary));
     swrOpts = (AVDictionary *) malloc(sizeof(AVDictionary));
@@ -28,7 +28,7 @@ void PlayerState::init() {
     videoCodecName = nullptr;
 }
 
-void PlayerState::reset() {
+void PlayerInfoStatus::reset() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
@@ -131,9 +131,9 @@ void PlayerState::reset() {
     mutex.unlock();
 }
 
-void PlayerState::setOption(int category, const char *type, const char *option) {
+void PlayerInfoStatus::setOption(int category, const char *type, const char *option) {
     if (DEBUG) {
-        ALOGD("PlayerState", "%s category=%d type=%s option=%s", __func__, category, type, option);
+        ALOGD("PlayerInfoStatus", "[%s] category=%d type=%s option=%s", __func__, category, type, option);
     }
     switch (category) {
         case OPT_CATEGORY_FORMAT: {
@@ -163,7 +163,7 @@ void PlayerState::setOption(int category, const char *type, const char *option) 
     }
 }
 
-void PlayerState::setOptionLong(int category, const char *type, int64_t option) {
+void PlayerInfoStatus::setOptionLong(int category, const char *type, int64_t option) {
     switch (category) {
         case OPT_CATEGORY_FORMAT: {
             av_dict_set_int(&formatOpts, type, option, 0);
@@ -192,7 +192,7 @@ void PlayerState::setOptionLong(int category, const char *type, int64_t option) 
     }
 }
 
-void PlayerState::parse_string(const char *type, const char *option) {
+void PlayerInfoStatus::parse_string(const char *type, const char *option) {
     if (!strcmp("acodec", type)) { // 指定音频解码器名称
         audioCodecName = av_strdup(option);
     } else if (!strcmp("vcodec", type)) {   // 指定视频解码器名称
@@ -210,12 +210,12 @@ void PlayerState::parse_string(const char *type, const char *option) {
     } else if (!strcmp("f", type)) { // f 指定输入文件格式
         inputFormat = av_find_input_format(option);
         if (!inputFormat) {
-            av_log(nullptr, AV_LOG_FATAL, "Unknown input format: %s\n", option);
+            ALOGD(TAG, "[%s] Unknown input format: %s", __func__, option);
         }
     }
 }
 
-void PlayerState::parse_int(const char *type, int64_t option) {
+void PlayerInfoStatus::parse_int(const char *type, int64_t option) {
     if (!strcmp("an", type)) { // 禁用音频
         audioDisable = (option != 0) ? 1 : 0;
     } else if (!strcmp("vn", type)) { // 禁用视频
@@ -243,7 +243,7 @@ void PlayerState::parse_int(const char *type, int64_t option) {
     }
 }
 
-const char *PlayerState::getSyncType() {
+const char *PlayerInfoStatus::getSyncType() {
     if (syncType == AV_SYNC_AUDIO) {
         return "AV_SYNC_AUDIO";
     } else if (syncType == AV_SYNC_VIDEO) {
@@ -254,26 +254,26 @@ const char *PlayerState::getSyncType() {
     return "NONE";
 }
 
-void PlayerState::setFormatContext(AVFormatContext *formatContext) {
-    PlayerState::formatContext = formatContext;
+void PlayerInfoStatus::setFormatContext(AVFormatContext *formatContext) {
+    PlayerInfoStatus::formatContext = formatContext;
 }
 
 
-void PlayerState::setAbortRequest(int abortRequest) {
+void PlayerInfoStatus::setAbortRequest(int abortRequest) {
     mutex.lock();
-    PlayerState::abortRequest = abortRequest;
+    PlayerInfoStatus::abortRequest = abortRequest;
     mutex.unlock();
 }
 
-void PlayerState::setPauseRequest(int pauseRequest) {
+void PlayerInfoStatus::setPauseRequest(int pauseRequest) {
     mutex.lock();
-    PlayerState::pauseRequest = pauseRequest;
+    PlayerInfoStatus::pauseRequest = pauseRequest;
     mutex.unlock();
 }
 
-void PlayerState::setSeekRequest(int seekRequest) {
+void PlayerInfoStatus::setSeekRequest(int seekRequest) {
     mutex.lock();
-    PlayerState::seekRequest = seekRequest;
+    PlayerInfoStatus::seekRequest = seekRequest;
     mutex.unlock();
 }
 

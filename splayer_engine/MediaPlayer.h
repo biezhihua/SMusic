@@ -5,7 +5,7 @@ class Stream;
 
 #include <stream/Stream.h>
 #include <sync/MediaClock.h>
-#include <player/PlayerState.h>
+#include <player/PlayerInfoStatus.h>
 #include <decoder/AudioDecoder.h>
 #include <decoder/VideoDecoder.h>
 #include <device/AudioDevice.h>
@@ -35,7 +35,10 @@ protected:
     Condition condition;
 
     /// 播放器状态
-    PlayerState *playerState = nullptr;
+    volatile PlayerStatus playerStatus = IDLED;
+
+    /// 播放器信息状态
+    PlayerInfoStatus *playerInfoStatus = nullptr;
 
     /// 媒体同步器
     MediaSync *mediaSync = nullptr;
@@ -134,6 +137,16 @@ public:
 
     void setOption(int category, const char *type, int64_t option);
 
+    int changeStatus(PlayerStatus state) override;
+
+    bool isIDLED() const;
+
+    bool isCREATED() const;
+
+    bool isSTOPPED() const;
+
+    bool isSTARTED() const;
+
 protected:
 
     int syncSeekTo(float increment) override;
@@ -170,6 +183,15 @@ protected:
 
     int notifyMsg(int what, int arg1, int arg2);
 
+
+
+    void notExecuteWarning() const;
+
+    bool isPLAYING() const;
+
+    bool isPAUSED() const;
+
+    bool isERRORED() const;
 };
 
 

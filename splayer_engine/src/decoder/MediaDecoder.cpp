@@ -1,7 +1,7 @@
 #include <decoder/MediaDecoder.h>
 
 MediaDecoder::MediaDecoder(AVCodecContext *codecContext, AVStream *stream,
-                           int streamIndex, PlayerState *playerState,
+                           int streamIndex, PlayerInfoStatus *playerState,
                            AVPacket *flushPacket, Condition *readWaitCond, AVDictionary *opts,
                            MessageCenter *messageCenter) {
     this->packetQueue = new PacketQueue(flushPacket);

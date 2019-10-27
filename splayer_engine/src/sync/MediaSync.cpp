@@ -5,6 +5,9 @@ MediaSync::MediaSync() = default;
 MediaSync::~MediaSync() = default;
 
 void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
+    if (DEBUG) {
+        ALOGD(TAG, "[%s] videoDecoder=%p audioDecoder=%p", __func__, videoDecoder, audioDecoder);
+    }
     this->videoDecoder = videoDecoder;
     this->audioDecoder = audioDecoder;
     videoClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
@@ -121,7 +124,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
     for (;;) {
         if (playerState->abortRequest) {
             if (DEBUG) {
-                ALOGD(TAG, "%s abort request", __func__);
+                ALOGD(TAG, "[%s] abort request", __func__);
             }
             break;
         }
@@ -145,7 +148,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
             if (previousFrame->seekSerial != packetQueue->getLastSeekSerial()) {
                 frameQueue->popFrame();
                 if (DEBUG) {
-                    ALOGD(TAG, "%s drop no same serial of frame", __func__);
+                    ALOGD(TAG, "[%s] drop no same serial of frame", __func__);
                 }
                 continue;
             }
@@ -159,7 +162,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
             if (previousFrame->seekSerial != currentFrame->seekSerial) {
                 frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
                 if (DEBUG) {
-                    ALOGD(TAG, "%s not same serial, force reset frameTimer = %fd ", __func__,
+                    ALOGD(TAG, "[%s] not same serial, force reset frameTimer = %fd ", __func__,
                           frameTimer);
                 }
             }
@@ -184,7 +187,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
             if (time < (frameTimer + delay)) {
                 *remaining_time = FFMIN(frameTimer + delay - time, *remaining_time);
                 if (DEBUG) {
-                    ALOGD(TAG, "%s need display pre frame, diff time = %lf remainingTime = %lf",
+                    ALOGD(TAG, "[%s] need display pre frame, diff time = %lf remainingTime = %lf",
                           __func__, (frameTimer + delay - time), *remaining_time);
                 }
                 break;
@@ -196,7 +199,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
             if (delay > 0 && (time - frameTimer) > AV_SYNC_THRESHOLD_MAX) {
                 frameTimer = time;
                 if (DEBUG) {
-                    ALOGD(TAG, "%s fall behind, force reset frameTimer = %fd ", __func__,
+                    ALOGD(TAG, "[%s] fall behind, force reset frameTimer = %fd ", __func__,
                           frameTimer);
                 }
             }
@@ -221,7 +224,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
                                                             AV_SYNC_VIDEO))) {
                     frameQueue->popFrame();
                     if (DEBUG) {
-                        ALOGD(TAG, "%s drop same frame", __func__);
+                        ALOGD(TAG, "[%s] drop same frame", __func__);
                     }
                     continue;
                 }
@@ -244,7 +247,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
     if (!playerState->displayDisable && forceRefresh && videoDecoder &&
         frameQueue->isShownIndex()) {
         if (DEBUG) {
-            ALOGD(TAG, "%s render video", __func__);
+            ALOGD(TAG, "[%s] render video", __func__);
         }
         renderVideo();
     }
@@ -288,7 +291,7 @@ double MediaSync::calculateDelay(double delay) {
         sync_threshold = FFMAX(AV_SYNC_THRESHOLD_MIN, FFMIN(AV_SYNC_THRESHOLD_MAX, delay));
 
         if (DEBUG) {
-            ALOGD(TAG, "%s diff = %lf syncThreshold[0.04,0.1] = %lf ", __func__, diff,
+            ALOGD(TAG, "[%s] diff = %lf syncThreshold[0.04,0.1] = %lf ", __func__, diff,
                   sync_threshold);
         }
 
@@ -308,7 +311,7 @@ double MediaSync::calculateDelay(double delay) {
     }
 
     if (DEBUG) {
-        ALOGD(TAG, "%s video: delay=%0.3f A-V=%f", __func__, delay, -diff);
+        ALOGD(TAG, "[%s] video: delay=%0.3f A-V=%f", __func__, delay, -diff);
     }
 
     return delay;
@@ -329,7 +332,7 @@ double MediaSync::calculateDuration(Frame *current, Frame *next) {
 void MediaSync::renderVideo() {
 
     if (!videoDecoder || !videoDevice) {
-        ALOGE(TAG, "%s videoDecoder is null or videoDevice is null", __func__);
+        ALOGE(TAG, "[%s] videoDecoder is null or videoDevice is null", __func__);
         return;
     }
 
@@ -351,7 +354,7 @@ void MediaSync::renderVideo() {
         if (videoDevice->onInitTexture(0, currentFrame->frame->width, currentFrame->frame->height,
                                        format, blendMode, videoDecoder->getRotate()) < 0) {
             if (DEBUG) {
-                ALOGD(TAG, "%s onInitTexture return");
+                ALOGD(TAG, "[%s] onInitTexture return");
             }
             return;
         }
@@ -366,7 +369,7 @@ void MediaSync::renderVideo() {
                             frame->data[2], frame->linesize[2]
                     );
                     if (ret < 0) {
-                        ALOGE(TAG, "%s update FMT_YUV420P error", __func__);
+                        ALOGE(TAG, "[%s] update FMT_YUV420P error", __func__);
                         return;
                     }
                 } else if (frame->linesize[0] < 0 && frame->linesize[1] < 0 &&
@@ -382,7 +385,7 @@ void MediaSync::renderVideo() {
                             -frame->linesize[2]
                     );
                     if (ret < 0) {
-                        ALOGE(TAG, "%s update FMT_YUV420P error", __func__);
+                        ALOGE(TAG, "[%s] update FMT_YUV420P error", __func__);
                         return;
                     }
                 }
@@ -391,7 +394,7 @@ void MediaSync::renderVideo() {
                 // 直接渲染BGRA，对应的是shader->argb格式
                 ret = videoDevice->onUpdateARGB(frame->data[0], frame->linesize[0]);
                 if (ret < 0) {
-                    ALOGE(TAG, "%s update FMT_ARGB error", __func__);
+                    ALOGE(TAG, "[%s] update FMT_ARGB error", __func__);
                     return;
                 }
                 break;
@@ -419,7 +422,7 @@ void MediaSync::renderVideo() {
                 ret = videoDevice->onUpdateARGB(frameARGB->data[0], frameARGB->linesize[0]);
 
                 if (ret < 0) {
-                    ALOGE(TAG, "%s update FMT_NONE error", __func__);
+                    ALOGE(TAG, "[%s] update FMT_NONE error", __func__);
                     return;
                 }
                 break;
@@ -429,7 +432,7 @@ void MediaSync::renderVideo() {
         currentFrame->uploaded = 1;
     } else {
         if (DEBUG) {
-            ALOGD(TAG, "%s uploaded=%d", __func__, currentFrame->uploaded);
+            ALOGD(TAG, "[%s] uploaded=%d", __func__, currentFrame->uploaded);
         }
     }
 
@@ -437,7 +440,7 @@ void MediaSync::renderVideo() {
     videoDevice->onRequestRenderEnd(currentFrame, currentFrame->frame->linesize[0] < 0);
 }
 
-void MediaSync::setPlayerState(PlayerState *playerState) {
+void MediaSync::setPlayerState(PlayerInfoStatus *playerState) {
     MediaSync::playerState = playerState;
 }
 

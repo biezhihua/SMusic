@@ -3,7 +3,7 @@
 
 #include <common/Thread.h>
 #include <common/Log.h>
-#include <player/PlayerState.h>
+#include <player/PlayerInfoStatus.h>
 #include <queue/PacketQueue.h>
 #include <queue/FrameQueue.h>
 #include <message/MessageCenter.h>
@@ -15,7 +15,7 @@ public:
     MediaDecoder(AVCodecContext *codecContext,
                  AVStream *stream,
                  int streamIndex,
-                 PlayerState *playerState,
+                 PlayerInfoStatus *playerState,
                  AVPacket *flushPacket,
                  Condition *readWaitCond,
                  AVDictionary *opts,
@@ -72,7 +72,7 @@ protected:
     Condition condition;
 
     /// 播放器状态
-    PlayerState *playerState = nullptr;
+    PlayerInfoStatus *playerState = nullptr;
 
     /// 数据包队列
     PacketQueue *packetQueue = nullptr;

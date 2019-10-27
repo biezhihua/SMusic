@@ -5,7 +5,7 @@
 #include <common/Condition.h>
 #include <common/Log.h>
 #include <queue/PacketQueue.h>
-#include <player/PlayerState.h>
+#include <player/PlayerInfoStatus.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>

@@ -81,8 +81,8 @@ void VideoDevice::onRequestRenderStart(Frame *frame) {
 
 }
 
-void VideoDevice::setPlayerState(PlayerState *playerState) {
-    this->playerState = playerState;
+void VideoDevice::setPlayerInfoStatus(PlayerInfoStatus *playerState) {
+    this->playerInfoStatus = playerState;
 }
 
 int VideoDevice::create() { return SUCCESS; }

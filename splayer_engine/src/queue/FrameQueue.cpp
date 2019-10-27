@@ -58,7 +58,7 @@ Frame *FrameQueue::peekWritable() {
         if (!_condWriteableWait) {
             _condWriteableWait = true;
             if (DEBUG) {
-                ALOGD(TAG, "%s size = %d maxSize = %d do waiting", __func__, size, maxSize);
+                ALOGD(TAG, "[%s] size = %d maxSize = %d do waiting", __func__, size, maxSize);
             }
         }
         condition.wait(mutex);
@@ -120,7 +120,7 @@ Frame *FrameQueue::peekReadable() {
         if (!_condReadableWait) {
             _condReadableWait = true;
             if (DEBUG) {
-                ALOGD(TAG, "%s size = %d maxSize = %d do waiting", __func__, size, maxSize);
+                ALOGD(TAG, "[%s] size = %d maxSize = %d do waiting", __func__, size, maxSize);
             }
         }
         condition.wait(mutex);

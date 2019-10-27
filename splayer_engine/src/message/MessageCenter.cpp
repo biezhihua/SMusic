@@ -1,6 +1,3 @@
-
-#include <message/MessageCenter.h>
-
 #include "message/MessageCenter.h"
 
 MessageCenter::MessageCenter(IMediaPlayer *mediaPlayer, ISyncMediaPlayer *innerMediaPlayer) {
@@ -26,7 +23,7 @@ void MessageCenter::executeMsg(bool block) {
     int ret = msgQueue->getMsg(&msg, block);
     if (ret >= 0 && msg.what != -1) {
         if (DEBUG) {
-            ALOGD("MediaPlayer_Msg", "[%s] what = %d", __func__, msg.what);
+            // ALOGD("MediaPlayer_Msg", "[%s] what = %d", __func__, msg.what);
         }
         switch (msg.what) {
             case Msg::MSG_REQUEST_ERROR: {
@@ -56,10 +53,7 @@ void MessageCenter::executeMsg(bool block) {
                 syncMediaPlayer->syncPlay();
             }
                 break;
-            case Msg::MSG_STARTED: {
-            }
-                break;
-            case Msg::MSG_STOP: {
+            case Msg::MSG_STATUS_PREPARE_STOP: {
             }
                 break;
             default:
@@ -74,9 +68,6 @@ void MessageCenter::executeMsg(bool block) {
 }
 
 void MessageCenter::setMsgListener(IMessageListener *msgListener) {
-    if (DEBUG) {
-        ALOGD(TAG, "%s listener = %p", __func__, msgListener);
-    }
     MessageCenter::msgListener = msgListener;
 }
 
@@ -104,13 +95,17 @@ int MessageCenter::stop() {
 }
 
 void MessageCenter::startMsgQueue() {
-    if (DEBUG) ALOGD(TAG, __func__);
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
+    }
     start();
     msgQueue->startMsgQueue();
 }
 
 void MessageCenter::stopMsgQueue() {
-    if (DEBUG) ALOGD(TAG, __func__);
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
+    }
     stop();
     msgQueue->clearMsgQueue(nullptr);
 }

@@ -2,7 +2,7 @@
 #define ENGINE_MEDIACLOCK_H
 
 #include <math.h>
-#include <player/PlayerState.h>
+#include <player/PlayerInfoStatus.h>
 
 extern "C" {
 #include <libavutil/time.h>

@@ -1,7 +1,7 @@
 #ifndef ENGINE_VIDEO_DEVICE_H
 #define ENGINE_VIDEO_DEVICE_H
 
-#include <player/PlayerState.h>
+#include <player/PlayerInfoStatus.h>
 #include <renderer/Texture.h>
 #include <queue/FrameQueue.h>
 
@@ -11,7 +11,7 @@ class VideoDevice {
 
 protected:
 
-    PlayerState *playerState = nullptr;
+    PlayerInfoStatus *playerInfoStatus = nullptr;
 
     Mutex mutex;
     Condition condition;
@@ -49,7 +49,7 @@ public:
     // 获取混合模式
     virtual BlendMode getBlendMode(TextureFormat format);
 
-    void setPlayerState(PlayerState *playerState);
+    void setPlayerInfoStatus(PlayerInfoStatus *playerState);
 
 
 };

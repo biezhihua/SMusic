@@ -2,7 +2,7 @@
 #define ENGINE_MEDIASYNC_H
 
 #include <sync/MediaClock.h>
-#include <player/PlayerState.h>
+#include <player/PlayerInfoStatus.h>
 #include <decoder/VideoDecoder.h>
 #include <decoder/AudioDecoder.h>
 #include <device/VideoDevice.h>
@@ -53,7 +53,7 @@ public:
 
     MediaClock *getExternalClock();
 
-    void setPlayerState(PlayerState *playerState);
+    void setPlayerState(PlayerInfoStatus *playerState);
 
     int togglePause();
 
@@ -101,7 +101,7 @@ protected:
     bool abortRequest;
 
     /// 播放器状态
-    PlayerState *playerState = nullptr;
+    PlayerInfoStatus *playerState = nullptr;
 
     /// 音频时钟
     MediaClock *audioClock = nullptr;
