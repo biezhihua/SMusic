@@ -63,8 +63,8 @@ void Stream::run() {
 
         if ((ret = openStream()) < 0) {
             ALOGE(TAG, "[%s] open stream failure, ret=%d", __func__, ret);
-            mediaPlayer->changeStatus(ERRORED);
             notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
+            mediaPlayer->changeStatus(ERRORED);
             return;
         }
 
@@ -72,11 +72,9 @@ void Stream::run() {
         notifyMsg(Msg::MSG_STATUS_STARTED);
 
         if ((ret = readPackets()) < 0) {
-            if (ERROR_ABORT_REQUEST != ret) {
-                ALOGE(TAG, "[%s] read packets exit, ret=%d", __func__, ret);
-                mediaPlayer->changeStatus(ERRORED);
-                notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
-            }
+            ALOGE(TAG, "[%s] read packets exit, ret=%d", __func__, ret);
+            notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
+            mediaPlayer->changeStatus(ERRORED);
             return;
         }
     }
@@ -99,7 +97,7 @@ int Stream::readPackets() {
             if (DEBUG) {
                 ALOGD(TAG, "[%s] abort request, exit read packet", __func__);
             }
-            return ERROR_ABORT_REQUEST;
+            return EXIT;
         }
 
         // 是否暂停
@@ -180,6 +178,9 @@ int Stream::readPackets() {
 
         // 读取首帧后，将状态移动到播放中
         if (mediaPlayer->isSTARTED()) {
+            if (DEBUG) {
+                ALOGD(TAG, "[%s] read first frame, change to PLAYING", __func__);
+            }
             mediaPlayer->changeStatus(PLAYING);
             notifyMsg(Msg::MSG_STATUS_PLAYING);
         }

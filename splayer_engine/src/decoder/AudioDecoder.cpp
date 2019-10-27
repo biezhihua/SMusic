@@ -66,11 +66,9 @@ FrameQueue *AudioDecoder::getFrameQueue() {
 void AudioDecoder::run() {
     int ret = 0;
     if ((ret = decodeAudio()) < 0) {
+        ALOGE(TAG, "[%s] decodeAudio ret = %d ", __func__, ret);
         notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
         notifyMsg(Msg::MSG_CHANGE_STATUS, ERRORED);
-        if (DEBUG) {
-            ALOGE(TAG, "[%s] decodeAudio ret = %d ", __func__, ret);
-        }
     }
 }
 
@@ -258,7 +256,7 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
     do {
 
         if (playerState->abortRequest) {
-            return ERROR_ABORT_REQUEST;
+            return EXIT;
         }
 
         if (playerState->seekRequest) {
@@ -271,7 +269,7 @@ int AudioDecoder::getAudioFrame(AVFrame *frame) {
             isPendingPacket = false;
         } else {
             if (packetQueue->getPacket(&pkt) < 0) {
-                ret = ERROR_ABORT_REQUEST;
+                ret = EXIT;
                 break;
             }
         }

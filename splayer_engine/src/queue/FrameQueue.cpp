@@ -57,9 +57,9 @@ Frame *FrameQueue::peekWritable() {
     while (size >= maxSize && !abortRequest) {
         if (!_condWriteableWait) {
             _condWriteableWait = true;
-            if (DEBUG) {
-                ALOGD(TAG, "[%s] size = %d maxSize = %d do waiting", __func__, size, maxSize);
-            }
+//            if (DEBUG) {
+//                ALOGD(TAG, "[%s] size = %d maxSize = %d do waiting", __func__, size, maxSize);
+//            }
         }
         condition.wait(mutex);
     }

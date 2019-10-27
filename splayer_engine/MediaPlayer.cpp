@@ -701,7 +701,7 @@ int MediaPlayer::syncCreate() {
     mediaSync->setMutex(&mutex);
     mediaSync->setCondition(&condition);
     mediaSync->setMessageCenter(messageCenter);
-    mediaSync->setPlayerState(playerInfoStatus);
+    mediaSync->setPlayerInfoStatus(playerInfoStatus);
 
     // Media Stream
     mediaStream = new Stream(this, playerInfoStatus);
@@ -935,7 +935,7 @@ int MediaPlayer::syncDestroy() {
 
     if (mediaSync) {
         mediaSync->setMessageCenter(nullptr);
-        mediaSync->setPlayerState(nullptr);
+        mediaSync->setPlayerInfoStatus(nullptr);
         mediaSync->setMutex(nullptr);
         mediaSync->setCondition(nullptr);
         mediaSync->destroy();
@@ -1025,7 +1025,8 @@ int MediaPlayer::syncPlay() {
 int MediaPlayer::changeStatus(PlayerStatus state) {
     mutex.lock();
     if (DEBUG) {
-        ALOGD(TAG, "[%s] target status = %s", __func__, getStatus(playerStatus));
+        ALOGD(TAG, "[%s] target status = %s, source status = %s", __func__, getStatus(state),
+              getStatus(playerStatus));
     }
     playerStatus = state;
     mutex.unlock();

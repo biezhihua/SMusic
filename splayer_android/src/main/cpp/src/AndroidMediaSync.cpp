@@ -37,9 +37,8 @@ void AndroidMediaSync::run() {
     }
     while (!isQuit) {
         if ((ret = refreshVideo()) < 0) {
-            notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
-            notifyMsg(Msg::MSG_CHANGE_STATUS, ERRORED);
-            break;
+            ALOGE(TAG, "[%s] refresh video exit, ret = %d", __func__, ret);
+            isQuit = true;
         }
     }
     if (DEBUG) {

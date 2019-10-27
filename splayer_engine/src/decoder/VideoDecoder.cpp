@@ -80,13 +80,10 @@ void VideoDecoder::run() {
     int ret = 0;
     if ((ret = decodeVideo()) < 0) {
         if (ret != ERROR_FRAME_QUEUE_NOT_WRITABLE) {
+            ALOGE(TAG, "[%s] decodeVideo ret = %d ", __func__, ret);
             notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
             notifyMsg(Msg::MSG_CHANGE_STATUS, ERRORED);
         }
-        if (DEBUG) {
-            ALOGE(TAG, "[%s] decodeVideo ret = %d ", __func__, ret);
-        }
-
     }
 }
 
@@ -209,7 +206,7 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
                     if (DEBUG) {
                         ALOGD(TAG, "[%s] video abort", __func__);
                     }
-                    return ERROR_ABORT_REQUEST;
+                    return EXIT;
                 }
 
                 if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
@@ -252,7 +249,7 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
             } else {
                 if (packetQueue->getPacket(&packet) < 0) {
                     ALOGE(TAG, "[%s] video get packet", __func__);
-                    return ERROR_ABORT_REQUEST;
+                    return EXIT;
                 }
             }
         } while (!isSamePacketSerial());
@@ -301,11 +298,11 @@ VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int64_t 
 
     frameQueue->pushFrame();
 
-    if (DEBUG) {
-        ALOGD(TAG, "[%s] video frame = %p ptd = %lf duration = %lf pos = %lld serial = %d",
-              __func__,
-              srcFrame, pts, duration, pos, serial);
-    }
+//    if (DEBUG) {
+//        ALOGD(TAG, "[%s] video frame = %p ptd = %lf duration = %lf pos = %lld serial = %d",
+//              __func__,
+//              srcFrame, pts, duration, pos, serial);
+//    }
 
     return SUCCESS;
 }

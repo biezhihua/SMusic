@@ -5,7 +5,7 @@
 #include <cerrno>
 
 #define  SUCCESS                            1
-#define  ZEOR                               0
+#define  EXIT                               0
 #define  ERROR                              -1
 
 #define  ERROR_PARAMS                       -2
@@ -23,7 +23,6 @@
 #define  ERROR_COPY_CODEC_PARAM_TO_CONTEXT  -14
 #define  ERROR_CREATE_VIDEO_DECODER         -15
 #define  ERROR_CREATE_AUDIO_DECODER         -16
-#define  ERROR_ABORT_REQUEST                -17
 #define  ERROR_FRAME_QUEUE_NOT_WRITABLE     -19
 #define  ERROR_AUDIO_SPEC                   -20
 #define  ERROR_AUDIO_FORMAT                 -21

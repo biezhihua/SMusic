@@ -53,7 +53,7 @@ public:
 
     MediaClock *getExternalClock();
 
-    void setPlayerState(PlayerInfoStatus *playerState);
+    void setPlayerInfoStatus(PlayerInfoStatus *playerState);
 
     int togglePause();
 
@@ -101,7 +101,7 @@ protected:
     bool abortRequest;
 
     /// 播放器状态
-    PlayerInfoStatus *playerState = nullptr;
+    PlayerInfoStatus *playerInfoStatus = nullptr;
 
     /// 音频时钟
     MediaClock *audioClock = nullptr;

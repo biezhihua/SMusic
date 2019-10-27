@@ -93,6 +93,11 @@ const char *Msg::getMsgSimpleName(int what) {
         case MSG_REQUEST_PLAY:
             return "MSG_REQUEST_PLAY";
 
+            ////
+
+        case MSG_CHANGE_STATUS:
+            return "MSG_CHANGE_STATUS";
+
         default:
             return "NONE";
     }

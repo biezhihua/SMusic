@@ -6,7 +6,8 @@ MediaSync::~MediaSync() = default;
 
 void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
     if (DEBUG) {
-        ALOGD(TAG, "[%s] videoDecoder=%p audioDecoder=%p", __func__, videoDecoder, audioDecoder);
+        ALOGD(TAG, "[%s] videoDecoder = %p audioDecoder = %p", __func__, videoDecoder,
+              audioDecoder);
     }
     mutex.lock();
     this->videoDecoder = videoDecoder;
@@ -24,10 +25,8 @@ void MediaSync::stop() {
     }
     mutex.lock();
     abortRequest = true;
-    playerState = nullptr;
     videoDecoder = nullptr;
     audioDecoder = nullptr;
-    videoDevice = nullptr;
     if (frameARGB) {
         av_frame_free(&frameARGB);
         av_free(frameARGB);
@@ -67,7 +66,7 @@ void MediaSync::updateExternalClock(double pts, int seekSerial) {
 
 double MediaSync::getMasterClock() {
     double val = 0;
-    switch (playerState->syncType) {
+    switch (playerInfoStatus->syncType) {
         case AV_SYNC_VIDEO: {
             val = videoClock->getClock();
             break;
@@ -98,8 +97,8 @@ int MediaSync::refreshVideo() {
         av_usleep((unsigned int) (remainingTime * 1000000.0F));
     }
     remainingTime = REFRESH_RATE;
-    if (!playerState) {
-        ALOGE(TAG, "[%s] playerState=%p", __func__, playerState);
+    if (!playerInfoStatus) {
+        ALOGE(TAG, "[%s] playerInfoStatus=%p", __func__, playerInfoStatus);
         return ERROR;
     }
     if (!videoDecoder) {
@@ -110,18 +109,18 @@ int MediaSync::refreshVideo() {
         ALOGE(TAG, "[%s] videoDevice=%p", __func__, videoDevice);
         return ERROR;
     }
-    if (playerState && videoDecoder && videoDevice &&
-        (!playerState->pauseRequest || forceRefresh)) {
+    if (playerInfoStatus && videoDecoder && videoDevice &&
+        (!playerInfoStatus->pauseRequest || forceRefresh)) {
         ret = refreshVideo(&remainingTime);
     }
 
 //    if (DEBUG) {
-//        ALOGD(TAG, "[%s] playerState = %p videoDecoder = %p videoDevice = %p pauseRequest = %d",
+//        ALOGD(TAG, "[%s] playerInfoStatus = %p videoDecoder = %p videoDevice = %p pauseRequest = %d",
 //              __func__,
-//              playerState,
+//              playerInfoStatus,
 //              videoDecoder,
 //              videoDevice,
-//              (playerState != nullptr ? playerState->pauseRequest : -100)
+//              (playerInfoStatus != nullptr ? playerInfoStatus->pauseRequest : -100)
 //        );
 //    }
     return ret;
@@ -131,8 +130,8 @@ int MediaSync::refreshVideo(double *remaining_time) {
     double time;
 
     // 检查外部时钟
-    if (playerState && !playerState->pauseRequest && playerState->realTime &&
-        playerState->syncType == AV_SYNC_EXTERNAL) {
+    if (playerInfoStatus && !playerInfoStatus->pauseRequest && playerInfoStatus->realTime &&
+        playerInfoStatus->syncType == AV_SYNC_EXTERNAL) {
         checkExternalClockSpeed();
     }
 
@@ -140,7 +139,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
     PacketQueue *packetQueue = videoDecoder->getPacketQueue();
 
     for (;;) {
-        if (playerState->abortRequest) {
+        if (playerInfoStatus->abortRequest) {
             if (DEBUG) {
                 ALOGD(TAG, "[%s] abort request", __func__);
             }
@@ -190,7 +189,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
             }
 
             // 如果处于暂停状态，则直接显示
-            if (playerState->abortRequest || playerState->pauseRequest) {
+            if (playerInfoStatus->abortRequest || playerInfoStatus->pauseRequest) {
                 // to display
                 break;
             }
@@ -240,10 +239,11 @@ int MediaSync::refreshVideo(double *remaining_time) {
                 Frame *nextFrame = frameQueue->peekNextFrame();
                 nextDuration = calculateDuration(currentFrame, nextFrame);
                 // 如果不处于同步到视频状态，并且处于跳帧状态，则跳过当前帧
-                if ((time > frameTimer + nextDuration) && (playerState->dropFrameWhenSlow > 0 ||
-                                                           (playerState->dropFrameWhenSlow &&
-                                                            playerState->syncType !=
-                                                            AV_SYNC_VIDEO))) {
+                if ((time > frameTimer + nextDuration) &&
+                    (playerInfoStatus->dropFrameWhenSlow > 0 ||
+                     (playerInfoStatus->dropFrameWhenSlow &&
+                      playerInfoStatus->syncType !=
+                      AV_SYNC_VIDEO))) {
                     frameQueue->popFrame();
                     if (DEBUG) {
                         ALOGD(TAG, "[%s] drop same frame", __func__);
@@ -266,11 +266,11 @@ int MediaSync::refreshVideo(double *remaining_time) {
     }
 
     // 显示画面
-    if (!playerState->displayDisable && forceRefresh && videoDecoder &&
+    if (!playerInfoStatus->displayDisable && forceRefresh && videoDecoder &&
         frameQueue->isShownIndex()) {
-        if (DEBUG) {
-            ALOGD(TAG, "[%s] render video", __func__);
-        }
+//        if (DEBUG) {
+//            ALOGD(TAG, "[%s] render video", __func__);
+//        }
         renderVideo();
     }
     forceRefresh = 0;
@@ -301,7 +301,7 @@ double MediaSync::calculateDelay(double delay) {
 
     // 如果不是同步到视频流，则需要计算延时时间
     // 如果不是以视频做为同步基准，则计算延时
-    if (playerState->syncType != AV_SYNC_VIDEO) {
+    if (playerInfoStatus->syncType != AV_SYNC_VIDEO) {
 
         // 计算差值
         diff = videoClock->getClock() - getMasterClock();
@@ -462,27 +462,27 @@ void MediaSync::renderVideo() {
     videoDevice->onRequestRenderEnd(currentFrame, currentFrame->frame->linesize[0] < 0);
 }
 
-void MediaSync::setPlayerState(PlayerInfoStatus *playerState) {
-    MediaSync::playerState = playerState;
+void MediaSync::setPlayerInfoStatus(PlayerInfoStatus *playerState) {
+    MediaSync::playerInfoStatus = playerState;
 }
 
 void MediaSync::resetRemainingTime() { remainingTime = 0.0F; }
 
 int MediaSync::togglePause() {
-    if (playerState) {
-        if (playerState->pauseRequest) {
+    if (playerInfoStatus) {
+        if (playerInfoStatus->pauseRequest) {
             frameTimer += (av_gettime_relative() * 1.0F / AV_TIME_BASE -
                            videoClock->getLastUpdated());
-            if (playerState->readPauseReturn != AVERROR(ENOSYS)) {
+            if (playerInfoStatus->readPauseReturn != AVERROR(ENOSYS)) {
                 videoClock->setPaused(0);
             }
             videoClock->setClock(videoClock->getClock(), videoClock->getSeekSerial());
         }
         externalClock->setClock(externalClock->getClock(), externalClock->getSeekSerial());
-        playerState->setPauseRequest(!playerState->pauseRequest);
-        audioClock->setPaused(playerState->pauseRequest);
-        videoClock->setPaused(playerState->pauseRequest);
-        externalClock->setPaused(playerState->pauseRequest);
+        playerInfoStatus->setPauseRequest(!playerInfoStatus->pauseRequest);
+        audioClock->setPaused(playerInfoStatus->pauseRequest);
+        videoClock->setPaused(playerInfoStatus->pauseRequest);
+        externalClock->setPaused(playerInfoStatus->pauseRequest);
     }
     return SUCCESS;
 }

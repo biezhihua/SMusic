@@ -25,7 +25,7 @@ int PacketQueue::put(AVPacket *pkt) {
     PacketData *packetData;
 
     if (abortRequest) {
-        return ERROR_ABORT_REQUEST;
+        return EXIT;
     }
 
     packetData = (PacketData *) av_malloc(sizeof(PacketData));
@@ -138,7 +138,7 @@ int PacketQueue::getPacket(AVPacket *pkt, int block) {
     mutex.lock();
     for (;;) {
         if (abortRequest) {
-            ret = ERROR_ABORT_REQUEST;
+            ret = EXIT;
             break;
         }
 
