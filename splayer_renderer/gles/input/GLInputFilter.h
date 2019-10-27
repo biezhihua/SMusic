@@ -13,6 +13,9 @@
  * 图像数据输入滤镜基类
  */
 class GLInputFilter : public GLFilter {
+
+    const char *const TAG = "[MP][RENDER][GLInputFilter]";
+
 public:
     GLInputFilter();
 

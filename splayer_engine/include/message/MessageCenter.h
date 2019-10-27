@@ -9,7 +9,7 @@
 
 class MessageCenter : public Runnable {
 
-    const char *const TAG = "MessageCenter";
+    const char *const TAG = "[MP][NATIVE][MessageCenter]";
 
 private:
 
@@ -57,6 +57,8 @@ public:
     int removeMsg(int what);
 
     void executeMsg(bool block);
+
+    PlayerStatus getStatus(int arg);
 };
 
 

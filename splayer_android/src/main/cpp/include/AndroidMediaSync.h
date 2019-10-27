@@ -5,7 +5,7 @@
 
 class AndroidMediaSync : public MediaSync {
 
-    const char *const TAG = "AndroidMediaSync";
+    const char *const TAG = "[MP][ANDROID][MediaSync]";
 private:
 
     /// 同步线程

@@ -89,7 +89,7 @@ typedef struct AudioState {
  * 音频重采样器
  */
 class AudioResample {
-    const char *const TAG = "AudioResample";
+    const char *const TAG = "[MP][Native][AudioResample]";
 
 public:
     AudioResample();

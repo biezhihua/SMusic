@@ -9,7 +9,7 @@
 #include <message/MessageCenter.h>
 
 class MediaDecoder : public Runnable {
-    const char *const TAG = "MediaDecoder";
+    const char *const TAG = "[MP][NATIVE][MediaDecoder]";
 
 public:
     MediaDecoder(AVCodecContext *codecContext,

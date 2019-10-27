@@ -498,7 +498,7 @@ int MediaPlayer::openAudioDevice(int64_t wantedChannelLayout, int wantedNbChanne
 
 int MediaPlayer::onStartOpenStream() {
     if (DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
     return SUCCESS;
 }
@@ -586,7 +586,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
         if (openAudioDevice(codecContext->channel_layout, codecContext->channels,
                             codecContext->sample_rate) < 0) {
             ALOGE(TAG, "[%s] could not open audio device", __func__);
-            notifyMsg(Msg::MSG_NOT_OPEN_AUDIO_DEVICE);
+            notifyMsg(Msg::MSG_ERROR, ERROR_NOT_OPEN_AUDIO_DEVICE);
             // 如果音频设备打开失败，则调整时钟的同步类型
             if (playerInfoStatus->syncType == AV_SYNC_AUDIO) {
                 if (videoDecoder) {
@@ -625,6 +625,8 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     if (mediaSync) {
         mediaSync->start(videoDecoder, audioDecoder);
         notifyMsg(Msg::MSG_MEDIA_SYNC_START);
+    } else {
+        ALOGE(TAG, "[%s] media sync is null", __func__);
     }
 
     return SUCCESS;
@@ -773,7 +775,7 @@ int MediaPlayer::syncSeekTo(float increment) {
     }
     if (!(isPlaying() || isPAUSED())) {
         notExecuteWarning();
-        return ERRORED;
+        return ERROR;
     }
     if (!playerInfoStatus) {
         ALOGE(TAG, "[%s] player state is null", __func__);
@@ -1021,7 +1023,12 @@ int MediaPlayer::syncPlay() {
 
 
 int MediaPlayer::changeStatus(PlayerStatus state) {
+    mutex.lock();
+    if (DEBUG) {
+        ALOGD(TAG, "[%s] target status = %s", __func__, getStatus(playerStatus));
+    }
     playerStatus = state;
+    mutex.unlock();
     return SUCCESS;
 }
 
@@ -1043,6 +1050,27 @@ bool MediaPlayer::isERRORED() const { return playerStatus == ERRORED; }
 
 void MediaPlayer::notExecuteWarning() const {
     if (DEBUG) {
-        ALOGW(TAG, "[%s] incorrect status, current status=%d", __func__, playerStatus);
+        ALOGD(TAG, "[%s] incorrect status, current status = %s", __func__, getStatus(playerStatus));
     }
+}
+
+const char *MediaPlayer::getStatus(PlayerStatus arg) const {
+    if (arg == ERRORED) {
+        return "ERRORED";
+    } else if (arg == CREATED) {
+        return "CREATED";
+    } else if (arg == STARTED) {
+        return "STARTED";
+    } else if (arg == PLAYING) {
+        return "PLAYING";
+    } else if (arg == PAUSED) {
+        return "PAUSED";
+    } else if (arg == STOPPED) {
+        return "STOPPED";
+    } else if (arg == DESTROYED) {
+        return "DESTROYED";
+    } else if (arg == IDLED) {
+        return "IDLED";
+    }
+    return "ERRORED";
 }

@@ -64,16 +64,13 @@ FrameQueue *AudioDecoder::getFrameQueue() {
 }
 
 void AudioDecoder::run() {
-    if (DEBUG) {
-        ALOGD(TAG, "audio decoder - start");
-    }
     int ret = 0;
     if ((ret = decodeAudio()) < 0) {
-        notifyMsg(Msg::MSG_ERROR, ret);
-        notifyMsg(Msg::MSG_REQUEST_ERROR, Msg::MSG_REQUEST_STOP);
-    }
-    if (DEBUG) {
-        ALOGD(TAG, "audio decoder - end");
+        notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
+        notifyMsg(Msg::MSG_CHANGE_STATUS, ERRORED);
+        if (DEBUG) {
+            ALOGE(TAG, "[%s] decodeAudio ret = %d ", __func__, ret);
+        }
     }
 }
 
@@ -171,7 +168,7 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
                     if (DEBUG) {
                         ALOGD(TAG, "[%s] audio abort", __func__);
                     }
-                    return ERROR_ABORT_REQUEST;
+                    return SUCCESS;
                 }
 
                 if (codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -216,7 +213,7 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
             } else {
                 if (packetQueue->getPacket(&packet) < 0) {
                     ALOGE(TAG, "[%s] audio get packet", __func__);
-                    return ERROR_ABORT_REQUEST;
+                    return ERROR;
                 }
             }
         } while (!isSamePacketSerial());

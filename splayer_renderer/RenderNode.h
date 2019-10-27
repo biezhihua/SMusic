@@ -17,6 +17,8 @@
  */
 class RenderNode {
 
+    const char *const TAG = "[MP][RENDER][RenderNode]";
+
 public:
     RenderNode(RenderNodeType type);
 

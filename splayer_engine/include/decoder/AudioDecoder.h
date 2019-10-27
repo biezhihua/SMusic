@@ -5,7 +5,7 @@
 #include <player/PlayerInfoStatus.h>
 
 class AudioDecoder : public MediaDecoder {
-    const char *const TAG = "AudioDecoder";
+    const char *const TAG = "[MP][Native][AudioDecoder]";
 
 public:
     AudioDecoder(AVFormatContext *formatCtx,

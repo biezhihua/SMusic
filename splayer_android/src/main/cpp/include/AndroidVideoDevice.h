@@ -10,7 +10,7 @@
 
 class AndroidVideoDevice : public VideoDevice {
 
-    const char *const TAG = "AndroidVideoDevice";
+    const char *const TAG = "[MP][ANDROID][VideoDevice]";
 
 private:
 

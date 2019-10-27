@@ -13,7 +13,7 @@
  */
 class MediaSync : public Runnable {
 
-    const char *const TAG = "MediaSync";
+    const char *const TAG = "[MP][NATIVE][MediaSync]";
 
 public:
     MediaSync();

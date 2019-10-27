@@ -20,7 +20,7 @@
  */
 class AndroidAudioDevice : public AudioDevice {
 
-    const char *const TAG = "AndroidAudioDevice";
+    const char *const TAG = "[MP][ANDROID][AudioDevice]";
 
 public:
     AndroidAudioDevice();

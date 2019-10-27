@@ -65,6 +65,9 @@ public:
     /// 出错
     static const int MSG_ERROR = 1001;
 
+    /// 改变消息状态
+    static const int MSG_CHANGE_STATUS = 1002;
+
     /// 开始音视频同步
     static const int MSG_MEDIA_SYNC_START = 1010;
 
@@ -139,16 +142,11 @@ public:
     /////////////////////////////////////////////
     ///  扩展消息范围 30000 ~ 39999
 
-    /// 当前时钟
-    static const int MSG_CURRENT_POSITON = 30000;
-
-    /// 打开音视频设备失败
-    static const int MSG_NOT_OPEN_AUDIO_DEVICE = 30003;
-
     /////////////////////////////////////////////
     /////////////////////////////////////////////
     ///  错误消息范围 40000 ~ 49999
 
+    static const char *getMsgSimpleName(int what);
 
 };
 

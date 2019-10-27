@@ -48,6 +48,9 @@ const std::string kDefaultFragmentShader = SHADER_TO_STRING(
  * 滤镜基类
  */
 class GLFilter {
+
+    const char *const TAG = "[MP][RENDER][GLFilter]";
+
 public:
     GLFilter();
 

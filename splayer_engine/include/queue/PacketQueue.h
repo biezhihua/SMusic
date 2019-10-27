@@ -21,7 +21,7 @@ typedef struct PacketData {
  */
 class PacketQueue {
 
-    const char *const TAG = "PacketQueue";
+    const char *const TAG = "[MP][NATIVE][PacketQueue]";
 
 public:
     PacketQueue(AVPacket *flushPacket);

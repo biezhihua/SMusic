@@ -25,6 +25,9 @@ typedef struct {
  * FBO缓冲区
  */
 class FrameBuffer {
+
+    const char *const TAG = "[MP][RENDER][FrameBuffer]";
+
 public:
     FrameBuffer(int width, int height,
                 const TextureAttributes textureAttributes = defaultTextureAttributes);

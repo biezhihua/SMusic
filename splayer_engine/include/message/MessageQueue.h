@@ -13,7 +13,7 @@ using namespace std;
 
 class MessageQueue {
 
-    const char *const TAG = "MessageCenter";
+    const char *const TAG = "[MP][NATIVE][MsgCenter]";
 
 private:
 

@@ -7,6 +7,11 @@ PlayerInfoStatus::PlayerInfoStatus() {
 
 PlayerInfoStatus::~PlayerInfoStatus() {
     reset();
+    // 文件路径
+    if (url) {
+        av_freep(&url);
+        url = nullptr;
+    }
 }
 
 void PlayerInfoStatus::init() {
@@ -50,12 +55,6 @@ void PlayerInfoStatus::reset() {
 
     if (codecOpts) {
         av_dict_free(&codecOpts);
-    }
-
-    // 文件路径
-    if (url) {
-        av_freep(&url);
-        url = nullptr;
     }
 
     offset = 0;

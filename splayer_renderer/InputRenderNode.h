@@ -13,6 +13,9 @@
  * 输入渲染结点
  */
 class InputRenderNode : public RenderNode {
+
+    const char *const TAG = "[MP][RENDER][InputRenderNode]";
+
 public:
     InputRenderNode();
 

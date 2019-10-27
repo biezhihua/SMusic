@@ -30,7 +30,7 @@ typedef struct AudioDeviceSpec {
 } AudioDeviceSpec;
 
 class AudioDevice : public Runnable {
-    const char *const TAG = "AudioDevice";
+    const char *const TAG = "[MP][NATIVE][AudioDevice]";
 public:
     AudioDevice();
 

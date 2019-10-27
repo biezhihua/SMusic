@@ -8,12 +8,14 @@ void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
     if (DEBUG) {
         ALOGD(TAG, "[%s] videoDecoder=%p audioDecoder=%p", __func__, videoDecoder, audioDecoder);
     }
+    mutex.lock();
     this->videoDecoder = videoDecoder;
     this->audioDecoder = audioDecoder;
     videoClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
     audioClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
     externalClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
     abortRequest = false;
+    mutex.unlock();
 }
 
 void MediaSync::stop() {
@@ -96,16 +98,32 @@ int MediaSync::refreshVideo() {
         av_usleep((unsigned int) (remainingTime * 1000000.0F));
     }
     remainingTime = REFRESH_RATE;
+    if (!playerState) {
+        ALOGE(TAG, "[%s] playerState=%p", __func__, playerState);
+        return ERROR;
+    }
+    if (!videoDecoder) {
+        ALOGE(TAG, "[%s] videoDecoder=%p", __func__, videoDecoder);
+        return ERROR;
+    }
+    if (!videoDevice) {
+        ALOGE(TAG, "[%s] videoDevice=%p", __func__, videoDevice);
+        return ERROR;
+    }
     if (playerState && videoDecoder && videoDevice &&
         (!playerState->pauseRequest || forceRefresh)) {
-        if (DEBUG) {
-            ALOGD(TAG, "===== refreshVideo =====");
-        }
         ret = refreshVideo(&remainingTime);
-        if (DEBUG) {
-            ALOGD(TAG, "===== end =====");
-        }
     }
+
+//    if (DEBUG) {
+//        ALOGD(TAG, "[%s] playerState = %p videoDecoder = %p videoDevice = %p pauseRequest = %d",
+//              __func__,
+//              playerState,
+//              videoDecoder,
+//              videoDevice,
+//              (playerState != nullptr ? playerState->pauseRequest : -100)
+//        );
+//    }
     return ret;
 }
 
@@ -140,8 +158,10 @@ int MediaSync::refreshVideo(double *remaining_time) {
             currentFrame = frameQueue->peekCurrentFrame();
 
             if (DEBUG) {
-                ALOGD(TAG, "peekCurrentFrame.lastSeekSerial = %d packetQueue.lastSeekSerial = %d ",
-                      currentFrame->seekSerial, packetQueue->getLastSeekSerial());
+//                ALOGD(TAG,
+//                      "[%s] peekCurrentFrame.lastSeekSerial = %d packetQueue.lastSeekSerial = %d ",
+//                      __func__,
+//                      currentFrame->seekSerial, packetQueue->getLastSeekSerial());
             }
 
             // 如果不是相同序列，丢掉seek之前的帧
@@ -154,8 +174,10 @@ int MediaSync::refreshVideo(double *remaining_time) {
             }
 
             if (DEBUG) {
-                ALOGD(TAG, "peekCurrentFrame.lastSeekSerial = %d peekNextFrame.lastSeekSerial = %d",
-                      previousFrame->seekSerial, currentFrame->seekSerial);
+//                ALOGD(TAG,
+//                      "[%s] peekCurrentFrame.lastSeekSerial = %d peekNextFrame.lastSeekSerial = %d",
+//                      __func__,
+//                      previousFrame->seekSerial, currentFrame->seekSerial);
             }
 
             // 判断是否需要强制更新帧的时间(seek操作时才会产生变化)
@@ -187,8 +209,8 @@ int MediaSync::refreshVideo(double *remaining_time) {
             if (time < (frameTimer + delay)) {
                 *remaining_time = FFMIN(frameTimer + delay - time, *remaining_time);
                 if (DEBUG) {
-                    ALOGD(TAG, "[%s] need display pre frame, diff time = %lf remainingTime = %lf",
-                          __func__, (frameTimer + delay - time), *remaining_time);
+//                    ALOGD(TAG, "[%s] need display pre frame, diff time = %lf remainingTime = %lf",
+//                          __func__, (frameTimer + delay - time), *remaining_time);
                 }
                 break;
             }
@@ -236,7 +258,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
 
         } else {
             if (DEBUG) {
-                ALOGW(TAG, "nothing to do, no picture to display in the queue");
+                ALOGW(TAG, "[%s] nothing to do, no picture to display in the queue", __func__);
             }
         }
 
@@ -291,8 +313,8 @@ double MediaSync::calculateDelay(double delay) {
         sync_threshold = FFMAX(AV_SYNC_THRESHOLD_MIN, FFMIN(AV_SYNC_THRESHOLD_MAX, delay));
 
         if (DEBUG) {
-            ALOGD(TAG, "[%s] diff = %lf syncThreshold[0.04,0.1] = %lf ", __func__, diff,
-                  sync_threshold);
+//            ALOGD(TAG, "[%s] diff = %lf syncThreshold[0.04,0.1] = %lf ", __func__, diff,
+//                  sync_threshold);
         }
 
         // 判断时间差是否在许可范围内
@@ -311,7 +333,7 @@ double MediaSync::calculateDelay(double delay) {
     }
 
     if (DEBUG) {
-        ALOGD(TAG, "[%s] video: delay=%0.3f A-V=%f", __func__, delay, -diff);
+//        ALOGD(TAG, "[%s] video: delay=%0.3f A-V=%f", __func__, delay, -diff);
     }
 
     return delay;

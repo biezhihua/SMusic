@@ -7,7 +7,7 @@
 
 class AndroidMediaPlayer : public MediaPlayer {
 
-    const char *const TAG = "AndroidMediaPlayer";
+    const char *const TAG = "[MP][ANDROID][MediaPlayer]";
 
 private:
 

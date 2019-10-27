@@ -20,7 +20,7 @@ class Stream;
 
 class MediaPlayer : public ISyncMediaPlayer, IMediaPlayer, IStreamListener {
 
-    const char *const TAG = "MediaPlayer_Native";
+    const char *const TAG = "[MP][NATIVE][MediaPlayer]";
 
     const char *const OPT_LOW_RESOLUTION = "lowResolution";
 
@@ -35,7 +35,7 @@ protected:
     Condition condition;
 
     /// 播放器状态
-    volatile PlayerStatus playerStatus = IDLED;
+    PlayerStatus playerStatus = IDLED;
 
     /// 播放器信息状态
     PlayerInfoStatus *playerInfoStatus = nullptr;
@@ -184,7 +184,6 @@ protected:
     int notifyMsg(int what, int arg1, int arg2);
 
 
-
     void notExecuteWarning() const;
 
     bool isPLAYING() const;
@@ -192,6 +191,8 @@ protected:
     bool isPAUSED() const;
 
     bool isERRORED() const;
+
+    const char *getStatus(PlayerStatus status) const;
 };
 
 

@@ -77,16 +77,16 @@ FrameQueue *VideoDecoder::getFrameQueue() {
 }
 
 void VideoDecoder::run() {
-    if (DEBUG) {
-        ALOGD(TAG, "video decoder - start ");
-    }
     int ret = 0;
     if ((ret = decodeVideo()) < 0) {
-        notifyMsg(Msg::MSG_ERROR, ret);
-        notifyMsg(Msg::MSG_REQUEST_ERROR, Msg::MSG_REQUEST_STOP);
-    }
-    if (DEBUG) {
-        ALOGD(TAG, "video decoder - end");
+        if (ret != ERROR_FRAME_QUEUE_NOT_WRITABLE) {
+            notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
+            notifyMsg(Msg::MSG_CHANGE_STATUS, ERRORED);
+        }
+        if (DEBUG) {
+            ALOGE(TAG, "[%s] decodeVideo ret = %d ", __func__, ret);
+        }
+
     }
 }
 
@@ -136,7 +136,9 @@ int VideoDecoder::decodeVideo() {
         av_frame_unref(frame);
 
         if (ret < 0) {
-            ALOGE(TAG, "[%s] not queue picture", __func__);
+            if (DEBUG) {
+                ALOGD(TAG, "[%s] not queue picture", __func__);
+            }
             break;
         }
     }
@@ -300,7 +302,8 @@ VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int64_t 
     frameQueue->pushFrame();
 
     if (DEBUG) {
-        ALOGD(TAG, "[%s] video frame = %p ptd = %lf duration = %lf pos = %lld serial = %d", __func__,
+        ALOGD(TAG, "[%s] video frame = %p ptd = %lf duration = %lf pos = %lld serial = %d",
+              __func__,
               srcFrame, pts, duration, pos, serial);
     }
 

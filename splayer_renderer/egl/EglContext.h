@@ -23,7 +23,7 @@
  */
 class EglContext {
 
-    const char *const TAG = "EglContext";
+    const char *const TAG = "[MP][RENDER][EglContext]";
 
 public:
 

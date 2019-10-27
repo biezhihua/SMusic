@@ -2,51 +2,47 @@
 
 void AndroidMediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
     MediaSync::start(videoDecoder, audioDecoder);
-    if (DEBUG) {
-        ALOGD(TAG, __func__);
-    }
-    if (playerMutex) {
-        playerMutex->lock();
-    }
+    mutex.lock();
+    isQuit = false;
+    mutex.unlock();
     if (videoDecoder && !syncThread) {
         syncThread = new Thread(this);
         syncThread->start();
-    }
-    isQuit = false;
-    if (playerMutex) {
-        playerMutex->unlock();
+        if (DEBUG) {
+            ALOGD(TAG, "[%s] sync thread already started", __func__);
+        }
     }
 }
 
 void AndroidMediaSync::stop() {
     MediaSync::stop();
-    if (DEBUG) {
-        ALOGD(TAG, __func__);
-    }
-    if (playerMutex) {
-        playerMutex->lock();
-    }
+    mutex.lock();
     isQuit = true;
+    mutex.unlock();
     if (syncThread) {
         syncThread->join();
         delete syncThread;
         syncThread = nullptr;
+        if (DEBUG) {
+            ALOGD(TAG, "[%s] sync thread already die", __func__);
+        }
     }
-    if (playerMutex) {
-        playerMutex->unlock();
-    }
-
 }
 
 void AndroidMediaSync::run() {
+    int ret = 0;
     resetRemainingTime();
+    if (DEBUG) {
+        ALOGD(TAG, "[%s] sync thread refresh video start", __func__);
+    }
     while (!isQuit) {
-        if (playerMutex) {
-            playerMutex->lock();
+        if ((ret = refreshVideo()) < 0) {
+            notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
+            notifyMsg(Msg::MSG_CHANGE_STATUS, ERRORED);
+            break;
         }
-        refreshVideo();
-        if (playerMutex) {
-            playerMutex->unlock();
-        }
+    }
+    if (DEBUG) {
+        ALOGD(TAG, "[%s] sync thread refresh video end", __func__);
     }
 }

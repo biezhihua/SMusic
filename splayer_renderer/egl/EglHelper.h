@@ -34,7 +34,7 @@ typedef EGLBoolean (EGLAPIENTRYP EGL_PRESENTATION_TIME_ANDROIDPROC)(EGLDisplay d
 
 class EglHelper {
 
-    const char *const TAG = "EglHelper";
+    const char *const TAG = "[MP][RENDER][EglHelper]";
 
 public:
 

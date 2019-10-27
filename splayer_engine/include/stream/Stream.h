@@ -13,7 +13,7 @@ class MediaPlayer;
 
 class Stream : public Runnable {
 
-    const char *const TAG = "Stream";
+    const char *const TAG = "[MP][NATIVE][Stream]";
 
     const char *const OPT_SCALL_ALL_PMTS = "scan_all_pmts";
 

@@ -6,7 +6,7 @@
 #include <sync/MediaClock.h>
 
 class VideoDecoder : public MediaDecoder {
-    const char *const TAG = "VideoDecoder";
+    const char *const TAG = "[MP][NATIVE][VideoDecoder]";
 public:
     VideoDecoder(AVFormatContext *formatCtx,
                  AVCodecContext *avctx,

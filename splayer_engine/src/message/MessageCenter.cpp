@@ -23,7 +23,10 @@ void MessageCenter::executeMsg(bool block) {
     int ret = msgQueue->getMsg(&msg, block);
     if (ret >= 0 && msg.what != -1) {
         if (DEBUG) {
-            // ALOGD("MediaPlayer_Msg", "[%s] what = %d", __func__, msg.what);
+            ALOGD(TAG, "[%s] what = %d whatName = %s errorCode = %d", __func__,
+                  msg.what,
+                  Msg::getMsgSimpleName(msg.what),
+                  msg.arg1I);
         }
         switch (msg.what) {
             case Msg::MSG_REQUEST_ERROR: {
@@ -54,6 +57,10 @@ void MessageCenter::executeMsg(bool block) {
             }
                 break;
             case Msg::MSG_STATUS_PREPARE_STOP: {
+            }
+                break;
+            case Msg::MSG_CHANGE_STATUS: {
+                mediaPlayer->changeStatus(getStatus(msg.arg1I));
             }
                 break;
             default:
@@ -125,4 +132,25 @@ int MessageCenter::notifyMsg(int what, int arg1, int arg2) {
 }
 
 int MessageCenter::removeMsg(int what) { return msgQueue->removeMsg(what); }
+
+PlayerStatus MessageCenter::getStatus(int arg) {
+    if (arg == ERRORED) {
+        return ERRORED;
+    } else if (arg == CREATED) {
+        return CREATED;
+    } else if (arg == STARTED) {
+        return STARTED;
+    } else if (arg == PLAYING) {
+        return PLAYING;
+    } else if (arg == PAUSED) {
+        return PAUSED;
+    } else if (arg == STOPPED) {
+        return STOPPED;
+    } else if (arg == DESTROYED) {
+        return DESTROYED;
+    } else if (arg == IDLED) {
+        return IDLED;
+    }
+    return ERRORED;
+}
 

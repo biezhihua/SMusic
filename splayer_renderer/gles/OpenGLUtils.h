@@ -15,6 +15,8 @@
 
 class OpenGLUtils {
 
+    const char *const TAG = "[MP][RENDER][OpenGLUtils]";
+
 public:
     /// 创建program
     static GLuint createProgram(const char *vertexShader, const char *fragShader);

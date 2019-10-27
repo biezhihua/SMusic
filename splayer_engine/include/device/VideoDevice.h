@@ -7,7 +7,7 @@
 
 class VideoDevice {
 
-    const char *const TAG = "VideoDevice";
+    const char *const TAG = "[MP][NATIVE][VideoDevice]";
 
 protected:
 

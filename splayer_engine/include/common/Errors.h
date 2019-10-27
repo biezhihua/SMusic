@@ -39,6 +39,7 @@
 #define  ERROR_VIDEO_DECODE_FRAME           -31
 #define  ERROR_AUDIO_PEEK_READABLE          -32
 #define  ERROR_ATTACHMENT                   -33
+#define  ERROR_NOT_OPEN_AUDIO_DEVICE        -34
 
 
 #endif

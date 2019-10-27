@@ -21,6 +21,9 @@ const std::string kABGRFragmentShader = SHADER_TO_STRING(
  * BGRA输入滤镜
  */
 class GLInputABGRFilter : public GLInputFilter {
+
+    const char *const TAG = "[MP][RENDER][GLInputABGRFilter]";
+
 public:
     GLInputABGRFilter();
 

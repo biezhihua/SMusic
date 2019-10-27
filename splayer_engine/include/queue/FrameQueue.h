@@ -60,7 +60,7 @@ typedef struct Frame {
 /// 解码后的帧队列
 /// https://www.jianshu.com/p/6014de9c47ea
 class FrameQueue {
-    const char *const TAG = "FrameQueue";
+    const char *const TAG = "[MP][NATIVE][FrameQueue]";
 
 private:
     bool _condWriteableWait = false;
