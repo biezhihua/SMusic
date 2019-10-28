@@ -6,18 +6,12 @@
 SDLMediaPlayer *mediaPlayer = nullptr;
 
 class MessageListener : public IMessageListener {
-    const char *const TAG = "MessageListener";
+    const char *const TAG = "[MP][MAIN][MSG]";
 public:
     void onMessage(Msg *msg) override {
-        if (DEBUG) {
-            ALOGD(TAG, "%s what = %d arg1I = %d arg2I = %d", __func__,
-                  msg->what,
-                  msg->arg1I,
-                  msg->arg2I);
-        }
         if (mediaPlayer) {
             switch (msg->what) {
-                case Msg::MSG_REQUEST_PLAY_OR_PAUSE:
+                case MSG_REQUEST_PLAY_OR_PAUSE:
                     if (mediaPlayer->isPlaying()) {
                         mediaPlayer->pause();
                     } else {
@@ -38,10 +32,6 @@ public:
                     }
                     break;
             }
-        } else {
-            if (DEBUG) {
-                ALOGE(TAG, "%s media player is null", __func__);
-            }
         }
     }
 };
@@ -54,8 +44,7 @@ int main() {
             .withDebug(true)
             .build();
     mediaPlayer->create();
-    mediaPlayer->setDataSource("/Users/biezhihua/Downloads/寄生虫.mp4");
-//    mediaPlayer->setDataSource("/Users/biezhihua/Downloads/The.Walking.Dead.S04E15.2013.BluRay.720p.x264.AC3-CMCT.mkv");
+    mediaPlayer->setDataSource("/Users/biezhihua/Downloads/The.Walking.Dead.S04E15.2013.BluRay.720p.x264.AC3-CMCT.mkv");
     mediaPlayer->start();
     mediaPlayer->eventLoop();
     return SUCCESS;

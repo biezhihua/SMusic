@@ -42,7 +42,6 @@ int SDLMediaPlayer::eventLoop() {
 }
 
 void SDLMediaPlayer::toggleFullScreen() {
-    mutex.lock();
     if (videoDevice) {
         auto *device = (SDLVideoDevice *) (videoDevice);
         device->toggleFullScreen();
@@ -50,15 +49,12 @@ void SDLMediaPlayer::toggleFullScreen() {
     if (mediaSync) {
         mediaSync->setForceRefresh(1);
     }
-    mutex.unlock();
 }
 
 void SDLMediaPlayer::refreshVideo() {
-    mutex.lock();
     if (mediaSync != nullptr) {
         mediaSync->refreshVideo();
     }
-    mutex.unlock();
 }
 
 void SDLMediaPlayer::resetRemainingTime() {
@@ -156,7 +152,7 @@ void SDLMediaPlayer::doKeySystem(const SDL_Event &event) {
             notifyMsg(Msg::MSG_REQUEST_START);
             break;
         case SDLK_SPACE:
-            notifyMsg(Msg::MSG_REQUEST_PLAY_OR_PAUSE);
+            notifyMsg(MSG_REQUEST_PLAY_OR_PAUSE);
             break;
         case SDLK_m:
             break;
@@ -219,15 +215,10 @@ void SDLMediaPlayer::doSeek(int increment) {
 
 int SDLMediaPlayer::destroy() {
     if (DEBUG) {
-        ALOGD(TAG, "destroy sdl media player - start");
+        ALOGD(TAG, "[%s] destroy sdl media player", __func__);
     }
-    mutex.lock();
     MediaPlayer::syncDestroy();
     quit = true;
-    mutex.unlock();
-    if (DEBUG) {
-        ALOGD(TAG, "destroy sdl media player - end");
-    }
     return SUCCESS;
 }
 

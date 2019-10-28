@@ -14,7 +14,7 @@ int SDLVideoDevice::create() {
 
     if (SDL_Init(initFlags) != 0) {
         if (DEBUG) {
-            ALOGD(TAG, "%s init sdl fail code = %s", __func__, SDL_GetError());
+            ALOGD(TAG, "[%s] init sdl fail code = %s", __func__, SDL_GetError());
         }
         destroy();
         return ERROR;
@@ -24,13 +24,14 @@ int SDLVideoDevice::create() {
 
     windowFlags |= SDL_WINDOW_RESIZABLE;
 
-    window = SDL_CreateWindow("SPlayer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, surfaceWidth, surfaceHeight, windowFlags);
+    window = SDL_CreateWindow("SPlayer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, surfaceWidth, surfaceHeight,
+                              windowFlags);
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
     if (!window) {
         if (DEBUG) {
-            ALOGE(TAG, "%s create sdl window fail: %s", __func__, SDL_GetError());
+            ALOGE(TAG, "[%s] create sdl window fail: %s", __func__, SDL_GetError());
         }
         destroy();
         return ERROR_NOT_MEMORY;
@@ -38,13 +39,13 @@ int SDLVideoDevice::create() {
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!renderer) {
         if (DEBUG) {
-            ALOGE(TAG, "%s failed to initialize a hardware accelerated renderer: %s", __func__, SDL_GetError());
+            ALOGE(TAG, "[%s] failed to initialize a hardware accelerated renderer: %s", __func__, SDL_GetError());
         }
         renderer = SDL_CreateRenderer(window, -1, 0);
     }
     if (!renderer) {
         if (DEBUG) {
-            ALOGE(TAG, "%s create renderer fail: %s", __func__, SDL_GetError());
+            ALOGE(TAG, "[%s] create renderer fail: %s", __func__, SDL_GetError());
         }
         destroy();
         return ERROR_NOT_MEMORY;
@@ -52,12 +53,12 @@ int SDLVideoDevice::create() {
 
     if (!SDL_GetRendererInfo(renderer, &rendererInfo)) {
         if (DEBUG) {
-            ALOGD(TAG, "initialized %s renderer", rendererInfo.name);
+            ALOGD(TAG, "[%s] initialized %s renderer", __func__, rendererInfo.name);
         }
     }
     if (!window || !renderer || !rendererInfo.num_texture_formats) {
         if (DEBUG) {
-            ALOGD(TAG, "%s failed to create window or renderer: %s", __func__, SDL_GetError());
+            ALOGD(TAG, "[%s] failed to create window or renderer: %s", __func__, SDL_GetError());
         }
         destroy();
         return ERROR_NOT_MEMORY;
@@ -92,7 +93,8 @@ int SDLVideoDevice::destroy() {
 }
 
 int
-SDLVideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight, TextureFormat newFormat, BlendMode blendMode, int rotate) {
+SDLVideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight, TextureFormat newFormat,
+                              BlendMode blendMode, int rotate) {
     Uint32 format;
     int access;
     int width;
@@ -108,7 +110,8 @@ SDLVideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight, Text
         if (videoTexture) {
             SDL_DestroyTexture(videoTexture);
         }
-        if (!(videoTexture = SDL_CreateTexture(renderer, getSDLFormat(newFormat), SDL_TEXTUREACCESS_STREAMING, newWidth, newHeight))) {
+        if (!(videoTexture = SDL_CreateTexture(renderer, getSDLFormat(newFormat), SDL_TEXTUREACCESS_STREAMING, newWidth,
+                                               newHeight))) {
             return ERROR;
         }
         if (SDL_SetTextureBlendMode(videoTexture, getSDLBlendMode(blendMode)) < 0) {
@@ -122,7 +125,8 @@ SDLVideoDevice::onInitTexture(int initTexture, int newWidth, int newHeight, Text
             SDL_UnlockTexture(videoTexture);
         }
         if (DEBUG) {
-            ALOGD(TAG, "%s Created %dx%d texture with %s", __func__, newWidth, newHeight, SDL_GetPixelFormatName(newFormat));
+            ALOGD(TAG, "[%s] Created %dx%d texture with %s", __func__, newWidth, newHeight,
+                  SDL_GetPixelFormatName(newFormat));
         }
     }
     return SUCCESS;
@@ -152,12 +156,14 @@ int SDLVideoDevice::onRequestRenderEnd(Frame *frame, bool flip) {
     if (renderer != nullptr) {
         if (frame) {
             SDL_Rect rect;
-            calculateDisplayRect(&rect, surfaceLeftOffset, surfaceTopOffset, surfaceWidth, surfaceHeight, frame->width, frame->height, frame->sampleAspectRatio);
+            calculateDisplayRect(&rect, surfaceLeftOffset, surfaceTopOffset, surfaceWidth, surfaceHeight, frame->width,
+                                 frame->height, frame->sampleAspectRatio);
             setYuvConversionMode(frame->frame);
             if (DEBUG) {
-                ALOGD(TAG, "%s x = %d y = %d w = %d h = %d", __func__, rect.x, rect.y, rect.w, rect.h);
+                ALOGD(TAG, "[%s] x = %d y = %d w = %d h = %d", __func__, rect.x, rect.y, rect.w, rect.h);
             }
-            SDL_RenderCopyEx(renderer, videoTexture, nullptr, &rect, 0, nullptr, flip ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
+            SDL_RenderCopyEx(renderer, videoTexture, nullptr, &rect, 0, nullptr,
+                             flip ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
             setYuvConversionMode(nullptr);
         }
         SDL_RenderPresent(renderer);
@@ -173,7 +179,7 @@ void SDLVideoDevice::calculateDisplayRect(SDL_Rect *rect,
                                           AVRational picSar) {
 
     if (DEBUG) {
-        ALOGD(TAG, "%s srcWidth = %d scrHeight = %d picWidth = %d picHeight = %d", __func__, srcWidth, scrHeight,
+        ALOGD(TAG, "[%s] srcWidth = %d scrHeight = %d picWidth = %d picHeight = %d", __func__, srcWidth, scrHeight,
               picWidth,
               picHeight);
     }
@@ -200,7 +206,7 @@ void SDLVideoDevice::calculateDisplayRect(SDL_Rect *rect,
     rect->w = FFMAX((int) width, 1);
     rect->h = FFMAX((int) height, 1);
     if (DEBUG) {
-        ALOGD(TAG, "%s x = %d y = %d w = %d h = %d", __func__, rect->x, rect->y, rect->w, rect->h);
+        ALOGD(TAG, "[%s] x = %d y = %d w = %d h = %d", __func__, rect->x, rect->y, rect->w, rect->h);
     }
 }
 
@@ -208,21 +214,23 @@ void SDLVideoDevice::calculateDisplayRect(SDL_Rect *rect,
 void SDLVideoDevice::setYuvConversionMode(AVFrame *frame) {
 #if SDL_VERSION_ATLEAST(2, 0, 8)
     SDL_YUV_CONVERSION_MODE mode = SDL_YUV_CONVERSION_AUTOMATIC;
-    if (frame && (frame->format == AV_PIX_FMT_YUV420P || frame->format == AV_PIX_FMT_YUYV422 || frame->format == AV_PIX_FMT_UYVY422)) {
+    if (frame && (frame->format == AV_PIX_FMT_YUV420P || frame->format == AV_PIX_FMT_YUYV422 ||
+                  frame->format == AV_PIX_FMT_UYVY422)) {
         if (frame->color_range == AVCOL_RANGE_JPEG) {
             mode = SDL_YUV_CONVERSION_JPEG;
             if (DEBUG) {
-                ALOGD(TAG, "%s mode = %s", __func__, "SDL_YUV_CONVERSION_JPEG");
+                ALOGD(TAG, "[%s] mode = %s", __func__, "SDL_YUV_CONVERSION_JPEG");
             }
         } else if (frame->colorspace == AVCOL_SPC_BT709) {
             mode = SDL_YUV_CONVERSION_BT709;
             if (DEBUG) {
-                ALOGD(TAG, "%s mode = %s", __func__, "SDL_YUV_CONVERSION_BT709");
+                ALOGD(TAG, "[%s] mode = %s", __func__, "SDL_YUV_CONVERSION_BT709");
             }
-        } else if (frame->colorspace == AVCOL_SPC_BT470BG || frame->colorspace == AVCOL_SPC_SMPTE170M || frame->colorspace == AVCOL_SPC_SMPTE240M) {
+        } else if (frame->colorspace == AVCOL_SPC_BT470BG || frame->colorspace == AVCOL_SPC_SMPTE170M ||
+                   frame->colorspace == AVCOL_SPC_SMPTE240M) {
             mode = SDL_YUV_CONVERSION_BT601;
             if (DEBUG) {
-                ALOGD(TAG, "%s mode = %s", __func__, "SDL_YUV_CONVERSION_BT601");
+                ALOGD(TAG, "[%s] mode = [%s]", __func__, "SDL_YUV_CONVERSION_BT601");
             }
         }
     }
@@ -309,7 +317,7 @@ void SDLVideoDevice::displayWindow() {
         SDL_ShowWindow(window);
         if (DEBUG) {
             ALOGD(TAG,
-                  "%s videoTitle = %s videoWidth = %d videoHeight = %d surfaceLeftOffset = %d surfaceTopOffset = %d",
+                  "[%s] videoTitle = %s videoWidth = %d videoHeight = %d surfaceLeftOffset = %d surfaceTopOffset = %d",
                   __func__,
                   playerInfoStatus->videoTitle,
                   width, height,
@@ -333,7 +341,9 @@ void SDLVideoDevice::setSurfaceSize(Frame *frame) {
     surfaceWidth = rect.w;
     surfaceHeight = rect.h;
 
-    if (DEBUG) ALOGD(TAG, "%s surfaceWidth = %d surfaceHeight = %d", __func__, surfaceWidth, surfaceHeight);
+    if (DEBUG) {
+        ALOGD(TAG, "[%s] surfaceWidth = %d surfaceHeight = %d", __func__, surfaceWidth, surfaceHeight);
+    }
 }
 
 Uint32 SDLVideoDevice::getSDLFormat(TextureFormat format) {

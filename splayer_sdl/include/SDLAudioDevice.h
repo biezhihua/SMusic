@@ -7,7 +7,7 @@
 
 class SDLAudioDevice : public AudioDevice {
 
-    const char *const TAG = "SDLAudioDevice";
+    const char *const TAG = "[MP][SDL][AudioDevice]";
 
 private:
     SDL_AudioDeviceID audioDev;

@@ -76,8 +76,6 @@ const char *Msg::getMsgSimpleName(int what) {
             return "MSG_REQUEST_START";
         case MSG_REQUEST_STOP:
             return "MSG_REQUEST_STOP";
-        case MSG_REQUEST_PLAY_OR_PAUSE:
-            return "MSG_REQUEST_PLAY_OR_PAUSE";
         case MSG_REQUEST_CREATE:
             return "MSG_REQUEST_CREATE";
         case MSG_REQUEST_DESTROY:

@@ -4,17 +4,17 @@ MediaSync::MediaSync() = default;
 
 MediaSync::~MediaSync() = default;
 
-void MediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
+void MediaSync::start(VideoDecoder *pVideoDecoder, AudioDecoder *pAudioDecoder) {
     if (DEBUG) {
-        ALOGD(TAG, "[%s] videoDecoder = %p audioDecoder = %p", __func__, videoDecoder,
-              audioDecoder);
+        ALOGD(TAG, "[%s] pVideoDecoder = %p pAudioDecoder = %p", __func__, pVideoDecoder,
+              pAudioDecoder);
     }
     mutex.lock();
-    this->videoDecoder = videoDecoder;
-    this->audioDecoder = audioDecoder;
-    videoClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
-    audioClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
-    externalClock->init(videoDecoder->getPacketQueue()->getPointLastSeekSerial());
+    this->videoDecoder = pVideoDecoder;
+    this->audioDecoder = pAudioDecoder;
+    videoClock->init(pVideoDecoder->getPacketQueue()->getPointLastSeekSerial());
+    audioClock->init(pVideoDecoder->getPacketQueue()->getPointLastSeekSerial());
+    externalClock->init(pVideoDecoder->getPacketQueue()->getPointLastSeekSerial());
     abortRequest = false;
     mutex.unlock();
 }
@@ -376,7 +376,7 @@ void MediaSync::renderVideo() {
         if (videoDevice->onInitTexture(0, currentFrame->frame->width, currentFrame->frame->height,
                                        format, blendMode, videoDecoder->getRotate()) < 0) {
             if (DEBUG) {
-                ALOGD(TAG, "[%s] onInitTexture return");
+                ALOGD(TAG, "[%s] onInitTexture return", __func__);
             }
             return;
         }
@@ -508,8 +508,8 @@ int MediaSync::notifyMsg(int what, int arg1, int arg2) {
     return ERROR;
 }
 
-void MediaSync::setForceRefresh(int forceRefresh) {
-    MediaSync::forceRefresh = forceRefresh;
+void MediaSync::setForceRefresh(int refresh) {
+    MediaSync::forceRefresh = refresh;
 }
 
 int MediaSync::create() {
@@ -533,14 +533,14 @@ int MediaSync::destroy() {
     return SUCCESS;
 }
 
-void MediaSync::setMessageCenter(MessageCenter *messageCenter) {
-    MediaSync::messageCenter = messageCenter;
+void MediaSync::setMessageCenter(MessageCenter *pMessageCenter) {
+    MediaSync::messageCenter = pMessageCenter;
 }
 
-void MediaSync::setMutex(Mutex *mutex) {
-    MediaSync::playerMutex = mutex;
+void MediaSync::setMutex(Mutex *pMutex) {
+    MediaSync::playerMutex = pMutex;
 }
 
-void MediaSync::setCondition(Condition *condition) {
-    MediaSync::playerCondition = condition;
+void MediaSync::setCondition(Condition *pCondition) {
+    MediaSync::playerCondition = pCondition;
 }

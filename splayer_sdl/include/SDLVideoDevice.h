@@ -13,7 +13,7 @@
 
 class SDLVideoDevice : public VideoDevice {
 
-    const char *const TAG = "VideoDevice";
+    const char *const TAG = "[MP][SDL][VideoDevice]";
 
 public:
 

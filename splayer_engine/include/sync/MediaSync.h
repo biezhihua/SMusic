@@ -24,7 +24,7 @@ public:
 
     int destroy();
 
-    virtual void start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder);
+    virtual void start(VideoDecoder *pVideoDecoder, AudioDecoder *pAudioDecoder);
 
     virtual void stop();
 
@@ -69,11 +69,11 @@ public:
 
     void setForceRefresh(int forceRefresh);
 
-    void setMessageCenter(MessageCenter *messageCenter);
+    void setMessageCenter(MessageCenter *pMessageCenter);
 
-    void setMutex(Mutex *mMutex);
+    void setMutex(Mutex *pMutex);
 
-    void setCondition(Condition *mCondition);
+    void setCondition(Condition *pCondition);
 
 private:
 

@@ -9,10 +9,11 @@
 #include <SDLVideoDevice.h>
 
 #define MSG_REQUEST_SEEK_SDL 29000
+#define MSG_REQUEST_PLAY_OR_PAUSE 29001
 
 class SDLMediaPlayer : public MediaPlayer {
 
-    const char *const TAG = "SDLMediaPlayer";
+    const char *const TAG = "[MP][SDL][MediaPlayer]";
 
 private:
 

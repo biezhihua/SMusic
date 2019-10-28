@@ -111,7 +111,7 @@ public:
 
     long getDuration();
 
-    bool isPlaying();
+    bool isPlaying() override;
 
     int isLooping();
 
@@ -165,7 +165,7 @@ protected:
 
     int syncCreate() override;
 
-    int syncStart();
+    int syncStart() override;
 
     int syncSetDataSource(const char *url, int64_t offset, const char *headers) const;
 
