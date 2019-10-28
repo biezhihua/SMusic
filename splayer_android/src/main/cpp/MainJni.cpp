@@ -433,32 +433,6 @@ jboolean MediaPlayer_isLooping(JNIEnv *env, jobject thiz) {
     return (jboolean) (mp->isLooping() ? JNI_TRUE : JNI_FALSE);
 }
 
-void MediaPlayer_prepare(JNIEnv *env, jobject thiz) {
-    if (JNI_DEBUG) {
-        ALOGD(TAG, "[%s]", __func__);
-    }
-    MediaPlayer *mp = getMediaPlayer(env, thiz);
-    if (mp == nullptr) {
-        ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        jniThrowException(env, "java/lang/IllegalStateException");
-        return;
-    }
-    mp->start();
-}
-
-void MediaPlayer_prepareAsync(JNIEnv *env, jobject thiz) {
-    if (JNI_DEBUG) {
-        ALOGD(TAG, "[%s]", __func__);
-    }
-    MediaPlayer *mp = getMediaPlayer(env, thiz);
-    if (mp == nullptr) {
-        ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        jniThrowException(env, "java/lang/IllegalStateException");
-        return;
-    }
-    mp->start();
-}
-
 void MediaPlayer_start(JNIEnv *env, jobject thiz) {
     if (JNI_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
@@ -689,8 +663,7 @@ static const JNINativeMethod gMethods[] = {
         {"_setDataSource",      "(Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;)V", (void *) MediaPlayer_setDataSourceAndHeaders},
         {"_setDataSource",      "(Ljava/io/FileDescriptor;JJ)V",                               (void *) MediaPlayer_setDataSourceFD},
         {"_setVideoSurface",    "(Landroid/view/Surface;)V",                                   (void *) MediaPlayer_setVideoSurface},
-        {"_prepare",            "()V",                                                         (void *) MediaPlayer_prepare},
-        {"_prepareAsync",       "()V",                                                         (void *) MediaPlayer_prepareAsync},
+        {"_create",             "(Ljava/lang/Object;)V",                                       (void *) MediaPlayer_create},
         {"_start",              "()V",                                                         (void *) MediaPlayer_start},
         {"_stop",               "()V",                                                         (void *) MediaPlayer_stop},
         {"_play",               "()V",                                                         (void *) MediaPlayer_play},
@@ -711,7 +684,6 @@ static const JNINativeMethod gMethods[] = {
         {"_setRate",            "(F)V",                                                        (void *) MediaPlayer_setRate},
         {"_setPitch",           "(F)V",                                                        (void *) MediaPlayer_setPitch},
         {"_native_init",        "()V",                                                         (void *) MediaPlayer_init},
-        {"_native_setup",       "(Ljava/lang/Object;)V",                                       (void *) MediaPlayer_create},
         {"_native_finalize",    "()V",                                                         (void *) MediaPlayer_finalize},
         {"_setOption",          "(ILjava/lang/String;Ljava/lang/String;)V",                    (void *) MediaPlayer_setOption},
         {"_setOption",          "(ILjava/lang/String;J)V",                                     (void *) MediaPlayer_setOptionLong}

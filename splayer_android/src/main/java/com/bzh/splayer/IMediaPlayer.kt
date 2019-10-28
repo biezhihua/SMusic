@@ -99,47 +99,10 @@ interface IMediaPlayer {
      */
     var audioSessionId: Int
 
-    /**
-     * Sets the [SurfaceHolder] to use for displaying the video
-     * portion of the media.
-     *
-     * Either a surface holder or surface must be set if a display or video sink
-     * is needed.  Not calling this method or [.setSurface]
-     * when playing back a video will result in only the audio track being played.
-     * A null surface holder or surface will result in only the audio track being
-     * played.
-     *
-     * @param sh the SurfaceHolder to use for video display
-     */
     fun setDisplay(sh: SurfaceHolder?)
 
-    /**
-     * Sets the [Surface] to be used as the sink for the video portion of
-     * the media. This is similar to [.setDisplay], but
-     * does not support [.setScreenOnWhilePlaying].  Setting a
-     * Surface will un-set any Surface or SurfaceHolder that was previously set.
-     * A null surface will result in only the audio track being played.
-     *
-     * If the Surface sends frames to a [SurfaceTexture], the timestamps
-     * returned from [SurfaceTexture.getTimestamp] will have an
-     * unspecified zero point.  These timestamps cannot be directly compared
-     * between different media sources, different instances of the same media
-     * source, or multiple runs of the same program.  The timestamp is normally
-     * monotonically increasing and is unaffected by time-of-day adjustments,
-     * but it is reset when the position is set.
-     *
-     * @param surface The [Surface] to be used for the video portion of
-     * the media.
-     */
     fun setSurface(surface: Surface?)
 
-    /**
-     * Sets the data source as a content Uri.
-     *
-     * @param context the Context to use when resolving the Uri
-     * @param uri the Content URI of the data you want to play
-     * @throws IllegalStateException if it is called in an invalid state
-     */
     @Throws(
         IOException::class,
         IllegalArgumentException::class,
@@ -148,14 +111,6 @@ interface IMediaPlayer {
     )
     fun setDataSource(@NonNull context: Context, @NonNull uri: Uri)
 
-    /**
-     * Sets the data source as a content Uri.
-     *
-     * @param context the Context to use when resolving the Uri
-     * @param uri the Content URI of the data you want to play
-     * @param headers the headers to be sent together with the request for the data
-     * @throws IllegalStateException if it is called in an invalid state
-     */
     @TargetApi(14)
     @Throws(
         IOException::class,
@@ -165,13 +120,6 @@ interface IMediaPlayer {
     )
     fun setDataSource(@NonNull context: Context, @NonNull uri: Uri, headers: Map<String, String>?)
 
-
-    /**
-     * Sets the data source (file-path or http/rtsp URL) to use.
-     *
-     * @param path the path of the file, or the http/rtsp URL of the stream you want to play
-     * @throws IllegalStateException if it is called in an invalid state
-     */
     @Throws(
         IOException::class,
         IllegalArgumentException::class,
@@ -180,14 +128,6 @@ interface IMediaPlayer {
     )
     fun setDataSource(@NonNull path: String?)
 
-    /**
-     * Sets the data source (file-path or http/rtsp URL) to use.
-     *
-     * @param path the path of the file, or the http/rtsp URL of the stream you want to play
-     * @param headers the headers associated with the http request for the stream you want to play
-     * @throws IllegalStateException if it is called in an invalid state
-     * @hide pending API council
-     */
     @Throws(
         IOException::class,
         IllegalArgumentException::class,
@@ -196,89 +136,21 @@ interface IMediaPlayer {
     )
     fun setDataSource(@NonNull path: String, headers: Map<String, String>?)
 
-    /**
-     * Sets the data source (FileDescriptor) to use. It is the caller's responsibility
-     * to close the file descriptor. It is safe to do so as soon as this call returns.
-     *
-     * @param fd the FileDescriptor for the file you want to play
-     * @throws IllegalStateException if it is called in an invalid state
-     */
     @Throws(IOException::class, IllegalArgumentException::class, IllegalStateException::class)
     fun setDataSource(fd: FileDescriptor)
 
-    /**
-     * Sets the data source (FileDescriptor) to use.  The FileDescriptor must be
-     * seekable (N.B. a LocalSocket is not seekable). It is the caller's responsibility
-     * to close the file descriptor. It is safe to do so as soon as this call returns.
-     *
-     * @param fd the FileDescriptor for the file you want to play
-     * @param offset the offset into the file where the data to be played starts, in bytes
-     * @param length the length in bytes of the data to be played
-     * @throws IllegalStateException if it is called in an invalid state
-     */
     @Throws(IOException::class, IllegalArgumentException::class, IllegalStateException::class)
     fun setDataSource(fd: FileDescriptor, offset: Long, length: Long)
 
-    /**
-     * Prepares the player for playback, synchronously.
-     *
-     * After setting the datasource and the display surface, you need to either
-     * call prepare() or prepareAsync(). For files, it is OK to call prepare(),
-     * which blocks until MediaPlayer is ready for playback.
-     *
-     * @throws IllegalStateException if it is called in an invalid state
-     */
-    @Throws(IOException::class, IllegalStateException::class)
-    fun prepare()
-
-    /**
-     * Prepares the player for playback, asynchronously.
-     *
-     * After setting the datasource and the display surface, you need to either
-     * call prepare() or prepareAsync(). For streams, you should call prepareAsync(),
-     * which returns immediately, rather than blocking until enough data has been
-     * buffered.
-     *
-     * @throws IllegalStateException if it is called in an invalid state
-     */
-    @Throws(IllegalStateException::class)
-    fun prepareAsync()
-
-    /**
-     * Starts or resumes playback. If playback had previously been paused,
-     * playback will continue from where it was paused. If playback had
-     * been stopped, or never started before, playback will start at the
-     * beginning.
-     *
-     * @throws IllegalStateException if it is called in an invalid state
-     */
     @Throws(IllegalStateException::class)
     fun start()
 
-    /**
-     * Stops playback after playback has been stopped or paused.
-     *
-     * @throws IllegalStateException if the internal player engine has not been
-     * initialized.
-     */
     @Throws(IllegalStateException::class)
     fun stop()
 
-    /**
-     * Pauses playback. Call start() to play.
-     *
-     * @throws IllegalStateException if the internal player engine has not been
-     * initialized.
-     */
     @Throws(IllegalStateException::class)
     fun pause()
 
-    /**
-     * Pauses playback. Call play() to play.
-     *
-     * @throws IllegalStateException if the internal player engine has not been
-     * initialized.
-     */
     @Throws(IllegalStateException::class)
     fun play()
 

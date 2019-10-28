@@ -81,7 +81,7 @@ class MediaPlayer : IMediaPlayer {
             }
             else -> null
         }
-        _native_setup(WeakReference(this))
+        _create(WeakReference(this))
     }
 
     override fun setDisplay(sh: SurfaceHolder?) {
@@ -170,14 +170,6 @@ class MediaPlayer : IMediaPlayer {
         _setDataSource(fd, offset, length)
     }
 
-    override fun prepare() {
-        _prepare()
-    }
-
-    override fun prepareAsync() {
-        _prepareAsync()
-    }
-
     override fun start() {
         if (DEBUG) {
             Log.d(TAG, "start() called")
@@ -225,7 +217,7 @@ class MediaPlayer : IMediaPlayer {
             pm.newWakeLock(mode or PowerManager.ON_AFTER_RELEASE, MediaPlayer::class.java.name)
         mWakeLock!!.setReferenceCounted(false)
         if (washeld) {
-            mWakeLock!!.acquire()
+            mWakeLock?.acquire()
         }
     }
 
@@ -438,10 +430,7 @@ class MediaPlayer : IMediaPlayer {
     private external fun _setOption(category: Int, type: String, option: String)
 
     @Throws(IllegalStateException::class)
-    private external fun _native_setup(mediaplayer_this: Any)
-
-    @Throws(IllegalStateException::class)
-    private external fun _native_finalize()
+    private external fun _create(mediaPlayerThis: Any)
 
     @Throws(IllegalStateException::class)
     private external fun _setLooping(looping: Boolean)
@@ -464,14 +453,8 @@ class MediaPlayer : IMediaPlayer {
     @Throws(IOException::class, IllegalArgumentException::class, IllegalStateException::class)
     private external fun _setDataSource(fd: FileDescriptor, offset: Long, length: Long)
 
-    @Throws(IOException::class, IllegalStateException::class)
-    private external fun _prepare()
-
     @Throws(IllegalStateException::class)
     private external fun _setVideoSurface(surface: Surface?)
-
-    @Throws(IllegalStateException::class)
-    private external fun _prepareAsync()
 
     @Throws(IllegalStateException::class)
     private external fun _start()
@@ -512,6 +495,9 @@ class MediaPlayer : IMediaPlayer {
     @Throws(IllegalStateException::class)
     private external fun _reset()
 
+    @Throws(IllegalStateException::class)
+    private external fun _native_finalize()
+
     companion object {
 
         @JvmStatic
@@ -543,16 +529,16 @@ class MediaPlayer : IMediaPlayer {
                 if (holder != null) {
                     mp.setDisplay(holder)
                 }
-                mp.prepare()
+                mp.start()
                 return mp
             } catch (ex: IOException) {
-                Log.d(TAG, "init failed:", ex)
+                Log.e(TAG, "init failed:", ex)
                 // fall through
             } catch (ex: IllegalArgumentException) {
-                Log.d(TAG, "init failed:", ex)
+                Log.e(TAG, "init failed:", ex)
                 // fall through
             } catch (ex: SecurityException) {
-                Log.d(TAG, "init failed:", ex)
+                Log.e(TAG, "init failed:", ex)
                 // fall through
             }
 
@@ -567,16 +553,16 @@ class MediaPlayer : IMediaPlayer {
                 val mp = MediaPlayer()
                 mp.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
                 afd.close()
-                mp.prepare()
+                mp.start()
                 return mp
             } catch (ex: IOException) {
-                Log.d(TAG, "init failed:", ex)
+                Log.e(TAG, "init failed:", ex)
                 // fall through
             } catch (ex: IllegalArgumentException) {
-                Log.d(TAG, "init failed:", ex)
+                Log.e(TAG, "init failed:", ex)
                 // fall through
             } catch (ex: SecurityException) {
-                Log.d(TAG, "init failed:", ex)
+                Log.e(TAG, "init failed:", ex)
                 // fall through
             }
 
@@ -588,13 +574,13 @@ class MediaPlayer : IMediaPlayer {
 
         @JvmStatic
         fun postEventFromNative(
-            mediaplayerRef: Any,
+            mediaPlayerRef: Any,
             what: Int,
             arg1: Int,
             arg2: Int,
             obj: Any?
         ) {
-            val ref = (mediaplayerRef as WeakReference<*>).get() ?: return
+            val ref = (mediaPlayerRef as WeakReference<*>).get() ?: return
             val mp = ref as MediaPlayer
             val m = mp.mEventHandler?.obtainMessage(what, arg1, arg2, obj)
             if (m != null) {
