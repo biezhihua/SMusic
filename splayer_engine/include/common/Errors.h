@@ -7,7 +7,6 @@
 #define  SUCCESS                            1
 #define  EXIT                               0
 #define  ERROR                              -1
-
 #define  ERROR_PARAMS                       -2
 #define  ERROR_NOT_MEMORY                   -3
 #define  ERROR_NOT_OPEN_INPUT               -4
@@ -39,6 +38,8 @@
 #define  ERROR_AUDIO_PEEK_READABLE          -32
 #define  ERROR_ATTACHMENT                   -33
 #define  ERROR_NOT_OPEN_AUDIO_DEVICE        -34
+#define  ERROR_PERMISSION_DENIED            -35
+#define  ERROR_INVALID_OPERATION            -36
 
 
 #endif

@@ -101,6 +101,7 @@ int MediaPlayer::seekTo(float increment) {
     if (DEBUG) {
         ALOGD(TAG, "[%s] increment = %lf", __func__, increment);
     }
+    notifyMsg(Msg::MSG_SEEK_START);
     return notifyMsg(Msg::MSG_REQUEST_SEEK, increment);
 }
 
@@ -537,13 +538,16 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
         return ERROR_CREATE_VIDEO_AUDIO_DECODER;
     }
 
+    // 准备解码器回调
+    notifyMsg(Msg::MSG_PREPARED_DECODER);
+
     // 视频解码器开始解码
     if (videoDecoder) {
         if (DEBUG) {
             ALOGD(TAG, "[%s] start video decoder", __func__);
         }
         videoDecoder->start();
-        notifyMsg(Msg::MSG_VIDEO_DECODER_START);
+        notifyMsg(Msg::MSG_VIDEO_START);
     } else {
         if (playerInfoStatus->syncType == AV_SYNC_VIDEO) {
             playerInfoStatus->syncType = AV_SYNC_AUDIO;
@@ -562,7 +566,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
             audioResample->setAudioDecoder(audioDecoder);
         }
         audioDecoder->start();
-        notifyMsg(Msg::MSG_AUDIO_DECODER_START);
+        notifyMsg(Msg::MSG_AUDIO_START);
     } else {
         if (playerInfoStatus->syncType == AV_SYNC_AUDIO) {
             playerInfoStatus->syncType = AV_SYNC_EXTERNAL;
@@ -577,7 +581,10 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 打开视频输出设备
     if (videoDevice) {
-        notifyMsg(Msg::MSG_VIDEO_DEVICE_START);
+        AVCodecParameters *codecpar = videoDecoder->getStream()->codecpar;
+        notifyMsg(Msg::MSG_VIDEO_SIZE_CHANGED, codecpar->width, codecpar->height);
+        notifyMsg(Msg::MSG_SAR_CHANGED, codecpar->sample_aspect_ratio.num,
+                  codecpar->sample_aspect_ratio.den);
     }
 
     // 打开音频输出设备
@@ -598,7 +605,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
         } else {
             // 启动音频输出设备
             audioDevice->start();
-            notifyMsg(Msg::MSG_AUDIO_DEVICE_START);
+            notifyMsg(Msg::MSG_AUDIO_RENDERING_START);
         }
     }
 
@@ -624,7 +631,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     // 开始同步
     if (mediaSync) {
         mediaSync->start(videoDecoder, audioDecoder);
-        notifyMsg(Msg::MSG_MEDIA_SYNC_START);
+        notifyMsg(Msg::MSG_VIDEO_ROTATION_CHANGED);
     } else {
         ALOGE(TAG, "[%s] media sync is null", __func__);
     }
@@ -694,8 +701,9 @@ int MediaPlayer::syncCreate() {
     }
     if (mediaSync->create() < 0) {
         ALOGE(TAG, "[%s] media stream init failure", __func__);
+        changeStatus(ERRORED);
+        notifyMsg(Msg::MSG_STATUS_ERRORED);
         notifyMsg(Msg::MSG_ERROR, ERROR);
-        notifyMsg(Msg::MSG_REQUEST_ERROR, Msg::MSG_REQUEST_DESTROY);
         return ERROR;
     }
     mediaSync->setMutex(&mutex);
@@ -710,8 +718,9 @@ int MediaPlayer::syncCreate() {
     mediaStream->setMediaSync(mediaSync);
     if (mediaStream->create() < 0) {
         ALOGE(TAG, "[%s] media stream init failure", __func__);
+        changeStatus(ERRORED);
+        notifyMsg(Msg::MSG_STATUS_ERRORED);
         notifyMsg(Msg::MSG_ERROR, ERROR);
-        notifyMsg(Msg::MSG_REQUEST_ERROR, Msg::MSG_REQUEST_DESTROY);
         return ERROR;
     }
 
@@ -758,7 +767,6 @@ int MediaPlayer::syncStart() {
     playerInfoStatus->setAbortRequest(0);
     playerInfoStatus->setPauseRequest(0);
     mediaStream->start();
-    notifyMsg(Msg::MSG_MEDIA_STREAM_START);
     return SUCCESS;
 }
 
@@ -855,35 +863,30 @@ int MediaPlayer::syncStop() {
 
     if (mediaSync) {
         mediaSync->stop();
-        notifyMsg(Msg::MSG_MEDIA_SYNC_STOP);
     }
 
     if (audioDevice) {
         audioDevice->stop();
-        notifyMsg(Msg::MSG_AUDIO_DEVICE_STOP);
     }
 
     if (videoDevice) {
-        notifyMsg(Msg::MSG_VIDEO_DEVICE_STOP);
+        //
     }
 
     if (audioDecoder) {
         audioDecoder->stop();
-        notifyMsg(Msg::MSG_AUDIO_DECODER_STOP);
         delete audioDecoder;
         audioDecoder = nullptr;
     }
 
     if (videoDecoder) {
         videoDecoder->stop();
-        notifyMsg(Msg::MSG_VIDEO_DECODER_STOP);
         delete videoDecoder;
         videoDecoder = nullptr;
     }
 
     if (mediaStream) {
         mediaStream->stop();
-        notifyMsg(Msg::MSG_MEDIA_STREAM_STOP);
     }
 
     if (formatContext) {

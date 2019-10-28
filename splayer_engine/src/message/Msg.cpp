@@ -45,30 +45,42 @@ const char *Msg::getMsgSimpleName(int what) {
 
             ///
 
-        case MSG_MEDIA_SYNC_START:
-            return "MSG_MEDIA_SYNC_START";
-        case MSG_MEDIA_SYNC_STOP:
-            return "MSG_MEDIA_SYNC_STOP";
-        case MSG_AUDIO_DEVICE_START:
-            return "MSG_AUDIO_DEVICE_START";
-        case MSG_AUDIO_DEVICE_STOP:
-            return "MSG_AUDIO_DEVICE_STOP";
-        case MSG_VIDEO_DEVICE_START:
-            return "MSG_VIDEO_DEVICE_START";
-        case MSG_VIDEO_DEVICE_STOP:
-            return "MSG_VIDEO_DEVICE_STOP";
-        case MSG_VIDEO_DECODER_START:
-            return "MSG_VIDEO_DECODER_START";
-        case MSG_VIDEO_DECODER_STOP:
-            return "MSG_VIDEO_DECODER_STOP";
-        case MSG_AUDIO_DECODER_START:
-            return "MSG_AUDIO_DECODER_START";
-        case MSG_AUDIO_DECODER_STOP:
-            return "MSG_AUDIO_DECODER_STOP";
-        case MSG_MEDIA_STREAM_START:
-            return "MSG_MEDIA_STREAM_START";
-        case MSG_MEDIA_STREAM_STOP:
-            return "MSG_MEDIA_STREAM_STOP";
+        case MSG_PLAY_STARTED:
+            return "MSG_PLAY_STARTED";
+        case MSG_PLAY_COMPLETED:
+            return "MSG_PLAY_COMPLETED";
+        case MSG_OPEN_INPUT:
+            return "MSG_OPEN_INPUT";
+        case MSG_STREAM_INFO:
+            return "MSG_STREAM_INFO";
+        case MSG_PREPARED_DECODER:
+            return "MSG_PREPARED_DECODER";
+        case MSG_VIDEO_SIZE_CHANGED:
+            return "MSG_VIDEO_SIZE_CHANGED";
+        case MSG_SAR_CHANGED:
+            return "MSG_SAR_CHANGED";
+        case MSG_AUDIO_START:
+            return "MSG_AUDIO_START";
+        case MSG_AUDIO_RENDERING_START:
+            return "MSG_AUDIO_RENDERING_START";
+        case MSG_VIDEO_START:
+            return "MSG_VIDEO_START";
+        case MSG_VIDEO_ROTATION_CHANGED:
+            return "MSG_VIDEO_ROTATION_CHANGED";
+        case MSG_BUFFERING_START:
+            return "MSG_BUFFERING_START";
+        case MSG_BUFFERING_UPDATE:
+            return "MSG_BUFFERING_UPDATE";
+        case MSG_BUFFERING_TIME_UPDATE:
+            return "MSG_BUFFERING_TIME_UPDATE";
+        case MSG_BUFFERING_END:
+            return "MSG_BUFFERING_END";
+        case MSG_SEEK_COMPLETE:
+            return "MSG_SEEK_COMPLETE";
+        case MSG_TIMED_TEXT:
+            return "MSG_TIMED_TEXT";
+        case MSG_CURRENT_POSITON:
+            return "MSG_CURRENT_POSITON";
 
             ///
 
@@ -84,8 +96,6 @@ const char *Msg::getMsgSimpleName(int what) {
             return "MSG_REQUEST_SEEK";
         case MSG_REQUEST_QUIT:
             return "MSG_REQUEST_QUIT";
-        case MSG_REQUEST_ERROR:
-            return "MSG_REQUEST_ERROR";
         case MSG_REQUEST_PAUSE:
             return "MSG_REQUEST_PAUSE";
         case MSG_REQUEST_PLAY:

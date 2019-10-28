@@ -98,7 +98,7 @@ private:
 
     int readPackets();
 
-    bool isRetryPlay() const;
+    bool isFinish() const;
 
     bool isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket *packet) const;
 
@@ -110,7 +110,7 @@ private:
 
     int notifyMsg(int what, int arg1, int arg2);
 
-    void doSeek() const;
+    void doSeek() ;
 
     void doPause() const;
 

@@ -63,8 +63,9 @@ void Stream::run() {
 
         if ((ret = openStream()) < 0) {
             ALOGE(TAG, "[%s] open stream failure, ret=%d", __func__, ret);
-            notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
             mediaPlayer->changeStatus(ERRORED);
+            notifyMsg(Msg::MSG_STATUS_ERRORED);
+            notifyMsg(Msg::MSG_ERROR, ret);
             return;
         }
 
@@ -73,10 +74,12 @@ void Stream::run() {
 
         if ((ret = readPackets()) < 0) {
             ALOGE(TAG, "[%s] read packets exit, ret=%d", __func__, ret);
-            notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
             mediaPlayer->changeStatus(ERRORED);
+            notifyMsg(Msg::MSG_STATUS_ERRORED);
+            notifyMsg(Msg::MSG_ERROR, ret);
             return;
         }
+
     }
 }
 
@@ -114,9 +117,9 @@ int Stream::readPackets() {
         if (playerState->attachmentRequest) {
             if (doAttachment() < 0) {
                 ALOGE(TAG, "[%s] do attachment fail, exit read thread", __func__);
+                mediaPlayer->changeStatus(ERRORED);
+                notifyMsg(Msg::MSG_STATUS_ERRORED);
                 notifyMsg(Msg::MSG_ERROR, ERROR_ATTACHMENT);
-                notifyMsg(Msg::MSG_REQUEST_STOP);
-                notifyMsg(Msg::MSG_REQUEST_ERROR);
                 return ERROR_ATTACHMENT;
             }
         }
@@ -129,7 +132,8 @@ int Stream::readPackets() {
             continue;
         }
 
-        if (isRetryPlay()) {
+        // 播放结束
+        if (isFinish()) {
             doRetryPlay();
         }
 
@@ -152,8 +156,9 @@ int Stream::readPackets() {
             // 读取出错，则直接退出
             if (formatContext->pb && formatContext->pb->error) {
                 ALOGE(TAG, "[%s] I/O context error ", __func__);
+                notifyMsg(Msg::MSG_CHANGE_STATUS, ERRORED);
+                notifyMsg(Msg::MSG_STATUS_ERRORED, ERROR_IO);
                 notifyMsg(Msg::MSG_ERROR, ERROR_IO);
-                notifyMsg(Msg::MSG_REQUEST_ERROR, Msg::MSG_REQUEST_STOP);
                 return ERROR_IO;
             }
 
@@ -183,6 +188,7 @@ int Stream::readPackets() {
             }
             mediaPlayer->changeStatus(PLAYING);
             notifyMsg(Msg::MSG_STATUS_PLAYING);
+            notifyMsg(Msg::MSG_PLAY_STARTED);
         }
     }
 }
@@ -190,11 +196,12 @@ int Stream::readPackets() {
 void Stream::doRetryPlay() {
     if (playerState) {
         if (playerState->loopTimes) {
-            notifyMsg(Msg::MSG_REQUEST_SEEK,
-                      (int) (playerState->startTime != AV_NOPTS_VALUE ? playerState->startTime
-                                                                      : 0));
+            int seekTime = (int) (playerState->startTime != AV_NOPTS_VALUE ? playerState->startTime : 0);
+            notifyMsg(Msg::MSG_REQUEST_SEEK, seekTime);
         } else if (playerState->autoExit) {
-            notifyMsg(Msg::MSG_REQUEST_DESTROY);
+            mediaPlayer->changeStatus(STOPPED);
+            notifyMsg(Msg::MSG_STATUS_STOPPED);
+            notifyMsg(Msg::MSG_PLAY_COMPLETED);
         }
     }
 }
@@ -227,7 +234,7 @@ void Stream::doPause() const {
     }
 }
 
-void Stream::doSeek() const {
+void Stream::doSeek() {
     if (playerState && formatContext) {
         int64_t seekTarget = playerState->seekPos;
 
@@ -276,6 +283,8 @@ void Stream::doSeek() const {
         playerState->attachmentRequest = 1;
         playerState->seekRequest = 0;
         playerState->eof = 0;
+
+        notifyMsg(Msg::MSG_SEEK_COMPLETE);
     }
 }
 
@@ -343,6 +352,9 @@ int Stream::openStream() {
         return ERROR_NOT_OPEN_INPUT;
     }
 
+    // 打开文件回调
+    notifyMsg(Msg::MSG_OPEN_INPUT);
+
     // 还原MPEGTS的特殊处理标记
     if (scanAllProgramMapTableSet) {
         av_dict_set(&playerState->formatOpts, OPT_SCALL_ALL_PMTS, nullptr, AV_DICT_MATCH_CASE);
@@ -375,6 +387,9 @@ int Stream::openStream() {
         ALOGE(TAG, "[%s] %s: could not find codec parameters", __func__, playerState->url);
         return ERROR_NOT_FOUND_STREAM_INFO;
     }
+
+    // 已获取媒体信息
+    notifyMsg(Msg::MSG_STREAM_INFO);
 
     // 判断是否实时流，判断是否需要设置无限缓冲区
     playerState->realTime = isRealTime(formatContext);
@@ -504,7 +519,7 @@ Stream::isPacketInPlayRange(const AVFormatContext *formatContext, const AVPacket
     return false;
 }
 
-bool Stream::isRetryPlay() const {
+bool Stream::isFinish() const {
     bool isNoPaused = !playerState->pauseRequest;
     bool isNoUseAudioFrame = !audioDecoder || audioDecoder->isFinished();
     bool isNoUseVideoFrame = !videoDecoder || videoDecoder->isFinished();

@@ -85,34 +85,23 @@ public:
     }
 
     void onMessage(Msg *msg) override {
-//        if (mediaPlayer) {
-//            switch (msg->what) {
-//                case Msg::MSG_REQUEST_PLAY_OR_PAUSE:
-//                    if (mediaPlayer->isPlaying()) {
-//                        mediaPlayer->pause();
-//                    } else {
-//                        mediaPlayer->play();
-//                    }
-//                    break;
-//                case Msg::MSG_REQUEST_DESTROY:
-//                    if (mediaPlayer) {
-//                        mediaPlayer->destroy();
-//                    }
-//                    break;
-//                case Msg::MSG_REQUEST_START:
-//                    break;
-//                case Msg::MSG_REQUEST_SEEK:
-//                    int increment = msg->arg1;
-//                    if (mediaPlayer) {
-//                        mediaPlayer->seekTo(increment);
-//                    }
-//                    break;
-//            }
-//        } else {
-//            if (DEBUG) {
-//                ALOGE(TAG, "%s media player is null", __func__);
-//            }
-//        }
+        switch (msg->what) {
+            case Msg::MSG_FLUSH:
+            case Msg::MSG_ERROR:
+            case Msg::MSG_PLAY_STARTED:
+            case Msg::MSG_PLAY_COMPLETED:
+            case Msg::MSG_OPEN_INPUT:
+            case Msg::MSG_STREAM_INFO:
+            case Msg::MSG_VIDEO_SIZE_CHANGED:
+            case Msg::MSG_SAR_CHANGED:
+            case Msg::MSG_AUDIO_START:
+            case Msg::MSG_AUDIO_RENDERING_START:
+            case Msg::MSG_VIDEO_ROTATION_CHANGED:
+            case Msg::MSG_SEEK_START:
+            case Msg::MSG_SEEK_COMPLETE:
+                notify(msg->what, msg->arg1I, msg->arg2I, nullptr);
+                break;
+        }
     }
 };
 
@@ -137,26 +126,26 @@ static void process_media_player_call(JNIEnv *env, jobject thiz, int opStatus,
     if (exception == nullptr) {  // Don't throw exception. Instead, send an event.
         if (opStatus != SUCCESS) {
             MediaPlayer *mp = getMediaPlayer(env, thiz);
-            if (mp != 0) {
-                // mp->notify(MEDIA_ERROR, opStatus, 0);
+            if (mp != nullptr) {
+                mp->notifyMsg(Msg::MSG_ERROR, opStatus);
             }
         }
     } else {  // Throw exception!
-//        if (opStatus == (int) INVALID_OPERATION) {
-//            jniThrowException(env, "java/lang/IllegalStateException");
-//        } else if (opStatus == (int) PERMISSION_DENIED) {
-//            jniThrowException(env, "java/lang/SecurityException");
-//        } else if (opStatus != (int) OK) {
-//            if (strlen(message) > 230) {
-//                // if the message is too long, don't bother displaying the status code
-//                jniThrowException(env, exception, message);
-//            } else {
-//                char msg[256];
-//                // append the status code to the message
-//                sprintf(msg, "%s: status=0x%X", message, opStatus);
-//                jniThrowException(env, exception, msg);
-//            }
-//        }
+        if (opStatus == ERROR_INVALID_OPERATION) {
+            jniThrowException(env, "java/lang/IllegalStateException");
+        } else if (opStatus == ERROR_PERMISSION_DENIED) {
+            jniThrowException(env, "java/lang/SecurityException");
+        } else if (opStatus != SUCCESS) {
+            if (strlen(message) > 230) {
+                // if the message is too long, don't bother displaying the status code
+                jniThrowException(env, exception, message);
+            } else {
+                char msg[256];
+                // append the status code to the message
+                sprintf(msg, "%s: status=0x%X", message, opStatus);
+                jniThrowException(env, exception, msg);
+            }
+        }
     }
 }
 

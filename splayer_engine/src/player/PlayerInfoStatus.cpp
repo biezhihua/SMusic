@@ -101,7 +101,7 @@ void PlayerInfoStatus::reset() {
 
     seekRel = 0;
 
-    autoExit = 0;
+    autoExit = 1;
 
     loopTimes = 1;
 

@@ -81,8 +81,9 @@ void VideoDecoder::run() {
     if ((ret = decodeVideo()) < 0) {
         if (ret != ERROR_FRAME_QUEUE_NOT_WRITABLE) {
             ALOGE(TAG, "[%s] decodeVideo ret = %d ", __func__, ret);
-            notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
             notifyMsg(Msg::MSG_CHANGE_STATUS, ERRORED);
+            notifyMsg(Msg::MSG_STATUS_ERRORED);
+            notifyMsg(Msg::MSG_ERROR, ret);
         }
     }
 }

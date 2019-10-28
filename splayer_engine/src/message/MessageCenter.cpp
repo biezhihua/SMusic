@@ -29,13 +29,6 @@ void MessageCenter::executeMsg(bool block) {
                   msg.arg1I);
         }
         switch (msg.what) {
-            case Msg::MSG_REQUEST_ERROR: {
-                int target = msg.arg1I;
-                if (Msg::MSG_REQUEST_DESTROY == target) {
-                } else if (Msg::MSG_REQUEST_STOP == target) {
-                }
-                return;
-            }
             case Msg::MSG_REQUEST_START: {
                 syncMediaPlayer->syncStart();
             }

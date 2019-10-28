@@ -49,7 +49,6 @@ interface IMediaPlayer {
      */
     val isPlaying: Boolean
 
-
     /**
      * Gets the current playback position.
      *
@@ -275,7 +274,6 @@ interface IMediaPlayer {
     @Throws(IllegalStateException::class)
     fun pause()
 
-
     /**
      * Pauses playback. Call play() to play.
      *
@@ -397,18 +395,17 @@ interface IMediaPlayer {
      */
     fun setPitch(pitch: Float)
 
-
     /**
      * Interface definition for a callback to be invoked when the media
      * source is ready for playback.
      */
-    interface OnPreparedListener {
+    interface OnStartedListener {
         /**
          * Called when the media file is ready for playback.
          *
          * @param mp the MediaPlayer that is ready for playback
          */
-        fun onPrepared(mp: IMediaPlayer)
+        fun onStarted(mp: IMediaPlayer)
     }
 
     /**
@@ -417,7 +414,7 @@ interface IMediaPlayer {
      *
      * @param listener the callback that will be run
      */
-    fun setOnPreparedListener(listener: OnPreparedListener)
+    fun setOnStartedListener(listener: OnStartedListener)
 
     /**
      * Interface definition for a callback to be invoked when playback of
@@ -439,7 +436,6 @@ interface IMediaPlayer {
      * @param listener the callback that will be run
      */
     fun setOnCompletionListener(listener: OnCompletionListener)
-
 
     /**
      * Interface definition of a callback to be invoked indicating buffering
@@ -469,7 +465,6 @@ interface IMediaPlayer {
      */
     fun setOnBufferingUpdateListener(listener: OnBufferingUpdateListener)
 
-
     /**
      * Interface definition of a callback to be invoked indicating
      * the completion of a seek operation.
@@ -490,7 +485,6 @@ interface IMediaPlayer {
      * @param listener the callback that will be run
      */
     fun setOnSeekCompleteListener(listener: OnSeekCompleteListener)
-
 
     /**
      * Interface definition of a callback to be invoked when the
@@ -516,7 +510,6 @@ interface IMediaPlayer {
      * @param listener the callback that will be run
      */
     fun setOnVideoSizeChangedListener(listener: OnVideoSizeChangedListener)
-
 
     /**
      * Interface definition of a callback to be invoked when a
@@ -613,68 +606,71 @@ interface IMediaPlayer {
 
     companion object {
 
-        /**
-         * Do not change these values without updating their counterparts
-         * in include/media/mediaplayer.h!
-         * Unspecified media player error.
-         * @see com.bzh.splayer.IMediaPlayer.OnInfoListener
-         */
-        const val MEDIA_ERROR_UNKNOWN = 1
+        // 默认
+        const val MSG_FLUSH = 1000
 
-        /** Media server died. In this case, the application must destroy the
-         * MediaPlayer object and instantiate a new one.
-         * @see com.bzh.splayer.IMediaPlayer.OnInfoListener
-         */
-        const val MEDIA_ERROR_SERVER_DIED = 100
+        // 出错
+        const val MSG_ERROR = 1001
 
-        /** The video is streamed and its container is not valid for progressive
-         * playback i.e the video's index (e.g moov atom) is not at the start of the
-         * file.
-         * @see com.bzh.splayer.IMediaPlayer.OnInfoListener
-         */
-        const val MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK = 200
+        // 改变状态
+        const val MSG_CHANGE_STATUS = 1002
 
-        /**
-         * Unspecified media player info.
-         * Do not change these values without updating their counterparts
-         * in include/media/mediaplayer.h!
-         * @see com.bzh.splayer.IMediaPlayer.OnInfoListener
-         */
-        const val MEDIA_INFO_UNKNOWN = 1
+        // 播放开始
+        const val MSG_PLAY_STARTED = 1003
 
-        /** The video is too complex for the decoder: it can't decode frames fast
-         * enough. Possibly only the audio plays fine at this stage.
-         * @see com.bzh.splayer.IMediaPlayer.OnInfoListener
-         */
-        const val MEDIA_INFO_VIDEO_TRACK_LAGGING = 700
+        // 播放完成
+        const val MSG_PLAY_COMPLETED = 1004
 
-        /** MediaPlayer is temporarily pausing playback internally in order to
-         * buffer more data.
-         * @see com.bzh.splayer.IMediaPlayer.OnInfoListener
-         */
-        const val MEDIA_INFO_BUFFERING_START = 701
+        // 打开文件
+        const val MSG_OPEN_INPUT = 1005
 
-        /** MediaPlayer is resuming playback after filling buffers.
-         * @see com.bzh.splayer.IMediaPlayer.OnInfoListener
-         */
-        const val MEDIA_INFO_BUFFERING_END = 702
+        // 媒体流信息
+        const val MSG_STREAM_INFO = 1006
 
-        /** Bad interleaving means that a media has been improperly interleaved or
-         * not interleaved at all, e.g has all the video samples first then all the
-         * audio ones. Video is playing but a lot of disk seeks may be happening.
-         * @see com.bzh.splayer.IMediaPlayer.OnInfoListener
-         */
-        const val MEDIA_INFO_BAD_INTERLEAVING = 800
+        // 已准备解码器
+        const val MSG_PREPARED_DECODER = 1007
 
-        /** The media cannot be seeked (e.g live stream)
-         * @see com.bzh.splayer.IMediaPlayer.OnInfoListener
-         */
-        const val MEDIA_INFO_NOT_SEEKABLE = 801
+        // 长宽比变化
+        const val MSG_VIDEO_SIZE_CHANGED = 1008
 
-        /** A new set of metadata is available.
-         * @see com.bzh.splayer.IMediaPlayer.OnInfoListener
-         */
-        const val MEDIA_INFO_METADATA_UPDATE = 802
+        // 采样率变化
+        const val MSG_SAR_CHANGED = 1009
+
+        // 开始音频解码
+        const val MSG_AUDIO_START = 1010
+
+        // 音频渲染开始(播放开始)
+        const val MSG_AUDIO_RENDERING_START = 1011
+
+        // 视频渲染开始(渲染开始)
+        const val MSG_VIDEO_START = 1012
+
+        // 旋转角度变化
+        const val MSG_VIDEO_ROTATION_CHANGED = 1013
+
+        // 缓冲开始
+        const val MSG_BUFFERING_START = 1014
+
+        // 缓冲更新
+        const val MSG_BUFFERING_UPDATE = 1015
+
+        // 缓冲时间更新
+        const val MSG_BUFFERING_TIME_UPDATE = 1016
+
+        // 缓冲完成
+        const val MSG_BUFFERING_END = 1017
+
+        // 定位完成
+        const val MSG_SEEK_START = 1018
+
+        // 定位开始
+        const val MSG_SEEK_COMPLETE = 1019
+
+        // 字幕
+        const val MSG_TIMED_TEXT = 1020
+
+        // 当前时钟
+        const val MSG_CURRENT_POSITON = 1021
     }
 
 }

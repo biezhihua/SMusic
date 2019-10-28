@@ -14,7 +14,6 @@ import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.NonNull
-import com.bzh.splayer.IMediaPlayer.Companion.MEDIA_INFO_VIDEO_TRACK_LAGGING
 import com.bzh.splayer.annotations.AccessedByNative
 import java.io.FileDescriptor
 import java.io.IOException
@@ -51,7 +50,7 @@ class MediaPlayer : IMediaPlayer {
 
     private var mStayAwake: Boolean = false
 
-    private var mOnPreparedListener: IMediaPlayer.OnPreparedListener? = null
+    private var mOnStartedListener: IMediaPlayer.OnStartedListener? = null
 
     private var mOnCompletionListener: IMediaPlayer.OnCompletionListener? = null
 
@@ -268,7 +267,7 @@ class MediaPlayer : IMediaPlayer {
     override fun release() {
         stayAwake(false)
         updateSurfaceScreenOn()
-        mOnPreparedListener = null
+        mOnStartedListener = null
         mOnBufferingUpdateListener = null
         mOnCompletionListener = null
         mOnSeekCompleteListener = null
@@ -322,8 +321,8 @@ class MediaPlayer : IMediaPlayer {
         _native_finalize()
     }
 
-    override fun setOnPreparedListener(listener: IMediaPlayer.OnPreparedListener) {
-        mOnPreparedListener = listener
+    override fun setOnStartedListener(listener: IMediaPlayer.OnStartedListener) {
+        mOnStartedListener = listener
     }
 
     override fun setOnCompletionListener(listener: IMediaPlayer.OnCompletionListener) {
@@ -387,13 +386,13 @@ class MediaPlayer : IMediaPlayer {
             }
 
             when (msg.what) {
-                MEDIA_PREPARED -> {
-                    if (mOnPreparedListener != null)
-                        mOnPreparedListener!!.onPrepared(mMediaPlayer)
+                IMediaPlayer.MSG_PLAY_STARTED -> {
+                    if (mOnStartedListener != null)
+                        mOnStartedListener!!.onStarted(mMediaPlayer)
                     return
                 }
 
-                MEDIA_PLAYBACK_COMPLETE -> {
+                IMediaPlayer.MSG_PLAY_COMPLETED -> {
                     if (mOnCompletionListener != null) {
                         mOnCompletionListener!!.onCompletion(mMediaPlayer)
                     }
@@ -401,21 +400,21 @@ class MediaPlayer : IMediaPlayer {
                     return
                 }
 
-                MEDIA_BUFFERING_UPDATE -> {
+                IMediaPlayer.MSG_BUFFERING_UPDATE -> {
                     if (mOnBufferingUpdateListener != null) {
                         mOnBufferingUpdateListener!!.onBufferingUpdate(mMediaPlayer, msg.arg1)
                     }
                     return
                 }
 
-                MEDIA_SEEK_COMPLETE -> {
+                IMediaPlayer.MSG_SEEK_COMPLETE -> {
                     if (mOnSeekCompleteListener != null) {
                         mOnSeekCompleteListener!!.onSeekComplete(mMediaPlayer)
                     }
                     return
                 }
 
-                MEDIA_SET_VIDEO_SIZE -> {
+                IMediaPlayer.MSG_VIDEO_SIZE_CHANGED -> {
                     if (mOnVideoSizeChangedListener != null) {
                         mOnVideoSizeChangedListener!!.onVideoSizeChanged(
                             mMediaPlayer,
@@ -426,7 +425,7 @@ class MediaPlayer : IMediaPlayer {
                     return
                 }
 
-                MEDIA_ERROR -> {
+                IMediaPlayer.MSG_ERROR -> {
                     // For PV specific error values (msg.arg2) look in
                     // opencore/pvmi/pvmf/include/pvmf_return_codes.h
                     Log.e(TAG, "Error (" + msg.arg1 + "," + msg.arg2 + ")")
@@ -442,8 +441,8 @@ class MediaPlayer : IMediaPlayer {
                     return
                 }
 
-                MEDIA_INFO -> {
-                    if (msg.arg1 != MEDIA_INFO_VIDEO_TRACK_LAGGING) {
+                IMediaPlayer.MSG_BUFFERING_START, IMediaPlayer.MSG_BUFFERING_END -> {
+                    if (msg.arg1 != 0) {
                         Log.i(TAG, "Info (" + msg.arg1 + "," + msg.arg2 + ")")
                     }
                     if (mOnInfoListener != null) {
@@ -453,7 +452,7 @@ class MediaPlayer : IMediaPlayer {
                     return
                 }
 
-                MEDIA_TIMED_TEXT -> {
+                IMediaPlayer.MSG_TIMED_TEXT -> {
                     if (mOnTimedTextListener != null) {
                         if (msg.obj == null) {
                             mOnTimedTextListener!!.onTimedText(mMediaPlayer, null)
@@ -467,10 +466,7 @@ class MediaPlayer : IMediaPlayer {
                     return
                 }
 
-                MEDIA_NOP -> { // interface test message - ignore
-                }
-
-                MEDIA_CURRENT -> {
+                IMediaPlayer.MSG_CURRENT_POSITON -> {
                     if (mOnCurrentPositionListener != null) {
                         mOnCurrentPositionListener!!.onCurrentPosition(
                             msg.arg1.toLong(),
@@ -589,30 +585,12 @@ class MediaPlayer : IMediaPlayer {
 
         private const val TAG = "MediaPlayer_Java"
 
-        //
-        val METADATA_UPDATE_ONLY = true
-        val METADATA_ALL = false
-        val APPLY_METADATA_FILTER = true
-        val BYPASS_METADATA_FILTER = false
-
         // Options
         val OPT_CATEGORY_FORMAT = 1    // 解封装参数
         val OPT_CATEGORY_CODEC = 2     // 解码参数
         val OPT_CATEGORY_SWS = 3       // 视频转码参数
         val OPT_CATEGORY_PLAYER = 4    // 播放器参数
         val OPT_CATEGORY_SWR = 5       // 音频重采样参数
-
-        //
-        private val MEDIA_NOP = 0
-        private val MEDIA_PREPARED = 1
-        private val MEDIA_PLAYBACK_COMPLETE = 2
-        private val MEDIA_BUFFERING_UPDATE = 3
-        private val MEDIA_SEEK_COMPLETE = 4
-        private val MEDIA_SET_VIDEO_SIZE = 5
-        private val MEDIA_TIMED_TEXT = 99
-        private val MEDIA_ERROR = 100
-        private val MEDIA_INFO = 200
-        private val MEDIA_CURRENT = 300
 
         init {
             System.loadLibrary("sffmpeg")

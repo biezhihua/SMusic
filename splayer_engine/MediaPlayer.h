@@ -147,6 +147,14 @@ public:
 
     bool isSTARTED() const;
 
+    int notifyMsg(int what);
+
+    int notifyMsg(int what, int arg1);
+
+    int notifyMsg(int what, float arg1);
+
+    int notifyMsg(int what, int arg1, int arg2);
+
 protected:
 
     int syncSeekTo(float increment) override;
@@ -174,14 +182,6 @@ protected:
     int openAudioDevice(int64_t wantedChannelLayout, int wantedNbChannels, int wantedSampleRate);
 
     int checkParams();
-
-    int notifyMsg(int what);
-
-    int notifyMsg(int what, int arg1);
-
-    int notifyMsg(int what, float arg1);
-
-    int notifyMsg(int what, int arg1, int arg2);
 
 
     void notExecuteWarning() const;

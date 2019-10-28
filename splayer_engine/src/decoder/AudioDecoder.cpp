@@ -67,8 +67,9 @@ void AudioDecoder::run() {
     int ret = 0;
     if ((ret = decodeAudio()) < 0) {
         ALOGE(TAG, "[%s] decodeAudio ret = %d ", __func__, ret);
-        notifyMsg(Msg::MSG_STATUS_ERRORED, ret);
         notifyMsg(Msg::MSG_CHANGE_STATUS, ERRORED);
+        notifyMsg(Msg::MSG_STATUS_ERRORED);
+        notifyMsg(Msg::MSG_ERROR, ret);
     }
 }
 

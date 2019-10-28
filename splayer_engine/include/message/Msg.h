@@ -19,7 +19,7 @@ public:
 
     /////////////////////////////////////////////
     /////////////////////////////////////////////
-    ///  消息类型范围 0~999
+    /// 状态 消息类型范围 0~999
 
     /// 已闲置态
     static const int MSG_STATUS_IDLED = 1;
@@ -54,10 +54,9 @@ public:
     /// 准备销毁
     static const int MSG_STATUS_PREPARE_DESTROY = 12;
 
-
     /////////////////////////////////////////////
     /////////////////////////////////////////////
-    ///  消息类型范围 1000~9999
+    /// 普通 消息类型范围 1000~9999
 
     /// 默认
     static const int MSG_FLUSH = 1000;
@@ -65,44 +64,65 @@ public:
     /// 出错
     static const int MSG_ERROR = 1001;
 
-    /// 改变消息状态
+    /// 改变状态
     static const int MSG_CHANGE_STATUS = 1002;
 
-    /// 开始音视频同步
-    static const int MSG_MEDIA_SYNC_START = 1010;
+    /// 播放开始
+    static const int MSG_PLAY_STARTED = 1003;
 
-    /// 停止音视频同步
-    static const int MSG_MEDIA_SYNC_STOP = 1011;
+    /// 播放完成
+    static const int MSG_PLAY_COMPLETED = 1004;
 
-    /// 音频设备启动
-    static const int MSG_AUDIO_DEVICE_START = 1012;
+    /// 打开文件
+    static const int MSG_OPEN_INPUT = 1005;
 
-    /// 音频设备停止
-    static const int MSG_AUDIO_DEVICE_STOP = 1013;
+    /// 媒体流信息
+    static const int MSG_STREAM_INFO = 1006;
 
-    /// 视频设备启动
-    static const int MSG_VIDEO_DEVICE_START = 1014;
+    /// 已准备解码器
+    static const int MSG_PREPARED_DECODER = 1007;
 
-    /// 视频设备停止
-    static const int MSG_VIDEO_DEVICE_STOP = 1015;
+    /// 长宽比变化
+    static const int MSG_VIDEO_SIZE_CHANGED = 1008;
 
-    /// 视频解码线程启动
-    static const int MSG_VIDEO_DECODER_START = 1016;
+    /// 采样率变化
+    static const int MSG_SAR_CHANGED = 1009;
 
-    /// 视频解码线程停止
-    static const int MSG_VIDEO_DECODER_STOP = 1018;
+    /// 开始音频解码
+    static const int MSG_AUDIO_START = 1010;
 
-    /// 音频解码线程启动
-    static const int MSG_AUDIO_DECODER_START = 1019;
+    /// 音频渲染开始(播放开始)
+    static const int MSG_AUDIO_RENDERING_START = 1011;
 
-    /// 音频解码线程停止
-    static const int MSG_AUDIO_DECODER_STOP = 1020;
+    /// 视频渲染开始(渲染开始)
+    static const int MSG_VIDEO_START = 1012;
 
-    /// 开始读取包
-    static const int MSG_MEDIA_STREAM_START = 1021;
+    /// 旋转角度变化
+    static const int MSG_VIDEO_ROTATION_CHANGED = 1013;
 
-    /// 停止读取包
-    static const int MSG_MEDIA_STREAM_STOP = 1022;
+    /// 缓冲开始
+    static const int MSG_BUFFERING_START = 1014;
+
+    /// 缓冲更新
+    static const int MSG_BUFFERING_UPDATE = 1015;
+
+    /// 缓冲时间更新
+    static const int MSG_BUFFERING_TIME_UPDATE = 1016;
+
+    /// 缓冲完成
+    static const int MSG_BUFFERING_END = 1017;
+
+    /// 定位完成
+    static const int MSG_SEEK_START = 1018;
+
+    /// 定位开始
+    static const int MSG_SEEK_COMPLETE = 1019;
+
+    /// 字幕
+    static const int MSG_TIMED_TEXT = 1020;
+
+    /// 当前时钟
+    static const int MSG_CURRENT_POSITON = 1021;
 
     /////////////////////////////////////////////
     /////////////////////////////////////////////
@@ -125,9 +145,6 @@ public:
 
     /// 请求退出
     static const int MSG_REQUEST_QUIT = 20007;
-
-    /// 请求错误
-    static const int MSG_REQUEST_ERROR = 20008;
 
     /// 请求暂停
     static const int MSG_REQUEST_PAUSE = 20009;
