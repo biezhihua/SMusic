@@ -17,6 +17,7 @@
 
 // OpenGLES 2.0 最大支持32个纹理
 #define MAX_TEXTURES 32
+
 /**
  * 默认的 vertex shader
  */
@@ -163,4 +164,4 @@ protected:
 };
 
 
-#endif //GLFILTER_H
+#endif

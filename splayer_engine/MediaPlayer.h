@@ -147,6 +147,12 @@ public:
 
     bool isSTARTED() const;
 
+    bool isPLAYING() const;
+
+    bool isPAUSED() const;
+
+    bool isERRORED() const;
+
     int notifyMsg(int what);
 
     int notifyMsg(int what, int arg1);
@@ -183,14 +189,7 @@ protected:
 
     int checkParams();
 
-
     void notExecuteWarning() const;
-
-    bool isPLAYING() const;
-
-    bool isPAUSED() const;
-
-    bool isERRORED() const;
 
     const char *getStatus(PlayerStatus status) const;
 };

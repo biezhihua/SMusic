@@ -191,7 +191,7 @@ long MediaPlayer::getCurrentPosition() {
 long MediaPlayer::getDuration() {
     long ret = 0;
     if (playerInfoStatus) {
-        ret = playerInfoStatus->duration;
+        ret = (long) (playerInfoStatus->duration);
     }
     return ret;
 }
@@ -199,8 +199,7 @@ long MediaPlayer::getDuration() {
 bool MediaPlayer::isPlaying() {
     bool ret = false;
     if (playerInfoStatus) {
-        ret = !playerInfoStatus->abortRequest &&
-              !playerInfoStatus->pauseRequest;
+        ret = isPLAYING() && !playerInfoStatus->abortRequest && !playerInfoStatus->pauseRequest;
     }
     return ret;
 }

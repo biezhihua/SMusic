@@ -16,10 +16,6 @@
 
 /**
  * EGLContext 上下文，为了方便使用SharedContext而造的
- * https://woshijpf.github.io/android/2017/09/04/Android%E7%B3%BB%E7%BB%9F%E5%9B%BE%E5%BD%A2%E6%A0%88OpenGLES%E5%92%8CEGL%E4%BB%8B%E7%BB%8D.html
- * https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglGetDisplay.xhtml
- * http://sr1.me/lets-talk-about-eglmakecurrent-eglswapbuffers-glflush-glfinish-chinese
- * https://katatunix.wordpress.com/2014/09/17/lets-talk-about-eglmakecurrent-eglswapbuffers-glflush-glfinish/
  */
 class EglContext {
 

@@ -5,20 +5,11 @@
 #include <gles/OpenGLUtils.h>
 
 const std::string kYUV420PFragmentShader = SHADER_TO_STRING(
-        precision
-        mediump float;
-        varying
-        highp
-        vec2 textureCoordinate;
-        uniform
-        lowp
-        sampler2D inputTextureY;
-        uniform
-        lowp
-        sampler2D inputTextureU;
-        uniform
-        lowp
-        sampler2D inputTextureV;
+        precision mediump float;
+        varying highp vec2 textureCoordinate;
+        uniform lowp sampler2D inputTextureY;
+        uniform lowp sampler2D inputTextureU;
+        uniform lowp sampler2D inputTextureV;
 
         void main() {
             vec3 yuv;
@@ -26,9 +17,9 @@ const std::string kYUV420PFragmentShader = SHADER_TO_STRING(
             yuv.r = texture2D(inputTextureY, textureCoordinate).r - (16.0 / 255.0);
             yuv.g = texture2D(inputTextureU, textureCoordinate).r - 0.5;
             yuv.b = texture2D(inputTextureV, textureCoordinate).r - 0.5;
-            rgb = mat3(1.164, 1.164, 1.164,
-                       0.0, -0.213, 2.112,
-                       1.793, -0.533, 0.0) * yuv;
+            rgb = mat3(1.164,  1.164,  1.164,
+                       0.0,   -0.213,  2.112,
+                       1.793, -0.533,    0.0) * yuv;
             gl_FragColor = vec4(rgb, 1.0);
         }
 );

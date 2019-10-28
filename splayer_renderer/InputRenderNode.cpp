@@ -56,16 +56,6 @@ int InputRenderNode::drawFrameBuffer(Texture *texture) {
     return frameBuffer->getTexture();
 }
 
-bool
-InputRenderNode::drawFrame(GLuint texture, const float *vertices, const float *textureVertices) {
-    return RenderNode::drawFrame(texture, vertices, textureVertices);
-}
-
-int InputRenderNode::drawFrameBuffer(GLuint texture, const float *vertices,
-                                     const float *textureVertices) {
-    return RenderNode::drawFrameBuffer(texture, vertices, textureVertices);
-}
-
 void InputRenderNode::resetVertices() {
     const float *verticesCoord = CoordinateUtils::getVertexCoordinates();
     for (int i = 0; i < COORDINATES_SIZE; ++i) {

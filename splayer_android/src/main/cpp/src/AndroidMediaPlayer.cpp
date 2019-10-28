@@ -2,7 +2,7 @@
 
 int AndroidMediaPlayer::setVideoSurface(ANativeWindow *nativeWindow) {
     if (DEBUG) {
-        ALOGD(TAG, "%s nativeWindow = %p", __func__, nativeWindow);
+        ALOGD(TAG, "[%s] nativeWindow = %p", __func__, nativeWindow);
     }
     if (!nativeWindow) {
         return ERROR;

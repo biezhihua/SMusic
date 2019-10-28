@@ -20,7 +20,7 @@ public:
     /// 窗口无边框
     int borderLess = 0; // borderLess window
 
-    int alwaysOntop = 0;
+    int alwaysOnTop = 0;
 
     /// 光标是否隐藏
     int cursorHidden = 0;

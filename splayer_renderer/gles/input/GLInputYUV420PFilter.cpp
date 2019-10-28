@@ -81,20 +81,28 @@ GLboolean GLInputYUV420PFilter::renderTexture(Texture *texture,
     if (!isInitialized() || !texture) {
         return GL_FALSE;
     }
+
     // 绑定属性值
     bindAttributes(vertices, textureVertices);
+
     // 绘制前处理
     onDrawBegin();
+
     // 绘制纹理
     onDrawFrame();
+
     // 绘制后处理
     onDrawAfter();
+
     // 解绑属性
     unbindAttributes();
+
     // 解绑纹理
     unbindTextures();
+
     // 解绑program
     glUseProgram(0);
+    
     return GL_TRUE;
 }
 

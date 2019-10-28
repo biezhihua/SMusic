@@ -32,6 +32,27 @@ typedef EGLBoolean (EGLAPIENTRYP EGL_PRESENTATION_TIME_ANDROIDPROC)(EGLDisplay d
                                                                     EGLSurface surface,
                                                                     khronos_stime_nanoseconds_t time);
 
+/**
+ * 使用EGL的绘图的一般步骤：
+
+ *      1. 获取 EGL Display 对象：eglGetDisplay()
+ *      2. 初始化与 EGLDisplay 之间的连接：eglInitialize()
+ *      3. 获取 EGLConfig 对象：eglChooseConfig()
+ *      4. 创建 EGLContext 实例：eglCreateContext()
+ *      5. 创建 EGLSurface 实例：eglCreateWindowSurface()
+ *      6. 连接 EGLContext 和 EGLSurface：eglMakeCurrent()
+ *      7. 使用 OpenGL ES API 绘制图形：gl_*()
+ *      8. 切换 front buffer 和 back buffer 送显：eglSwapBuffer()
+ *      9. 断开并释放与 EGLSurface 关联的 EGLContext 对象：eglRelease()
+ *      10.删除 EGLSurface 对象
+ *      11.删除 EGLContext 对象
+ *      12.终止与 EGLDisplay 之间的连接
+ *
+ * https://woshijpf.github.io/android/2017/09/04/Android%E7%B3%BB%E7%BB%9F%E5%9B%BE%E5%BD%A2%E6%A0%88OpenGLES%E5%92%8CEGL%E4%BB%8B%E7%BB%8D.html
+ * https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglGetDisplay.xhtml
+ * http://sr1.me/lets-talk-about-eglmakecurrent-eglswapbuffers-glflush-glfinish-chinese
+ * https://katatunix.wordpress.com/2014/09/17/lets-talk-about-eglmakecurrent-eglswapbuffers-glflush-glfinish/
+ */
 class EglHelper {
 
     const char *const TAG = "[MP][RENDER][EglHelper]";

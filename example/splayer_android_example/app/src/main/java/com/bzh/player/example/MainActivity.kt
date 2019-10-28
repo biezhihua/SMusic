@@ -197,7 +197,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onStarted(mp: IMediaPlayer) {
-                Log.d(TAG, "onStarted() called with: mp = [$mp]")
+                Log.d(
+                    TAG,
+                    "onStarted() called with: mp = [$mp] width=[${mp.videoWidth}] height=[${mp.videoHeight}]"
+                )
             }
 
         })
