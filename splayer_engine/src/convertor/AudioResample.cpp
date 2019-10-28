@@ -235,21 +235,21 @@ int AudioResample::audioFrameReSample() {
     bool isNeedConvert = isNotSameSampleFormat || isNotSameChannelLayout || isNotSameSampleRate ||
                          isNotSameNbSamples;
 
-    if (DEBUG) {
-        ALOGD(TAG, "[%s] "
-                   "isNotSameSampleFormat = %d "
-                   "isNotSameChannelLayout = %d "
-                   "isNotSameSampleRate = %d "
-                   "isNotSameNbSamples = %d "
-                   "isNeedConvert = %d ",
-              __func__,
-              isNotSameSampleFormat,
-              isNotSameChannelLayout,
-              isNotSameSampleRate,
-              isNotSameNbSamples,
-              isNeedConvert
-        );
-    }
+//    if (DEBUG) {
+//        ALOGD(TAG, "[%s] "
+//                   "isNotSameSampleFormat = %d "
+//                   "isNotSameChannelLayout = %d "
+//                   "isNotSameSampleRate = %d "
+//                   "isNotSameNbSamples = %d "
+//                   "isNeedConvert = %d ",
+//              __func__,
+//              isNotSameSampleFormat,
+//              isNotSameChannelLayout,
+//              isNotSameSampleRate,
+//              isNotSameNbSamples,
+//              isNeedConvert
+//        );
+//    }
 
     // 如果跟源音频的格式、声道格式、采样率、采样大小等不相同，则需要做重采样处理
     if (isNeedConvert && initConvertSwrContext(wantedChannelLayout, srcFrame) < 0) {

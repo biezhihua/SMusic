@@ -87,13 +87,13 @@ int AudioDecoder::decodeAudio() {
 
     for (;;) {
 
-        if (DEBUG) {
-            ALOGD(TAG, "[%s] start audio decode frame "
-                       "firstSeekSerial = %d "
-                       "lastSeekSerial = %d ",
-                  __func__,
-                  packetQueue->getFirstSeekSerial(), packetQueue->getLastSeekSerial());
-        }
+//        if (DEBUG) {
+//            ALOGD(TAG, "[%s] start audio decode frame "
+//                       "firstSeekSerial = %d "
+//                       "lastSeekSerial = %d ",
+//                  __func__,
+//                  packetQueue->getFirstSeekSerial(), packetQueue->getLastSeekSerial());
+//        }
 
         // 从PacketQueue队列中获取一个被解码过的Packet
         ret = decodeFrameFromPacketQueue(avFrame);
@@ -126,24 +126,24 @@ int AudioDecoder::decodeAudio() {
 
         frameQueue->pushFrame();
 
-        if (DEBUG) {
-            ALOGD(TAG, "[%s] end audio decode frame "
-                       "pts = %lf "
-                       "pos = %lld "
-                       "seekSerial = %d "
-                       "duration = %lf "
-                       "format = %s "
-                       "channel_layout = %lld "
-                       "channels = %d ",
-                  __func__,
-                  frame->pts,
-                  frame->pos,
-                  frame->seekSerial,
-                  frame->duration,
-                  av_get_sample_fmt_name((AVSampleFormat) frame->frame->format),
-                  frame->frame->channel_layout,
-                  frame->frame->channels);
-        }
+//        if (DEBUG) {
+//            ALOGD(TAG, "[%s] end audio decode frame "
+//                       "pts = %lf "
+//                       "pos = %lld "
+//                       "seekSerial = %d "
+//                       "duration = %lf "
+//                       "format = %s "
+//                       "channel_layout = %lld "
+//                       "channels = %d ",
+//                  __func__,
+//                  frame->pts,
+//                  frame->pos,
+//                  frame->seekSerial,
+//                  frame->duration,
+//                  av_get_sample_fmt_name((AVSampleFormat) frame->frame->format),
+//                  frame->frame->channel_layout,
+//                  frame->frame->channels);
+//        }
     }
 
     return SUCCESS;
@@ -245,82 +245,5 @@ int64_t AudioDecoder::getFrameQueueLastPos() {
     return frameQueue->currentPos();
 }
 
-int AudioDecoder::getAudioFrame(AVFrame *frame) {
-    int got_frame = 0;
-    int ret = 0;
-
-    if (!frame) {
-        return AVERROR(ENOMEM);
-    }
-    av_frame_unref(frame);
-
-    do {
-
-        if (playerState->abortRequest) {
-            return EXIT;
-        }
-
-        if (playerState->seekRequest) {
-            continue;
-        }
-
-        AVPacket pkt;
-        if (isPendingPacket) {
-            av_packet_move_ref(&pkt, &pendingPacket);
-            isPendingPacket = false;
-        } else {
-            if (packetQueue->getPacket(&pkt) < 0) {
-                ret = EXIT;
-                break;
-            }
-        }
-
-        playerState->mutex.lock();
-        // 将数据包解码
-        ret = avcodec_send_packet(codecContext, &pkt);
-        if (ret < 0) {
-            // 一次解码无法消耗完AVPacket中的所有数据，需要重新解码
-            if (ret == AVERROR(EAGAIN)) {
-                av_packet_move_ref(&pendingPacket, &pkt);
-                isPendingPacket = true;
-            } else {
-                av_packet_unref(&pkt);
-                isPendingPacket = false;
-            }
-            playerState->mutex.unlock();
-            continue;
-        }
-
-        // 获取解码得到的音频帧AVFrame
-        ret = avcodec_receive_frame(codecContext, frame);
-        playerState->mutex.unlock();
-        // 释放数据包的引用，防止内存泄漏
-        av_packet_unref(&pendingPacket);
-        if (ret < 0) {
-            av_frame_unref(frame);
-            got_frame = 0;
-            continue;
-        } else {
-            got_frame = 1;
-            // 这里要重新计算frame的pts 否则会导致网络视频出现pts 对不上的情况
-            AVRational tb = (AVRational) {1, frame->sample_rate};
-            if (frame->pts != AV_NOPTS_VALUE) {
-                frame->pts = av_rescale_q(frame->pts, av_codec_get_pkt_timebase(codecContext), tb);
-            } else if (nextPts != AV_NOPTS_VALUE) {
-                frame->pts = av_rescale_q(nextPts, nextPtsTb, tb);
-            }
-            if (frame->pts != AV_NOPTS_VALUE) {
-                nextPts = frame->pts + frame->nb_samples;
-                nextPtsTb = tb;
-            }
-        }
-    } while (!got_frame);
-
-    if (ret < 0) {
-        return ERROR;
-    }
-
-    return got_frame;
-}
 
 

@@ -38,8 +38,6 @@ public:
 
     int64_t getFrameQueueLastPos();
 
-    int getAudioFrame(AVFrame *frame);
-
 private:
 
     /// 解复用上下文

@@ -10,7 +10,9 @@ AndroidAudioDevice::~AndroidAudioDevice() = default;
  * SLES缓冲回调
  */
 void slBufferPCMCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
-
+    if (DEBUG) {
+        // ALOGD("[MP][ANDROID][AudioDevice]", "[%s]", __func__);
+    }
 }
 
 /// 打开音频设备，并返回缓冲区大小
@@ -21,21 +23,21 @@ int AndroidAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained
     // create engine
     result = slCreateEngine(&slObject, 0, nullptr, 0, nullptr, nullptr);
     if ((result) != SL_RESULT_SUCCESS) {
-        ALOGE(TAG, "%s: slCreateEngine() failed", __func__);
+        ALOGE(TAG, "[%s] slCreateEngine() failed", __func__);
         return -1;
     }
 
     // realize the engine
     result = (*slObject)->Realize(slObject, SL_BOOLEAN_FALSE);
     if (result != SL_RESULT_SUCCESS) {
-        ALOGE(TAG, "%s: slObject->Realize() failed", __func__);
+        ALOGE(TAG, "[%s] slObject->Realize() failed", __func__);
         return -1;
     }
 
     // get the engine interface, which is needed in order to create other objects
     result = (*slObject)->GetInterface(slObject, SL_IID_ENGINE, &slEngine);
     if (result != SL_RESULT_SUCCESS) {
-        ALOGE(TAG, "%s: slObject->GetInterface() failed", __func__);
+        ALOGE(TAG, "[%s] slObject->GetInterface() failed", __func__);
         return -1;
     }
 
@@ -44,14 +46,14 @@ int AndroidAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained
     const SLboolean mreq[1] = {SL_BOOLEAN_FALSE};
     result = (*slEngine)->CreateOutputMix(slEngine, &slOutputMixObject, 1, mids, mreq);
     if (result != SL_RESULT_SUCCESS) {
-        ALOGE(TAG, "%s: slEngine->CreateOutputMix() failed", __func__);
+        ALOGE(TAG, "[%s] slEngine->CreateOutputMix() failed", __func__);
         return -1;
     }
 
     // realize the output mix
     result = (*slOutputMixObject)->Realize(slOutputMixObject, SL_BOOLEAN_FALSE);
     if (result != SL_RESULT_SUCCESS) {
-        ALOGE(TAG, "%s: slOutputMixObject->Realize() failed", __func__);
+        ALOGE(TAG, "[%s] slOutputMixObject->Realize() failed", __func__);
         return -1;
     }
 
@@ -75,7 +77,7 @@ int AndroidAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained
             break;
         }
         default: {
-            ALOGE(TAG, "%s, invalid channel %d", __func__, desired->channels);
+            ALOGE(TAG, "[%s] invalid channel %d", __func__, desired->channels);
             return -1;
         }
     }
@@ -102,28 +104,28 @@ int AndroidAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained
     result = (*slEngine)->CreateAudioPlayer(slEngine, &slPlayerObject, &slDataSource, &audioSink, 3,
                                             ids, req);
     if (result != SL_RESULT_SUCCESS) {
-        ALOGE(TAG, "%s: slEngine->CreateAudioPlayer() failed", __func__);
+        ALOGE(TAG, "[%s] slEngine->CreateAudioPlayer() failed", __func__);
         return -1;
     }
 
     // realize the player
     result = (*slPlayerObject)->Realize(slPlayerObject, SL_BOOLEAN_FALSE);
     if (result != SL_RESULT_SUCCESS) {
-        ALOGE(TAG, "%s: slPlayerObject->Realize() failed", __func__);
+        ALOGE(TAG, "[%s] slPlayerObject->Realize() failed", __func__);
         return -1;
     }
 
     // get the play interface
     result = (*slPlayerObject)->GetInterface(slPlayerObject, SL_IID_PLAY, &slPlayItf);
     if (result != SL_RESULT_SUCCESS) {
-        ALOGE(TAG, "%s: slPlayerObject->GetInterface(SL_IID_PLAY) failed", __func__);
+        ALOGE(TAG, "[%s] slPlayerObject->GetInterface(SL_IID_PLAY) failed", __func__);
         return -1;
     }
 
     // get the volume interface
     result = (*slPlayerObject)->GetInterface(slPlayerObject, SL_IID_VOLUME, &slVolumeItf);
     if (result != SL_RESULT_SUCCESS) {
-        ALOGE(TAG, "%s: slPlayerObject->GetInterface(SL_IID_VOLUME) failed", __func__);
+        ALOGE(TAG, "[%s] slPlayerObject->GetInterface(SL_IID_VOLUME) failed", __func__);
         return -1;
     }
 
@@ -131,7 +133,7 @@ int AndroidAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained
     result = (*slPlayerObject)->GetInterface(slPlayerObject, SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
                                              &slBufferQueueItf);
     if (result != SL_RESULT_SUCCESS) {
-        ALOGE(TAG, "%s: slPlayerObject->GetInterface(SL_IID_ANDROIDSIMPLEBUFFERQUEUE) failed",
+        ALOGE(TAG, "[%s] slPlayerObject->GetInterface(SL_IID_ANDROIDSIMPLEBUFFERQUEUE) failed",
               __func__);
         return -1;
     }
@@ -139,7 +141,7 @@ int AndroidAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained
     // register callback on the buffer queue
     result = (*slBufferQueueItf)->RegisterCallback(slBufferQueueItf, slBufferPCMCallBack, this);
     if (result != SL_RESULT_SUCCESS) {
-        ALOGE(TAG, "%s: slBufferQueueItf->RegisterCallback() failed", __func__);
+        ALOGE(TAG, "[%s] slBufferQueueItf->RegisterCallback() failed", __func__);
         return -1;
     }
 
@@ -156,11 +158,11 @@ int AndroidAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained
     // 缓冲区总大小
     buffer_capacity = static_cast<size_t>(OPENSLES_BUFFERS * bytes_per_buffer);
 
-    ALOGD(TAG, "OpenSL-ES: bytes_per_frame  = %d bytes", bytes_per_frame);
-    ALOGD(TAG, "OpenSL-ES: milli_per_buffer = %d ms", milli_per_buffer);
-    ALOGD(TAG, "OpenSL-ES: frame_per_buffer = %d frames", frames_per_buffer);
-    ALOGD(TAG, "OpenSL-ES: buffer_capacity  = %d bytes", buffer_capacity);
-    ALOGD(TAG, "OpenSL-ES: buffer_capacity  = %d bytes", (int) buffer_capacity);
+    ALOGD(TAG, "[%s] OpenSL-ES: bytes_per_frame  = %d bytes", __func__, bytes_per_frame);
+    ALOGD(TAG, "[%s] OpenSL-ES: milli_per_buffer = %d ms", __func__, milli_per_buffer);
+    ALOGD(TAG, "[%s] OpenSL-ES: frame_per_buffer = %d frames", __func__, frames_per_buffer);
+    ALOGD(TAG, "[%s] OpenSL-ES: buffer_capacity  = %d bytes", __func__, buffer_capacity);
+    ALOGD(TAG, "[%s] OpenSL-ES: buffer_capacity  = %d bytes", __func__, (int) buffer_capacity);
 
     if (obtained != nullptr) {
         *obtained = *desired;
@@ -172,7 +174,7 @@ int AndroidAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained
     // 创建缓冲区
     buffer = (uint8_t *) malloc(buffer_capacity);
     if (!buffer) {
-        ALOGE(TAG, "%s: failed to alloc buffer %d", __func__, (int) buffer_capacity);
+        ALOGE(TAG, "[%s] failed to alloc buffer %d", __func__, (int) buffer_capacity);
         return -1;
     }
 
@@ -183,12 +185,12 @@ int AndroidAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained
                                               buffer + i * bytes_per_buffer,
                                               bytes_per_buffer);
         if (result != SL_RESULT_SUCCESS) {
-            ALOGE(TAG, "%s: slBufferQueueItf->Enqueue(000...) failed", __func__);
+            ALOGE(TAG, "[%s] slBufferQueueItf->Enqueue(000...) failed", __func__);
         }
     }
 
     if (DEBUG) {
-        ALOGD(TAG, "open SLES Device success");
+        ALOGD(TAG, "[%s] open SLES Device success", __func__);
     }
 
     // 返回缓冲大小
@@ -325,8 +327,7 @@ void AndroidAudioDevice::run() {
         SLAndroidSimpleBufferQueueState slState = {0};
         SLresult slRet = (*slBufferQueueItf)->GetState(slBufferQueueItf, &slState);
         if (slRet != SL_RESULT_SUCCESS) {
-            ALOGE(TAG, "%s: slBufferQueueItf->GetState() failed\n", __func__);
-            mutex.unlock();
+            ALOGE(TAG, "[%s] slBufferQueueItf->GetState() failed", __func__);
         }
 
         // 判断暂停或者队列中缓冲区填满了
@@ -340,7 +341,7 @@ void AndroidAudioDevice::run() {
                 condition.waitRelative(mutex, 10 * 1000000);
                 slRet = (*slBufferQueueItf)->GetState(slBufferQueueItf, &slState);
                 if (slRet != SL_RESULT_SUCCESS) {
-                    ALOGE(TAG, "%s: slBufferQueueItf->GetState() failed\n", __func__);
+                    ALOGE(TAG, "[%s] slBufferQueueItf->GetState() failed", __func__);
                     mutex.unlock();
                 }
 
@@ -377,7 +378,8 @@ void AndroidAudioDevice::run() {
                 SLmillibel level = getAmplificationLevel((leftVolume + rightVolume) / 2);
                 SLresult result = (*slVolumeItf)->SetVolumeLevel(slVolumeItf, level);
                 if (result != SL_RESULT_SUCCESS) {
-                    ALOGE(TAG, "slVolumeItf->SetVolumeLevel failed %d", (int) result);
+                    ALOGE(TAG, "[%s] slVolumeItf->SetVolumeLevel failed %d", __func__,
+                          (int) result);
                 }
             }
             updateVolume = false;
@@ -397,9 +399,9 @@ void AndroidAudioDevice::run() {
                 // do nothing
             } else if (slRet == SL_RESULT_BUFFER_INSUFFICIENT) {
                 // don't retry, just pass through
-                ALOGE(TAG, "SL_RESULT_BUFFER_INSUFFICIENT");
+                ALOGE(TAG, "[%s] SL_RESULT_BUFFER_INSUFFICIENT", __func__);
             } else {
-                ALOGE(TAG, "slBufferQueueItf->Enqueue() = %d", (int) slRet);
+                ALOGE(TAG, "[%s] slBufferQueueItf->Enqueue() = %d", __func__, (int) slRet);
                 break;
             }
         }

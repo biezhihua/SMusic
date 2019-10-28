@@ -17,6 +17,7 @@ void GLInputABGRFilter::initProgram() {
 }
 
 void GLInputABGRFilter::initProgram(const char *vertexShader, const char *fragmentShader) {
+
     GLFilter::initProgram(vertexShader, fragmentShader);
 
     if (isInitialized()) {

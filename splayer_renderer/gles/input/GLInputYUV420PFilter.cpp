@@ -16,11 +16,15 @@ void GLInputYUV420PFilter::initProgram() {
 }
 
 void GLInputYUV420PFilter::initProgram(const char *vertexShader, const char *fragmentShader) {
+
     if (vertexShader && fragmentShader) {
+
         programHandle = OpenGLUtils::createProgram(vertexShader, fragmentShader);
         OpenGLUtils::checkGLError("createProgram");
+
         positionHandle = glGetAttribLocation((GLuint) (programHandle), "aPosition");
         texCoordinateHandle = glGetAttribLocation((GLuint) (programHandle), "aTextureCoord");
+
         inputTextureHandle[0] = glGetUniformLocation((GLuint) (programHandle), "inputTextureY");
         inputTextureHandle[1] = glGetUniformLocation((GLuint) (programHandle), "inputTextureU");
         inputTextureHandle[2] = glGetUniformLocation((GLuint) (programHandle), "inputTextureV");
@@ -102,7 +106,7 @@ GLboolean GLInputYUV420PFilter::renderTexture(Texture *texture,
 
     // 解绑program
     glUseProgram(0);
-    
+
     return GL_TRUE;
 }
 

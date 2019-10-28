@@ -312,8 +312,8 @@ int MediaPlayer::openDecoder(int streamIndex) {
 
     // 判断是否成功得到解码器
     if (!codec) {
-        ALOGE(TAG, "[%s] No codec could be found with id codec_id=%d", __func__,
-              codecContext->codec_id);
+        ALOGE(TAG, "[%s] No codec could be found with id index=%d codec_id=%d", __func__,
+              streamIndex, codecContext->codec_id);
         return ERROR_NOT_FOUND_DCODE;
     }
 
