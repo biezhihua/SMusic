@@ -173,6 +173,12 @@ class MainActivity : AppCompatActivity() {
                     TAG,
                     "onVideoSizeChanged() called with: mediaPlayer = [$mediaPlayer], width = [$width], height = [$height]"
                 )
+                val viewWidth = surfaceView.width
+                val viewHeight = (viewWidth * height * 1.0F / width).toInt()
+                val layoutParams = surfaceView.layoutParams
+                layoutParams.width = viewWidth
+                layoutParams.height = viewHeight
+                surfaceView.layoutParams = layoutParams
             }
 
             override fun onSeekComplete(mp: IMediaPlayer) {
@@ -206,7 +212,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun start(v: View) {
-        mediaPlayer?.prepareAsync()
+        mediaPlayer?.start()
     }
 
     fun play(v: View) {

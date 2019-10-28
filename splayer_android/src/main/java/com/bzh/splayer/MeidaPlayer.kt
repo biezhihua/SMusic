@@ -215,9 +215,9 @@ class MediaPlayer : IMediaPlayer {
         val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         mWakeLock =
             pm.newWakeLock(mode or PowerManager.ON_AFTER_RELEASE, MediaPlayer::class.java.name)
-        mWakeLock!!.setReferenceCounted(false)
+        mWakeLock?.setReferenceCounted(false)
         if (washeld) {
-            mWakeLock?.acquire()
+            mWakeLock?.acquire(0L)
         }
     }
 
@@ -291,9 +291,9 @@ class MediaPlayer : IMediaPlayer {
     private fun stayAwake(awake: Boolean) {
         if (mWakeLock != null) {
             if (awake && !mWakeLock!!.isHeld) {
-                mWakeLock!!.acquire()
+                mWakeLock?.acquire(0L)
             } else if (!awake && mWakeLock!!.isHeld) {
-                mWakeLock!!.release()
+                mWakeLock?.release()
             }
         }
         mStayAwake = awake
