@@ -16,6 +16,7 @@ struct fields_t {
     jfieldID context;
     jmethodID post_event;
 };
+
 static fields_t fields;
 
 static bool JNI_DEBUG = false;
@@ -35,7 +36,7 @@ const char *CLASS_NAME = "com/bzh/splayer/MediaPlayer";
 const char *TAG = "[MP][JNI][Main]";
 
 class MessageListener : public IMessageListener {
-    const char *const TAG = "MessageListener";
+    const char *const TAG = "[MP][JNI][Main]";
 
 private:
     jclass mClass;
