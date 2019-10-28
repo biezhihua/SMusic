@@ -122,7 +122,7 @@ public:
     static const int MSG_TIMED_TEXT = 1020;
 
     /// 当前时钟
-    static const int MSG_CURRENT_POSITON = 1021;
+    static const int MSG_CURRENT_POSITION = 1021;
 
     /////////////////////////////////////////////
     /////////////////////////////////////////////

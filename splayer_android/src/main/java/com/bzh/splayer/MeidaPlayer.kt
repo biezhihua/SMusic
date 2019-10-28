@@ -26,11 +26,6 @@ import java.lang.ref.WeakReference
  */
 class MediaPlayer : IMediaPlayer {
 
-    interface OnCurrentPositionListener {
-
-        fun onCurrentPosition(current: Long, duration: Long)
-    }
-
     @AccessedByNative
     private val mNativeContext: Long = 0
 
@@ -50,23 +45,7 @@ class MediaPlayer : IMediaPlayer {
 
     private var mStayAwake: Boolean = false
 
-    private var mOnStartedListener: IMediaPlayer.OnStartedListener? = null
-
-    private var mOnCompletionListener: IMediaPlayer.OnCompletionListener? = null
-
-    private var mOnBufferingUpdateListener: IMediaPlayer.OnBufferingUpdateListener? = null
-
-    private var mOnSeekCompleteListener: IMediaPlayer.OnSeekCompleteListener? = null
-
-    private var mOnVideoSizeChangedListener: IMediaPlayer.OnVideoSizeChangedListener? = null
-
-    private var mOnTimedTextListener: IMediaPlayer.OnTimedTextListener? = null
-
-    private var mOnErrorListener: IMediaPlayer.OnErrorListener? = null
-
-    private var mOnInfoListener: IMediaPlayer.OnInfoListener? = null
-
-    private var mOnCurrentPositionListener: OnCurrentPositionListener? = null
+    private var mOnListener: IMediaPlayer.OnListener? = null;
 
     override val rotate: Int
         get() = _getRotate()
@@ -267,15 +246,7 @@ class MediaPlayer : IMediaPlayer {
     override fun release() {
         stayAwake(false)
         updateSurfaceScreenOn()
-        mOnStartedListener = null
-        mOnBufferingUpdateListener = null
-        mOnCompletionListener = null
-        mOnSeekCompleteListener = null
-        mOnErrorListener = null
-        mOnInfoListener = null
-        mOnVideoSizeChangedListener = null
-        mOnTimedTextListener = null
-        mOnCurrentPositionListener = null
+        mOnListener = null
         _release()
     }
 
@@ -321,40 +292,8 @@ class MediaPlayer : IMediaPlayer {
         _native_finalize()
     }
 
-    override fun setOnStartedListener(listener: IMediaPlayer.OnStartedListener) {
-        mOnStartedListener = listener
-    }
-
-    override fun setOnCompletionListener(listener: IMediaPlayer.OnCompletionListener) {
-        mOnCompletionListener = listener
-    }
-
-    override fun setOnBufferingUpdateListener(listener: IMediaPlayer.OnBufferingUpdateListener) {
-        mOnBufferingUpdateListener = listener
-    }
-
-    override fun setOnSeekCompleteListener(listener: IMediaPlayer.OnSeekCompleteListener) {
-        mOnSeekCompleteListener = listener
-    }
-
-    override fun setOnVideoSizeChangedListener(listener: IMediaPlayer.OnVideoSizeChangedListener) {
-        mOnVideoSizeChangedListener = listener
-    }
-
-    override fun setOnTimedTextListener(listener: IMediaPlayer.OnTimedTextListener) {
-        mOnTimedTextListener = listener
-    }
-
-    override fun setOnErrorListener(listener: IMediaPlayer.OnErrorListener) {
-        mOnErrorListener = listener
-    }
-
-    override fun setOnInfoListener(listener: IMediaPlayer.OnInfoListener) {
-        mOnInfoListener = listener
-    }
-
-    fun setOnCurrentPositionListener(listener: OnCurrentPositionListener) {
-        mOnCurrentPositionListener = listener
+    override fun setOnListener(listener: IMediaPlayer.OnListener) {
+        mOnListener = listener
     }
 
     private fun stayAwake(awake: Boolean) {
@@ -385,98 +324,93 @@ class MediaPlayer : IMediaPlayer {
                 return
             }
 
+            if (DEBUG) {
+                Log.d(
+                    TAG,
+                    "handleMessage() called with: type = [${IMediaPlayer.MsgType.toString(msg.what)}] msg = [$msg]"
+                )
+            }
+
             when (msg.what) {
-                IMediaPlayer.MSG_PLAY_STARTED -> {
-                    if (mOnStartedListener != null)
-                        mOnStartedListener!!.onStarted(mMediaPlayer)
+
+                IMediaPlayer.MsgType.MSG_PLAY_STARTED.value -> {
+                    mOnListener?.onStarted(mMediaPlayer)
                     return
                 }
 
-                IMediaPlayer.MSG_PLAY_COMPLETED -> {
-                    if (mOnCompletionListener != null) {
-                        mOnCompletionListener!!.onCompletion(mMediaPlayer)
-                    }
+                IMediaPlayer.MsgType.MSG_PLAY_COMPLETED.value -> {
+                    mOnListener?.onCompletion(mMediaPlayer)
                     stayAwake(false)
                     return
                 }
 
-                IMediaPlayer.MSG_BUFFERING_UPDATE -> {
-                    if (mOnBufferingUpdateListener != null) {
-                        mOnBufferingUpdateListener!!.onBufferingUpdate(mMediaPlayer, msg.arg1)
-                    }
+                IMediaPlayer.MsgType.MSG_BUFFERING_UPDATE.value -> {
+                    mOnListener?.onBufferingUpdate(mMediaPlayer, msg.arg1)
                     return
                 }
 
-                IMediaPlayer.MSG_SEEK_COMPLETE -> {
-                    if (mOnSeekCompleteListener != null) {
-                        mOnSeekCompleteListener!!.onSeekComplete(mMediaPlayer)
-                    }
+                IMediaPlayer.MsgType.MSG_SEEK_COMPLETE.value -> {
+                    mOnListener?.onSeekComplete(mMediaPlayer)
                     return
                 }
 
-                IMediaPlayer.MSG_VIDEO_SIZE_CHANGED -> {
-                    if (mOnVideoSizeChangedListener != null) {
-                        mOnVideoSizeChangedListener!!.onVideoSizeChanged(
-                            mMediaPlayer,
-                            msg.arg1,
-                            msg.arg2
-                        )
-                    }
+                IMediaPlayer.MsgType.MSG_VIDEO_SIZE_CHANGED.value -> {
+                    mOnListener?.onVideoSizeChanged(
+                        mMediaPlayer,
+                        msg.arg1,
+                        msg.arg2
+                    )
                     return
                 }
 
-                IMediaPlayer.MSG_ERROR -> {
+                IMediaPlayer.MsgType.MSG_ERROR.value -> {
                     // For PV specific error values (msg.arg2) look in
                     // opencore/pvmi/pvmf/include/pvmf_return_codes.h
                     Log.e(TAG, "Error (" + msg.arg1 + "," + msg.arg2 + ")")
                     var error_was_handled = false
-                    if (mOnErrorListener != null) {
+                    if (mOnListener != null) {
                         error_was_handled =
-                            mOnErrorListener!!.onError(mMediaPlayer, msg.arg1, msg.arg2)
+                            mOnListener!!.onError(mMediaPlayer, msg.arg1, msg.arg2)
                     }
-                    if (mOnCompletionListener != null && !error_was_handled) {
-                        mOnCompletionListener!!.onCompletion(mMediaPlayer)
+                    if (mOnListener != null && !error_was_handled) {
+                        mOnListener!!.onCompletion(mMediaPlayer)
                     }
                     stayAwake(false)
                     return
                 }
 
-                IMediaPlayer.MSG_BUFFERING_START, IMediaPlayer.MSG_BUFFERING_END -> {
+                IMediaPlayer.MsgType.MSG_BUFFERING_START.value, IMediaPlayer.MsgType.MSG_BUFFERING_END.value -> {
                     if (msg.arg1 != 0) {
                         Log.i(TAG, "Info (" + msg.arg1 + "," + msg.arg2 + ")")
                     }
-                    if (mOnInfoListener != null) {
-                        mOnInfoListener!!.onInfo(mMediaPlayer, msg.arg1, msg.arg2)
-                    }
+                    mOnListener?.onInfo(mMediaPlayer, msg.arg1, msg.arg2)
                     // No real default action so far.
                     return
                 }
 
-                IMediaPlayer.MSG_TIMED_TEXT -> {
-                    if (mOnTimedTextListener != null) {
+                IMediaPlayer.MsgType.MSG_TIMED_TEXT.value -> {
+                    if (mOnListener != null) {
                         if (msg.obj == null) {
-                            mOnTimedTextListener!!.onTimedText(mMediaPlayer, null)
+                            mOnListener?.onTimedText(mMediaPlayer, null)
                         } else {
                             if (msg.obj is ByteArray) {
                                 val text = TimedText(Rect(0, 0, 1, 1), msg.obj as String)
-                                mOnTimedTextListener!!.onTimedText(mMediaPlayer, text)
+                                mOnListener?.onTimedText(mMediaPlayer, text)
                             }
                         }
                     }
                     return
                 }
 
-                IMediaPlayer.MSG_CURRENT_POSITON -> {
-                    if (mOnCurrentPositionListener != null) {
-                        mOnCurrentPositionListener!!.onCurrentPosition(
-                            msg.arg1.toLong(),
-                            msg.arg2.toLong()
-                        )
-                    }
+                IMediaPlayer.MsgType.MSG_CURRENT_POSITION.value -> {
+                    mOnListener?.onCurrentPosition(
+                        msg.arg1.toLong(),
+                        msg.arg2.toLong()
+                    )
                 }
 
                 else -> {
-                    Log.e(TAG, "Unknown message type " + msg.what)
+                    Log.e(TAG, "Unknown message $msg")
                     return
                 }
             }
@@ -583,7 +517,7 @@ class MediaPlayer : IMediaPlayer {
         @JvmStatic
         val DEBUG = true
 
-        private const val TAG = "MediaPlayer_Java"
+        private const val TAG = "[MP][LIB][MediaPlayer]"
 
         // Options
         val OPT_CATEGORY_FORMAT = 1    // 解封装参数
@@ -654,13 +588,13 @@ class MediaPlayer : IMediaPlayer {
 
         @JvmStatic
         fun postEventFromNative(
-            mediaplayer_ref: Any,
+            mediaplayerRef: Any,
             what: Int,
             arg1: Int,
             arg2: Int,
-            obj: Any
+            obj: Any?
         ) {
-            val ref = (mediaplayer_ref as WeakReference<*>).get() ?: return
+            val ref = (mediaplayerRef as WeakReference<*>).get() ?: return
             val mp = ref as MediaPlayer
             val m = mp.mEventHandler?.obtainMessage(what, arg1, arg2, obj)
             if (m != null) {

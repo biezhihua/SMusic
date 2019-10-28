@@ -7,29 +7,38 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
+import android.widget.SeekBar
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.bzh.player.R
 import com.bzh.splayer.IMediaPlayer
 import com.bzh.splayer.MediaPlayer
+import com.bzh.splayer.TimedText
 import java.io.File
 
 
 @Suppress("UNUSED_PARAMETER")
 class MainActivity : AppCompatActivity() {
 
-    //    private lateinit var time1: TextView
-//    private lateinit var time2: TextView
-//    private lateinit var seek: SeekBar
-//    private lateinit var volume: SeekBar
-//    private lateinit var speed: SeekBar
-//    private lateinit var pitch: SeekBar
+    private lateinit var time1: TextView
+    private lateinit var time2: TextView
+    private lateinit var seek: SeekBar
+    private lateinit var volume: SeekBar
+    private lateinit var speed: SeekBar
+    private lateinit var pitch: SeekBar
     private lateinit var surfaceView: SurfaceView
-    private lateinit var mediaPlayer: MediaPlayer
+    private var mediaPlayer: MediaPlayer? = null
     private var mHolder: SurfaceHolder? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        time1 = findViewById(R.id.time1)
+        time2 = findViewById(R.id.time2)
+        seek = findViewById(R.id.seek)
+        volume = findViewById(R.id.volume)
+        speed = findViewById(R.id.speed)
+        pitch = findViewById(R.id.pitch)
         surfaceView = findViewById(R.id.surfaceView)
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceChanged(
@@ -51,6 +60,65 @@ class MainActivity : AppCompatActivity() {
             override fun surfaceCreated(holder: SurfaceHolder?) {
                 Log.d(TAG, "surfaceCreated() called with: holder = [$holder]")
                 mHolder = holder
+            }
+        })
+
+        speed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+//                mediaPlayer?.speed((progress * 2.0F / 100).toDouble())
+            }
+
+        })
+
+        pitch.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                mediaPlayer?.setPitch((progress * 2.0F / 100).toFloat())
+            }
+        })
+
+        seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
+            var mProgress: Int = 0
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    mProgress = progress
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                mediaPlayer?.seekTo(mProgress.toFloat())
+            }
+
+        })
+
+        volume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                mediaPlayer?.setVolume(progress.toFloat(), progress.toFloat())
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
         })
     }
@@ -80,7 +148,53 @@ class MainActivity : AppCompatActivity() {
 
     fun create(v: View) {
         mediaPlayer = MediaPlayer()
-        mediaPlayer.setDisplay(mHolder)
+        mediaPlayer?.setDisplay(mHolder)
+        mediaPlayer?.setOnListener(object : IMediaPlayer.OnListener {
+            override fun onCompletion(mp: IMediaPlayer) {
+                Log.d(TAG, "onCompletion() called with: mp = [$mp]")
+            }
+
+            override fun onInfo(mp: IMediaPlayer, what: Int, extra: Int): Boolean {
+                Log.d(TAG, "onInfo() called with: mp = [$mp], what = [$what], extra = [$extra]")
+                return true
+            }
+
+            override fun onError(mp: IMediaPlayer, what: Int, extra: Int): Boolean {
+                Log.d(TAG, "onError() called with: mp = [$mp], what = [$what], extra = [$extra]")
+                return true
+            }
+
+            override fun onTimedText(mp: IMediaPlayer, text: TimedText?) {
+                Log.d(TAG, "onTimedText() called with: mp = [$mp], text = [$text]")
+            }
+
+            override fun onVideoSizeChanged(mediaPlayer: IMediaPlayer, width: Int, height: Int) {
+                Log.d(
+                    TAG,
+                    "onVideoSizeChanged() called with: mediaPlayer = [$mediaPlayer], width = [$width], height = [$height]"
+                )
+            }
+
+            override fun onSeekComplete(mp: IMediaPlayer) {
+                Log.d(TAG, "onSeekComplete() called with: mp = [$mp]")
+            }
+
+            override fun onBufferingUpdate(mp: IMediaPlayer, percent: Int) {
+                Log.d(TAG, "onBufferingUpdate() called with: mp = [$mp], percent = [$percent]")
+            }
+
+            override fun onCurrentPosition(current: Long, duration: Long) {
+                Log.d(
+                    TAG,
+                    "onCurrentPosition() called with: current = [$current], duration = [$duration]"
+                )
+            }
+
+            override fun onStarted(mp: IMediaPlayer) {
+                Log.d(TAG, "onStarted() called with: mp = [$mp]")
+            }
+
+        })
     }
 
     fun setSource(v: View) {
@@ -88,38 +202,27 @@ class MainActivity : AppCompatActivity() {
             Environment.getExternalStorageDirectory(),
             "/Download/The.Walking.Dead.S04E15.2013.BluRay.720p.x264.AC3-CMCT.mkv"
         )
-        mediaPlayer.setDataSource(file.absolutePath)
+        mediaPlayer?.setDataSource(file.absolutePath)
     }
 
     fun start(v: View) {
-        mediaPlayer.setOnErrorListener(object : IMediaPlayer.OnErrorListener {
-            override fun onError(mp: IMediaPlayer, what: Int, extra: Int): Boolean {
-                Log.d(TAG, "onError() called with: mp = [$mp], what = [$what], extra = [$extra]")
-                return false
-            }
-        })
-        mediaPlayer.setOnCompletionListener(object : IMediaPlayer.OnCompletionListener {
-            override fun onCompletion(mp: IMediaPlayer) {
-                Log.d(TAG, "onCompletion() called with: mp = [$mp]")
-            }
-        })
-        mediaPlayer.prepareAsync()
+        mediaPlayer?.prepareAsync()
     }
 
     fun play(v: View) {
-        mediaPlayer.play()
+        mediaPlayer?.play()
     }
 
     fun pause(v: View) {
-        mediaPlayer.pause()
+        mediaPlayer?.pause()
     }
 
     fun stop(v: View) {
-        mediaPlayer.stop()
+        mediaPlayer?.stop()
     }
 
     fun destroy(v: View) {
-        mediaPlayer.release()
+        mediaPlayer?.release()
     }
 
     fun left(v: View) {
@@ -133,15 +236,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-//        mediaPlayer.play();
+        mediaPlayer?.play()
     }
 
     override fun onPause() {
         super.onPause()
-//        mediaPlayer.pause();
+        mediaPlayer?.pause()
     }
 
     companion object {
-        private const val TAG = "MainActivity"
+        private const val TAG = "[MP][UI][MainActivity]"
     }
 }

@@ -255,7 +255,6 @@ interface IMediaPlayer {
     @Throws(IllegalStateException::class)
     fun start()
 
-
     /**
      * Stops playback after playback has been stopped or paused.
      *
@@ -395,185 +394,22 @@ interface IMediaPlayer {
      */
     fun setPitch(pitch: Float)
 
-    /**
-     * Interface definition for a callback to be invoked when the media
-     * source is ready for playback.
-     */
-    interface OnStartedListener {
+    interface OnListener {
+
         /**
          * Called when the media file is ready for playback.
          *
          * @param mp the MediaPlayer that is ready for playback
          */
         fun onStarted(mp: IMediaPlayer)
-    }
 
-    /**
-     * Register a callback to be invoked when the media source is ready
-     * for playback.
-     *
-     * @param listener the callback that will be run
-     */
-    fun setOnStartedListener(listener: OnStartedListener)
-
-    /**
-     * Interface definition for a callback to be invoked when playback of
-     * a media source has completed.
-     */
-    interface OnCompletionListener {
         /**
          * Called when the end of a media source is reached during playback.
          *
          * @param mp the MediaPlayer that reached the end of the file
          */
         fun onCompletion(mp: IMediaPlayer)
-    }
 
-    /**
-     * Register a callback to be invoked when the end of a media source
-     * has been reached during playback.
-     *
-     * @param listener the callback that will be run
-     */
-    fun setOnCompletionListener(listener: OnCompletionListener)
-
-    /**
-     * Interface definition of a callback to be invoked indicating buffering
-     * status of a media resource being streamed over the network.
-     */
-    interface OnBufferingUpdateListener {
-        /**
-         * Called to update status in buffering a media stream received through
-         * progressive HTTP download. The received buffering percentage
-         * indicates how much of the content has been buffered or played.
-         * For example a buffering update of 80 percent when half the content
-         * has already been played indicates that the next 30 percent of the
-         * content to play has been buffered.
-         *
-         * @param mp      the MediaPlayer the update pertains to
-         * @param percent the percentage (0-100) of the content
-         * that has been buffered or played thus far
-         */
-        fun onBufferingUpdate(mp: IMediaPlayer, percent: Int)
-    }
-
-    /**
-     * Register a callback to be invoked when the status of a network
-     * stream's buffer has changed.
-     *
-     * @param listener the callback that will be run.
-     */
-    fun setOnBufferingUpdateListener(listener: OnBufferingUpdateListener)
-
-    /**
-     * Interface definition of a callback to be invoked indicating
-     * the completion of a seek operation.
-     */
-    interface OnSeekCompleteListener {
-        /**
-         * Called to indicate the completion of a seek operation.
-         *
-         * @param mp the MediaPlayer that issued the seek operation
-         */
-        fun onSeekComplete(mp: IMediaPlayer)
-    }
-
-    /**
-     * Register a callback to be invoked when a seek operation has been
-     * completed.
-     *
-     * @param listener the callback that will be run
-     */
-    fun setOnSeekCompleteListener(listener: OnSeekCompleteListener)
-
-    /**
-     * Interface definition of a callback to be invoked when the
-     * video size is first known or updated
-     */
-    interface OnVideoSizeChangedListener {
-        /**
-         * Called to indicate the video size
-         *
-         * The video size (width and height) could be 0 if there was no video,
-         * no display surface was set, or the value was not determined yet.
-         *
-         * @param width     the width of the video
-         * @param height    the height of the video
-         */
-        fun onVideoSizeChanged(mediaPlayer: IMediaPlayer, width: Int, height: Int)
-    }
-
-    /**
-     * Register a callback to be invoked when the video size is
-     * known or updated.
-     *
-     * @param listener the callback that will be run
-     */
-    fun setOnVideoSizeChangedListener(listener: OnVideoSizeChangedListener)
-
-    /**
-     * Interface definition of a callback to be invoked when a
-     * timed text is available for display.
-     * {@hide}
-     */
-    interface OnTimedTextListener {
-        /**
-         * Called to indicate an avaliable timed text
-         *
-         * @param mp             the MediaPlayer associated with this callback
-         * @param text           the timed text sample which contains the text
-         * needed to be displayed and the display format.
-         * {@hide}
-         */
-        fun onTimedText(mp: IMediaPlayer, text: TimedText?)
-    }
-
-    /**
-     * Register a callback to be invoked when a timed text is available
-     * for display.
-     *
-     * @param listener the callback that will be run
-     * {@hide}
-     */
-    fun setOnTimedTextListener(listener: OnTimedTextListener)
-
-    /**
-     * Interface definition of a callback to be invoked when there
-     * has been an error during an asynchronous operation (other errors
-     * will throw exceptions at method call time).
-     */
-    interface OnErrorListener {
-        /**
-         * Called to indicate an error.
-         *
-         * @param mp      the MediaPlayer the error pertains to
-         * @param what    the type of error that has occurred:
-         *
-         *  * [.MEDIA_ERROR_UNKNOWN]
-         *  * [.MEDIA_ERROR_SERVER_DIED]
-         *
-         * @param extra an extra code, specific to the error. Typically
-         * implementation dependant.
-         * @return True if the method handled the error, false if it didn't.
-         * Returning false, or not having an OnErrorListener at all, will
-         * cause the OnCompletionListener to be called.
-         */
-        fun onError(mp: IMediaPlayer, what: Int, extra: Int): Boolean
-    }
-
-    /**
-     * Register a callback to be invoked when an error has happened
-     * during an asynchronous operation.
-     *
-     * @param listener the callback that will be run
-     */
-    fun setOnErrorListener(listener: OnErrorListener)
-
-    /**
-     * Interface definition of a callback to be invoked to communicate some
-     * info and/or warning about the media or its playback.
-     */
-    interface OnInfoListener {
         /**
          * Called to indicate an info or a warning.
          *
@@ -595,82 +431,153 @@ interface IMediaPlayer {
          * cause the info to be discarded.
          */
         fun onInfo(mp: IMediaPlayer, what: Int, extra: Int): Boolean
+
+        /**
+         * Called to indicate an error.
+         *
+         * @param mp      the MediaPlayer the error pertains to
+         * @param what    the type of error that has occurred:
+         *
+         *  * [.MEDIA_ERROR_UNKNOWN]
+         *  * [.MEDIA_ERROR_SERVER_DIED]
+         *
+         * @param extra an extra code, specific to the error. Typically
+         * implementation dependant.
+         * @return True if the method handled the error, false if it didn't.
+         * Returning false, or not having an OnErrorListener at all, will
+         * cause the OnCompletionListener to be called.
+         */
+        fun onError(mp: IMediaPlayer, what: Int, extra: Int): Boolean
+
+        /**
+         * Called to indicate an avaliable timed text
+         *
+         * @param mp             the MediaPlayer associated with this callback
+         * @param text           the timed text sample which contains the text
+         * needed to be displayed and the display format.
+         * {@hide}
+         */
+        fun onTimedText(mp: IMediaPlayer, text: TimedText?)
+
+        /**
+         * Called to indicate the video size
+         *
+         * The video size (width and height) could be 0 if there was no video,
+         * no display surface was set, or the value was not determined yet.
+         *
+         * @param width     the width of the video
+         * @param height    the height of the video
+         */
+        fun onVideoSizeChanged(mediaPlayer: IMediaPlayer, width: Int, height: Int)
+
+        /**
+         * Called to indicate the completion of a seek operation.
+         *
+         * @param mp the MediaPlayer that issued the seek operation
+         */
+        fun onSeekComplete(mp: IMediaPlayer)
+
+        /**
+         * Called to update status in buffering a media stream received through
+         * progressive HTTP download. The received buffering percentage
+         * indicates how much of the content has been buffered or played.
+         * For example a buffering update of 80 percent when half the content
+         * has already been played indicates that the next 30 percent of the
+         * content to play has been buffered.
+         *
+         * @param mp      the MediaPlayer the update pertains to
+         * @param percent the percentage (0-100) of the content
+         * that has been buffered or played thus far
+         */
+        fun onBufferingUpdate(mp: IMediaPlayer, percent: Int)
+
+        fun onCurrentPosition(current: Long, duration: Long)
     }
 
-    /**
-     * Register a callback to be invoked when an info/warning is available.
-     *
-     * @param listener the callback that will be run
-     */
-    fun setOnInfoListener(listener: OnInfoListener)
+    fun setOnListener(listener: OnListener)
 
     companion object {
 
+    }
+
+    enum class MsgType(var value: Int) {
+
         // 默认
-        const val MSG_FLUSH = 1000
+        MSG_FLUSH(1000),
 
         // 出错
-        const val MSG_ERROR = 1001
+        MSG_ERROR(1001),
 
         // 改变状态
-        const val MSG_CHANGE_STATUS = 1002
+        MSG_CHANGE_STATUS(1002),
 
         // 播放开始
-        const val MSG_PLAY_STARTED = 1003
+        MSG_PLAY_STARTED(1003),
 
         // 播放完成
-        const val MSG_PLAY_COMPLETED = 1004
+        MSG_PLAY_COMPLETED(1004),
 
         // 打开文件
-        const val MSG_OPEN_INPUT = 1005
+        MSG_OPEN_INPUT(1005),
 
         // 媒体流信息
-        const val MSG_STREAM_INFO = 1006
+        MSG_STREAM_INFO(1006),
 
         // 已准备解码器
-        const val MSG_PREPARED_DECODER = 1007
+        MSG_PREPARED_DECODER(1007),
 
         // 长宽比变化
-        const val MSG_VIDEO_SIZE_CHANGED = 1008
+        MSG_VIDEO_SIZE_CHANGED(1008),
 
         // 采样率变化
-        const val MSG_SAR_CHANGED = 1009
+        MSG_SAR_CHANGED(1009),
 
         // 开始音频解码
-        const val MSG_AUDIO_START = 1010
+        MSG_AUDIO_START(1010),
 
         // 音频渲染开始(播放开始)
-        const val MSG_AUDIO_RENDERING_START = 1011
+        MSG_AUDIO_RENDERING_START(1011),
 
         // 视频渲染开始(渲染开始)
-        const val MSG_VIDEO_START = 1012
+        MSG_VIDEO_START(1012),
 
         // 旋转角度变化
-        const val MSG_VIDEO_ROTATION_CHANGED = 1013
+        MSG_VIDEO_ROTATION_CHANGED(1013),
 
         // 缓冲开始
-        const val MSG_BUFFERING_START = 1014
+        MSG_BUFFERING_START(1014),
 
         // 缓冲更新
-        const val MSG_BUFFERING_UPDATE = 1015
+        MSG_BUFFERING_UPDATE(1015),
 
         // 缓冲时间更新
-        const val MSG_BUFFERING_TIME_UPDATE = 1016
+        MSG_BUFFERING_TIME_UPDATE(1016),
 
         // 缓冲完成
-        const val MSG_BUFFERING_END = 1017
+        MSG_BUFFERING_END(1017),
 
         // 定位完成
-        const val MSG_SEEK_START = 1018
+        MSG_SEEK_START(1018),
 
         // 定位开始
-        const val MSG_SEEK_COMPLETE = 1019
+        MSG_SEEK_COMPLETE(1019),
 
         // 字幕
-        const val MSG_TIMED_TEXT = 1020
+        MSG_TIMED_TEXT(1020),
 
         // 当前时钟
-        const val MSG_CURRENT_POSITON = 1021
+        MSG_CURRENT_POSITION(1021);
+
+        companion object {
+            fun toString(value: Int): String {
+                values().forEach {
+                    if (it.value == value) {
+                        return it.name
+                    }
+                }
+                return "None"
+            }
+        }
     }
 
 }

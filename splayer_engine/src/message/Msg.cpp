@@ -79,8 +79,8 @@ const char *Msg::getMsgSimpleName(int what) {
             return "MSG_SEEK_COMPLETE";
         case MSG_TIMED_TEXT:
             return "MSG_TIMED_TEXT";
-        case MSG_CURRENT_POSITON:
-            return "MSG_CURRENT_POSITON";
+        case MSG_CURRENT_POSITION:
+            return "MSG_CURRENT_POSITION";
 
             ///
 

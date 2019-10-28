@@ -15,6 +15,8 @@
  */
 
 /*
+ * https://android.googlesource.com/platform/libnativehelper/+/b53ec15/JNIHelp.c
+ *
  * JNI helper functions.
  *
  * This file may be included by C or C++ code, which is trouble because jni.h

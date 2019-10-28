@@ -65,7 +65,7 @@ public:
         env->DeleteGlobalRef(mClass);
     }
 
-    void notify(int msg, int ext1, int ext2, void *obj) {
+    void onNotify(int msg, int ext1, int ext2, void *obj) {
         JNIEnv *env = getJNIEnv();
 
         bool status = (javaVM->AttachCurrentThread(&env, nullptr) >= 0);
@@ -73,9 +73,9 @@ public:
         env->CallStaticVoidMethod(mClass, fields.post_event, mObject, msg, ext1, ext2, obj);
 
         if (env->ExceptionCheck()) {
-            if (DEBUG) {
-                ALOGW(TAG, "[%s] An exception occurred while notifying an event.", __func__);
-            }
+            jthrowable exc = env->ExceptionOccurred();
+            ALOGE(TAG, "[%s] An exception occurred while notifying an event", __func__);
+            jniLogException(env, ANDROID_LOG_ERROR, TAG, exc);
             env->ExceptionClear();
         }
 
@@ -85,6 +85,12 @@ public:
     }
 
     void onMessage(Msg *msg) override {
+
+        if (DEBUG) {
+            ALOGD(TAG, "[%s] what=%s arg1=%d", __func__, Msg::getMsgSimpleName(msg->what),
+                  msg->arg1I);
+        }
+
         switch (msg->what) {
             case Msg::MSG_FLUSH:
             case Msg::MSG_ERROR:
@@ -99,7 +105,7 @@ public:
             case Msg::MSG_VIDEO_ROTATION_CHANGED:
             case Msg::MSG_SEEK_START:
             case Msg::MSG_SEEK_COMPLETE:
-                notify(msg->what, msg->arg1I, msg->arg2I, nullptr);
+                onNotify(msg->what, msg->arg1I, msg->arg2I, nullptr);
                 break;
         }
     }
