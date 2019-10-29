@@ -8,7 +8,7 @@ AndroidVideoDevice::~AndroidVideoDevice() = default;
 
 int AndroidVideoDevice::create() {
     if (DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
     window = nullptr;
     windowWidth = 0;
@@ -28,7 +28,7 @@ int AndroidVideoDevice::create() {
 
 int AndroidVideoDevice::destroy() {
     if (DEBUG) {
-        ALOGD(TAG, __func__);
+        ALOGD(TAG, "[%s]", __func__);
     }
     destroy(true);
 

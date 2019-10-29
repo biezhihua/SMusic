@@ -156,12 +156,12 @@ int AndroidAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained
     // 一个缓冲区大小
     bytes_per_buffer = bytes_per_frame * frames_per_buffer;
     // 缓冲区总大小
-    buffer_capacity = static_cast<size_t>(OPENSLES_BUFFERS * bytes_per_buffer);
+    buffer_capacity = (size_t) (OPENSLES_BUFFERS * bytes_per_buffer);
 
     ALOGD(TAG, "[%s] OpenSL-ES: bytes_per_frame  = %d bytes", __func__, bytes_per_frame);
     ALOGD(TAG, "[%s] OpenSL-ES: milli_per_buffer = %d ms", __func__, milli_per_buffer);
     ALOGD(TAG, "[%s] OpenSL-ES: frame_per_buffer = %d frames", __func__, frames_per_buffer);
-    ALOGD(TAG, "[%s] OpenSL-ES: buffer_capacity  = %d bytes", __func__, buffer_capacity);
+    ALOGD(TAG, "[%s] OpenSL-ES: bytes_per_buffer = %d bytes", __func__, bytes_per_buffer);
     ALOGD(TAG, "[%s] OpenSL-ES: buffer_capacity  = %d bytes", __func__, (int) buffer_capacity);
 
     if (obtained != nullptr) {
@@ -394,7 +394,8 @@ void AndroidAudioDevice::run() {
                 (*slPlayItf)->SetPlayState(slPlayItf, SL_PLAYSTATE_PLAYING);
             }
             slRet = (*slBufferQueueItf)->Enqueue(slBufferQueueItf, next_buffer,
-                                                 static_cast<SLuint32>(bytes_per_buffer));
+                                                 (SLuint32) (bytes_per_buffer));
+
             if (slRet == SL_RESULT_SUCCESS) {
                 // do nothing
             } else if (slRet == SL_RESULT_BUFFER_INSUFFICIENT) {
@@ -463,11 +464,20 @@ SLmillibel AndroidAudioDevice::getAmplificationLevel(float volumeLevel) {
     if (volumeLevel < 0.00000001F) {
         return SL_MILLIBEL_MIN;
     }
-    SLmillibel mb = lroundf(2000.0F * log10f(volumeLevel));
+    SLmillibel mb = (SLmillibel) ((100 - volumeLevel) * -50);
     if (mb < SL_MILLIBEL_MIN) {
         mb = SL_MILLIBEL_MIN;
     } else if (mb > 0) {
         mb = 0;
     }
     return mb;
+}
+
+void AndroidAudioDevice::setMute(bool mute) {
+    mutex.lock();
+    if (slVolumeItf) {
+        (*slVolumeItf)->SetMute(slVolumeItf, (SLboolean) (mute));
+    }
+    condition.signal();
+    mutex.unlock();
 }

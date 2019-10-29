@@ -148,7 +148,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
 
         // 判断是否存在帧队列是否存在数据
         if (videoDecoder->getFrameSize() > 0) {
-            double duration, nextDuration, delay;
+            double duration, nextDuration, syncDelay;
 
             Frame *currentFrame, *previousFrame;
 
@@ -198,26 +198,26 @@ int MediaSync::refreshVideo(double *remaining_time) {
             duration = calculateDuration(previousFrame, currentFrame);
 
             // 根据帧显示的时长，计算延时
-            delay = calculateDelay(duration);
+            syncDelay = calculateSyncDelay(duration);
 
             // 获取当前时间
             time = av_gettime_relative() / 1000000.0;
 
             // 若上一帧持续显示时间超过当前帧的时间，那么代表上一帧还没显示结束，则继续显示当前帧
             // 如果当前时间小于帧计时器的时间 + 延时时间，则表示还没到当前帧
-            if (time < (frameTimer + delay)) {
-                *remaining_time = FFMIN(frameTimer + delay - time, *remaining_time);
+            if (time < (frameTimer + syncDelay)) {
+                *remaining_time = FFMIN(frameTimer + syncDelay - time, *remaining_time);
                 if (DEBUG) {
 //                    ALOGD(TAG, "[%s] need display pre frame, diff time = %lf remainingTime = %lf",
-//                          __func__, (frameTimer + delay - time), *remaining_time);
+//                          __func__, (frameTimer + syncDelay - time), *remaining_time);
                 }
                 break;
             }
 
             // 更新帧计时器
-            frameTimer += delay;
+            frameTimer += syncDelay;
             // 帧计时器落后当前时间超过了阈值，则用当前的时间作为帧计时器时间
-            if (delay > 0 && (time - frameTimer) > AV_SYNC_THRESHOLD_MAX) {
+            if (syncDelay > 0 && (time - frameTimer) > AV_SYNC_THRESHOLD_MAX) {
                 frameTimer = time;
                 if (DEBUG) {
                     ALOGD(TAG, "[%s] fall behind, force reset frameTimer = %fd ", __func__,
@@ -296,7 +296,7 @@ void MediaSync::checkExternalClockSpeed() {
     }
 }
 
-double MediaSync::calculateDelay(double delay) {
+double MediaSync::calculateSyncDelay(double delay) {
     double sync_threshold, diff = 0;
 
     // 如果不是同步到视频流，则需要计算延时时间
@@ -339,11 +339,11 @@ double MediaSync::calculateDelay(double delay) {
     return delay;
 }
 
-double MediaSync::calculateDuration(Frame *current, Frame *next) {
-    if (current->seekSerial == next->seekSerial) {
-        double duration = next->pts - current->pts;
+double MediaSync::calculateDuration(Frame *previous, Frame *current) {
+    if (previous->seekSerial == current->seekSerial) {
+        double duration = current->pts - previous->pts;
         if (isnan(duration) || duration <= 0 || duration > maxFrameDuration) {
-            return current->duration;
+            return previous->duration;
         } else {
             return duration;
         }

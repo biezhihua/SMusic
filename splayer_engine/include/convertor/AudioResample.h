@@ -112,7 +112,7 @@ public:
 
 private:
 
-    int audioSynchronize(int nbSamples);
+    int syncAudio(int nbSamples);
 
     int audioFrameReSample();
 
@@ -120,7 +120,7 @@ private:
 
     AVFrame *srcFrame = nullptr;
 
-    PlayerInfoStatus *playerState = nullptr;
+    PlayerInfoStatus *playerInfoStatus = nullptr;
 
     MediaSync *mediaSync = nullptr;
 
@@ -136,6 +136,8 @@ private:
     int convertAudio(int wantedNbSamples, AVFrame *frame) const;
 
     int initConvertSwrContext(int64_t desireChannelLayout, AVFrame *frame) const;
+
+    uint64_t getChannelLayout() const;
 };
 
 

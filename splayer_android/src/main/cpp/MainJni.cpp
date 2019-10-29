@@ -318,7 +318,7 @@ void MediaPlayer_init(JNIEnv *env) {
     env->DeleteLocalRef(clazz);
 }
 
-void MediaPlayer_create(JNIEnv *env, jobject thiz, jobject mediaplayer_this) {
+void MediaPlayer_create(JNIEnv *env, jobject thiz, jobject mediaPlayerThis) {
 
     if (JNI_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
@@ -328,7 +328,7 @@ void MediaPlayer_create(JNIEnv *env, jobject thiz, jobject mediaplayer_this) {
             .withAudioDevice(new AndroidAudioDevice())
             .withVideoDevice(new AndroidVideoDevice())
             .withMediaSync(new AndroidMediaSync())
-            .withMessageListener(new MessageListener(env, thiz, mediaplayer_this))
+            .withMessageListener(new MessageListener(env, thiz, mediaPlayerThis))
             .withDebug(JNI_DEBUG)
             .build();
 

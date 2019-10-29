@@ -47,6 +47,8 @@ public:
 
     void run() override;
 
+    void setMute(bool mute) override;
+
 private:
 
     /// 转换成SL采样率

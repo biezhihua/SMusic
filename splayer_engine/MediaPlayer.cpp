@@ -61,14 +61,24 @@ int MediaPlayer::pause() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    return notifyMsg(Msg::MSG_REQUEST_PAUSE);
+    if (isPLAYING()) {
+        return notifyMsg(Msg::MSG_REQUEST_PAUSE);
+    } else {
+        notExecuteWarning();
+    }
+    return ERROR;
 }
 
 int MediaPlayer::play() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    return notifyMsg(Msg::MSG_REQUEST_PLAY);
+    if (isPAUSED()) {
+        return notifyMsg(Msg::MSG_REQUEST_PLAY);
+    } else {
+        notExecuteWarning();
+    }
+    return ERROR;
 }
 
 int MediaPlayer::stop() {
@@ -986,18 +996,14 @@ int MediaPlayer::syncPause() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    if (isPLAYING()) {
-        if (isPlaying() && syncTogglePause()) {
-            changeStatus(PAUSED);
-            notifyMsg(Msg::MSG_STATUS_PAUSED);
-            return SUCCESS;
-        } else {
-            if (DEBUG) {
-                ALOGD(TAG, "[%s] not playing or toggle pause error", __func__);
-            }
-        }
+    if (isPlaying() && syncTogglePause()) {
+        changeStatus(PAUSED);
+        notifyMsg(Msg::MSG_STATUS_PAUSED);
+        return SUCCESS;
     } else {
-        notExecuteWarning();
+        if (DEBUG) {
+            ALOGD(TAG, "[%s] not playing or toggle pause error", __func__);
+        }
     }
     return ERROR;
 }
@@ -1007,18 +1013,14 @@ int MediaPlayer::syncPlay() {
     if (DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    if (isPAUSED()) {
-        if (!isPlaying() && syncTogglePause()) {
-            changeStatus(PLAYING);
-            notifyMsg(Msg::MSG_STATUS_PLAYING);
-            return SUCCESS;
-        } else {
-            if (DEBUG) {
-                ALOGD(TAG, "[%s] not pause or toggle pause error", __func__);
-            }
-        }
+    if (!isPlaying() && syncTogglePause()) {
+        changeStatus(PLAYING);
+        notifyMsg(Msg::MSG_STATUS_PLAYING);
+        return SUCCESS;
     } else {
-        notExecuteWarning();
+        if (DEBUG) {
+            ALOGD(TAG, "[%s] not pause or toggle pause error", __func__);
+        }
     }
     return ERROR;
 }

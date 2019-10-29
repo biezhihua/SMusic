@@ -55,6 +55,8 @@ public:
 
     virtual void setStereoVolume(float left_volume, float right_volume);
 
+    virtual void setMute(bool mute);
+
     virtual void run();
 };
 

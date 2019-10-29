@@ -21,6 +21,9 @@ VideoDecoder::VideoDecoder(AVFormatContext *formatCtx,
     } else {
         rotate = 0;
     }
+    if (DEBUG) {
+        ALOGD(TAG, "[%s] rotate=%d", __func__, rotate);
+    }
 }
 
 VideoDecoder::~VideoDecoder() {

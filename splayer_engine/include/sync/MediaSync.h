@@ -81,9 +81,9 @@ private:
 
     void checkExternalClockSpeed();
 
-    double calculateDelay(double delay);
+    double calculateSyncDelay(double delay);
 
-    double calculateDuration(Frame *current, Frame *next);
+    double calculateDuration(Frame *previous, Frame *current);
 
     void renderVideo();
 

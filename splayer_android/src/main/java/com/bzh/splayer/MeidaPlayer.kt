@@ -21,19 +21,11 @@ import java.lang.ref.WeakReference
 
 /**
  * 媒体播放器
- * 播放器的实现仿照MediaPlayer 的实现逻辑
- * 详情请参考 android.media.MediaPlayer.java 和 android_media_MediaPlayer.cpp
  */
 class MediaPlayer : IMediaPlayer {
 
     @AccessedByNative
     private val mNativeContext: Long = 0
-
-    @AccessedByNative
-    private val mNativeSurfaceTexture: Int = 0 // nothing
-
-    @AccessedByNative
-    private val mListenerContext: Int = 0   // nothing
 
     private var mSurfaceHolder: SurfaceHolder? = null
 
@@ -251,6 +243,10 @@ class MediaPlayer : IMediaPlayer {
 
     override fun setAudioStreamType(streamtype: Int) {
         // do nothing
+    }
+
+    fun setVolume(volume: Float) {
+        setVolume(volume, volume)
     }
 
     override fun setVolume(leftVolume: Float, rightVolume: Float) {
