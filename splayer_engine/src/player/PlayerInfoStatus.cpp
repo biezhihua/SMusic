@@ -132,7 +132,8 @@ void PlayerInfoStatus::reset() {
 
 void PlayerInfoStatus::setOption(int category, const char *type, const char *option) {
     if (DEBUG) {
-        ALOGD("PlayerInfoStatus", "[%s] category=%d type=%s option=%s", __func__, category, type, option);
+        ALOGD("PlayerInfoStatus", "[%s] category=%d type=%s option=%s", __func__, category, type,
+              option);
     }
     switch (category) {
         case OPT_CATEGORY_FORMAT: {
@@ -238,7 +239,7 @@ void PlayerInfoStatus::parse_int(const char *type, int64_t option) {
     } else if (!strcmp("infbuf", type)) { // 无限缓冲区标志
         infiniteBuffer = (option > 0) ? 1 : ((option < 0) ? -1 : 0);
     } else {
-//        ALOGE("unknown option - '%s'", type);
+        ALOGE(TAG, "[%s] unknown option - '%s'", __func__, type);
     }
 }
 

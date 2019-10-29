@@ -66,3 +66,9 @@ void AudioDevice::destroy() {
     }
 
 }
+
+void AudioDevice::setMute(bool mute) {
+    if (DEBUG) {
+        ALOGD(TAG, "[%s]", __func__);
+    }
+}
