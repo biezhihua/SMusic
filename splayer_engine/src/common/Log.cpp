@@ -1,4 +1,4 @@
-#include <common/Log.h>
+#include "Log.h"
 
 #ifdef __ANDROID__
 #else

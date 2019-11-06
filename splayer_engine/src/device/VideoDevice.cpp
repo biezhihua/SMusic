@@ -1,4 +1,4 @@
-#include <device/VideoDevice.h>
+#include "VideoDevice.h"
 
 VideoDevice::VideoDevice() {}
 

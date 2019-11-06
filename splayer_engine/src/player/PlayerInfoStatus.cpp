@@ -1,4 +1,4 @@
-#include <player/PlayerInfoStatus.h>
+#include "PlayerInfoStatus.h"
 
 PlayerInfoStatus::PlayerInfoStatus() {
     init();

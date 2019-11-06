@@ -1,7 +1,4 @@
-
-#include <device/AudioDevice.h>
-
-#include "device/AudioDevice.h"
+#include "AudioDevice.h"
 
 AudioDevice::AudioDevice() {
 

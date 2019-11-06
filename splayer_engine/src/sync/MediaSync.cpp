@@ -1,4 +1,4 @@
-#include <sync/MediaSync.h>
+#include "MediaSync.h"
 
 MediaSync::MediaSync() = default;
 

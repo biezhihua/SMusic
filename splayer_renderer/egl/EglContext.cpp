@@ -1,4 +1,4 @@
-#include <egl/EglContext.h>
+#include "EglContext.h"
 
 EglContext *EglContext::instance;
 

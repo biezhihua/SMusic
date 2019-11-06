@@ -78,6 +78,16 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         # 引入自有代码头文件
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/common
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/convertor
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/decoder
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/device
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/message
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/player
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/queue
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/renderer
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/stream
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/sync
         )
 
 # 链接子模块

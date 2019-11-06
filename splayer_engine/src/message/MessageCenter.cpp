@@ -1,4 +1,4 @@
-#include "message/MessageCenter.h"
+#include "MessageCenter.h"
 
 MessageCenter::MessageCenter(IMediaPlayer *mediaPlayer, ISyncMediaPlayer *innerMediaPlayer) {
     this->msgQueue = new MessageQueue();

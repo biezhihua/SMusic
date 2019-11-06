@@ -1,4 +1,4 @@
-#include <FrameBuffer.h>
+#include "FrameBuffer.h"
 
 TextureAttributes FrameBuffer::defaultTextureAttributes = {
         .minFilter = GL_LINEAR,

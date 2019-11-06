@@ -1,4 +1,4 @@
-#include "sync/MediaClock.h"
+#include "MediaClock.h"
 
 MediaClock::MediaClock() { queueSerial = nullptr; }
 

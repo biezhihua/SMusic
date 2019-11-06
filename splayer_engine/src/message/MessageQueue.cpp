@@ -1,4 +1,4 @@
-#include <message/MessageQueue.h>
+#include "MessageQueue.h"
 
 MessageQueue::MessageQueue() { queue = new list<Msg *>(); }
 

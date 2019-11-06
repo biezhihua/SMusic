@@ -1,4 +1,4 @@
-#include "decoder/VideoDecoder.h"
+#include "VideoDecoder.h"
 
 VideoDecoder::VideoDecoder(AVFormatContext *formatCtx,
                            AVCodecContext *avctx,

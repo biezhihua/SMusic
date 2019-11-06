@@ -1,5 +1,4 @@
-#include <common/Log.h>
-#include "common/FFmpegUtils.h"
+#include "FFmpegUtils.h"
 
 #ifdef __cplusplus
 extern "C" {

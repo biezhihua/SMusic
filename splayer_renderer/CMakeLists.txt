@@ -44,6 +44,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         # 引入自有代码头文件
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/egl
+        ${CMAKE_CURRENT_SOURCE_DIR}/gles
+        ${CMAKE_CURRENT_SOURCE_DIR}/utils
         )
 
 # 链接模块

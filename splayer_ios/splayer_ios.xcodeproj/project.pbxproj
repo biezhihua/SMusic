@@ -11,6 +11,52 @@
 		9DDB83082372ECBB00DA3F99 /* Person.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83062372ECBB00DA3F99 /* Person.hpp */; };
 		9DDB83102372F22A00DA3F99 /* splayer_ios_birdge_header.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB830F2372F22A00DA3F99 /* splayer_ios_birdge_header.h */; };
 		9DDB831B2373166000DA3F99 /* module_birdge.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB831A2373166000DA3F99 /* module_birdge.h */; };
+		9DDB840A23731F3500DA3F99 /* MediaPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83B923731D0000DA3F99 /* MediaPlayer.cpp */; };
+		9DDB840B23731F3500DA3F99 /* AudioResample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83F123731D0000DA3F99 /* AudioResample.cpp */; };
+		9DDB840C23731F3500DA3F99 /* Stream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83F323731D0000DA3F99 /* Stream.cpp */; };
+		9DDB840D23731F3500DA3F99 /* AudioDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83F523731D0000DA3F99 /* AudioDecoder.cpp */; };
+		9DDB840E23731F3500DA3F99 /* MediaDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83F623731D0000DA3F99 /* MediaDecoder.cpp */; };
+		9DDB840F23731F3500DA3F99 /* VideoDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83F723731D0000DA3F99 /* VideoDecoder.cpp */; };
+		9DDB841023731F3500DA3F99 /* MessageQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83F923731D0000DA3F99 /* MessageQueue.cpp */; };
+		9DDB841123731F3500DA3F99 /* MessageCenter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83FA23731D0000DA3F99 /* MessageCenter.cpp */; };
+		9DDB841223731F3500DA3F99 /* Msg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83FB23731D0000DA3F99 /* Msg.cpp */; };
+		9DDB841323731F3500DA3F99 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83FD23731D0000DA3F99 /* Log.cpp */; };
+		9DDB841423731F3500DA3F99 /* FFmpegUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83FE23731D0000DA3F99 /* FFmpegUtils.cpp */; };
+		9DDB841523731F3500DA3F99 /* PacketQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB840023731D0000DA3F99 /* PacketQueue.cpp */; };
+		9DDB841623731F3500DA3F99 /* FrameQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB840123731D0000DA3F99 /* FrameQueue.cpp */; };
+		9DDB841723731F3500DA3F99 /* VideoDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB840323731D0000DA3F99 /* VideoDevice.cpp */; };
+		9DDB841823731F3500DA3F99 /* AudioDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB840423731D0000DA3F99 /* AudioDevice.cpp */; };
+		9DDB841923731F3500DA3F99 /* MediaSync.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB840623731D0000DA3F99 /* MediaSync.cpp */; };
+		9DDB841A23731F3500DA3F99 /* MediaClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB840723731D0000DA3F99 /* MediaClock.cpp */; };
+		9DDB841B23731F3500DA3F99 /* PlayerInfoStatus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB840923731D0000DA3F99 /* PlayerInfoStatus.cpp */; };
+		9DDB841C23731F4700DA3F99 /* MediaPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83BB23731D0000DA3F99 /* MediaPlayer.h */; };
+		9DDB841D23731F4700DA3F99 /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83BE23731D0000DA3F99 /* Texture.h */; };
+		9DDB841E23731F4700DA3F99 /* AudioResample.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83C023731D0000DA3F99 /* AudioResample.h */; };
+		9DDB841F23731F4700DA3F99 /* Stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83C223731D0000DA3F99 /* Stream.h */; };
+		9DDB842023731F4700DA3F99 /* IStreamListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83C323731D0000DA3F99 /* IStreamListener.h */; };
+		9DDB842123731F4700DA3F99 /* AudioDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83C523731D0000DA3F99 /* AudioDecoder.h */; };
+		9DDB842223731F4700DA3F99 /* VideoDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83C623731D0000DA3F99 /* VideoDecoder.h */; };
+		9DDB842323731F4700DA3F99 /* MediaDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83C723731D0000DA3F99 /* MediaDecoder.h */; };
+		9DDB842423731F4700DA3F99 /* Msg.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83C923731D0000DA3F99 /* Msg.h */; };
+		9DDB842523731F4700DA3F99 /* IMessageListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83CA23731D0000DA3F99 /* IMessageListener.h */; };
+		9DDB842623731F4700DA3F99 /* MessageQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83CB23731D0000DA3F99 /* MessageQueue.h */; };
+		9DDB842723731F4700DA3F99 /* MessageCenter.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83CC23731D0000DA3F99 /* MessageCenter.h */; };
+		9DDB842823731F4700DA3F99 /* Condition.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83CE23731D0000DA3F99 /* Condition.h */; };
+		9DDB842923731F4700DA3F99 /* Errors.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83CF23731D0000DA3F99 /* Errors.h */; };
+		9DDB842A23731F4700DA3F99 /* Thread.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83D023731D0000DA3F99 /* Thread.h */; };
+		9DDB842B23731F5700DA3F99 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83D123731D0000DA3F99 /* Log.h */; };
+		9DDB842C23731F5700DA3F99 /* FFmpegUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83D223731D0000DA3F99 /* FFmpegUtils.h */; };
+		9DDB842D23731F5700DA3F99 /* Mutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83D323731D0000DA3F99 /* Mutex.h */; };
+		9DDB842E23731F5700DA3F99 /* FrameQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83D523731D0000DA3F99 /* FrameQueue.h */; };
+		9DDB842F23731F5700DA3F99 /* PacketQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83D623731D0000DA3F99 /* PacketQueue.h */; };
+		9DDB843023731F5700DA3F99 /* AudioDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83D823731D0000DA3F99 /* AudioDevice.h */; };
+		9DDB843123731F5700DA3F99 /* VideoDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83D923731D0000DA3F99 /* VideoDevice.h */; };
+		9DDB843223731F5700DA3F99 /* MediaClock.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83DB23731D0000DA3F99 /* MediaClock.h */; };
+		9DDB843323731F5700DA3F99 /* MediaSync.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83DC23731D0000DA3F99 /* MediaSync.h */; };
+		9DDB843423731F5700DA3F99 /* PlayerStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83DE23731D0000DA3F99 /* PlayerStatus.h */; };
+		9DDB843523731F5700DA3F99 /* IMediaPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83DF23731D0000DA3F99 /* IMediaPlayer.h */; };
+		9DDB843623731F5700DA3F99 /* ISyncMediaPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83E023731D0000DA3F99 /* ISyncMediaPlayer.h */; };
+		9DDB843723731F5700DA3F99 /* PlayerInfoStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83E123731D0000DA3F99 /* PlayerInfoStatus.h */; };
 		9DE51FB82371E5A0003B6CCC /* splayer_ios.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DE51FAE2371E5A0003B6CCC /* splayer_ios.framework */; };
 		9DE51FBD2371E5A0003B6CCC /* splayer_iosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE51FBC2371E5A0003B6CCC /* splayer_iosTests.swift */; };
 		9DE51FBF2371E5A0003B6CCC /* splayer_ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DE51FB12371E5A0003B6CCC /* splayer_ios.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -456,6 +502,34 @@
 			buildActionMask = 2147483647;
 			files = (
 				9DDB83102372F22A00DA3F99 /* splayer_ios_birdge_header.h in Headers */,
+				9DDB842B23731F5700DA3F99 /* Log.h in Headers */,
+				9DDB842C23731F5700DA3F99 /* FFmpegUtils.h in Headers */,
+				9DDB842D23731F5700DA3F99 /* Mutex.h in Headers */,
+				9DDB842E23731F5700DA3F99 /* FrameQueue.h in Headers */,
+				9DDB842F23731F5700DA3F99 /* PacketQueue.h in Headers */,
+				9DDB843023731F5700DA3F99 /* AudioDevice.h in Headers */,
+				9DDB843123731F5700DA3F99 /* VideoDevice.h in Headers */,
+				9DDB843223731F5700DA3F99 /* MediaClock.h in Headers */,
+				9DDB843323731F5700DA3F99 /* MediaSync.h in Headers */,
+				9DDB843423731F5700DA3F99 /* PlayerStatus.h in Headers */,
+				9DDB843523731F5700DA3F99 /* IMediaPlayer.h in Headers */,
+				9DDB843623731F5700DA3F99 /* ISyncMediaPlayer.h in Headers */,
+				9DDB843723731F5700DA3F99 /* PlayerInfoStatus.h in Headers */,
+				9DDB841C23731F4700DA3F99 /* MediaPlayer.h in Headers */,
+				9DDB841D23731F4700DA3F99 /* Texture.h in Headers */,
+				9DDB841E23731F4700DA3F99 /* AudioResample.h in Headers */,
+				9DDB841F23731F4700DA3F99 /* Stream.h in Headers */,
+				9DDB842023731F4700DA3F99 /* IStreamListener.h in Headers */,
+				9DDB842123731F4700DA3F99 /* AudioDecoder.h in Headers */,
+				9DDB842223731F4700DA3F99 /* VideoDecoder.h in Headers */,
+				9DDB842323731F4700DA3F99 /* MediaDecoder.h in Headers */,
+				9DDB842423731F4700DA3F99 /* Msg.h in Headers */,
+				9DDB842523731F4700DA3F99 /* IMessageListener.h in Headers */,
+				9DDB842623731F4700DA3F99 /* MessageQueue.h in Headers */,
+				9DDB842723731F4700DA3F99 /* MessageCenter.h in Headers */,
+				9DDB842823731F4700DA3F99 /* Condition.h in Headers */,
+				9DDB842923731F4700DA3F99 /* Errors.h in Headers */,
+				9DDB842A23731F4700DA3F99 /* Thread.h in Headers */,
 				9DE51FBF2371E5A0003B6CCC /* splayer_ios.h in Headers */,
 				9DDB83082372ECBB00DA3F99 /* Person.hpp in Headers */,
 				9DDB831B2373166000DA3F99 /* module_birdge.h in Headers */,
@@ -561,6 +635,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9DDB840A23731F3500DA3F99 /* MediaPlayer.cpp in Sources */,
+				9DDB840B23731F3500DA3F99 /* AudioResample.cpp in Sources */,
+				9DDB840C23731F3500DA3F99 /* Stream.cpp in Sources */,
+				9DDB840D23731F3500DA3F99 /* AudioDecoder.cpp in Sources */,
+				9DDB840E23731F3500DA3F99 /* MediaDecoder.cpp in Sources */,
+				9DDB840F23731F3500DA3F99 /* VideoDecoder.cpp in Sources */,
+				9DDB841023731F3500DA3F99 /* MessageQueue.cpp in Sources */,
+				9DDB841123731F3500DA3F99 /* MessageCenter.cpp in Sources */,
+				9DDB841223731F3500DA3F99 /* Msg.cpp in Sources */,
+				9DDB841323731F3500DA3F99 /* Log.cpp in Sources */,
+				9DDB841423731F3500DA3F99 /* FFmpegUtils.cpp in Sources */,
+				9DDB841523731F3500DA3F99 /* PacketQueue.cpp in Sources */,
+				9DDB841623731F3500DA3F99 /* FrameQueue.cpp in Sources */,
+				9DDB841723731F3500DA3F99 /* VideoDevice.cpp in Sources */,
+				9DDB841823731F3500DA3F99 /* AudioDevice.cpp in Sources */,
+				9DDB841923731F3500DA3F99 /* MediaSync.cpp in Sources */,
+				9DDB841A23731F3500DA3F99 /* MediaClock.cpp in Sources */,
+				9DDB841B23731F3500DA3F99 /* PlayerInfoStatus.cpp in Sources */,
 				9DDB83072372ECBB00DA3F99 /* Person.cpp in Sources */,
 				9DE51FD62371E611003B6CCC /* MediaPlayer.swift in Sources */,
 			);

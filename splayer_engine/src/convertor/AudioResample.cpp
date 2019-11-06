@@ -1,7 +1,4 @@
-
-#include <convertor/AudioResample.h>
-
-#include "convertor/AudioResample.h"
+#include "AudioResample.h"
 
 AudioResample::AudioResample() {
     srcFrame = av_frame_alloc();
