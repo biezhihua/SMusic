@@ -10,6 +10,7 @@
 		9DDB83072372ECBB00DA3F99 /* Person.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83052372ECBB00DA3F99 /* Person.cpp */; };
 		9DDB83082372ECBB00DA3F99 /* Person.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83062372ECBB00DA3F99 /* Person.hpp */; };
 		9DDB83102372F22A00DA3F99 /* splayer_ios_birdge_header.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB830F2372F22A00DA3F99 /* splayer_ios_birdge_header.h */; };
+		9DDB831B2373166000DA3F99 /* module_birdge.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB831A2373166000DA3F99 /* module_birdge.h */; };
 		9DE51FB82371E5A0003B6CCC /* splayer_ios.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DE51FAE2371E5A0003B6CCC /* splayer_ios.framework */; };
 		9DE51FBD2371E5A0003B6CCC /* splayer_iosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE51FBC2371E5A0003B6CCC /* splayer_iosTests.swift */; };
 		9DE51FBF2371E5A0003B6CCC /* splayer_ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DE51FB12371E5A0003B6CCC /* splayer_ios.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -31,7 +32,7 @@
 		9DDB83062372ECBB00DA3F99 /* Person.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Person.hpp; sourceTree = "<group>"; };
 		9DDB830F2372F22A00DA3F99 /* splayer_ios_birdge_header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = splayer_ios_birdge_header.h; sourceTree = "<group>"; };
 		9DDB83132372F3E900DA3F99 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
-		9DDB83142372F46000DA3F99 /* SwiftCpp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftCpp.h; sourceTree = "<group>"; };
+		9DDB831A2373166000DA3F99 /* module_birdge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = module_birdge.h; sourceTree = "<group>"; };
 		9DE51FAE2371E5A0003B6CCC /* splayer_ios.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = splayer_ios.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9DE51FB12371E5A0003B6CCC /* splayer_ios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = splayer_ios.h; sourceTree = "<group>"; };
 		9DE51FB22371E5A0003B6CCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -60,6 +61,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9DDB8316237312D100DA3F99 /* swift */ = {
+			isa = PBXGroup;
+			children = (
+				9DE51FD52371E611003B6CCC /* MediaPlayer.swift */,
+			);
+			path = swift;
+			sourceTree = "<group>";
+		};
+		9DDB8317237312DA00DA3F99 /* native */ = {
+			isa = PBXGroup;
+			children = (
+				9DDB83052372ECBB00DA3F99 /* Person.cpp */,
+				9DDB83062372ECBB00DA3F99 /* Person.hpp */,
+			);
+			path = native;
+			sourceTree = "<group>";
+		};
+		9DDB8318237312DF00DA3F99 /* birdge */ = {
+			isa = PBXGroup;
+			children = (
+				9DDB830F2372F22A00DA3F99 /* splayer_ios_birdge_header.h */,
+				9DDB831A2373166000DA3F99 /* module_birdge.h */,
+			);
+			path = birdge;
+			sourceTree = "<group>";
+		};
 		9DE51FA42371E5A0003B6CCC = {
 			isa = PBXGroup;
 			children = (
@@ -81,14 +108,12 @@
 		9DE51FB02371E5A0003B6CCC /* splayer_ios */ = {
 			isa = PBXGroup;
 			children = (
+				9DDB83132372F3E900DA3F99 /* module.modulemap */,
+				9DDB8318237312DF00DA3F99 /* birdge */,
+				9DDB8317237312DA00DA3F99 /* native */,
+				9DDB8316237312D100DA3F99 /* swift */,
 				9DE51FB12371E5A0003B6CCC /* splayer_ios.h */,
 				9DE51FB22371E5A0003B6CCC /* Info.plist */,
-				9DE51FD52371E611003B6CCC /* MediaPlayer.swift */,
-				9DDB830F2372F22A00DA3F99 /* splayer_ios_birdge_header.h */,
-				9DDB83052372ECBB00DA3F99 /* Person.cpp */,
-				9DDB83062372ECBB00DA3F99 /* Person.hpp */,
-				9DDB83132372F3E900DA3F99 /* module.modulemap */,
-				9DDB83142372F46000DA3F99 /* SwiftCpp.h */,
 			);
 			path = splayer_ios;
 			sourceTree = "<group>";
@@ -112,6 +137,7 @@
 				9DDB83102372F22A00DA3F99 /* splayer_ios_birdge_header.h in Headers */,
 				9DE51FBF2371E5A0003B6CCC /* splayer_ios.h in Headers */,
 				9DDB83082372ECBB00DA3F99 /* Person.hpp in Headers */,
+				9DDB831B2373166000DA3F99 /* module_birdge.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -296,7 +322,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_INCLUDE_PATHS = "";
-				"SWIFT_INCLUDE_PATHS[arch=*]" = "${SRCROOT}";
+				"SWIFT_INCLUDE_PATHS[arch=*]" = "${SRCROOT} ${SRCROOT}/birdge";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
