@@ -7,14 +7,16 @@
 //
 
 import Foundation
+import splayer_ios_birdge
 
-public class IOSMediaPlayer {
+public class MediaPlayer {
     
     public init() {
-        
+        print(init_person());
     }
     
     public func play(){
         print("play")
+        
     }
 }

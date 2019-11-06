@@ -1,0 +1,4 @@
+module splayer_ios_birdge [system] {
+    header "SwiftCpp.h"
+    export *
+}

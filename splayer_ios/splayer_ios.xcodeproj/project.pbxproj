@@ -7,10 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9DDB83072372ECBB00DA3F99 /* Person.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DDB83052372ECBB00DA3F99 /* Person.cpp */; };
+		9DDB83082372ECBB00DA3F99 /* Person.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB83062372ECBB00DA3F99 /* Person.hpp */; };
+		9DDB83102372F22A00DA3F99 /* splayer_ios_birdge_header.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB830F2372F22A00DA3F99 /* splayer_ios_birdge_header.h */; };
 		9DE51FB82371E5A0003B6CCC /* splayer_ios.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DE51FAE2371E5A0003B6CCC /* splayer_ios.framework */; };
 		9DE51FBD2371E5A0003B6CCC /* splayer_iosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE51FBC2371E5A0003B6CCC /* splayer_iosTests.swift */; };
 		9DE51FBF2371E5A0003B6CCC /* splayer_ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DE51FB12371E5A0003B6CCC /* splayer_ios.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9DE51FD62371E611003B6CCC /* IOSMediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE51FD52371E611003B6CCC /* IOSMediaPlayer.swift */; };
+		9DE51FD62371E611003B6CCC /* MediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE51FD52371E611003B6CCC /* MediaPlayer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -24,13 +27,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9DDB83052372ECBB00DA3F99 /* Person.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Person.cpp; sourceTree = "<group>"; };
+		9DDB83062372ECBB00DA3F99 /* Person.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Person.hpp; sourceTree = "<group>"; };
+		9DDB830F2372F22A00DA3F99 /* splayer_ios_birdge_header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = splayer_ios_birdge_header.h; sourceTree = "<group>"; };
+		9DDB83132372F3E900DA3F99 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		9DDB83142372F46000DA3F99 /* SwiftCpp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftCpp.h; sourceTree = "<group>"; };
 		9DE51FAE2371E5A0003B6CCC /* splayer_ios.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = splayer_ios.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9DE51FB12371E5A0003B6CCC /* splayer_ios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = splayer_ios.h; sourceTree = "<group>"; };
 		9DE51FB22371E5A0003B6CCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9DE51FB72371E5A0003B6CCC /* splayer_iosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = splayer_iosTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9DE51FBC2371E5A0003B6CCC /* splayer_iosTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = splayer_iosTests.swift; sourceTree = "<group>"; };
 		9DE51FBE2371E5A0003B6CCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9DE51FD52371E611003B6CCC /* IOSMediaPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSMediaPlayer.swift; sourceTree = "<group>"; };
+		9DE51FD52371E611003B6CCC /* MediaPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPlayer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,7 +83,12 @@
 			children = (
 				9DE51FB12371E5A0003B6CCC /* splayer_ios.h */,
 				9DE51FB22371E5A0003B6CCC /* Info.plist */,
-				9DE51FD52371E611003B6CCC /* IOSMediaPlayer.swift */,
+				9DE51FD52371E611003B6CCC /* MediaPlayer.swift */,
+				9DDB830F2372F22A00DA3F99 /* splayer_ios_birdge_header.h */,
+				9DDB83052372ECBB00DA3F99 /* Person.cpp */,
+				9DDB83062372ECBB00DA3F99 /* Person.hpp */,
+				9DDB83132372F3E900DA3F99 /* module.modulemap */,
+				9DDB83142372F46000DA3F99 /* SwiftCpp.h */,
 			);
 			path = splayer_ios;
 			sourceTree = "<group>";
@@ -96,7 +109,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9DDB83102372F22A00DA3F99 /* splayer_ios_birdge_header.h in Headers */,
 				9DE51FBF2371E5A0003B6CCC /* splayer_ios.h in Headers */,
+				9DDB83082372ECBB00DA3F99 /* Person.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -199,7 +214,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9DE51FD62371E611003B6CCC /* IOSMediaPlayer.swift in Sources */,
+				9DDB83072372ECBB00DA3F99 /* Person.cpp in Sources */,
+				9DE51FD62371E611003B6CCC /* MediaPlayer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -279,6 +295,8 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_INCLUDE_PATHS = "";
+				"SWIFT_INCLUDE_PATHS[arch=*]" = "${SRCROOT}";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -335,6 +353,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_INCLUDE_PATHS = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
