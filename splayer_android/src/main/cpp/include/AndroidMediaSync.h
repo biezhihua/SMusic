@@ -1,7 +1,7 @@
 #ifndef SPLAYER_ANDROID_SYNC_H
 #define SPLAYER_ANDROID_SYNC_H
 
-#include <sync/MediaSync.h>
+#include "MediaSync.h"
 
 class AndroidMediaSync : public MediaSync {
 

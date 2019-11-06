@@ -1,7 +1,7 @@
 #ifndef SPLAYER_ANDROID_MEDIAPLAYER_H
 #define SPLAYER_ANDROID_MEDIAPLAYER_H
 
-#include <MediaPlayer.h>
+#include "MediaPlayer.h"
 #include <android/native_window.h>
 #include "AndroidVideoDevice.h"
 

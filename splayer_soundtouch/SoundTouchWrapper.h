@@ -1,7 +1,7 @@
 #ifndef SOUNDTOUCH_WRAPPER_H
 #define SOUNDTOUCH_WRAPPER_H
 
-#include <include/SoundTouch.h>
+#include "SoundTouch.h"
 
 using namespace std;
 

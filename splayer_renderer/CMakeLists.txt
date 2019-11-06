@@ -12,19 +12,13 @@ get_filename_component(RENDERER_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../ ABSOLUT
 
 # 添加源码子目录
 file(GLOB RENDERER_CPP_FILES
-        egl/*.cpp
-        gles/*.cpp
-        gles/input/*.cpp
-        utils/*.cpp
+        src/*.cpp
         *.cpp
         )
 
 # 添加头文件子目录
 file(GLOB RENDERER_H_FILES
-        egl/*.h
-        gles/*.h
-        gles/input/*.h
-        utils/*.h
+        include/*.h
         *.h
         )
 
@@ -44,9 +38,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         # 引入自有代码头文件
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/egl
-        ${CMAKE_CURRENT_SOURCE_DIR}/gles
-        ${CMAKE_CURRENT_SOURCE_DIR}/utils
         )
 
 # 链接模块

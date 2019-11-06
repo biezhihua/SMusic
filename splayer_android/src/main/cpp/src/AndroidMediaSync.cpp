@@ -1,4 +1,4 @@
-#include <AndroidMediaSync.h>
+#include "AndroidMediaSync.h"
 
 void AndroidMediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDecoder) {
     MediaSync::start(videoDecoder, audioDecoder);

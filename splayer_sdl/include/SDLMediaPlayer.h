@@ -2,9 +2,9 @@
 #define SDL_MEDIAPLAYER_H
 
 #include <MediaPlayer.h>
-#include <message/MessageCenter.h>
-#include <message/IMessageListener.h>
-#include <sync/MediaSync.h>
+#include <MessageCenter.h>
+#include <IMessageListener.h>
+#include <MediaSync.h>
 #include <SDL.h>
 #include <SDLVideoDevice.h>
 

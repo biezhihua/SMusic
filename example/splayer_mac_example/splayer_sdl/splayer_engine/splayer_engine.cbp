@@ -27,18 +27,8 @@
 					<Add directory="/Users/biezhihua/StudySpace/splayer/distribution/macos/ffmpeg/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/common"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/convertor"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/decoder"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/device"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/message"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/player"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/queue"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/renderer"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/stream"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/sync"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
 					<Add directory="/usr/local/include"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/include"/>
@@ -63,18 +53,8 @@
 					<Add directory="/Users/biezhihua/StudySpace/splayer/distribution/macos/ffmpeg/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include"/>
 					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/common"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/convertor"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/decoder"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/device"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/message"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/player"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/queue"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/renderer"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/stream"/>
-					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/sync"/>
+					<Add directory="/Users/biezhihua/StudySpace/splayer/splayer_engine/include"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
 					<Add directory="/usr/local/include"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/include"/>
@@ -142,136 +122,55 @@
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/MediaPlayer.h">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/common/Condition.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/AudioDecoder.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/common/Errors.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/AudioDevice.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/common/FFmpegUtils.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/AudioResample.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/common/Log.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/FFmpegUtils.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/common/Mutex.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/FrameQueue.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/common/Thread.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/Log.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/convertor/AudioResample.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/MediaClock.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/decoder/AudioDecoder.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/MediaDecoder.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/decoder/MediaDecoder.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/MediaSync.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/decoder/VideoDecoder.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/MessageCenter.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/device/AudioDevice.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/MessageQueue.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/device/VideoDevice.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/Msg.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/message/IMessageListener.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/PacketQueue.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/message/MessageCenter.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/PlayerInfoStatus.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/message/MessageQueue.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/Stream.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/message/Msg.h">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/VideoDecoder.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/player/IMediaPlayer.h">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/player/ISyncMediaPlayer.h">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/player/PlayerInfoStatus.h">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/player/PlayerStatus.h">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/queue/FrameQueue.h">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/queue/PacketQueue.h">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/renderer/Texture.h">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/stream/IStreamListener.h">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/stream/Stream.h">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/sync/MediaClock.h">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/include/sync/MediaSync.h">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/common/FFmpegUtils.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/common/Log.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/convertor/AudioResample.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/decoder/AudioDecoder.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/decoder/MediaDecoder.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/decoder/VideoDecoder.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/device/AudioDevice.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/device/VideoDevice.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/message/MessageCenter.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/message/MessageQueue.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/message/Msg.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/player/PlayerInfoStatus.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/queue/FrameQueue.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/queue/PacketQueue.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/stream/Stream.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/sync/MediaClock.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/sync/MediaSync.cpp">
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/VideoDevice.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/SoundTouchWrapper.cpp">

@@ -2,7 +2,7 @@
 #ifndef SDL_AUDIODEVICE_H
 #define SDL_AUDIODEVICE_H
 
-#include <device/AudioDevice.h>
+#include <AudioDevice.h>
 #include <SDL_audio.h>
 
 class SDLAudioDevice : public AudioDevice {

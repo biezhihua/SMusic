@@ -1,7 +1,7 @@
 #ifndef SPLAYER_ANDROID_SLESAUDIODEVICE_H
 #define SPLAYER_ANDROID_SLESAUDIODEVICE_H
 
-#include <device/AudioDevice.h>
+#include "AudioDevice.h"
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include <SLES/OpenSLES_AndroidConfiguration.h>

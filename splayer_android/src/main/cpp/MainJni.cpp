@@ -1,12 +1,12 @@
 #include <jni.h>
 #include <cassert>
-#include <common/Log.h>
-#include <AndroidJniHelp.h>
+#include "Log.h"
+#include "AndroidJniHelp.h"
 #include <android/native_window_jni.h>
-#include <AndroidMediaPlayer.h>
-#include <AndroidMediaSync.h>
-#include <AndroidAudioDevice.h>
-#include <utils/Log.h>
+#include "AndroidMediaPlayer.h"
+#include "AndroidMediaSync.h"
+#include "AndroidAudioDevice.h"
+#include "Log.h"
 
 extern "C" {
 #include <libavcodec/jni.h>

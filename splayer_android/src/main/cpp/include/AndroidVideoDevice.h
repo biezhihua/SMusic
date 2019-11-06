@@ -1,12 +1,12 @@
 #ifndef SPLAYER_ANDROID_GLESVIDEODEVICE_H
 #define SPLAYER_ANDROID_GLESVIDEODEVICE_H
 
-#include <device/VideoDevice.h>
+#include "VideoDevice.h"
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include <EGL/egl.h>
-#include <egl/EglHelper.h>
-#include <InputRenderNode.h>
+#include "EglHelper.h"
+#include "InputRenderNode.h"
 
 class AndroidVideoDevice : public VideoDevice {
 

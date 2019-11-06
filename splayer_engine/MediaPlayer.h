@@ -3,20 +3,20 @@
 
 class Stream;
 
-#include <stream/Stream.h>
-#include <sync/MediaClock.h>
-#include <player/PlayerInfoStatus.h>
-#include <decoder/AudioDecoder.h>
-#include <decoder/VideoDecoder.h>
-#include <device/AudioDevice.h>
-#include <device/VideoDevice.h>
-#include <sync/MediaSync.h>
-#include <convertor/AudioResample.h>
-#include <common/Log.h>
-#include <message/MessageCenter.h>
-#include <stream/IStreamListener.h>
-#include <player/IMediaPlayer.h>
-#include <player/ISyncMediaPlayer.h>
+#include "Stream.h"
+#include "MediaClock.h"
+#include "PlayerInfoStatus.h"
+#include "AudioDecoder.h"
+#include "VideoDecoder.h"
+#include "AudioDevice.h"
+#include "VideoDevice.h"
+#include "MediaSync.h"
+#include "AudioResample.h"
+#include "Log.h"
+#include "MessageCenter.h"
+#include "IStreamListener.h"
+#include "IMediaPlayer.h"
+#include "ISyncMediaPlayer.h"
 
 class MediaPlayer : public ISyncMediaPlayer, IMediaPlayer, IStreamListener {
 

@@ -50,18 +50,18 @@ add_subdirectory(${ENGINE_ROOT_DIR}/splayer_soundtouch splayer_soundtouch)
 
 # 添加源码子目录
 file(GLOB ENGINE_CPP_FILES
-        src/*/*.cpp
+        src/*.cpp
         *.cpp
         )
 
 # 添加头文件子目录
 file(GLOB ENGINE_H_FILES
-        include/*/*.h
+        include/*.h
         *.h
         )
 
 # 设置源文件集合
-set(ENGINE_SOURCE_FILES ${ENGINE_CPP_FILES} ${ENGINE_H_FILES})
+set(ENGINE_SOURCE_FILES ${ENGINE_CPP_FILES})
 
 # 设置库
 add_library(${PROJECT_NAME} SHARED ${ENGINE_SOURCE_FILES})
@@ -76,18 +76,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         ${ENGINE_ROOT_DIR}/splayer_soundtouch
 
         # 引入自有代码头文件
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/common
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/convertor
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/decoder
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/device
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/message
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/player
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/queue
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/renderer
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/stream
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/sync
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         )
 
 # 链接子模块

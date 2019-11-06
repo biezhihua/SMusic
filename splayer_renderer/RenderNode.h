@@ -4,7 +4,7 @@
 #include <string>
 #include "FrameBuffer.h"
 #include "NodeType.h"
-#include "gles/GLFilter.h"
+#include "GLFilter.h"
 
 /**
  * 渲染结点

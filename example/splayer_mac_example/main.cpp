@@ -1,7 +1,7 @@
 #include <SDLMediaPlayer.h>
 #include <SDLAudioDevice.h>
 #include <SDLVideoDevice.h>
-#include <message/MessageCenter.h>
+#include <MessageCenter.h>
 
 SDLMediaPlayer *mediaPlayer = nullptr;
 

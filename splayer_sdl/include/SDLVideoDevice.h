@@ -1,11 +1,11 @@
 #ifndef SDL_VIDEODEVICE_H
 #define SDL_VIDEODEVICE_H
 
-#include <device/VideoDevice.h>
+#include <VideoDevice.h>
 #include <SDL_video.h>
 #include <SDL_render.h>
 #include <SDL.h>
-#include <queue/FrameQueue.h>
+#include <FrameQueue.h>
 
 /// 一秒
 /// 1 second
