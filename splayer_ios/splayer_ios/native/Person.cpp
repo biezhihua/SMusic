@@ -1,5 +1,4 @@
 #include "Person.hpp"
-#include "splayer_ios_birdge_header.h"
 
 Person::Person(){
     age = 0;
@@ -28,13 +27,4 @@ void Person::introduceMySelf(){
     }else{
         cout << "i am girl";
     }
-}
-
-void* init_person(){
-    return new Person();
-}
-    
-void person_introduceMySelf(void *person){
-    Person *p = (Person*)person;
-    p->introduceMySelf();
 }
