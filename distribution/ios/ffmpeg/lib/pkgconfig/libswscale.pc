@@ -1,0 +1,14 @@
+prefix=/Users/biezhihua/StudySpace/FFmpeg-iOS-build-script/thin/x86_64
+exec_prefix=${prefix}
+libdir=/Users/biezhihua/StudySpace/FFmpeg-iOS-build-script/thin/x86_64/lib
+includedir=/Users/biezhihua/StudySpace/FFmpeg-iOS-build-script/thin/x86_64/include
+
+Name: libswscale
+Description: FFmpeg image rescaling library
+Version: 5.6.100
+Requires: libavutil >= 56.35.101
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lswscale -lm
+Libs.private: 
+Cflags: -I${includedir}

@@ -16,7 +16,7 @@
 		9D8B9FC72370675A004AEAFF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9D8B9FC52370675A004AEAFF /* LaunchScreen.storyboard */; };
 		9D8B9FD22370675B004AEAFF /* splayer_ios_exampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8B9FD12370675B004AEAFF /* splayer_ios_exampleTests.swift */; };
 		9D8B9FDD2370675B004AEAFF /* splayer_ios_exampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8B9FDC2370675B004AEAFF /* splayer_ios_exampleUITests.swift */; };
-		9DDB823D2372E43B00DA3F99 /* splayer_ios.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DDB823A2372E42B00DA3F99 /* splayer_ios.framework */; };
+		9DD3FA272376D26400DD4512 /* splayer_ios.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DDB823A2372E42B00DA3F99 /* splayer_ios.framework */; };
 		9DDB823E2372E43B00DA3F99 /* splayer_ios.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9DDB823A2372E42B00DA3F99 /* splayer_ios.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -89,7 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9DDB823D2372E43B00DA3F99 /* splayer_ios.framework in Frameworks */,
+				9DD3FA272376D26400DD4512 /* splayer_ios.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
