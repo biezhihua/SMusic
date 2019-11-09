@@ -7,6 +7,90 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9D161F4B2376FD9C00C0EF74 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA282376D2A300DD4512 /* libavcodec.a */; };
+		9D161F4C2376FD9C00C0EF74 /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D161F402376F1E800C0EF74 /* libavdevice.a */; };
+		9D161F4D2376FD9C00C0EF74 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2D2376D2A300DD4512 /* libavfilter.a */; };
+		9D161F4E2376FD9C00C0EF74 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2A2376D2A300DD4512 /* libavformat.a */; };
+		9D161F4F2376FD9C00C0EF74 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2B2376D2A300DD4512 /* libavutil.a */; };
+		9D161F502376FD9C00C0EF74 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA292376D2A300DD4512 /* libswresample.a */; };
+		9D161F512376FD9C00C0EF74 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2C2376D2A300DD4512 /* libswscale.a */; };
+		9D161F522376FDB300C0EF74 /* VideoDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9C23743E7200AB7B92 /* VideoDevice.cpp */; };
+		9D161F532376FDB300C0EF74 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9D23743E7200AB7B92 /* Log.cpp */; };
+		9D161F542376FDB300C0EF74 /* MediaPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9E23743E7200AB7B92 /* MediaPlayer.cpp */; };
+		9D161F552376FDB300C0EF74 /* MediaSync.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9F23743E7200AB7B92 /* MediaSync.cpp */; };
+		9D161F562376FDB300C0EF74 /* AudioDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEA023743E7200AB7B92 /* AudioDecoder.cpp */; };
+		9D161F572376FDB300C0EF74 /* FFmpegUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEA123743E7200AB7B92 /* FFmpegUtils.cpp */; };
+		9D161F582376FDB300C0EF74 /* PacketQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEA223743E7200AB7B92 /* PacketQueue.cpp */; };
+		9D161F592376FDB300C0EF74 /* MessageQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEA323743E7200AB7B92 /* MessageQueue.cpp */; };
+		9D161F5A2376FDB300C0EF74 /* MediaDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEA423743E7200AB7B92 /* MediaDecoder.cpp */; };
+		9D161F5B2376FDB300C0EF74 /* MessageCenter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEA523743E7200AB7B92 /* MessageCenter.cpp */; };
+		9D161F5C2376FDB300C0EF74 /* AudioResample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEA623743E7200AB7B92 /* AudioResample.cpp */; };
+		9D161F5D2376FDB300C0EF74 /* AudioDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEA723743E7200AB7B92 /* AudioDevice.cpp */; };
+		9D161F5E2376FDB300C0EF74 /* Stream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEA823743E7200AB7B92 /* Stream.cpp */; };
+		9D161F5F2376FDB300C0EF74 /* FrameQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEA923743E7200AB7B92 /* FrameQueue.cpp */; };
+		9D161F602376FDB300C0EF74 /* PlayerInfoStatus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEAA23743E7200AB7B92 /* PlayerInfoStatus.cpp */; };
+		9D161F612376FDB300C0EF74 /* MediaClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEAB23743E7200AB7B92 /* MediaClock.cpp */; };
+		9D161F622376FDB300C0EF74 /* VideoDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEAC23743E7200AB7B92 /* VideoDecoder.cpp */; };
+		9D161F632376FDB300C0EF74 /* Msg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DEAD23743E7200AB7B92 /* Msg.cpp */; };
+		9D161F642376FDBC00C0EF74 /* TDStretch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAA52376D74A00DD4512 /* TDStretch.cpp */; };
+		9D161F652376FDBC00C0EF74 /* RateTransposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAA62376D74A00DD4512 /* RateTransposer.cpp */; };
+		9D161F662376FDBC00C0EF74 /* InterpolateShannon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAA72376D74A00DD4512 /* InterpolateShannon.cpp */; };
+		9D161F672376FDBC00C0EF74 /* BPMDetect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAA82376D74A00DD4512 /* BPMDetect.cpp */; };
+		9D161F682376FDBC00C0EF74 /* mmx_optimized.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAA92376D74A00DD4512 /* mmx_optimized.cpp */; };
+		9D161F692376FDBC00C0EF74 /* InterpolateCubic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAAA2376D74A00DD4512 /* InterpolateCubic.cpp */; };
+		9D161F6A2376FDBC00C0EF74 /* InterpolateLinear.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAAB2376D74A00DD4512 /* InterpolateLinear.cpp */; };
+		9D161F6B2376FDBC00C0EF74 /* FIRFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAAC2376D74A00DD4512 /* FIRFilter.cpp */; };
+		9D161F6C2376FDBC00C0EF74 /* FIFOSampleBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAAD2376D74A00DD4512 /* FIFOSampleBuffer.cpp */; };
+		9D161F6D2376FDBC00C0EF74 /* sse_optimized.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAAE2376D74A00DD4512 /* sse_optimized.cpp */; };
+		9D161F6E2376FDBC00C0EF74 /* cpu_detect_x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAAF2376D74A00DD4512 /* cpu_detect_x86.cpp */; };
+		9D161F6F2376FDBC00C0EF74 /* PeakFinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAB12376D74A00DD4512 /* PeakFinder.cpp */; };
+		9D161F702376FDBC00C0EF74 /* SoundTouchWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAB22376D74A00DD4512 /* SoundTouchWrapper.cpp */; };
+		9D161F712376FDBC00C0EF74 /* AAFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAB32376D74A00DD4512 /* AAFilter.cpp */; };
+		9D161F722376FDBC00C0EF74 /* SoundTouch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DD3FAB42376D74A00DD4512 /* SoundTouch.cpp */; };
+		9D161F732376FDCD00C0EF74 /* FIFOSampleBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA8B2376D74A00DD4512 /* FIFOSampleBuffer.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F742376FDCD00C0EF74 /* FIRFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA8C2376D74A00DD4512 /* FIRFilter.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F752376FDCD00C0EF74 /* STTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA8D2376D74A00DD4512 /* STTypes.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F762376FDCD00C0EF74 /* SoundTouchWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA8E2376D74A00DD4512 /* SoundTouchWrapper.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F772376FDCD00C0EF74 /* BPMDetect.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA8F2376D74A00DD4512 /* BPMDetect.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F782376FDCD00C0EF74 /* PeakFinder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA902376D74A00DD4512 /* PeakFinder.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F792376FDCD00C0EF74 /* SoundTouch.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA912376D74A00DD4512 /* SoundTouch.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F7A2376FDCD00C0EF74 /* soundtouch_config.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA922376D74A00DD4512 /* soundtouch_config.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F7B2376FDCD00C0EF74 /* FIFOSamplePipe.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA932376D74A00DD4512 /* FIFOSamplePipe.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F7C2376FDCD00C0EF74 /* AAFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA942376D74A00DD4512 /* AAFilter.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F7D2376FDCD00C0EF74 /* InterpolateLinear.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA952376D74A00DD4512 /* InterpolateLinear.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F7E2376FDCD00C0EF74 /* RateTransposer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA962376D74A00DD4512 /* RateTransposer.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F7F2376FDCD00C0EF74 /* TDStretch.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA972376D74A00DD4512 /* TDStretch.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F802376FDCD00C0EF74 /* InterpolateShannon.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA982376D74A00DD4512 /* InterpolateShannon.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F812376FDCD00C0EF74 /* cpu_detect.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA992376D74A00DD4512 /* cpu_detect.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F822376FDCD00C0EF74 /* InterpolateCubic.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DD3FA9A2376D74A00DD4512 /* InterpolateCubic.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F832376FDE900C0EF74 /* FrameQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7323743E7200AB7B92 /* FrameQueue.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F842376FDE900C0EF74 /* AudioDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7423743E7200AB7B92 /* AudioDecoder.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F852376FDE900C0EF74 /* MediaPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7523743E7200AB7B92 /* MediaPlayer.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F862376FDE900C0EF74 /* Condition.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7623743E7200AB7B92 /* Condition.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F872376FDE900C0EF74 /* AudioDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7723743E7200AB7B92 /* AudioDevice.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F882376FDE900C0EF74 /* PlayerStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7823743E7200AB7B92 /* PlayerStatus.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F892376FDE900C0EF74 /* MediaClock.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7923743E7200AB7B92 /* MediaClock.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F8A2376FDE900C0EF74 /* IMediaPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7A23743E7200AB7B92 /* IMediaPlayer.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F8B2376FDE900C0EF74 /* ISyncMediaPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7B23743E7200AB7B92 /* ISyncMediaPlayer.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F8C2376FDE900C0EF74 /* Errors.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7C23743E7200AB7B92 /* Errors.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F8D2376FDE900C0EF74 /* Stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7D23743E7200AB7B92 /* Stream.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F8E2376FDE900C0EF74 /* IStreamListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7E23743E7200AB7B92 /* IStreamListener.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F8F2376FDE900C0EF74 /* VideoDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE7F23743E7200AB7B92 /* VideoDecoder.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F902376FDE900C0EF74 /* PlayerInfoStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8023743E7200AB7B92 /* PlayerInfoStatus.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F912376FDE900C0EF74 /* Msg.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8123743E7200AB7B92 /* Msg.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F922376FDE900C0EF74 /* Thread.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8223743E7200AB7B92 /* Thread.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F932376FDE900C0EF74 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8323743E7200AB7B92 /* Log.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F942376FDE900C0EF74 /* VideoDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8423743E7200AB7B92 /* VideoDevice.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F952376FDE900C0EF74 /* PacketQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8523743E7200AB7B92 /* PacketQueue.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F962376FDE900C0EF74 /* IMessageListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8623743E7200AB7B92 /* IMessageListener.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F972376FDE900C0EF74 /* MessageQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8723743E7200AB7B92 /* MessageQueue.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F982376FDE900C0EF74 /* MediaSync.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8823743E7200AB7B92 /* MediaSync.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F992376FDE900C0EF74 /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8923743E7200AB7B92 /* Texture.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F9A2376FDE900C0EF74 /* AudioResample.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8A23743E7200AB7B92 /* AudioResample.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F9B2376FDE900C0EF74 /* FFmpegUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8B23743E7200AB7B92 /* FFmpegUtils.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F9C2376FDE900C0EF74 /* Mutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8C23743E7200AB7B92 /* Mutex.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F9D2376FDE900C0EF74 /* MessageCenter.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8D23743E7200AB7B92 /* MessageCenter.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161F9E2376FDE900C0EF74 /* MediaDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8E23743E7200AB7B92 /* MediaDecoder.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9D439F71237444C400A6C911 /* Person.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D439F6F237444C400A6C911 /* Person.cpp */; };
 		9D439F772374466B00A6C911 /* splayer_ios_birdge_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D439F752374466B00A6C911 /* splayer_ios_birdge_impl.cpp */; };
 		9DD3F9812376C90100DD4512 /* Person.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9D439F70237444C400A6C911 /* Person.hpp */; };
@@ -152,6 +236,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D161F4B2376FD9C00C0EF74 /* libavcodec.a in Frameworks */,
+				9D161F4C2376FD9C00C0EF74 /* libavdevice.a in Frameworks */,
+				9D161F4D2376FD9C00C0EF74 /* libavfilter.a in Frameworks */,
+				9D161F4E2376FD9C00C0EF74 /* libavformat.a in Frameworks */,
+				9D161F4F2376FD9C00C0EF74 /* libavutil.a in Frameworks */,
+				9D161F502376FD9C00C0EF74 /* libswresample.a in Frameworks */,
+				9D161F512376FD9C00C0EF74 /* libswscale.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -442,6 +533,50 @@
 			buildActionMask = 2147483647;
 			files = (
 				9DDB83102372F22A00DA3F99 /* splayer_ios_birdge.h in Headers */,
+				9D161F732376FDCD00C0EF74 /* FIFOSampleBuffer.h in Headers */,
+				9D161F742376FDCD00C0EF74 /* FIRFilter.h in Headers */,
+				9D161F752376FDCD00C0EF74 /* STTypes.h in Headers */,
+				9D161F762376FDCD00C0EF74 /* SoundTouchWrapper.h in Headers */,
+				9D161F772376FDCD00C0EF74 /* BPMDetect.h in Headers */,
+				9D161F782376FDCD00C0EF74 /* PeakFinder.h in Headers */,
+				9D161F792376FDCD00C0EF74 /* SoundTouch.h in Headers */,
+				9D161F7A2376FDCD00C0EF74 /* soundtouch_config.h in Headers */,
+				9D161F7B2376FDCD00C0EF74 /* FIFOSamplePipe.h in Headers */,
+				9D161F7C2376FDCD00C0EF74 /* AAFilter.h in Headers */,
+				9D161F7D2376FDCD00C0EF74 /* InterpolateLinear.h in Headers */,
+				9D161F7E2376FDCD00C0EF74 /* RateTransposer.h in Headers */,
+				9D161F7F2376FDCD00C0EF74 /* TDStretch.h in Headers */,
+				9D161F802376FDCD00C0EF74 /* InterpolateShannon.h in Headers */,
+				9D161F812376FDCD00C0EF74 /* cpu_detect.h in Headers */,
+				9D161F822376FDCD00C0EF74 /* InterpolateCubic.h in Headers */,
+				9D161F832376FDE900C0EF74 /* FrameQueue.h in Headers */,
+				9D161F842376FDE900C0EF74 /* AudioDecoder.h in Headers */,
+				9D161F852376FDE900C0EF74 /* MediaPlayer.h in Headers */,
+				9D161F862376FDE900C0EF74 /* Condition.h in Headers */,
+				9D161F872376FDE900C0EF74 /* AudioDevice.h in Headers */,
+				9D161F882376FDE900C0EF74 /* PlayerStatus.h in Headers */,
+				9D161F892376FDE900C0EF74 /* MediaClock.h in Headers */,
+				9D161F8A2376FDE900C0EF74 /* IMediaPlayer.h in Headers */,
+				9D161F8B2376FDE900C0EF74 /* ISyncMediaPlayer.h in Headers */,
+				9D161F8C2376FDE900C0EF74 /* Errors.h in Headers */,
+				9D161F8D2376FDE900C0EF74 /* Stream.h in Headers */,
+				9D161F8E2376FDE900C0EF74 /* IStreamListener.h in Headers */,
+				9D161F8F2376FDE900C0EF74 /* VideoDecoder.h in Headers */,
+				9D161F902376FDE900C0EF74 /* PlayerInfoStatus.h in Headers */,
+				9D161F912376FDE900C0EF74 /* Msg.h in Headers */,
+				9D161F922376FDE900C0EF74 /* Thread.h in Headers */,
+				9D161F932376FDE900C0EF74 /* Log.h in Headers */,
+				9D161F942376FDE900C0EF74 /* VideoDevice.h in Headers */,
+				9D161F952376FDE900C0EF74 /* PacketQueue.h in Headers */,
+				9D161F962376FDE900C0EF74 /* IMessageListener.h in Headers */,
+				9D161F972376FDE900C0EF74 /* MessageQueue.h in Headers */,
+				9D161F982376FDE900C0EF74 /* MediaSync.h in Headers */,
+				9D161F992376FDE900C0EF74 /* Texture.h in Headers */,
+				9D161F9A2376FDE900C0EF74 /* AudioResample.h in Headers */,
+				9D161F9B2376FDE900C0EF74 /* FFmpegUtils.h in Headers */,
+				9D161F9C2376FDE900C0EF74 /* Mutex.h in Headers */,
+				9D161F9D2376FDE900C0EF74 /* MessageCenter.h in Headers */,
+				9D161F9E2376FDE900C0EF74 /* MediaDecoder.h in Headers */,
 				9DE51FBF2371E5A0003B6CCC /* splayer_ios.h in Headers */,
 				9DDB831B2373166000DA3F99 /* module_birdge.h in Headers */,
 				9DD3F9812376C90100DD4512 /* Person.hpp in Headers */,
@@ -547,6 +682,39 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D161F642376FDBC00C0EF74 /* TDStretch.cpp in Sources */,
+				9D161F652376FDBC00C0EF74 /* RateTransposer.cpp in Sources */,
+				9D161F662376FDBC00C0EF74 /* InterpolateShannon.cpp in Sources */,
+				9D161F672376FDBC00C0EF74 /* BPMDetect.cpp in Sources */,
+				9D161F682376FDBC00C0EF74 /* mmx_optimized.cpp in Sources */,
+				9D161F692376FDBC00C0EF74 /* InterpolateCubic.cpp in Sources */,
+				9D161F6A2376FDBC00C0EF74 /* InterpolateLinear.cpp in Sources */,
+				9D161F6B2376FDBC00C0EF74 /* FIRFilter.cpp in Sources */,
+				9D161F6C2376FDBC00C0EF74 /* FIFOSampleBuffer.cpp in Sources */,
+				9D161F6D2376FDBC00C0EF74 /* sse_optimized.cpp in Sources */,
+				9D161F6E2376FDBC00C0EF74 /* cpu_detect_x86.cpp in Sources */,
+				9D161F6F2376FDBC00C0EF74 /* PeakFinder.cpp in Sources */,
+				9D161F702376FDBC00C0EF74 /* SoundTouchWrapper.cpp in Sources */,
+				9D161F712376FDBC00C0EF74 /* AAFilter.cpp in Sources */,
+				9D161F722376FDBC00C0EF74 /* SoundTouch.cpp in Sources */,
+				9D161F522376FDB300C0EF74 /* VideoDevice.cpp in Sources */,
+				9D161F532376FDB300C0EF74 /* Log.cpp in Sources */,
+				9D161F542376FDB300C0EF74 /* MediaPlayer.cpp in Sources */,
+				9D161F552376FDB300C0EF74 /* MediaSync.cpp in Sources */,
+				9D161F562376FDB300C0EF74 /* AudioDecoder.cpp in Sources */,
+				9D161F572376FDB300C0EF74 /* FFmpegUtils.cpp in Sources */,
+				9D161F582376FDB300C0EF74 /* PacketQueue.cpp in Sources */,
+				9D161F592376FDB300C0EF74 /* MessageQueue.cpp in Sources */,
+				9D161F5A2376FDB300C0EF74 /* MediaDecoder.cpp in Sources */,
+				9D161F5B2376FDB300C0EF74 /* MessageCenter.cpp in Sources */,
+				9D161F5C2376FDB300C0EF74 /* AudioResample.cpp in Sources */,
+				9D161F5D2376FDB300C0EF74 /* AudioDevice.cpp in Sources */,
+				9D161F5E2376FDB300C0EF74 /* Stream.cpp in Sources */,
+				9D161F5F2376FDB300C0EF74 /* FrameQueue.cpp in Sources */,
+				9D161F602376FDB300C0EF74 /* PlayerInfoStatus.cpp in Sources */,
+				9D161F612376FDB300C0EF74 /* MediaClock.cpp in Sources */,
+				9D161F622376FDB300C0EF74 /* VideoDecoder.cpp in Sources */,
+				9D161F632376FDB300C0EF74 /* Msg.cpp in Sources */,
 				9D439F71237444C400A6C911 /* Person.cpp in Sources */,
 				9D439F772374466B00A6C911 /* splayer_ios_birdge_impl.cpp in Sources */,
 				9DE51FD62371E611003B6CCC /* MediaPlayer.swift in Sources */,
@@ -723,7 +891,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				VALID_ARCHS = "armv7s armv7 arm64e arm64";
+				VALID_ARCHS = "armv7s armv7 arm64e arm64 x86_64";
 			};
 			name = Debug;
 		};
@@ -754,7 +922,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				VALID_ARCHS = "armv7s armv7 arm64e arm64";
+				VALID_ARCHS = "armv7s armv7 arm64e arm64 x86_64";
 			};
 			name = Release;
 		};
