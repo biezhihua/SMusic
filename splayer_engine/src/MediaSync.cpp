@@ -5,7 +5,7 @@ MediaSync::MediaSync() = default;
 MediaSync::~MediaSync() = default;
 
 void MediaSync::start(VideoDecoder *pVideoDecoder, AudioDecoder *pAudioDecoder) {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] pVideoDecoder = %p pAudioDecoder = %p", __func__, pVideoDecoder,
               pAudioDecoder);
     }
@@ -20,7 +20,7 @@ void MediaSync::start(VideoDecoder *pVideoDecoder, AudioDecoder *pAudioDecoder) 
 }
 
 void MediaSync::stop() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     mutex.lock();
@@ -114,7 +114,7 @@ int MediaSync::refreshVideo() {
         ret = refreshVideo(&remainingTime);
     }
 
-//    if (DEBUG) {
+//    if (ENGINE_DEBUG) {
 //        ALOGD(TAG, "[%s] playerInfoStatus = %p videoDecoder = %p videoDevice = %p pauseRequest = %d",
 //              __func__,
 //              playerInfoStatus,
@@ -140,7 +140,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
 
     for (;;) {
         if (playerInfoStatus->abortRequest) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] abort request", __func__);
             }
             break;
@@ -156,7 +156,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
 
             currentFrame = frameQueue->peekCurrentFrame();
 
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
 //                ALOGD(TAG,
 //                      "[%s] peekCurrentFrame.lastSeekSerial = %d packetQueue.lastSeekSerial = %d ",
 //                      __func__,
@@ -166,13 +166,13 @@ int MediaSync::refreshVideo(double *remaining_time) {
             // 如果不是相同序列，丢掉seek之前的帧
             if (previousFrame->seekSerial != packetQueue->getLastSeekSerial()) {
                 frameQueue->popFrame();
-                if (DEBUG) {
+                if (ENGINE_DEBUG) {
                     ALOGD(TAG, "[%s] drop no same serial of frame", __func__);
                 }
                 continue;
             }
 
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
 //                ALOGD(TAG,
 //                      "[%s] peekCurrentFrame.lastSeekSerial = %d peekNextFrame.lastSeekSerial = %d",
 //                      __func__,
@@ -182,7 +182,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
             // 判断是否需要强制更新帧的时间(seek操作时才会产生变化)
             if (previousFrame->seekSerial != currentFrame->seekSerial) {
                 frameTimer = av_gettime_relative() * 1.0F / AV_TIME_BASE;
-                if (DEBUG) {
+                if (ENGINE_DEBUG) {
                     ALOGD(TAG, "[%s] not same serial, force reset frameTimer = %fd ", __func__,
                           frameTimer);
                 }
@@ -207,7 +207,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
             // 如果当前时间小于帧计时器的时间 + 延时时间，则表示还没到当前帧
             if (time < (frameTimer + syncDelay)) {
                 *remaining_time = FFMIN(frameTimer + syncDelay - time, *remaining_time);
-                if (DEBUG) {
+                if (ENGINE_DEBUG) {
 //                    ALOGD(TAG, "[%s] need display pre frame, diff time = %lf remainingTime = %lf",
 //                          __func__, (frameTimer + syncDelay - time), *remaining_time);
                 }
@@ -219,7 +219,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
             // 帧计时器落后当前时间超过了阈值，则用当前的时间作为帧计时器时间
             if (syncDelay > 0 && (time - frameTimer) > AV_SYNC_THRESHOLD_MAX) {
                 frameTimer = time;
-                if (DEBUG) {
+                if (ENGINE_DEBUG) {
                     ALOGD(TAG, "[%s] fall behind, force reset frameTimer = %fd ", __func__,
                           frameTimer);
                 }
@@ -245,7 +245,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
                       playerInfoStatus->syncType !=
                       AV_SYNC_VIDEO))) {
                     frameQueue->popFrame();
-                    if (DEBUG) {
+                    if (ENGINE_DEBUG) {
                         ALOGD(TAG, "[%s] drop same frame", __func__);
                     }
                     continue;
@@ -257,7 +257,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
             forceRefresh = 1;
 
         } else {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGW(TAG, "[%s] nothing to do, no picture to display in the queue", __func__);
             }
         }
@@ -268,7 +268,7 @@ int MediaSync::refreshVideo(double *remaining_time) {
     // 显示画面
     if (!playerInfoStatus->displayDisable && forceRefresh && videoDecoder &&
         frameQueue->isShownIndex()) {
-//        if (DEBUG) {
+//        if (ENGINE_DEBUG) {
 //            ALOGD(TAG, "[%s] render video", __func__);
 //        }
         renderVideo();
@@ -312,7 +312,7 @@ double MediaSync::calculateSyncDelay(double delay) {
         // 计算同步阈值
         sync_threshold = FFMAX(AV_SYNC_THRESHOLD_MIN, FFMIN(AV_SYNC_THRESHOLD_MAX, delay));
 
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
 //            ALOGD(TAG, "[%s] diff = %lf syncThreshold[0.04,0.1] = %lf ", __func__, diff,
 //                  sync_threshold);
         }
@@ -332,7 +332,7 @@ double MediaSync::calculateSyncDelay(double delay) {
         }
     }
 
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
 //        ALOGD(TAG, "[%s] video: delay=%0.3f A-V=%f", __func__, delay, -diff);
     }
 
@@ -375,7 +375,7 @@ void MediaSync::renderVideo() {
         // 初始化纹理
         if (videoDevice->onInitTexture(0, currentFrame->frame->width, currentFrame->frame->height,
                                        format, blendMode, videoDecoder->getRotate()) < 0) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] onInitTexture return", __func__);
             }
             return;
@@ -453,7 +453,7 @@ void MediaSync::renderVideo() {
         }
         currentFrame->uploaded = 1;
     } else {
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] uploaded=%d", __func__, currentFrame->uploaded);
         }
     }

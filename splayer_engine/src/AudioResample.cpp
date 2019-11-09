@@ -56,7 +56,7 @@ int AudioResample::setReSampleParams(AudioDeviceSpec *obtainedSpec, int64_t want
                 playerInfoStatus->formatContext->streams[playerInfoStatus->audioIndex]->time_base);
     }
 
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] "
                    "sampleFormat = %s "
                    "sampleRate = %d "
@@ -204,7 +204,7 @@ int AudioResample::audioFrameReSample() {
     // 取出可用的音频帧
     do {
         if (!(frame = audioDecoder->getFrameQueue()->peekReadable())) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] audio peek readable ", __func__);
             }
             return ERROR_AUDIO_PEEK_READABLE;
@@ -228,7 +228,7 @@ int AudioResample::audioFrameReSample() {
     bool isNeedConvert = isNotSameSampleFormat || isNotSameChannelLayout ||
                          isNotSameSampleRate || isNotSameNbSamples;
 
-//    if (DEBUG) {
+//    if (ENGINE_DEBUG) {
 //        ALOGD(TAG, "[%s] "
 //                   "isNotSameSampleFormat = %d "
 //                   "isNotSameChannelLayout = %d "
@@ -362,7 +362,7 @@ int AudioResample::initConvertSwrContext(int64_t desireChannelLayout, AVFrame *f
     src.sampleRate = frame->sample_rate;
     src.sampleFormat = (AVSampleFormat) frame->format;
 
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] "
                    "sampleFormat = %s "
                    "sampleRate = %d "
@@ -429,7 +429,7 @@ int AudioResample::convertAudio(int wantedNbSamples, AVFrame *frame) const {
 
     // 音频buffer缓冲太小了？
     if (length == outCount) {
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] audio buffer is probably too small", __func__);
         }
         if (swr_init(audioState->swrContext) < 0) {

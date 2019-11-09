@@ -163,7 +163,7 @@ class MediaPlayer : IMediaPlayer {
     }
 
     override fun start() {
-        if (DEBUG) {
+        if (ANDROID_DEBUG) {
             Log.d(TAG, "start() called")
         }
         stayAwake(true)
@@ -171,7 +171,7 @@ class MediaPlayer : IMediaPlayer {
     }
 
     override fun stop() {
-        if (DEBUG) {
+        if (ANDROID_DEBUG) {
             Log.d(TAG, "stop() called")
         }
         stayAwake(false)
@@ -179,7 +179,7 @@ class MediaPlayer : IMediaPlayer {
     }
 
     override fun pause() {
-        if (DEBUG) {
+        if (ANDROID_DEBUG) {
             Log.d(TAG, "pause() called")
         }
         stayAwake(false)
@@ -187,7 +187,7 @@ class MediaPlayer : IMediaPlayer {
     }
 
     override fun play() {
-        if (DEBUG) {
+        if (ANDROID_DEBUG) {
             Log.d(TAG, "play() called")
         }
         stayAwake(true)
@@ -312,7 +312,7 @@ class MediaPlayer : IMediaPlayer {
                 return
             }
 
-            if (DEBUG) {
+            if (ANDROID_DEBUG) {
                 Log.d(
                     TAG,
                     "handleMessage() called with: type = [${IMediaPlayer.MsgType.toString(msg.what)}] msg = [$msg]"
@@ -497,7 +497,7 @@ class MediaPlayer : IMediaPlayer {
     companion object {
 
         @JvmStatic
-        val DEBUG = true
+        val ANDROID_DEBUG = true
 
         private const val TAG = "[MP][LIB][MediaPlayer]"
 

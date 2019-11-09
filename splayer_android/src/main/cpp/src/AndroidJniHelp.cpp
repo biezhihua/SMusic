@@ -72,7 +72,7 @@ extern "C" int jniRegisterNativeMethods(C_JNIEnv *env, const char *className,
                                         const JNINativeMethod *gMethods, int numMethods) {
     JNIEnv *e = reinterpret_cast<JNIEnv *>(env);
 
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGV("JniHelp", "Registering %s's %d native methods...", className, numMethods);
     }
 

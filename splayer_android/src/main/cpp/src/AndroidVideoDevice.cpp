@@ -7,7 +7,7 @@ AndroidVideoDevice::AndroidVideoDevice() : VideoDevice() {
 AndroidVideoDevice::~AndroidVideoDevice() = default;
 
 int AndroidVideoDevice::create() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     window = nullptr;
@@ -27,7 +27,7 @@ int AndroidVideoDevice::create() {
 }
 
 int AndroidVideoDevice::destroy() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     destroy(true);
@@ -50,7 +50,7 @@ int AndroidVideoDevice::onInitTexture(int initTexture,
 
     if (!haveEGlContext) {
         haveEGlContext = eglHelper->init(FLAG_TRY_GLES3) == SUCCESS;
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] haveEGlContext = %d", __func__, haveEGlContext);
         }
     }
@@ -73,7 +73,7 @@ int AndroidVideoDevice::onInitTexture(int initTexture,
             eglSurface = eglHelper->createSurface(window);
             if (eglSurface != EGL_NO_SURFACE) {
                 haveEGLSurface = true;
-                if (DEBUG) {
+                if (ENGINE_DEBUG) {
                     ALOGD(TAG, "[%s] haveEGLSurface = %d", __func__, haveEGLSurface);
                 }
             }

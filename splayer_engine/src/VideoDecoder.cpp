@@ -21,7 +21,7 @@ VideoDecoder::VideoDecoder(AVFormatContext *formatCtx,
     } else {
         rotate = 0;
     }
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] rotate=%d", __func__, rotate);
     }
 }
@@ -48,7 +48,7 @@ void VideoDecoder::start() {
 }
 
 void VideoDecoder::stop() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     mutex.lock();
@@ -118,7 +118,7 @@ int VideoDecoder::decodeVideo() {
         }
 
         if (ret == 0) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] drop frame", __func__);
             }
             continue;
@@ -137,7 +137,7 @@ int VideoDecoder::decodeVideo() {
         av_frame_unref(frame);
 
         if (ret < 0) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] not queue picture", __func__);
             }
             break;
@@ -207,7 +207,7 @@ int VideoDecoder::decodeFrame(AVFrame *frame) {
             // 接收一帧解码后的数据
             do {
                 if (packetQueue->isAbort()) {
-                    if (DEBUG) {
+                    if (ENGINE_DEBUG) {
                         ALOGD(TAG, "[%s] video abort", __func__);
                     }
                     return EXIT;
@@ -302,7 +302,7 @@ VideoDecoder::pushFrame(AVFrame *srcFrame, double pts, double duration, int64_t 
 
     frameQueue->pushFrame();
 
-//    if (DEBUG) {
+//    if (ENGINE_DEBUG) {
 //        ALOGD(TAG, "[%s] video frame = %p ptd = %lf duration = %lf pos = %lld serial = %d",
 //              __func__,
 //              srcFrame, pts, duration, pos, serial);

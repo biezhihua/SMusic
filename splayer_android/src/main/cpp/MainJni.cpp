@@ -86,7 +86,7 @@ public:
 
     void onMessage(Msg *msg) override {
 
-        if (DEBUG) {
+        if (JNI_DEBUG) {
             ALOGD(TAG, "[%s] what=%s arg1=%d", __func__, Msg::getMsgSimpleName(msg->what),
                   msg->arg1I);
         }
@@ -191,7 +191,7 @@ void MediaPlayer_setDataSourceAndHeaders(JNIEnv *env, jobject thiz, jstring path
         int valuesCount = env->GetArrayLength(values);
 
         if (keysCount != valuesCount) {
-            if (DEBUG) {
+            if (JNI_DEBUG) {
                 ALOGE(TAG, "[%s] keys and values arrays have different length", __func__);
             }
             jniThrowException(env, "java/lang/IllegalArgumentException");
@@ -244,17 +244,17 @@ void MediaPlayer_setDataSourceFD(JNIEnv *env, jobject thiz, jobject fileDescript
     int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
     if (offset < 0 || length < 0 || fd < 0) {
         if (offset < 0) {
-            if (DEBUG) {
+            if (JNI_DEBUG) {
                 ALOGE(TAG, "[%s] negative offset (%lld)", __func__, offset);
             }
         }
         if (length < 0) {
-            if (DEBUG) {
+            if (JNI_DEBUG) {
                 ALOGE(TAG, "[%s] negative length (%lld)", __func__, length);
             }
         }
         if (fd < 0) {
-            if (DEBUG) {
+            if (JNI_DEBUG) {
                 ALOGE(TAG, "[%s] invalid file descriptor", __func__);
             }
         }
@@ -283,7 +283,7 @@ void MediaPlayer_init(JNIEnv *env) {
     }
 
     // 获取DEBUG
-    JNI_DEBUG = env->GetStaticBooleanField(clazz, env->GetStaticFieldID(clazz, "DEBUG", "Z"));
+    JNI_DEBUG = env->GetStaticBooleanField(clazz, env->GetStaticFieldID(clazz, "ANDROID_DEBUG", "Z"));
 
     RENDERER_DEBUG = JNI_DEBUG;
 

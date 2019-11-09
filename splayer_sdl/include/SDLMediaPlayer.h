@@ -11,6 +11,8 @@
 #define MSG_REQUEST_SEEK_SDL 29000
 #define MSG_REQUEST_PLAY_OR_PAUSE 29001
 
+#define SPLAYER_COMMAND
+
 class SDLMediaPlayer : public MediaPlayer {
 
     const char *const TAG = "[MP][SDL][MediaPlayer]";
@@ -91,7 +93,7 @@ public:
     }
 
     SDLMediaPlayer *build() {
-        DEBUG = debug;
+        ENGINE_DEBUG = debug;
         SDLMediaPlayer *mediaPlayer = new SDLMediaPlayer();
         mediaPlayer->setMediaSync(mediaSync);
         mediaPlayer->setAudioDevice(audioDevice);

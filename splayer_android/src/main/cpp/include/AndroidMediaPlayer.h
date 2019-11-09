@@ -55,7 +55,7 @@ public:
     }
 
     AndroidMediaPlayer *build() {
-        DEBUG = debug;
+        ENGINE_DEBUG = debug;
         AndroidMediaPlayer *mediaPlayer = new AndroidMediaPlayer();
         mediaPlayer->setMediaSync(mediaSync);
         mediaPlayer->setAudioDevice(audioDevice);

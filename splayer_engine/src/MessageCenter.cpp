@@ -22,7 +22,7 @@ void MessageCenter::run() {
 void MessageCenter::executeMsg(bool block) {
     int ret = msgQueue->getMsg(&msg, block);
     if (ret >= 0 && msg.what != -1) {
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] what = %d whatName = %s errorCode = %d", __func__,
                   msg.what,
                   Msg::getMsgSimpleName(msg.what),
@@ -95,7 +95,7 @@ int MessageCenter::stop() {
 }
 
 void MessageCenter::startMsgQueue() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     start();
@@ -103,7 +103,7 @@ void MessageCenter::startMsgQueue() {
 }
 
 void MessageCenter::stopMsgQueue() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     stop();

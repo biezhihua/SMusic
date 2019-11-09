@@ -34,7 +34,7 @@ void PlayerInfoStatus::init() {
 }
 
 void PlayerInfoStatus::reset() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
 
@@ -131,7 +131,7 @@ void PlayerInfoStatus::reset() {
 }
 
 void PlayerInfoStatus::setOption(int category, const char *type, const char *option) {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD("PlayerInfoStatus", "[%s] category=%d type=%s option=%s", __func__, category, type,
               option);
     }

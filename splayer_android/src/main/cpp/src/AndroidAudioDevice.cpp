@@ -10,7 +10,7 @@ AndroidAudioDevice::~AndroidAudioDevice() = default;
  * SLES缓冲回调
  */
 void slBufferPCMCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         // ALOGD("[MP][ANDROID][AudioDevice]", "[%s]", __func__);
     }
 }
@@ -189,7 +189,7 @@ int AndroidAudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained
         }
     }
 
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] open SLES Device success", __func__);
     }
 
@@ -248,14 +248,14 @@ void AndroidAudioDevice::start() {
             audioThread->start();
         }
     } else {
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGE(TAG, "%s audio device callback is NULL!", __func__);
         }
     }
 }
 
 void AndroidAudioDevice::stop() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
 

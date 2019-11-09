@@ -64,12 +64,6 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/SoundTouchWrapper.cpp">
-			<Option target="splayer_soundtouch"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/SoundTouchWrapper.h">
-			<Option target="splayer_soundtouch"/>
-		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/AAFilter.h">
 			<Option target="splayer_soundtouch"/>
 		</Unit>
@@ -104,6 +98,9 @@
 			<Option target="splayer_soundtouch"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/SoundTouch.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/SoundTouchWrapper.h">
 			<Option target="splayer_soundtouch"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/TDStretch.h">
@@ -143,6 +140,9 @@
 			<Option target="splayer_soundtouch"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/SoundTouch.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/SoundTouchWrapper.cpp">
 			<Option target="splayer_soundtouch"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/TDStretch.cpp">

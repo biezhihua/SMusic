@@ -37,7 +37,7 @@ int Stream::start() {
 }
 
 int Stream::stop() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     mutex.lock();
@@ -89,7 +89,7 @@ int Stream::readPackets() {
     for (;;) {
 
         if (!playerState || !formatContext) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] error state", __func__);
             }
             return ERROR;
@@ -97,7 +97,7 @@ int Stream::readPackets() {
 
         // 退出播放器
         if (playerState->abortRequest) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] abort request, exit read packet", __func__);
             }
             return EXIT;
@@ -183,7 +183,7 @@ int Stream::readPackets() {
 
         // 读取首帧后，将状态移动到播放中
         if (mediaPlayer->isSTARTED()) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] read first frame, change to PLAYING", __func__);
             }
             mediaPlayer->changeStatus(PLAYING);
@@ -251,21 +251,21 @@ void Stream::doSeek() {
         playerState->mutex.unlock();
 
         if (ret < 0) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] %s: error while seeking", __func__, playerState->url);
             }
         } else {
             if (audioDecoder) {
                 audioDecoder->flush();
                 audioDecoder->pushFlushPacket();
-                if (DEBUG) {
+                if (ENGINE_DEBUG) {
                     ALOGD(TAG, "[%s] flush audio", __func__);
                 }
             }
             if (videoDecoder) {
                 videoDecoder->flush();
                 videoDecoder->pushFlushPacket();
-                if (DEBUG) {
+                if (ENGINE_DEBUG) {
                     ALOGD(TAG, "[%s] flush video", __func__);
                 }
             }
@@ -338,7 +338,7 @@ int Stream::openStream() {
     if (av_stristart(playerState->url, FORMAT_RTMP, nullptr) ||
         av_stristart(playerState->url, FORMAT_RTSP, nullptr)) {
         // There is total different meaning for 'timeout' option in rtmp
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] remove 'timeout' option for rtmp", __func__);
         }
         av_dict_set(&playerState->formatOpts, OPT_KEY_TIMEOUT, nullptr, 0);

@@ -32,7 +32,7 @@ MediaPlayer::~MediaPlayer() {
 }
 
 int MediaPlayer::create() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     if (isIDLED()) {
@@ -44,7 +44,7 @@ int MediaPlayer::create() {
 }
 
 int MediaPlayer::start() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     if (isCREATED() || isSTOPPED()) {
@@ -58,7 +58,7 @@ int MediaPlayer::start() {
 
 
 int MediaPlayer::pause() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     if (isPLAYING()) {
@@ -70,7 +70,7 @@ int MediaPlayer::pause() {
 }
 
 int MediaPlayer::play() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     if (isPAUSED()) {
@@ -82,14 +82,14 @@ int MediaPlayer::play() {
 }
 
 int MediaPlayer::stop() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     return notifyMsg(Msg::MSG_REQUEST_STOP);
 }
 
 int MediaPlayer::destroy() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     if (isCREATED() || isSTARTED() || isPLAYING() || isPAUSED() || isSTOPPED() || isERRORED()) {
@@ -101,14 +101,14 @@ int MediaPlayer::destroy() {
 }
 
 int MediaPlayer::setDataSource(const char *url, int64_t offset, const char *headers) {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] url = %s offset = %lld headers = %p", __func__, url, offset, headers);
     }
     return syncSetDataSource(url, offset, headers);
 }
 
 int MediaPlayer::seekTo(float increment) {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] increment = %lf", __func__, increment);
     }
     notifyMsg(Msg::MSG_SEEK_START);
@@ -312,7 +312,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
     // 如果没有找到指定的解码器，则查找默认的解码器
     if (!codec) {
         if (forcedCodecName) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] No codec could be found with name forcedCodecName=%s", __func__,
                       forcedCodecName);
             }
@@ -333,7 +333,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
     // 判断是否需要重新设置lowres的值
     int streamLowResolution = playerInfoStatus->lowResolution;
     if (streamLowResolution > codec->max_lowres) {
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] The maximum value for low Resolution supported by the decoder is %d",
                   __func__, codec->max_lowres);
         }
@@ -412,7 +412,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
 
 int MediaPlayer::openAudioDevice(int64_t wantedChannelLayout, int wantedNbChannels,
                                  int wantedSampleRate) {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] wantedChannelLayout = %lld wantedNbChannels = %d wantedSampleRate = %d",
               __func__, wantedChannelLayout, wantedNbChannels, wantedSampleRate);
     }
@@ -455,7 +455,7 @@ int MediaPlayer::openAudioDevice(int64_t wantedChannelLayout, int wantedNbChanne
 
     // 打开音频设备
     while (audioDevice->open(&desired, &obtained) < 0) {
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] failed to open audio device: (%d channels, %d Hz)!", __func__,
                   desired.channels, desired.sampleRate);
         }
@@ -487,7 +487,7 @@ int MediaPlayer::openAudioDevice(int64_t wantedChannelLayout, int wantedNbChanne
     // 设置需要重采样的参数
     audioResample->setReSampleParams(&obtained, wantedChannelLayout);
 
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] "
                    "channels = %d "
                    "format = %s "
@@ -507,14 +507,14 @@ int MediaPlayer::openAudioDevice(int64_t wantedChannelLayout, int wantedNbChanne
 }
 
 int MediaPlayer::onStartOpenStream() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     return SUCCESS;
 }
 
 int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] videoIndex = %d audioIndex = %d", __func__, videoIndex, audioIndex);
     }
 
@@ -552,7 +552,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 视频解码器开始解码
     if (videoDecoder) {
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] start video decoder", __func__);
         }
         videoDecoder->start();
@@ -560,7 +560,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     } else {
         if (playerInfoStatus->syncType == AV_SYNC_VIDEO) {
             playerInfoStatus->syncType = AV_SYNC_AUDIO;
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] change sync type to AV_SYNC_AUDIO", __func__);
             }
         }
@@ -568,7 +568,7 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     // 音频解码器开始解码
     if (audioDecoder) {
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] start audio decoder", __func__);
         }
         if (audioResample) {
@@ -579,12 +579,12 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
     } else {
         if (playerInfoStatus->syncType == AV_SYNC_AUDIO) {
             playerInfoStatus->syncType = AV_SYNC_EXTERNAL;
-            if (DEBUG)
+            if (ENGINE_DEBUG)
                 ALOGD(TAG, "[%s] change sync type to AV_SYNC_EXTERNAL", __func__);
         }
     }
 
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] sync type = %s", __func__, playerInfoStatus->getSyncType());
     }
 
@@ -620,17 +620,17 @@ int MediaPlayer::onEndOpenStream(int videoIndex, int audioIndex) {
 
     if (videoDecoder) {
         if (playerInfoStatus->syncType == AV_SYNC_AUDIO) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] change master clock to audio clock", __func__);
             }
             videoDecoder->setMasterClock(mediaSync->getAudioClock());
         } else if (playerInfoStatus->syncType == AV_SYNC_VIDEO) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] change master clock to video clock", __func__);
             }
             videoDecoder->setMasterClock(mediaSync->getVideoClock());
         } else {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] change master clock to external clock", __func__);
             }
             videoDecoder->setMasterClock(mediaSync->getExternalClock());
@@ -690,7 +690,7 @@ int MediaPlayer::checkParams() {
 }
 
 void MediaPlayer::setFormatContext(AVFormatContext *formatContext) {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] format context = %p", __func__, formatContext);
     }
     this->formatContext = formatContext;
@@ -765,7 +765,7 @@ int MediaPlayer::syncCreate() {
 }
 
 int MediaPlayer::syncStart() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     if (checkParams() < 0) {
@@ -787,7 +787,7 @@ int MediaPlayer::syncTogglePause() {
 }
 
 int MediaPlayer::syncSeekTo(float increment) {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] increment = %lf", __func__, increment);
     }
     if (!(isPlaying() || isPAUSED())) {
@@ -836,7 +836,7 @@ int MediaPlayer::syncSeekTo(float increment) {
 }
 
 int MediaPlayer::syncSeekTo(int64_t pos, int64_t rel, int seekByBytes) {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] pos=%lld rel=%lld seekByBytes=%d", __func__, pos, rel, seekByBytes);
     }
     if (playerInfoStatus && !playerInfoStatus->seekRequest) {
@@ -855,7 +855,7 @@ int MediaPlayer::syncSeekTo(int64_t pos, int64_t rel, int seekByBytes) {
 }
 
 int MediaPlayer::syncStop() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
 
@@ -993,7 +993,7 @@ void MediaPlayer::setOption(int category, const char *type, int64_t option) {
 }
 
 int MediaPlayer::syncPause() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     if (isPlaying() && syncTogglePause()) {
@@ -1001,7 +1001,7 @@ int MediaPlayer::syncPause() {
         notifyMsg(Msg::MSG_STATUS_PAUSED);
         return SUCCESS;
     } else {
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] not playing or toggle pause error", __func__);
         }
     }
@@ -1010,7 +1010,7 @@ int MediaPlayer::syncPause() {
 
 
 int MediaPlayer::syncPlay() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     if (!isPlaying() && syncTogglePause()) {
@@ -1018,7 +1018,7 @@ int MediaPlayer::syncPlay() {
         notifyMsg(Msg::MSG_STATUS_PLAYING);
         return SUCCESS;
     } else {
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] not pause or toggle pause error", __func__);
         }
     }
@@ -1028,7 +1028,7 @@ int MediaPlayer::syncPlay() {
 
 int MediaPlayer::changeStatus(PlayerStatus state) {
     mutex.lock();
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] target status = %s, source status = %s", __func__, getStatus(state),
               getStatus(playerStatus));
     }
@@ -1054,7 +1054,7 @@ bool MediaPlayer::isPAUSED() const { return playerStatus == PAUSED; }
 bool MediaPlayer::isERRORED() const { return playerStatus == ERRORED; }
 
 void MediaPlayer::notExecuteWarning() const {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] incorrect status, current status = %s", __func__, getStatus(playerStatus));
     }
 }

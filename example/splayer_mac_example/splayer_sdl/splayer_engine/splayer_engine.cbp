@@ -116,12 +116,6 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/MediaPlayer.cpp">
-			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/MediaPlayer.h">
-			<Option target="splayer_engine"/>
-		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/AudioDecoder.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
@@ -144,6 +138,9 @@
 			<Option target="splayer_engine"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/MediaDecoder.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/MediaPlayer.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/MediaSync.cpp">
@@ -172,12 +169,6 @@
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/VideoDevice.cpp">
 			<Option target="splayer_engine"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/SoundTouchWrapper.cpp">
-			<Option target="splayer_soundtouch"/>
-		</Unit>
-		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/SoundTouchWrapper.h">
-			<Option target="splayer_soundtouch"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/AAFilter.h">
 			<Option target="splayer_soundtouch"/>
@@ -213,6 +204,9 @@
 			<Option target="splayer_soundtouch"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/SoundTouch.h">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/SoundTouchWrapper.h">
 			<Option target="splayer_soundtouch"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/TDStretch.h">
@@ -252,6 +246,9 @@
 			<Option target="splayer_soundtouch"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/SoundTouch.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/SoundTouchWrapper.cpp">
 			<Option target="splayer_soundtouch"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/src/TDStretch.cpp">

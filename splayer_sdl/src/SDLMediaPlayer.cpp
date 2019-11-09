@@ -214,7 +214,7 @@ void SDLMediaPlayer::doSeek(int increment) {
 }
 
 int SDLMediaPlayer::destroy() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] destroy sdl media player", __func__);
     }
     MediaPlayer::syncDestroy();

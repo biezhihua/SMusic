@@ -8,7 +8,7 @@ void AndroidMediaSync::start(VideoDecoder *videoDecoder, AudioDecoder *audioDeco
     if (videoDecoder && !syncThread) {
         syncThread = new Thread(this);
         syncThread->start();
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] sync thread already started", __func__);
         }
     }
@@ -23,7 +23,7 @@ void AndroidMediaSync::stop() {
         syncThread->join();
         delete syncThread;
         syncThread = nullptr;
-        if (DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] sync thread already die", __func__);
         }
     }
@@ -32,7 +32,7 @@ void AndroidMediaSync::stop() {
 void AndroidMediaSync::run() {
     int ret = 0;
     resetRemainingTime();
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] sync thread refresh video start", __func__);
     }
     while (!isQuit) {
@@ -41,7 +41,7 @@ void AndroidMediaSync::run() {
             isQuit = true;
         }
     }
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] sync thread refresh video end", __func__);
     }
 }

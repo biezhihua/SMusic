@@ -36,7 +36,7 @@ void AudioDecoder::start() {
 }
 
 void AudioDecoder::stop() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     mutex.lock();
@@ -87,7 +87,7 @@ int AudioDecoder::decodeAudio() {
 
     for (;;) {
 
-//        if (DEBUG) {
+//        if (ENGINE_DEBUG) {
 //            ALOGD(TAG, "[%s] start audio decode frame "
 //                       "firstSeekSerial = %d "
 //                       "lastSeekSerial = %d ",
@@ -104,7 +104,7 @@ int AudioDecoder::decodeAudio() {
         }
 
         if (ret == 0) {
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGW(TAG, "[%s] audio drop srcFrame", __func__);
             }
             continue;
@@ -126,7 +126,7 @@ int AudioDecoder::decodeAudio() {
 
         frameQueue->pushFrame();
 
-//        if (DEBUG) {
+//        if (ENGINE_DEBUG) {
 //            ALOGD(TAG, "[%s] end audio decode frame "
 //                       "pts = %lf "
 //                       "pos = %lld "
@@ -164,7 +164,7 @@ int AudioDecoder::decodeFrame(AVFrame *frame) {
             // 接收一帧解码后的数据
             do {
                 if (packetQueue->isAbort()) {
-                    if (DEBUG) {
+                    if (ENGINE_DEBUG) {
                         ALOGD(TAG, "[%s] audio abort", __func__);
                     }
                     return SUCCESS;

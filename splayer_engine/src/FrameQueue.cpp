@@ -57,7 +57,7 @@ Frame *FrameQueue::peekWritable() {
     while (size >= maxSize && !abortRequest) {
         if (!_condWriteableWait) {
             _condWriteableWait = true;
-//            if (DEBUG) {
+//            if (ENGINE_DEBUG) {
 //                ALOGD(TAG, "[%s] size = %d maxSize = %d do waiting", __func__, size, maxSize);
 //            }
         }
@@ -119,7 +119,7 @@ Frame *FrameQueue::peekReadable() {
     while ((size - readIndexShown) <= 0 && !packetQueue->isAbort()) {
         if (!_condReadableWait) {
             _condReadableWait = true;
-            if (DEBUG) {
+            if (ENGINE_DEBUG) {
                 ALOGD(TAG, "[%s] size = %d maxSize = %d do waiting", __func__, size, maxSize);
             }
         }

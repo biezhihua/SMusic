@@ -1,8 +1,8 @@
 #include "Log.h"
 
 #ifdef __ANDROID__
-#else
+#elif SPLAYER_COMMAND
 Mutex *LOG_MUTEX = new Mutex();
+#else
 #endif
 
-bool DEBUG = true;

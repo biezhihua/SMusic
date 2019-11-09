@@ -13,31 +13,31 @@ int AudioDevice::open(AudioDeviceSpec *desired, AudioDeviceSpec *obtained) {
 }
 
 void AudioDevice::start() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
 }
 
 void AudioDevice::stop() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
 }
 
 void AudioDevice::pause() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
 }
 
 void AudioDevice::resume() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
 }
 
 void AudioDevice::flush() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
 }
@@ -51,21 +51,21 @@ void AudioDevice::run() {
 }
 
 int AudioDevice::create() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
     return SUCCESS;
 }
 
 void AudioDevice::destroy() {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
 
 }
 
 void AudioDevice::setMute(bool mute) {
-    if (DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
 }
