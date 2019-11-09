@@ -7,13 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9D161F4B2376FD9C00C0EF74 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA282376D2A300DD4512 /* libavcodec.a */; };
-		9D161F4C2376FD9C00C0EF74 /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D161F402376F1E800C0EF74 /* libavdevice.a */; };
-		9D161F4D2376FD9C00C0EF74 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2D2376D2A300DD4512 /* libavfilter.a */; };
-		9D161F4E2376FD9C00C0EF74 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2A2376D2A300DD4512 /* libavformat.a */; };
-		9D161F4F2376FD9C00C0EF74 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2B2376D2A300DD4512 /* libavutil.a */; };
-		9D161F502376FD9C00C0EF74 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA292376D2A300DD4512 /* libswresample.a */; };
-		9D161F512376FD9C00C0EF74 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2C2376D2A300DD4512 /* libswscale.a */; };
 		9D161F522376FDB300C0EF74 /* VideoDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9C23743E7200AB7B92 /* VideoDevice.cpp */; };
 		9D161F532376FDB300C0EF74 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9D23743E7200AB7B92 /* Log.cpp */; };
 		9D161F542376FDB300C0EF74 /* MediaPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9E23743E7200AB7B92 /* MediaPlayer.cpp */; };
@@ -91,6 +84,13 @@
 		9D161F9C2376FDE900C0EF74 /* Mutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8C23743E7200AB7B92 /* Mutex.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9D161F9D2376FDE900C0EF74 /* MessageCenter.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8D23743E7200AB7B92 /* MessageCenter.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9D161F9E2376FDE900C0EF74 /* MediaDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D89DE8E23743E7200AB7B92 /* MediaDecoder.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9D161FB82377148C00C0EF74 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA282376D2A300DD4512 /* libavcodec.a */; };
+		9D161FB92377148C00C0EF74 /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D161F402376F1E800C0EF74 /* libavdevice.a */; };
+		9D161FBA2377148C00C0EF74 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2D2376D2A300DD4512 /* libavfilter.a */; };
+		9D161FBB2377148C00C0EF74 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2A2376D2A300DD4512 /* libavformat.a */; };
+		9D161FBC2377148C00C0EF74 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2B2376D2A300DD4512 /* libavutil.a */; };
+		9D161FBD2377148C00C0EF74 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA292376D2A300DD4512 /* libswresample.a */; };
+		9D161FBE2377148C00C0EF74 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2C2376D2A300DD4512 /* libswscale.a */; };
 		9D439F71237444C400A6C911 /* Person.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D439F6F237444C400A6C911 /* Person.cpp */; };
 		9D439F772374466B00A6C911 /* splayer_ios_birdge_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D439F752374466B00A6C911 /* splayer_ios_birdge_impl.cpp */; };
 		9DD3F9812376C90100DD4512 /* Person.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9D439F70237444C400A6C911 /* Person.hpp */; };
@@ -113,6 +113,14 @@
 
 /* Begin PBXFileReference section */
 		9D161F402376F1E800C0EF74 /* libavdevice.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavdevice.a; path = ../distribution/ios/ffmpeg/lib/libavdevice.a; sourceTree = "<group>"; };
+		9D161F9F2377143C00C0EF74 /* libavdevice.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libavdevice.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libavdevice.framework"; sourceTree = "<group>"; };
+		9D161FA02377143C00C0EF74 /* libavfilter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libavfilter.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libavfilter.framework"; sourceTree = "<group>"; };
+		9D161FA12377143D00C0EF74 /* libswscale.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libswscale.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libswscale.framework"; sourceTree = "<group>"; };
+		9D161FA22377143D00C0EF74 /* libavutil.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libavutil.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libavutil.framework"; sourceTree = "<group>"; };
+		9D161FA32377143D00C0EF74 /* mobileffmpeg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = mobileffmpeg.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/mobileffmpeg.framework"; sourceTree = "<group>"; };
+		9D161FA42377143D00C0EF74 /* libavcodec.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libavcodec.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libavcodec.framework"; sourceTree = "<group>"; };
+		9D161FA52377143D00C0EF74 /* libavformat.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libavformat.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libavformat.framework"; sourceTree = "<group>"; };
+		9D161FA62377143D00C0EF74 /* libswresample.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libswresample.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libswresample.framework"; sourceTree = "<group>"; };
 		9D439F6F237444C400A6C911 /* Person.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Person.cpp; sourceTree = "<group>"; };
 		9D439F70237444C400A6C911 /* Person.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Person.hpp; sourceTree = "<group>"; };
 		9D439F752374466B00A6C911 /* splayer_ios_birdge_impl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = splayer_ios_birdge_impl.cpp; sourceTree = "<group>"; };
@@ -236,13 +244,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9D161F4B2376FD9C00C0EF74 /* libavcodec.a in Frameworks */,
-				9D161F4C2376FD9C00C0EF74 /* libavdevice.a in Frameworks */,
-				9D161F4D2376FD9C00C0EF74 /* libavfilter.a in Frameworks */,
-				9D161F4E2376FD9C00C0EF74 /* libavformat.a in Frameworks */,
-				9D161F4F2376FD9C00C0EF74 /* libavutil.a in Frameworks */,
-				9D161F502376FD9C00C0EF74 /* libswresample.a in Frameworks */,
-				9D161F512376FD9C00C0EF74 /* libswscale.a in Frameworks */,
+				9D161FB82377148C00C0EF74 /* libavcodec.a in Frameworks */,
+				9D161FB92377148C00C0EF74 /* libavdevice.a in Frameworks */,
+				9D161FBA2377148C00C0EF74 /* libavfilter.a in Frameworks */,
+				9D161FBB2377148C00C0EF74 /* libavformat.a in Frameworks */,
+				9D161FBC2377148C00C0EF74 /* libavutil.a in Frameworks */,
+				9D161FBD2377148C00C0EF74 /* libswresample.a in Frameworks */,
+				9D161FBE2377148C00C0EF74 /* libswscale.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -363,6 +371,14 @@
 		9DD3F96B2376C7C000DD4512 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9D161FA42377143D00C0EF74 /* libavcodec.framework */,
+				9D161F9F2377143C00C0EF74 /* libavdevice.framework */,
+				9D161FA02377143C00C0EF74 /* libavfilter.framework */,
+				9D161FA52377143D00C0EF74 /* libavformat.framework */,
+				9D161FA22377143D00C0EF74 /* libavutil.framework */,
+				9D161FA62377143D00C0EF74 /* libswresample.framework */,
+				9D161FA12377143D00C0EF74 /* libswscale.framework */,
+				9D161FA32377143D00C0EF74 /* mobileffmpeg.framework */,
 				9D161F402376F1E800C0EF74 /* libavdevice.a */,
 				9DD3FA282376D2A300DD4512 /* libavcodec.a */,
 				9DD3FA2D2376D2A300DD4512 /* libavfilter.a */,
