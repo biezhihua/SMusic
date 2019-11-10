@@ -105,10 +105,9 @@ interface IMediaPlayer {
 
     fun setPitch(pitch: Float)
 
-    interface OnListener {
+    interface IOnListener {
 
         fun onStarted(mp: IMediaPlayer)
-
 
         fun onCompletion(mp: IMediaPlayer)
 
@@ -116,7 +115,7 @@ interface IMediaPlayer {
 
         fun onError(mp: IMediaPlayer, what: Int, extra: Int): Boolean
 
-        fun onTimedText(mp: IMediaPlayer, text: TimedText?)
+        fun onTimedText(mp: IMediaPlayer, text: ITimedText?)
 
         fun onVideoSizeChanged(mediaPlayer: IMediaPlayer, width: Int, height: Int)
 
@@ -127,7 +126,7 @@ interface IMediaPlayer {
         fun onCurrentPosition(current: Long, duration: Long)
     }
 
-    fun setOnListener(listener: OnListener)
+    fun setOnListener(listener: IOnListener)
 
     companion object {
 

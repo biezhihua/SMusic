@@ -12,8 +12,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.bzh.player.R
 import com.bzh.splayer.IMediaPlayer
+import com.bzh.splayer.ITimedText
 import com.bzh.splayer.MediaPlayer
-import com.bzh.splayer.TimedText
 import java.io.File
 
 
@@ -154,7 +154,7 @@ class MainActivity : AppCompatActivity() {
     fun create(v: View) {
         mediaPlayer = MediaPlayer()
         mediaPlayer?.setDisplay(mHolder)
-        mediaPlayer?.setOnListener(object : IMediaPlayer.OnListener {
+        mediaPlayer?.setOnListener(object : IMediaPlayer.IOnListener {
             override fun onCompletion(mp: IMediaPlayer) {
                 Log.d(TAG, "onCompletion() called with: mp = [$mp]")
             }
@@ -169,7 +169,7 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
 
-            override fun onTimedText(mp: IMediaPlayer, text: TimedText?) {
+            override fun onTimedText(mp: IMediaPlayer, text: ITimedText?) {
                 Log.d(TAG, "onTimedText() called with: mp = [$mp], text = [$text]")
             }
 

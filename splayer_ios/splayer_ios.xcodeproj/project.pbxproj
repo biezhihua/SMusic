@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		127D57176871A908151FA71F /* Rect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127D55E5EBA46C1679DA4567 /* Rect.swift */; };
+		127D59ED6B566E4DCDB96562 /* ITimedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127D5920EA0CA5ADE62A9E5D /* ITimedText.swift */; };
+		127D5C4E9A8198C0601D2437 /* IOnListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127D57C2F8545648CE2FFB04 /* IOnListener.swift */; };
+		127D5E0C40877B545B1C9119 /* MsgType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127D53BCB36F853786499C1A /* MsgType.swift */; };
 		9D161F522376FDB300C0EF74 /* VideoDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9C23743E7200AB7B92 /* VideoDevice.cpp */; };
 		9D161F532376FDB300C0EF74 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9D23743E7200AB7B92 /* Log.cpp */; };
 		9D161F542376FDB300C0EF74 /* MediaPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9E23743E7200AB7B92 /* MediaPlayer.cpp */; };
@@ -91,6 +95,7 @@
 		9D161FBC2377148C00C0EF74 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2B2376D2A300DD4512 /* libavutil.a */; };
 		9D161FBD2377148C00C0EF74 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA292376D2A300DD4512 /* libswresample.a */; };
 		9D161FBE2377148C00C0EF74 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2C2376D2A300DD4512 /* libswscale.a */; };
+		9D16203F2377F9C400C0EF74 /* IMediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D16203E2377F9C400C0EF74 /* IMediaPlayer.swift */; };
 		9D439F71237444C400A6C911 /* Person.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D439F6F237444C400A6C911 /* Person.cpp */; };
 		9D439F772374466B00A6C911 /* splayer_ios_birdge_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D439F752374466B00A6C911 /* splayer_ios_birdge_impl.cpp */; };
 		9DD3F9812376C90100DD4512 /* Person.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9D439F70237444C400A6C911 /* Person.hpp */; };
@@ -112,6 +117,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		127D53BCB36F853786499C1A /* MsgType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MsgType.swift; sourceTree = "<group>"; };
+		127D55E5EBA46C1679DA4567 /* Rect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Rect.swift; sourceTree = "<group>"; };
+		127D57C2F8545648CE2FFB04 /* IOnListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IOnListener.swift; sourceTree = "<group>"; };
+		127D5920EA0CA5ADE62A9E5D /* ITimedText.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ITimedText.swift; sourceTree = "<group>"; };
 		9D161F402376F1E800C0EF74 /* libavdevice.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavdevice.a; path = ../distribution/ios/ffmpeg/lib/libavdevice.a; sourceTree = "<group>"; };
 		9D161F9F2377143C00C0EF74 /* libavdevice.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libavdevice.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libavdevice.framework"; sourceTree = "<group>"; };
 		9D161FA02377143C00C0EF74 /* libavfilter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libavfilter.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libavfilter.framework"; sourceTree = "<group>"; };
@@ -121,6 +130,8 @@
 		9D161FA42377143D00C0EF74 /* libavcodec.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libavcodec.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libavcodec.framework"; sourceTree = "<group>"; };
 		9D161FA52377143D00C0EF74 /* libavformat.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libavformat.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libavformat.framework"; sourceTree = "<group>"; };
 		9D161FA62377143D00C0EF74 /* libswresample.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libswresample.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libswresample.framework"; sourceTree = "<group>"; };
+		9D1620392377F6C200C0EF74 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		9D16203E2377F9C400C0EF74 /* IMediaPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMediaPlayer.swift; sourceTree = "<group>"; };
 		9D439F6F237444C400A6C911 /* Person.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Person.cpp; sourceTree = "<group>"; };
 		9D439F70237444C400A6C911 /* Person.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Person.hpp; sourceTree = "<group>"; };
 		9D439F752374466B00A6C911 /* splayer_ios_birdge_impl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = splayer_ios_birdge_impl.cpp; sourceTree = "<group>"; };
@@ -371,6 +382,7 @@
 		9DD3F96B2376C7C000DD4512 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9D1620392377F6C200C0EF74 /* OpenGLES.framework */,
 				9D161FA42377143D00C0EF74 /* libavcodec.framework */,
 				9D161F9F2377143C00C0EF74 /* libavdevice.framework */,
 				9D161FA02377143C00C0EF74 /* libavfilter.framework */,
@@ -474,6 +486,11 @@
 			isa = PBXGroup;
 			children = (
 				9DE51FD52371E611003B6CCC /* MediaPlayer.swift */,
+				9D16203E2377F9C400C0EF74 /* IMediaPlayer.swift */,
+				127D57C2F8545648CE2FFB04 /* IOnListener.swift */,
+				127D5920EA0CA5ADE62A9E5D /* ITimedText.swift */,
+				127D55E5EBA46C1679DA4567 /* Rect.swift */,
+				127D53BCB36F853786499C1A /* MsgType.swift */,
 			);
 			path = swift;
 			sourceTree = "<group>";
@@ -705,6 +722,7 @@
 				9D161F682376FDBC00C0EF74 /* mmx_optimized.cpp in Sources */,
 				9D161F692376FDBC00C0EF74 /* InterpolateCubic.cpp in Sources */,
 				9D161F6A2376FDBC00C0EF74 /* InterpolateLinear.cpp in Sources */,
+				9D16203F2377F9C400C0EF74 /* IMediaPlayer.swift in Sources */,
 				9D161F6B2376FDBC00C0EF74 /* FIRFilter.cpp in Sources */,
 				9D161F6C2376FDBC00C0EF74 /* FIFOSampleBuffer.cpp in Sources */,
 				9D161F6D2376FDBC00C0EF74 /* sse_optimized.cpp in Sources */,
@@ -734,6 +752,10 @@
 				9D439F71237444C400A6C911 /* Person.cpp in Sources */,
 				9D439F772374466B00A6C911 /* splayer_ios_birdge_impl.cpp in Sources */,
 				9DE51FD62371E611003B6CCC /* MediaPlayer.swift in Sources */,
+				127D5C4E9A8198C0601D2437 /* IOnListener.swift in Sources */,
+				127D59ED6B566E4DCDB96562 /* ITimedText.swift in Sources */,
+				127D57176871A908151FA71F /* Rect.swift in Sources */,
+				127D5E0C40877B545B1C9119 /* MsgType.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

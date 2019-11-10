@@ -1,10 +1,15 @@
 #ifndef RENDERER_FRAME_BUFFER_H
 #define RENDERER_FRAME_BUFFER_H
 
-#if defined(__ANDROID__)
+#ifdef __ANDROID__
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+
+#elif __APPLE__
+
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
 
 #endif
 

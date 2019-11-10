@@ -2,7 +2,7 @@
 #define RENDERER_EGLHELPER_H
 
 #ifdef __APPLE__
-#else
+#elif __ANDROID__
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>

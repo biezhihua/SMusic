@@ -37,7 +37,7 @@ class MediaPlayer : IMediaPlayer {
 
     private var mStayAwake: Boolean = false
 
-    private var mOnListener: IMediaPlayer.OnListener? = null;
+    private var mOnListener: IMediaPlayer.IOnListener? = null;
 
     override val rotate: Int
         get() = _getRotate()
@@ -280,7 +280,7 @@ class MediaPlayer : IMediaPlayer {
         _native_finalize()
     }
 
-    override fun setOnListener(listener: IMediaPlayer.OnListener) {
+    override fun setOnListener(listener: IMediaPlayer.IOnListener) {
         mOnListener = listener
     }
 
