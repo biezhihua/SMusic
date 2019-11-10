@@ -96,10 +96,10 @@
 		9D161FBD2377148C00C0EF74 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA292376D2A300DD4512 /* libswresample.a */; };
 		9D161FBE2377148C00C0EF74 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD3FA2C2376D2A300DD4512 /* libswscale.a */; };
 		9D16203F2377F9C400C0EF74 /* IMediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D16203E2377F9C400C0EF74 /* IMediaPlayer.swift */; };
+		9D1620432378193500C0EF74 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D1620422378193500C0EF74 /* Log.swift */; };
 		9D439F71237444C400A6C911 /* Person.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D439F6F237444C400A6C911 /* Person.cpp */; };
-		9D439F772374466B00A6C911 /* splayer_ios_birdge_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D439F752374466B00A6C911 /* splayer_ios_birdge_impl.cpp */; };
+		9D439F772374466B00A6C911 /* splayer_ios_birdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D439F752374466B00A6C911 /* splayer_ios_birdge.cpp */; };
 		9DD3F9812376C90100DD4512 /* Person.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9D439F70237444C400A6C911 /* Person.hpp */; };
-		9DDB83102372F22A00DA3F99 /* splayer_ios_birdge.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB830F2372F22A00DA3F99 /* splayer_ios_birdge.h */; };
 		9DDB831B2373166000DA3F99 /* module_birdge.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DDB831A2373166000DA3F99 /* module_birdge.h */; };
 		9DE51FBD2371E5A0003B6CCC /* splayer_iosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE51FBC2371E5A0003B6CCC /* splayer_iosTests.swift */; };
 		9DE51FBF2371E5A0003B6CCC /* splayer_ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DE51FB12371E5A0003B6CCC /* splayer_ios.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -132,10 +132,11 @@
 		9D161FA62377143D00C0EF74 /* libswresample.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libswresample.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libswresample.framework"; sourceTree = "<group>"; };
 		9D1620392377F6C200C0EF74 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		9D16203E2377F9C400C0EF74 /* IMediaPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IMediaPlayer.swift; sourceTree = "<group>"; };
+		9D1620422378193500C0EF74 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		9D439F6F237444C400A6C911 /* Person.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Person.cpp; sourceTree = "<group>"; };
 		9D439F70237444C400A6C911 /* Person.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Person.hpp; sourceTree = "<group>"; };
-		9D439F752374466B00A6C911 /* splayer_ios_birdge_impl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = splayer_ios_birdge_impl.cpp; sourceTree = "<group>"; };
-		9D439F762374466B00A6C911 /* splayer_ios_birdge_impl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = splayer_ios_birdge_impl.hpp; sourceTree = "<group>"; };
+		9D439F752374466B00A6C911 /* splayer_ios_birdge.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = splayer_ios_birdge.cpp; sourceTree = "<group>"; };
+		9D439F762374466B00A6C911 /* splayer_ios_birdge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = splayer_ios_birdge.hpp; sourceTree = "<group>"; };
 		9D89DE7123743E7200AB7B92 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		9D89DE7323743E7200AB7B92 /* FrameQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameQueue.h; sourceTree = "<group>"; };
 		9D89DE7423743E7200AB7B92 /* AudioDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioDecoder.h; sourceTree = "<group>"; };
@@ -238,7 +239,6 @@
 		9DD3FAB22376D74A00DD4512 /* SoundTouchWrapper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SoundTouchWrapper.cpp; sourceTree = "<group>"; };
 		9DD3FAB32376D74A00DD4512 /* AAFilter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AAFilter.cpp; sourceTree = "<group>"; };
 		9DD3FAB42376D74A00DD4512 /* SoundTouch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SoundTouch.cpp; sourceTree = "<group>"; };
-		9DDB830F2372F22A00DA3F99 /* splayer_ios_birdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = splayer_ios_birdge.h; sourceTree = "<group>"; };
 		9DDB83132372F3E900DA3F99 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		9DDB831A2373166000DA3F99 /* module_birdge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = module_birdge.h; sourceTree = "<group>"; };
 		9DE51FAE2371E5A0003B6CCC /* splayer_ios.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = splayer_ios.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -491,6 +491,7 @@
 				127D5920EA0CA5ADE62A9E5D /* ITimedText.swift */,
 				127D55E5EBA46C1679DA4567 /* Rect.swift */,
 				127D53BCB36F853786499C1A /* MsgType.swift */,
+				9D1620422378193500C0EF74 /* Log.swift */,
 			);
 			path = swift;
 			sourceTree = "<group>";
@@ -507,10 +508,9 @@
 		9DDB8318237312DF00DA3F99 /* birdge */ = {
 			isa = PBXGroup;
 			children = (
-				9DDB830F2372F22A00DA3F99 /* splayer_ios_birdge.h */,
 				9DDB831A2373166000DA3F99 /* module_birdge.h */,
-				9D439F752374466B00A6C911 /* splayer_ios_birdge_impl.cpp */,
-				9D439F762374466B00A6C911 /* splayer_ios_birdge_impl.hpp */,
+				9D439F752374466B00A6C911 /* splayer_ios_birdge.cpp */,
+				9D439F762374466B00A6C911 /* splayer_ios_birdge.hpp */,
 			);
 			path = birdge;
 			sourceTree = "<group>";
@@ -565,7 +565,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9DDB83102372F22A00DA3F99 /* splayer_ios_birdge.h in Headers */,
 				9D161F732376FDCD00C0EF74 /* FIFOSampleBuffer.h in Headers */,
 				9D161F742376FDCD00C0EF74 /* FIRFilter.h in Headers */,
 				9D161F752376FDCD00C0EF74 /* STTypes.h in Headers */,
@@ -723,6 +722,7 @@
 				9D161F692376FDBC00C0EF74 /* InterpolateCubic.cpp in Sources */,
 				9D161F6A2376FDBC00C0EF74 /* InterpolateLinear.cpp in Sources */,
 				9D16203F2377F9C400C0EF74 /* IMediaPlayer.swift in Sources */,
+				9D1620432378193500C0EF74 /* Log.swift in Sources */,
 				9D161F6B2376FDBC00C0EF74 /* FIRFilter.cpp in Sources */,
 				9D161F6C2376FDBC00C0EF74 /* FIFOSampleBuffer.cpp in Sources */,
 				9D161F6D2376FDBC00C0EF74 /* sse_optimized.cpp in Sources */,
@@ -750,7 +750,7 @@
 				9D161F622376FDB300C0EF74 /* VideoDecoder.cpp in Sources */,
 				9D161F632376FDB300C0EF74 /* Msg.cpp in Sources */,
 				9D439F71237444C400A6C911 /* Person.cpp in Sources */,
-				9D439F772374466B00A6C911 /* splayer_ios_birdge_impl.cpp in Sources */,
+				9D439F772374466B00A6C911 /* splayer_ios_birdge.cpp in Sources */,
 				9DE51FD62371E611003B6CCC /* MediaPlayer.swift in Sources */,
 				127D5C4E9A8198C0601D2437 /* IOnListener.swift in Sources */,
 				127D59ED6B566E4DCDB96562 /* ITimedText.swift in Sources */,

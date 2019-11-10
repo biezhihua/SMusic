@@ -52,6 +52,6 @@ public protocol IMediaPlayer {
 
     func setPitch(pitch: Float)
 
-    func setOnListener(listener: IOnListener)
+    func setOnListener(listener: IOnListener?)
 
 }
