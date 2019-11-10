@@ -91,9 +91,16 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Android")
     target_link_libraries(${PROJECT_NAME}
-            splayer_ffmpeg
-            splayer_openssl_crypto
-            splayer_openssl_ssl
+            splayer_ffmpeg_libavcodec
+            splayer_ffmpeg_libavdevice
+            splayer_ffmpeg_libavfilter
+            splayer_ffmpeg_libavformat
+            splayer_ffmpeg_libavutil
+            splayer_ffmpeg_libswresample
+            splayer_ffmpeg_libswscale
+#            splayer_ffmpeg
+#            splayer_openssl_crypto
+#            splayer_openssl_ssl
             -landroid
             -llog
             )

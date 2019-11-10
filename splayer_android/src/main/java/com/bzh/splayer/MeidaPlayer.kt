@@ -509,7 +509,13 @@ class MediaPlayer : IMediaPlayer {
         val OPT_CATEGORY_SWR = 5       // 音频重采样参数
 
         init {
-            System.loadLibrary("sffmpeg")
+            System.loadLibrary("libavcodec")
+            System.loadLibrary("libavdevice")
+            System.loadLibrary("libavfilter")
+            System.loadLibrary("libavformat")
+            System.loadLibrary("libavutil")
+            System.loadLibrary("libswresample")
+            System.loadLibrary("libswscale")
             System.loadLibrary("splayer_soundtouch")
             System.loadLibrary("splayer_renderer")
             System.loadLibrary("splayer_engine")

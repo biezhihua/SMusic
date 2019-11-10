@@ -14,16 +14,34 @@ get_filename_component(ANDROID_ROOT_DIR ${CMAKE_SOURCE_DIR}/../../../../ ABSOLUT
 get_filename_component(ANDROID_DISTRIBUTION_ANDROID_DIR ${ANDROID_ROOT_DIR}/distribution/android/ ABSOLUTE)
 
 # 设置ffmpeg依赖库
-add_library(splayer_ffmpeg SHARED IMPORTED)
-set_target_properties(splayer_ffmpeg PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/ffmpeg/lib/${ANDROID_ABI}/libsffmpeg.so)
+add_library(splayer_ffmpeg_libavcodec SHARED IMPORTED)
+set_target_properties(splayer_ffmpeg_libavcodec PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/ffmpeg/lib/${ANDROID_ABI}/libavcodec.so)
 
-# 设置openssl依赖库
-add_library(splayer_openssl_crypto STATIC IMPORTED)
-set_target_properties(splayer_openssl_crypto PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/openssl/lib/${ANDROID_ABI}/libcrypto.a)
+add_library(splayer_ffmpeg_libavdevice SHARED IMPORTED)
+set_target_properties(splayer_ffmpeg_libavdevice PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/ffmpeg/lib/${ANDROID_ABI}/libavdevice.so)
 
-# 设置openssl依赖库
-add_library(splayer_openssl_ssl STATIC IMPORTED)
-set_target_properties(splayer_openssl_ssl PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/openssl/lib/${ANDROID_ABI}/libssl.a)
+add_library(splayer_ffmpeg_libavfilter SHARED IMPORTED)
+set_target_properties(splayer_ffmpeg_libavfilter PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/ffmpeg/lib/${ANDROID_ABI}/libavfilter.so)
+
+add_library(splayer_ffmpeg_libavformat SHARED IMPORTED)
+set_target_properties(splayer_ffmpeg_libavformat PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/ffmpeg/lib/${ANDROID_ABI}/libavformat.so)
+
+add_library(splayer_ffmpeg_libavutil SHARED IMPORTED)
+set_target_properties(splayer_ffmpeg_libavutil PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/ffmpeg/lib/${ANDROID_ABI}/libavutil.so)
+
+add_library(splayer_ffmpeg_libswresample SHARED IMPORTED)
+set_target_properties(splayer_ffmpeg_libswresample PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/ffmpeg/lib/${ANDROID_ABI}/libswresample.so)
+
+add_library(splayer_ffmpeg_libswscale SHARED IMPORTED)
+set_target_properties(splayer_ffmpeg_libswscale PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/ffmpeg/lib/${ANDROID_ABI}/libswscale.so)
+
+## 设置openssl依赖库
+#add_library(splayer_openssl_crypto STATIC IMPORTED)
+#set_target_properties(splayer_openssl_crypto PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/openssl/lib/${ANDROID_ABI}/libcrypto.a)
+#
+## 设置openssl依赖库
+#add_library(splayer_openssl_ssl STATIC IMPORTED)
+#set_target_properties(splayer_openssl_ssl PROPERTIES IMPORTED_LOCATION ${ANDROID_DISTRIBUTION_ANDROID_DIR}/openssl/lib/${ANDROID_ABI}/libssl.a)
 
 # 根据API版本判断使用哪个版本的OpenGLES
 if (${ANDROID_PLATFORM_LEVEL} LESS 12)
