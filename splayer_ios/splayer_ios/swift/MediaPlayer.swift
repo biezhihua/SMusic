@@ -175,7 +175,7 @@ public class MediaPlayer: IMediaPlayer {
 
     public func setDebug(debug: Bool) {
         if (IOS_DEBUG) {
-            Log.d(TAG, "setDebug : debug = " + debug.description)
+            Log.d(TAG, "setDebug : debug = \(debug)")
         }
         IOS_DEBUG = debug;
     }

@@ -1,10 +1,3 @@
-//
-//  SceneDelegate.swift
-//  splayer_ios_example
-//
-//  Created by biezhihua on 2019/11/4.
-//
-
 import UIKit
 import SwiftUI
 import splayer_ios
@@ -45,8 +38,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-        let a = MediaPlayer()
-        a.play()
     }
 
     func sceneWillResignActive(_ scene: UIScene) {

@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  splayer_ios_example
-//
-//  Created by biezhihua on 2019/11/4.
-//
-
 import SwiftUI
 
 struct ContentView: View {
