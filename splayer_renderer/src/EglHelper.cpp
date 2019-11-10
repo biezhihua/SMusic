@@ -28,7 +28,7 @@ int EglHelper::init(EGLContext sharedContext, int flags) {
         ALOGE(TAG, "[%s] Shared Context is null", __func__);
         sharedContext = EGL_NO_CONTEXT;
     } else {
-        if (RENDERER_DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] Main EGLContext is created!", __func__);
         }
     }
@@ -87,7 +87,7 @@ int EglHelper::init(EGLContext sharedContext, int flags) {
             "eglPresentationTimeANDROID");
 
     if (!eglPresentationTimeANDROID) {
-        if (RENDERER_DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] eglPresentationTimeANDROID is not available!", __func__);
         }
     }
@@ -95,7 +95,7 @@ int EglHelper::init(EGLContext sharedContext, int flags) {
     int values[1] = {0};
     eglQueryContext(eglDisplay, eglContext, EGL_CONTEXT_CLIENT_VERSION, values);
 
-    if (RENDERER_DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "[%s] EGLContext created, client version %d", __func__, values[0]);
     }
 
@@ -158,7 +158,7 @@ EGLSurface EglHelper::createSurface(int width, int height) {
 
 void EglHelper::makeCurrent(EGLSurface eglSurface) {
     if (eglDisplay == EGL_NO_DISPLAY) {
-        if (RENDERER_DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] Note: makeCurrent w/o display.", __func__);
         }
     }
@@ -169,7 +169,7 @@ void EglHelper::makeCurrent(EGLSurface eglSurface) {
 
 void EglHelper::makeCurrent(EGLSurface drawSurface, EGLSurface readSurface) {
     if (eglDisplay == EGL_NO_DISPLAY) {
-        if (RENDERER_DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] Note: makeCurrent w/o display.", __func__);
         }
     }
@@ -245,7 +245,7 @@ EGLConfig EglHelper::getConfig(int flags, int version) {
     EGLConfig configs = nullptr;
     int numConfigs;
     if (!eglChooseConfig(eglDisplay, attributeList, &configs, 1, &numConfigs)) {
-        if (RENDERER_DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGW(TAG, "[%s] unable to find RGB8888 / %d  EGLConfig", __func__, version);
         }
         return nullptr;

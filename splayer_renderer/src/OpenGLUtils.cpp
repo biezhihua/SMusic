@@ -127,37 +127,37 @@ void OpenGLUtils::checkActiveUniform(GLuint program) {
 
         location = glGetUniformLocation(program, uniformName);
 
-        if (RENDERER_DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD("OpenGLUtils", "%s location: %d", __func__, location);
         }
 
         switch (type) {
             case GL_FLOAT: {
-                if (RENDERER_DEBUG) {
+                if (ENGINE_DEBUG) {
                     ALOGD("OpenGLUtils", "type : GL_FLOAT");
                 }
                 break;
             }
             case GL_FLOAT_VEC2: {
-                if (RENDERER_DEBUG) {
+                if (ENGINE_DEBUG) {
                     ALOGD("OpenGLUtils", "type : GL_FLOAT_VEC2");
                 }
                 break;
             }
             case GL_FLOAT_VEC3: {
-                if (RENDERER_DEBUG) {
+                if (ENGINE_DEBUG) {
                     ALOGD("OpenGLUtils", "type : GL_FLOAT_VEC3");
                 }
                 break;
             }
             case GL_FLOAT_VEC4: {
-                if (RENDERER_DEBUG) {
+                if (ENGINE_DEBUG) {
                     ALOGD("OpenGLUtils", "type : GL_FLOAT_VEC4");
                 }
                 break;
             }
             case GL_INT: {
-                if (RENDERER_DEBUG) {
+                if (ENGINE_DEBUG) {
                     ALOGD("OpenGLUtils", "type : GL_INT");
                 }
                 break;
@@ -247,7 +247,7 @@ void OpenGLUtils::createFrameBuffers(GLuint *frambuffers, GLuint *textures, int 
 
 void OpenGLUtils::checkGLError(const char *op) {
     for (GLint error = glGetError(); error; error = glGetError()) {
-        if (RENDERER_DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGD("OpenGLUtils", "%s [GLES2] after %s() glError (0x%x)\n", __func__, op, error);
         }
     }

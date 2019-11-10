@@ -64,6 +64,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/Test.cpp">
+			<Option target="splayer_soundtouch"/>
+		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/AAFilter.h">
 			<Option target="splayer_soundtouch"/>
 		</Unit>

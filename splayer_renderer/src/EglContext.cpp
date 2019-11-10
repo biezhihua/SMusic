@@ -57,7 +57,7 @@ int EglContext::init(int flags) {
 
     int values[1] = {0};
     eglQueryContext(eglDisplay, eglContext, EGL_CONTEXT_CLIENT_VERSION, values);
-    if (RENDERER_DEBUG) {
+    if (ENGINE_DEBUG) {
         ALOGD(TAG, "EGLContext created, client version %d", values[0]);
     }
     return 1;
@@ -121,7 +121,7 @@ EGLConfig EglContext::getConfig(int flags, int version) {
     EGLConfig configs = nullptr;
     int numConfigs;
     if (!eglChooseConfig(eglDisplay, attributeList, &configs, 1, &numConfigs)) {
-        if (RENDERER_DEBUG) {
+        if (ENGINE_DEBUG) {
             ALOGW(TAG, "unable to find RGB8888 / %d  EGLConfig", version);
         }
         return nullptr;

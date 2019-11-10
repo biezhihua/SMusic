@@ -116,6 +116,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/Test.cpp">
+			<Option target="splayer_engine"/>
+		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/AudioDecoder.cpp">
 			<Option target="splayer_engine"/>
 		</Unit>
@@ -169,6 +172,9 @@
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_engine/src/VideoDevice.cpp">
 			<Option target="splayer_engine"/>
+		</Unit>
+		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/Test.cpp">
+			<Option target="splayer_soundtouch"/>
 		</Unit>
 		<Unit filename="/Users/biezhihua/StudySpace/splayer/splayer_soundtouch/include/AAFilter.h">
 			<Option target="splayer_soundtouch"/>

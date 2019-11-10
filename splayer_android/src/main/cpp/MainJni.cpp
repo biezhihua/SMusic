@@ -285,8 +285,6 @@ void MediaPlayer_init(JNIEnv *env) {
     // 获取DEBUG
     JNI_DEBUG = env->GetStaticBooleanField(clazz, env->GetStaticFieldID(clazz, "ANDROID_DEBUG", "Z"));
 
-    RENDERER_DEBUG = JNI_DEBUG;
-
     if (JNI_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }

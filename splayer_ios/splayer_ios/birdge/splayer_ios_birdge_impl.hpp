@@ -3,6 +3,5 @@
 
 #include "Person.hpp"
 #include "splayer_ios_birdge.h"
-#include <stdio.h>
 
 #endif /* splayer_ios_birdge_impl_hpp */
