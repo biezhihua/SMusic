@@ -1,0 +1,41 @@
+@startuml
+
+MainActivity -> MediaPlayer.java: setSurface(Surface surface)
+
+MediaPlayer.java -> MainJni: setVideoSurface(jobject surface)
+
+MainJni -> MainJni: window = ANativeWindow_fromSurface(surface)
+
+MediaPlayer.cpp -> MediaPlayer.cpp: new EglHelper()
+
+MediaPlayer.cpp -> VideoDevice: init()
+
+MainJni -> MediaPlayer.cpp : setVideoSurface(ANativeWindow nativeWindow)
+
+MediaPlayer.cpp -> EglHelper:init()
+
+VideoDevice -> EglHelper: eglGetDisplayer()
+
+VideoDevice -> EglHelper: eglCreateContext()
+
+VideoDevice -> EglHelper: eglCreateWindowSurface(ANativeWindow window)
+
+EglHelper -> EglSurface
+
+VideoDevice -> EglHelper: makeCurrent()
+
+VideoDevice -> OpenGLES: update texture
+
+OpenGLES -> EglSurface: draw content to EGLSurface
+
+VideoDevice -> EglHelper: swapBuffers()
+
+EglSurface -> Surface.java : BufferQueue
+
+Surface.java -> SurfaceView : BufferQueue
+
+SurfaceView -> MediaPlayer.java
+
+MediaPlayer.java -> MainActivity
+
+@enduml
