@@ -1,5 +1,9 @@
 @startuml
 
+note right
+    https://source.android.com/devices/graphics
+end note
+
 MainActivity -> MediaPlayer.java: setSurface(Surface surface)
 
 MediaPlayer.java -> MainJni: setVideoSurface(jobject surface)
