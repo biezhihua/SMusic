@@ -1,6 +1,6 @@
 //
 //  SceneDelegate.swift
-//  splayer_ios_example
+//  Swift2
 //
 //  Created by biezhihua on 2019/12/5.
 //  Copyright © 2019 biezhihua. All rights reserved.

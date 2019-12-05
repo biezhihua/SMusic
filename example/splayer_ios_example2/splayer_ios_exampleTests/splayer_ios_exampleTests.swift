@@ -2,8 +2,7 @@
 //  splayer_ios_exampleTests.swift
 //  splayer_ios_exampleTests
 //
-//  Created by biezhihua on 2019/12/5.
-//  Copyright © 2019 biezhihua. All rights reserved.
+//  Created by biezhihua on 2019/11/4.
 //
 
 import XCTest
