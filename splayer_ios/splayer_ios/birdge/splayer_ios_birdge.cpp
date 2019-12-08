@@ -103,3 +103,7 @@ void _setOptionS(long category, const char *type, const char *option) {
 void _setOptionL(long category, const char *type, long option) {
 
 }
+
+void _setSurface(void *surface) {
+
+}

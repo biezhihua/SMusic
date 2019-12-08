@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 public protocol IMediaPlayer {
 
@@ -20,7 +21,7 @@ public protocol IMediaPlayer {
 
     func setDisplay()
 
-    func setSurface()
+    func setSurface(_ surface: UIView?)
 
     func setDataSource(path: String)
 

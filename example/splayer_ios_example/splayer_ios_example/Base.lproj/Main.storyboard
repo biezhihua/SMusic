@@ -63,12 +63,20 @@
                                 </subviews>
                                 <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
                             </stackView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zRn-Iw-Q8w" userLabel="PlayerView">
+                                <rect key="frame" x="0.0" y="90" width="414" height="772"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="kE8-pq-Yaf" secondAttribute="trailing" id="0R1-bn-O0c"/>
                             <constraint firstItem="kE8-pq-Yaf" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="4mQ-Rw-c6L"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="zRn-Iw-Q8w" secondAttribute="bottom" id="CAP-kf-LL1"/>
                             <constraint firstItem="kE8-pq-Yaf" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="IvH-Mi-jy0"/>
+                            <constraint firstItem="zRn-Iw-Q8w" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="TmD-VX-FRC"/>
+                            <constraint firstItem="zRn-Iw-Q8w" firstAttribute="top" secondItem="kE8-pq-Yaf" secondAttribute="bottom" id="VHM-La-Y2r"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="zRn-Iw-Q8w" secondAttribute="trailing" id="g6S-Nx-Sek"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -77,6 +85,7 @@
                         <outlet property="destroy" destination="kQ3-jH-C51" id="hU9-YD-GEh"/>
                         <outlet property="pause" destination="w0V-1p-nY7" id="423-se-Fjc"/>
                         <outlet property="play" destination="yXR-C6-c3U" id="IQN-b3-tmz"/>
+                        <outlet property="renderView" destination="zRn-Iw-Q8w" id="PJn-Nl-mh1"/>
                         <outlet property="start" destination="OZg-p0-f5S" id="ldT-JW-1fv"/>
                         <outlet property="stop" destination="x1j-dU-bNv" id="L3F-ZI-nyk"/>
                     </connections>

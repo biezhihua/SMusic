@@ -1,5 +1,6 @@
 import Foundation
 import splayer_ios_birdge
+import UIKit
 
 public class MediaPlayer: IMediaPlayer {
 
@@ -72,7 +73,8 @@ public class MediaPlayer: IMediaPlayer {
 
     }
 
-    public func setSurface() {
+    public func setSurface(_ surface: UIView?) {
+        _setSurface(surface)
     }
 
     public func setDataSource(path: String) {

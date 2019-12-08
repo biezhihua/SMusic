@@ -33,6 +33,8 @@ void _setPitch(float pitch);
 
 void _setLooping(bool looping);
 
+void _setSurface(void *surface);
+
 void _setDataSource(const char *path);
 
 void _setDataSourceAndHeaders(const char *path, char *keys, void *values);

@@ -14,12 +14,15 @@ class ViewController: UIViewController {
     @IBOutlet weak var stop: UIButton!
 
     @IBOutlet weak var destroy: UIButton!
-
+    
+    @IBOutlet weak var renderView: UIView!
+    
     var mediaPlayer: MediaPlayer?
 
     @IBAction func onCreate() {
         Log.d("Main", "onCreate")
         mediaPlayer = MediaPlayer()
+        mediaPlayer?.setSurface(renderView)
     }
 
     @IBAction func onStart() {
