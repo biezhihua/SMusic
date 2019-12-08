@@ -22,7 +22,7 @@
                                         <rect key="frame" x="8" y="8" width="66.5" height="30"/>
                                         <state key="normal" title="Create"/>
                                         <connections>
-                                            <action selector="onCreate:forEvent:" destination="BYZ-38-t0r" eventType="touchUpInside" id="XaG-Pv-k2Z"/>
+                                            <action selector="onCreate" destination="BYZ-38-t0r" eventType="touchUpInside" id="cdH-Mr-XX7"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OZg-p0-f5S" userLabel="Start">
@@ -43,7 +43,7 @@
                                         <rect key="frame" x="207" y="8" width="66.5" height="30"/>
                                         <state key="normal" title="Pause"/>
                                         <connections>
-                                            <action selector="onPuase" destination="BYZ-38-t0r" eventType="touchUpInside" id="Vu1-n4-tnQ"/>
+                                            <action selector="onPause" destination="BYZ-38-t0r" eventType="touchUpInside" id="Vu1-n4-tnQ"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x1j-dU-bNv" userLabel="Stop">

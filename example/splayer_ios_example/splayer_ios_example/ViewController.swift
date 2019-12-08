@@ -1,11 +1,3 @@
-//
-//  ViewController.swift
-//  splayer_ios_example
-//
-//  Created by biezhihua on 2019/12/5.
-//  Copyright © 2019 biezhihua. All rights reserved.
-//
-
 import UIKit
 import splayer_ios
 
@@ -23,28 +15,36 @@ class ViewController: UIViewController {
 
     @IBOutlet weak var destroy: UIButton!
 
+    var mediaPlayer: MediaPlayer?
+
     @IBAction func onCreate() {
         Log.d("Main", "onCreate")
+        mediaPlayer = MediaPlayer()
     }
 
     @IBAction func onStart() {
         Log.d("Main", "onStart")
+        mediaPlayer?.start()
     }
 
     @IBAction func onPlay() {
         Log.d("Main", "onPlay")
+        mediaPlayer?.play()
     }
 
-    @IBAction func onPuase() {
-        Log.d("Main", "onPuase")
+    @IBAction func onPause() {
+        Log.d("Main", "onPause")
+        mediaPlayer?.pause()
     }
 
     @IBAction func onStop() {
         Log.d("Main", "onStop")
+        mediaPlayer?.stop()
     }
 
     @IBAction func onDestroy() {
         Log.d("Main", "onDestroy")
+        mediaPlayer = nil
     }
 
     override func viewDidLoad() {
