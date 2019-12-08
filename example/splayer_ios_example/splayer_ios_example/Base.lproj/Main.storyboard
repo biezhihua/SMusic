@@ -21,26 +21,44 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5DE-lk-EAU" userLabel="Create">
                                         <rect key="frame" x="8" y="8" width="66.5" height="30"/>
                                         <state key="normal" title="Create"/>
+                                        <connections>
+                                            <action selector="onCreate:forEvent:" destination="BYZ-38-t0r" eventType="touchUpInside" id="XaG-Pv-k2Z"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OZg-p0-f5S" userLabel="Start">
                                         <rect key="frame" x="74.5" y="8" width="66" height="30"/>
                                         <state key="normal" title="Start"/>
+                                        <connections>
+                                            <action selector="onStart" destination="BYZ-38-t0r" eventType="touchUpInside" id="lwQ-8a-ehF"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yXR-C6-c3U" userLabel="Play">
                                         <rect key="frame" x="140.5" y="8" width="66.5" height="30"/>
                                         <state key="normal" title="Play"/>
+                                        <connections>
+                                            <action selector="onPlay" destination="BYZ-38-t0r" eventType="touchUpInside" id="4XB-fc-TUv"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="w0V-1p-nY7" userLabel="Pause">
                                         <rect key="frame" x="207" y="8" width="66.5" height="30"/>
                                         <state key="normal" title="Pause"/>
+                                        <connections>
+                                            <action selector="onPuase" destination="BYZ-38-t0r" eventType="touchUpInside" id="Vu1-n4-tnQ"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x1j-dU-bNv" userLabel="Stop">
                                         <rect key="frame" x="273.5" y="8" width="66" height="30"/>
                                         <state key="normal" title="Stop"/>
+                                        <connections>
+                                            <action selector="onStop" destination="BYZ-38-t0r" eventType="touchUpInside" id="g7f-xE-aFf"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kQ3-jH-C51" userLabel="Destroy">
                                         <rect key="frame" x="339.5" y="8" width="66.5" height="30"/>
                                         <state key="normal" title="Destroy"/>
+                                        <connections>
+                                            <action selector="onDestroy" destination="BYZ-38-t0r" eventType="touchUpInside" id="CeL-5U-Pnf"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
@@ -54,6 +72,14 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outlet property="create" destination="5DE-lk-EAU" id="h2a-9N-gtC"/>
+                        <outlet property="destroy" destination="kQ3-jH-C51" id="hU9-YD-GEh"/>
+                        <outlet property="pause" destination="w0V-1p-nY7" id="423-se-Fjc"/>
+                        <outlet property="play" destination="yXR-C6-c3U" id="IQN-b3-tmz"/>
+                        <outlet property="start" destination="OZg-p0-f5S" id="ldT-JW-1fv"/>
+                        <outlet property="stop" destination="x1j-dU-bNv" id="L3F-ZI-nyk"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
