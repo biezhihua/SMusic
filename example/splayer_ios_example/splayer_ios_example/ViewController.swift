@@ -11,6 +11,9 @@ import splayer_ios
 
 class ViewController: UIViewController {
 
+    
+    var create:UIButton?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
