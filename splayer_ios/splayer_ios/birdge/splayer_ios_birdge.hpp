@@ -2,10 +2,17 @@
 #define splayer_ios_birdge_h
 
 #include <stdbool.h>
-
+#include <stdio.h>
+#include "Log.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern  bool IOS_DEBUG;
+
+extern void (^__nonnull SwiftFunc)(void);
+
+extern void CFuncTest(void);
 
 void _create(void *);
 
@@ -33,7 +40,7 @@ void _setPitch(float pitch);
 
 void _setLooping(bool looping);
 
-void _setSurface(void *surface);
+void _setSurface();
 
 void _setDataSource(const char *path);
 
@@ -44,8 +51,6 @@ void _setOptionS(long category, const char *type, const char *option);
 void _setOptionL(long category, const char *type, long option);
 
 void _native_init();
-
-void _native_deinit();
 
 long _getRotate();
 

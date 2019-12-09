@@ -1,5 +1,18 @@
 #include "splayer_ios_birdge.hpp"
 
+const char *TAG = "[MP][BIRDGE][Main]";
+
+bool IOS_DEBUG = false;
+
+void (^SwiftFunc)(void) = nullptr;
+
+void CFuncTest(void) {
+    SwiftFunc();
+}
+
+void _native_init() {
+}
+
 long _getRotate() {
     return 0;
 }
@@ -25,7 +38,9 @@ long _getCurrentPosition() {
 }
 
 void _create(void *) {
-
+    if (IOS_DEBUG) {
+        ALOGD(TAG,"[%s]", __func__);
+    }
 }
 
 void _start() {
@@ -80,14 +95,6 @@ void _setDataSource(const char *path) {
 
 }
 
-void _native_init() {
-
-}
-
-void _native_deinit() {
-
-}
-
 bool _isLooping() {
     return false;
 }
@@ -104,6 +111,6 @@ void _setOptionL(long category, const char *type, long option) {
 
 }
 
-void _setSurface(void *surface) {
+void _setSurface() {
 
 }

@@ -3,26 +3,33 @@ import splayer_ios_birdge
 import UIKit
 
 public class MediaPlayer: IMediaPlayer {
-
     private let TAG: String = "[MP][LIB][MediaPlayer]"
-
-    public var IOS_DEBUG: Bool = true
 
     private var onListener: IOnListener? = nil
 
     public init() {
+        IOS_DEBUG = true
+
         if (IOS_DEBUG) {
             Log.d(TAG, "init")
         }
-        _native_init()
+
+        //        SwiftFunc = swiftFuncImpl
+        //        CFuncTest()
+        _create(nil)
         audioSessionId = 0
+    }
+
+    // 这里是对SwiftFunc的实现
+    private func swiftFuncImpl() {
+        print("This is a Swift function!");
     }
 
     deinit {
         if (IOS_DEBUG) {
             Log.d(TAG, "deinit")
         }
-        _native_deinit()
+        _release()
     }
 
     public var rotate: Int {
@@ -74,7 +81,10 @@ public class MediaPlayer: IMediaPlayer {
     }
 
     public func setSurface(_ surface: UIView?) {
-        _setSurface(surface)
+        if surface != nil {
+            _setSurface()
+        }
+
     }
 
     public func setDataSource(path: String) {
@@ -85,10 +95,13 @@ public class MediaPlayer: IMediaPlayer {
         _setDataSourceAndHeaders(path, nil, nil)
     }
 
+
     public func start() {
+
         if (IOS_DEBUG) {
             Log.d(TAG, "start")
         }
+
         stayAwake(awake: true)
         _start()
     }
@@ -179,7 +192,8 @@ public class MediaPlayer: IMediaPlayer {
         if (IOS_DEBUG) {
             Log.d(TAG, "setDebug : debug = \(debug)")
         }
-        IOS_DEBUG = debug;
+        IOS_DEBUG = debug
+
     }
 
 }

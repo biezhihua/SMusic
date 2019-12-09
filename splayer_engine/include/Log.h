@@ -92,6 +92,16 @@ LOG_MUTEX->lock();\
 LOG_MUTEX->unlock(); \
 } while (0)
 
+#elif __APPLE__
+
+#include <sys/syslog.h>
+
+#define _ALOGD(TAG, ...) (void)syslog(LOG_DEBUG,__VA_ARGS__);
+#define _ALOGI(TAG, ...) (void)syslog(LOG_INFO,__VA_ARGS__);
+#define _ALOGE(TAG, ...) (void)syslog(LOG_ERR,__VA_ARGS__);
+#define _ALOGV(TAG, ...) (void)syslog(LOG_NOTICE,__VA_ARGS__);
+#define _ALOGW(TAG, ...) (void)syslog(LOG_WARNING,__VA_ARGS__);
+
 #else
 
 #define _ALOGD(TAG, ...) (void)printf(__VA_ARGS__);
@@ -107,6 +117,5 @@ LOG_MUTEX->unlock(); \
 #define ALOGE(TAG, ...)  _ALOGE(TAG, __VA_ARGS__)
 #define ALOGV(TAG, ...)  _ALOGI(TAG, __VA_ARGS__)
 #define ALOGW(TAG, ...)  _ALOGW(TAG, __VA_ARGS__)
-
 
 #endif

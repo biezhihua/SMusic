@@ -12,12 +12,12 @@ extern "C" {
 #include <libavcodec/jni.h>
 }
 
-struct fields_t {
+struct JniContext {
     jfieldID context;
     jmethodID post_event;
 };
 
-static fields_t fields;
+static JniContext jniContext;
 
 static bool JNI_DEBUG = false;
 
@@ -70,7 +70,7 @@ public:
 
         bool status = (javaVM->AttachCurrentThread(&env, nullptr) >= 0);
 
-        env->CallStaticVoidMethod(mClass, fields.post_event, mObject, msg, ext1, ext2, obj);
+        env->CallStaticVoidMethod(mClass, jniContext.post_event, mObject, msg, ext1, ext2, obj);
 
         if (env->ExceptionCheck()) {
             jthrowable exc = env->ExceptionOccurred();
@@ -113,13 +113,13 @@ public:
 
 
 static MediaPlayer *getMediaPlayer(JNIEnv *env, jobject thiz) {
-    MediaPlayer *mp = (MediaPlayer *) env->GetLongField(thiz, fields.context);
+    MediaPlayer *mp = (MediaPlayer *) env->GetLongField(thiz, jniContext.context);
     return mp;
 }
 
 static MediaPlayer *setMediaPlayer(JNIEnv *env, jobject thiz, long mediaPlayer) {
-    MediaPlayer *old = (MediaPlayer *) env->GetLongField(thiz, fields.context);
-    env->SetLongField(thiz, fields.context, mediaPlayer);
+    MediaPlayer *old = (MediaPlayer *) env->GetLongField(thiz, jniContext.context);
+    env->SetLongField(thiz, jniContext.context, mediaPlayer);
     return old;
 }
 
@@ -283,34 +283,35 @@ void MediaPlayer_init(JNIEnv *env) {
     }
 
     // 获取DEBUG
-    JNI_DEBUG = env->GetStaticBooleanField(clazz, env->GetStaticFieldID(clazz, "ANDROID_DEBUG", "Z"));
+    JNI_DEBUG = env->GetStaticBooleanField(clazz,
+                                           env->GetStaticFieldID(clazz, "ANDROID_DEBUG", "Z"));
 
     if (JNI_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
 
     // 获取Context Id
-    fields.context = env->GetFieldID(clazz, "mNativeContext", "J");
-    if (fields.context == nullptr) {
+    jniContext.context = env->GetFieldID(clazz, "mNativeContext", "J");
+    if (jniContext.context == nullptr) {
         ALOGE(TAG, "[%s] not find field mNativeContext", __func__);
         return;
     }
 
     if (JNI_DEBUG) {
-        ALOGD(TAG, "[%s] context = %p", __func__, fields.context);
+        ALOGD(TAG, "[%s] context = %p", __func__, jniContext.context);
     }
 
     // 获取PostEvent Id
-    fields.post_event = env->GetStaticMethodID(clazz,
-                                               "postEventFromNative",
-                                               "(Ljava/lang/Object;IIILjava/lang/Object;)V");
-    if (fields.post_event == nullptr) {
+    jniContext.post_event = env->GetStaticMethodID(clazz,
+                                                   "postEventFromNative",
+                                                   "(Ljava/lang/Object;IIILjava/lang/Object;)V");
+    if (jniContext.post_event == nullptr) {
         ALOGE(TAG, "[%s] not find static method postEventFromNative", __func__);
         return;
     }
 
     if (JNI_DEBUG) {
-        ALOGD(TAG, "[%s] post_event = %p", __func__, fields.post_event);
+        ALOGD(TAG, "[%s] post_event = %p", __func__, jniContext.post_event);
     }
 
     env->DeleteLocalRef(clazz);
