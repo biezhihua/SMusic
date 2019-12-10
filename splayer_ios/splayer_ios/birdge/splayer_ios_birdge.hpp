@@ -3,68 +3,70 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-#include "Log.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern  bool IOS_DEBUG;
+extern bool IOS_DEBUG;
 
 extern void (^__nonnull SwiftFunc)(void);
 
 extern void CFuncTest(void);
 
-void _create(void *);
+typedef long long BirdgeContext;
 
-void _start();
+void _create(BirdgeContext *context);
 
-void _stop();
+void _start(BirdgeContext *context);
 
-void _pause();
+void _stop(BirdgeContext *context);
 
-void _play();
+void _pause(BirdgeContext *context);
 
-void _release();
+void _play(BirdgeContext *context);
 
-void _reset();
+void _destroy(BirdgeContext *context);
 
-void _seekTo(float timeMs);
+void _reset(BirdgeContext *context);
 
-void _setVolume(float leftVolume, float rightVolume);
+void _seekTo(BirdgeContext *context, float timeMs);
 
-void _setMute(bool mute);
+void _setVolume(BirdgeContext *context, float leftVolume, float rightVolume);
 
-void _setRate(float rate);
+void _setMute(BirdgeContext *context, bool mute);
 
-void _setPitch(float pitch);
+void _setRate(BirdgeContext *context, float rate);
 
-void _setLooping(bool looping);
+void _setPitch(BirdgeContext *context, float pitch);
 
-void _setSurface();
+void _setLooping(BirdgeContext *context, bool looping);
 
-void _setDataSource(const char *path);
+void _setSurface(BirdgeContext *context);
 
-void _setDataSourceAndHeaders(const char *path, char *keys, void *values);
+void _setDataSource(BirdgeContext *context, const char *path);
 
-void _setOptionS(long category, const char *type, const char *option);
+void _setDataSourceAndHeaders(BirdgeContext *context, const char *path, char *keys, void *values);
 
-void _setOptionL(long category, const char *type, long option);
+void _setOptionS(BirdgeContext *context, long category, const char *type, const char *option);
 
-void _native_init();
+void _setOptionL(BirdgeContext *context, long category, const char *type, long option);
 
-long _getRotate();
+void _native_init(BirdgeContext *context);
 
-long _getVideoWidth();
+long _getRotate(BirdgeContext *context);
 
-long _getVideoHeight();
+long _getVideoWidth(BirdgeContext *context);
 
-bool _isPlaying();
+long _getVideoHeight(BirdgeContext *context);
 
-long _getDuration();
+bool _isPlaying(BirdgeContext *context);
 
-long _getCurrentPosition();
+long _getDuration(BirdgeContext *context);
 
-bool _isLooping();
+long _getCurrentPosition(BirdgeContext *context);
+
+bool _isLooping(BirdgeContext *context);
 
 #ifdef __cplusplus
 }

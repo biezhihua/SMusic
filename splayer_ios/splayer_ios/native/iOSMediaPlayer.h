@@ -3,7 +3,7 @@
 
 #include "MediaPlayer.h"
 
-class iOSMediaPlayer : MediaPlayer {
+class iOSMediaPlayer : public MediaPlayer {
     
     const char *const TAG = "[MP][IOS][MediaPlayer]";
 private:

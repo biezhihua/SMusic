@@ -5,6 +5,8 @@ import UIKit
 public class MediaPlayer: IMediaPlayer {
     private let TAG: String = "[MP][LIB][MediaPlayer]"
 
+    private var nativeContext: Int64 = 0
+
     private var onListener: IOnListener? = nil
 
     public init() {
@@ -16,7 +18,7 @@ public class MediaPlayer: IMediaPlayer {
 
         //        SwiftFunc = swiftFuncImpl
         //        CFuncTest()
-        _create(nil)
+        _create(&nativeContext)
         audioSessionId = 0
     }
 
@@ -29,48 +31,48 @@ public class MediaPlayer: IMediaPlayer {
         if (IOS_DEBUG) {
             Log.d(TAG, "deinit")
         }
-        _release()
+        _destroy(&nativeContext)
     }
 
     public var rotate: Int {
         get {
-            _getRotate()
+            _getRotate(&nativeContext)
         }
     }
 
     public var videoWidth: Int {
         get {
-            _getVideoWidth()
+            _getVideoWidth(&nativeContext)
         }
     }
 
     public var videoHeight: Int {
         get {
-            _getVideoHeight()
+            _getVideoHeight(&nativeContext)
         }
     }
 
     public var isPlaying: Bool {
         get {
-            _isPlaying()
+            _isPlaying(&nativeContext)
         }
     }
 
     public var currentPosition: Int {
         get {
-            _getCurrentPosition()
+            _getCurrentPosition(&nativeContext)
         }
     }
 
     public var duration: Int {
         get {
-            _getDuration()
+            _getDuration(&nativeContext)
         }
     }
 
     public var isLooping: Bool {
         get {
-            _isLooping()
+            _isLooping(&nativeContext)
         }
     }
 
@@ -82,17 +84,16 @@ public class MediaPlayer: IMediaPlayer {
 
     public func setSurface(_ surface: UIView?) {
         if surface != nil {
-            _setSurface()
+            _setSurface(&nativeContext)
         }
-
     }
 
     public func setDataSource(path: String) {
-        _setDataSource(path)
+        _setDataSource(&nativeContext, path)
     }
 
     public func setDataSource(path: String, headers: Dictionary<String, String>) {
-        _setDataSourceAndHeaders(path, nil, nil)
+        _setDataSourceAndHeaders(&nativeContext, path, nil, nil)
     }
 
 
@@ -103,7 +104,7 @@ public class MediaPlayer: IMediaPlayer {
         }
 
         stayAwake(awake: true)
-        _start()
+        _start(&nativeContext)
     }
 
     private func stayAwake(awake: Bool) {
@@ -114,7 +115,7 @@ public class MediaPlayer: IMediaPlayer {
             Log.d(TAG, "stop")
         }
         stayAwake(awake: false)
-        _stop()
+        _stop(&nativeContext)
     }
 
     public func pause() {
@@ -122,7 +123,7 @@ public class MediaPlayer: IMediaPlayer {
             Log.d(TAG, "pause")
         }
         stayAwake(awake: false)
-        _pause()
+        _pause(&nativeContext)
     }
 
     public func play() {
@@ -130,7 +131,7 @@ public class MediaPlayer: IMediaPlayer {
             Log.d(TAG, "play")
         }
         stayAwake(awake: true)
-        _play()
+        _play(&nativeContext)
     }
 
     public func setWakeMode(mode: Int) {
@@ -140,7 +141,7 @@ public class MediaPlayer: IMediaPlayer {
     }
 
     public func seekTo(msec: Float) {
-        _seekTo(msec)
+        _seekTo(&nativeContext, msec)
     }
 
     public func release() {
@@ -149,7 +150,7 @@ public class MediaPlayer: IMediaPlayer {
         }
         stayAwake(awake: false)
         onListener = nil
-        _release()
+        _destroy(&nativeContext)
     }
 
     public func reset() {
@@ -157,23 +158,23 @@ public class MediaPlayer: IMediaPlayer {
             Log.d(TAG, "reset")
         }
         stayAwake(awake: false)
-        _reset()
+        _reset(&nativeContext)
     }
 
     public func setVolume(leftVolume: Float, rightVolume: Float) {
-        _setVolume(leftVolume, rightVolume)
+        _setVolume(&nativeContext, leftVolume, rightVolume)
     }
 
     public func setMute(mute: Bool) {
-        _setMute(mute)
+        _setMute(&nativeContext, mute)
     }
 
     public func setRate(rate: Float) {
-        _setRate(rate)
+        _setRate(&nativeContext, rate)
     }
 
     public func setPitch(pitch: Float) {
-        _setPitch(pitch)
+        _setPitch(&nativeContext, pitch)
     }
 
     public func setOnListener(listener: IOnListener?) {
@@ -181,11 +182,11 @@ public class MediaPlayer: IMediaPlayer {
     }
 
     public func setOption(category: Int, type: String, option: String) {
-        _setOptionS(category, type, option)
+        _setOptionS(&nativeContext, category, type, option)
     }
 
     public func setOption(category: Int, type: String, option: Int) {
-        _setOptionL(category, type, option)
+        _setOptionL(&nativeContext, category, type, option)
     }
 
     public func setDebug(debug: Bool) {
