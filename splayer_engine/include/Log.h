@@ -96,11 +96,11 @@ LOG_MUTEX->unlock(); \
 
 #include <sys/syslog.h>
 
-#define _ALOGD(TAG, ...) (void)syslog(LOG_DEBUG,__VA_ARGS__);
-#define _ALOGI(TAG, ...) (void)syslog(LOG_INFO,__VA_ARGS__);
-#define _ALOGE(TAG, ...) (void)syslog(LOG_ERR,__VA_ARGS__);
-#define _ALOGV(TAG, ...) (void)syslog(LOG_NOTICE,__VA_ARGS__);
-#define _ALOGW(TAG, ...) (void)syslog(LOG_WARNING,__VA_ARGS__);
+#define _ALOGD(...) (void)syslog(LOG_DEBUG,__VA_ARGS__);
+#define _ALOGI(...) (void)syslog(LOG_INFO,__VA_ARGS__);
+#define _ALOGE(...) (void)syslog(LOG_ERR,__VA_ARGS__);
+#define _ALOGV(...) (void)syslog(LOG_NOTICE,__VA_ARGS__);
+#define _ALOGW(...) (void)syslog(LOG_WARNING,__VA_ARGS__);
 
 #else
 
