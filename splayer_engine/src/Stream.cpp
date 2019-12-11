@@ -155,7 +155,7 @@ int Stream::readPackets() {
 
             // 读取出错，则直接退出
             if (formatContext->pb && formatContext->pb->error) {
-                ALOGE(TAG, "[%s] I/O context error ", __func__);
+                ALOGE(TAG, "[%s] I/O nmpReference error ", __func__);
                 notifyMsg(Msg::MSG_CHANGE_STATUS, ERRORED);
                 notifyMsg(Msg::MSG_STATUS_ERRORED, ERROR_IO);
                 notifyMsg(Msg::MSG_ERROR, ERROR_IO);
@@ -304,7 +304,7 @@ int Stream::openStream() {
     // 创建解复用上下文
     formatContext = avformat_alloc_context();
     if (!formatContext) {
-        ALOGE(TAG, "[[%s]] avformat could not allocate context", __func__);
+        ALOGE(TAG, "[[%s]] avformat could not allocate nmpReference", __func__);
         return ERROR_NOT_MEMORY;
     }
 
@@ -408,7 +408,7 @@ int Stream::openStream() {
         }
     }
 
-    // I/O context.
+    // I/O nmpReference.
     if (formatContext->pb) {
         formatContext->pb->eof_reached = 0;
     }

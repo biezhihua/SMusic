@@ -19,15 +19,24 @@ class ViewController: UIViewController {
     
     var mediaPlayer: MediaPlayer?
     
+    var mediaPlayer2: MediaPlayer?
+    
     @IBAction func onCreate() {
         Log.d("Main", "onCreate")
         mediaPlayer = MediaPlayer()
         mediaPlayer?.setSurface(renderView)
+        
+        mediaPlayer2 = MediaPlayer()
+        mediaPlayer2?.setSurface(renderView)
+        
+        
     }
     
     @IBAction func onStart() {
-        Log.d("Main", "onStart")
+        Log.d("Main", "onStart \(mediaPlayer)")
+        Log.d("Main", "onStart \(mediaPlayer2)")
         mediaPlayer?.start()
+     mediaPlayer2?.start()
     }
     
     @IBAction func onPlay() {

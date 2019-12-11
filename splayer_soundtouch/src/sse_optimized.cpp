@@ -301,7 +301,7 @@ uint FIRFilterSSE::evaluateFilterStereo(float *dest, const float *src, uint numS
         // Now sum1 and sum2 both have a filtered 2-channelType sample each, but we still need
         // to sum the two hi- and lo-floats of these registers together.
 
-        // post-shuffle & add the filtered values and store to dest.
+        // postReference-shuffle & add the filtered values and store to dest.
         _mm_storeu_ps(pDest, _mm_add_ps(
                     _mm_shuffle_ps(sum1, sum2, _MM_SHUFFLE(1,0,3,2)),   // s2_1 s2_0 s1_3 s1_2
                     _mm_shuffle_ps(sum1, sum2, _MM_SHUFFLE(3,2,1,0))    // s2_3 s2_2 s1_1 s1_0

@@ -7,12 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		127D5455360BE4535550328F /* iOSMediaSync.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 127D53DB5CA0B7BD9A69D343 /* iOSMediaSync.cpp */; };
 		127D57176871A908151FA71F /* Rect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127D55E5EBA46C1679DA4567 /* Rect.swift */; };
+		127D57AAEDABC3EDA33FEF1A /* iOSAudioDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 127D5718EA611AC9E2A5D495 /* iOSAudioDevice.h */; };
+		127D58A0B9A5BB057AEF9B96 /* iOSVideoDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 127D596EB19DF76C8BA416B1 /* iOSVideoDevice.h */; };
+		127D5912C09FF3938B36DCA7 /* iOSVideoDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 127D5BD892FB6C553FCE44DB /* iOSVideoDevice.cpp */; };
 		127D59ED6B566E4DCDB96562 /* ITimedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127D5920EA0CA5ADE62A9E5D /* ITimedText.swift */; };
 		127D5C4E9A8198C0601D2437 /* IOnListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127D57C2F8545648CE2FFB04 /* IOnListener.swift */; };
+		127D5C748B04D988734EA656 /* iOSMediaSync.h in Headers */ = {isa = PBXBuildFile; fileRef = 127D58F3BC4921D8B4581AEE /* iOSMediaSync.h */; };
 		127D5C93DA3AD5B6CE9860EB /* iOSMediaPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 127D5F81A160E0D58675D57A /* iOSMediaPlayer.cpp */; };
 		127D5D6EAAD7C7384A853DDE /* iOSMediaPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 127D574EC845970155CE2911 /* iOSMediaPlayer.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		127D5E0C40877B545B1C9119 /* MsgType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 127D53BCB36F853786499C1A /* MsgType.swift */; };
+		127D5FC0D171DBA3D7828538 /* iOSAudioDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 127D5E7B6BC127997AAD796A /* iOSAudioDevice.cpp */; };
 		9D161F522376FDB300C0EF74 /* VideoDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9C23743E7200AB7B92 /* VideoDevice.cpp */; };
 		9D161F532376FDB300C0EF74 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9D23743E7200AB7B92 /* Log.cpp */; };
 		9D161F542376FDB300C0EF74 /* MediaPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D89DE9E23743E7200AB7B92 /* MediaPlayer.cpp */; };
@@ -118,10 +124,16 @@
 
 /* Begin PBXFileReference section */
 		127D53BCB36F853786499C1A /* MsgType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MsgType.swift; sourceTree = "<group>"; };
+		127D53DB5CA0B7BD9A69D343 /* iOSMediaSync.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = iOSMediaSync.cpp; sourceTree = "<group>"; };
 		127D55E5EBA46C1679DA4567 /* Rect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Rect.swift; sourceTree = "<group>"; };
+		127D5718EA611AC9E2A5D495 /* iOSAudioDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iOSAudioDevice.h; sourceTree = "<group>"; };
 		127D574EC845970155CE2911 /* iOSMediaPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iOSMediaPlayer.h; sourceTree = "<group>"; };
 		127D57C2F8545648CE2FFB04 /* IOnListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IOnListener.swift; sourceTree = "<group>"; };
+		127D58F3BC4921D8B4581AEE /* iOSMediaSync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iOSMediaSync.h; sourceTree = "<group>"; };
 		127D5920EA0CA5ADE62A9E5D /* ITimedText.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ITimedText.swift; sourceTree = "<group>"; };
+		127D596EB19DF76C8BA416B1 /* iOSVideoDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iOSVideoDevice.h; sourceTree = "<group>"; };
+		127D5BD892FB6C553FCE44DB /* iOSVideoDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = iOSVideoDevice.cpp; sourceTree = "<group>"; };
+		127D5E7B6BC127997AAD796A /* iOSAudioDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = iOSAudioDevice.cpp; sourceTree = "<group>"; };
 		127D5F81A160E0D58675D57A /* iOSMediaPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = iOSMediaPlayer.cpp; sourceTree = "<group>"; };
 		9D161F402376F1E800C0EF74 /* libavdevice.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavdevice.a; path = ../distribution/ios/ffmpeg/lib/libavdevice.a; sourceTree = "<group>"; };
 		9D161F9F2377143C00C0EF74 /* libavdevice.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libavdevice.framework; path = "../../mobile-ffmpeg/prebuilt/ios-framework/libavdevice.framework"; sourceTree = "<group>"; };
@@ -501,6 +513,12 @@
 			children = (
 				127D5F81A160E0D58675D57A /* iOSMediaPlayer.cpp */,
 				127D574EC845970155CE2911 /* iOSMediaPlayer.h */,
+				127D53DB5CA0B7BD9A69D343 /* iOSMediaSync.cpp */,
+				127D58F3BC4921D8B4581AEE /* iOSMediaSync.h */,
+				127D5E7B6BC127997AAD796A /* iOSAudioDevice.cpp */,
+				127D5718EA611AC9E2A5D495 /* iOSAudioDevice.h */,
+				127D5BD892FB6C553FCE44DB /* iOSVideoDevice.cpp */,
+				127D596EB19DF76C8BA416B1 /* iOSVideoDevice.h */,
 			);
 			path = native;
 			sourceTree = "<group>";
@@ -612,6 +630,9 @@
 				9DE51FBF2371E5A0003B6CCC /* splayer_ios.h in Headers */,
 				127D5D6EAAD7C7384A853DDE /* iOSMediaPlayer.h in Headers */,
 				9DDB831B2373166000DA3F99 /* module_birdge.h in Headers */,
+				127D5C748B04D988734EA656 /* iOSMediaSync.h in Headers */,
+				127D57AAEDABC3EDA33FEF1A /* iOSAudioDevice.h in Headers */,
+				127D58A0B9A5BB057AEF9B96 /* iOSVideoDevice.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -756,6 +777,9 @@
 				127D57176871A908151FA71F /* Rect.swift in Sources */,
 				127D5E0C40877B545B1C9119 /* MsgType.swift in Sources */,
 				127D5C93DA3AD5B6CE9860EB /* iOSMediaPlayer.cpp in Sources */,
+				127D5455360BE4535550328F /* iOSMediaSync.cpp in Sources */,
+				127D5FC0D171DBA3D7828538 /* iOSAudioDevice.cpp in Sources */,
+				127D5912C09FF3938B36DCA7 /* iOSVideoDevice.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

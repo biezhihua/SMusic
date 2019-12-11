@@ -10,63 +10,65 @@ extern "C" {
 
 extern bool IOS_DEBUG;
 
-extern void (^__nonnull SwiftFunc)(void);
+typedef long long _NMPReference;
 
-extern void CFuncTest(void);
+typedef void _SMPReference;
 
-typedef long long BirdgeContext;
+typedef void (*_PostFromNativeReference)(_SMPReference *_Nullable smpReference, int msg, int ext1, int ext2);
 
-void _create(BirdgeContext *context);
+extern void (*_postFromNative)(_SMPReference *_Nullable smpReference, int msg, int ext1, int ext2);
 
-void _start(BirdgeContext *context);
+void _create(_NMPReference *_Nullable nmpReference, _SMPReference *_Nullable smpReference);
 
-void _stop(BirdgeContext *context);
+void _start(_NMPReference *_Nullable nmpReference);
 
-void _pause(BirdgeContext *context);
+void _stop(_NMPReference *_Nullable nmpReference);
 
-void _play(BirdgeContext *context);
+void _pause(_NMPReference *_Nullable nmpReference);
 
-void _destroy(BirdgeContext *context);
+void _play(_NMPReference *_Nullable nmpReference);
 
-void _reset(BirdgeContext *context);
+void _destroy(_NMPReference *_Nullable nmpReference);
 
-void _seekTo(BirdgeContext *context, float timeMs);
+void _reset(_NMPReference *_Nullable nmpReference);
 
-void _setVolume(BirdgeContext *context, float leftVolume, float rightVolume);
+void _seekTo(_NMPReference *_Nullable nmpReference, float timeMs);
 
-void _setMute(BirdgeContext *context, bool mute);
+void _setVolume(_NMPReference *_Nullable nmpReference, float leftVolume, float rightVolume);
 
-void _setRate(BirdgeContext *context, float rate);
+void _setMute(_NMPReference *_Nullable nmpReference, bool mute);
 
-void _setPitch(BirdgeContext *context, float pitch);
+void _setRate(_NMPReference *_Nullable nmpReference, float rate);
 
-void _setLooping(BirdgeContext *context, bool looping);
+void _setPitch(_NMPReference *_Nullable nmpReference, float pitch);
 
-void _setSurface(BirdgeContext *context);
+void _setLooping(_NMPReference *_Nullable nmpReference, bool looping);
 
-void _setDataSource(BirdgeContext *context, const char *path);
+void _setSurface(_NMPReference *_Nullable nmpReference);
 
-void _setDataSourceAndHeaders(BirdgeContext *context, const char *path, char *keys, void *values);
+void _setDataSource(_NMPReference *_Nullable nmpReference, const char *_Nullable path);
 
-void _setOptionS(BirdgeContext *context, long category, const char *type, const char *option);
+void _setDataSourceAndHeaders(_NMPReference *_Nullable nmpReference, const char *_Nullable path, char *_Nullable keys, void *_Nullable values);
 
-void _setOptionL(BirdgeContext *context, long category, const char *type, long option);
+void _setOptionS(_NMPReference *_Nullable nmpReference, long category, const char *_Nullable type, const char *_Nullable option);
 
-void _native_init(BirdgeContext *context);
+void _setOptionL(_NMPReference *_Nullable nmpReference, long category, const char *_Nullable type, long option);
 
-long _getRotate(BirdgeContext *context);
+void _native_init(_NMPReference *_Nullable nmpReference);
 
-long _getVideoWidth(BirdgeContext *context);
+long _getRotate(_NMPReference *_Nullable nmpReference);
 
-long _getVideoHeight(BirdgeContext *context);
+long _getVideoWidth(_NMPReference *_Nullable nmpReference);
 
-bool _isPlaying(BirdgeContext *context);
+long _getVideoHeight(_NMPReference *_Nullable nmpReference);
 
-long _getDuration(BirdgeContext *context);
+bool _isPlaying(_NMPReference *_Nullable nmpReference);
 
-long _getCurrentPosition(BirdgeContext *context);
+long _getDuration(_NMPReference *_Nullable nmpReference);
 
-bool _isLooping(BirdgeContext *context);
+long _getCurrentPosition(_NMPReference *_Nullable nmpReference);
+
+bool _isLooping(_NMPReference *_Nullable nmpReference);
 
 #ifdef __cplusplus
 }

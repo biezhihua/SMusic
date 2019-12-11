@@ -282,7 +282,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
     // 创建解码上下文
     codecContext = avcodec_alloc_context3(nullptr);
     if (!codecContext) {
-        ALOGE(TAG, "[%s] alloc codec context failure", __func__);
+        ALOGE(TAG, "[%s] alloc codec nmpReference failure", __func__);
         return ERROR_NOT_MEMORY;
     }
 
@@ -290,7 +290,7 @@ int MediaPlayer::openDecoder(int streamIndex) {
     ret = avcodec_parameters_to_context(codecContext,
                                         formatContext->streams[streamIndex]->codecpar);
     if (ret < 0) {
-        ALOGE(TAG, "[%s] copy codec params to context failure", __func__);
+        ALOGE(TAG, "[%s] copy codec params to nmpReference failure", __func__);
         return ERROR_COPY_CODEC_PARAM_TO_CONTEXT;
     }
 
@@ -691,7 +691,7 @@ int MediaPlayer::checkParams() {
 
 void MediaPlayer::setFormatContext(AVFormatContext *formatContext) {
     if (ENGINE_DEBUG) {
-        ALOGD(TAG, "[%s] format context = %p", __func__, formatContext);
+        ALOGD(TAG, "[%s] format nmpReference = %p", __func__, formatContext);
     }
     this->formatContext = formatContext;
 }

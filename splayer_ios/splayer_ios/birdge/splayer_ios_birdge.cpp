@@ -1,35 +1,93 @@
 #include "splayer_ios_birdge.hpp"
-#include "iOSMediaPlayer.h"
 #include "Log.h"
+#include "iOSMediaPlayer.h"
+#include "iOSMediaSync.h"
+#include "iOSAudioDevice.h"
+#include "iOSVideoDevice.h"
 
 const char *TAG = "[MP][BIRDGE][Main]";
 
 bool IOS_DEBUG = false;
 
-void setMediaPlayer(BirdgeContext *context, MediaPlayer *mp) {
-    if (context != nullptr && mp != nullptr) {
-        *context = (long long) mp;
+
+class MessageListener : public IMessageListener {
+
+private:
+    _NMPReference *nmpReference = nullptr;
+    _SMPReference *smpReference = nullptr;
+
+public:
+    _PostFromNativeReference postReference = nullptr;
+public:
+
+    MessageListener(_NMPReference *nmpReference, void *smpReference, _PostFromNativeReference func) {
+        this->nmpReference = nmpReference;
+        this->smpReference = smpReference;
+        this->postReference = func;
+    }
+
+    ~MessageListener() {
+        nmpReference = nullptr;
+        smpReference = nullptr;
+    }
+
+    void onNotify(int msg, int ext1, int ext2, void *obj) {
+        if (postReference != nullptr) {
+            (postReference)(smpReference, msg, ext1, ext2);
+        }
+        if (IOS_DEBUG) {
+            ALOGD(TAG, "[%s] postReference=%p ", __func__, postReference);
+        }
+    }
+
+    void onMessage(Msg *msg) override {
+
+        if (IOS_DEBUG) {
+            ALOGD(TAG, "[%s] what=%s arg1=%d", __func__, Msg::getMsgSimpleName(msg->what),
+                    msg->arg1I);
+        }
+
+        switch (msg->what) {
+            case Msg::MSG_FLUSH:
+            case Msg::MSG_ERROR:
+            case Msg::MSG_PLAY_STARTED:
+            case Msg::MSG_PLAY_COMPLETED:
+            case Msg::MSG_OPEN_INPUT:
+            case Msg::MSG_STREAM_INFO:
+            case Msg::MSG_VIDEO_SIZE_CHANGED:
+            case Msg::MSG_SAR_CHANGED:
+            case Msg::MSG_AUDIO_START:
+            case Msg::MSG_AUDIO_RENDERING_START:
+            case Msg::MSG_VIDEO_ROTATION_CHANGED:
+            case Msg::MSG_SEEK_START:
+            case Msg::MSG_SEEK_COMPLETE:
+                onNotify(msg->what, msg->arg1I, msg->arg2I, nullptr);
+                break;
+        }
+    }
+};
+
+
+static void setMediaPlayer(_NMPReference *mediaPlayerReference, MediaPlayer *mediaPlayer) {
+    if (mediaPlayerReference != nullptr && mediaPlayer != nullptr) {
+        *mediaPlayerReference = (long long) mediaPlayer;
     }
 }
 
-MediaPlayer *getMediaPlayer(BirdgeContext *context) {
-    if (context != nullptr) {
-        return (MediaPlayer *) (*context);
+static MediaPlayer *getMediaPlayer(_NMPReference *mediaPlayerReference) {
+    if (mediaPlayerReference != nullptr) {
+        return (MediaPlayer *) (*mediaPlayerReference);
     }
     return nullptr;
 }
 
-void (^SwiftFunc)(void) = nullptr;
+void (*_postFromNative)(_SMPReference *smpReference, int msg, int ext1, int ext2) = nullptr;
 
-void CFuncTest(void) {
-    SwiftFunc();
+void _native_init(_NMPReference *nmpReference) {
 }
 
-void _native_init(BirdgeContext *context) {
-}
-
-long _getRotate(BirdgeContext *context) {
-    MediaPlayer *mp = getMediaPlayer(context);
+long _getRotate(_NMPReference *nmpReference) {
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -38,8 +96,8 @@ long _getRotate(BirdgeContext *context) {
     return mp->getRotate();
 }
 
-long _getVideoWidth(BirdgeContext *context) {
-    MediaPlayer *mp = getMediaPlayer(context);
+long _getVideoWidth(_NMPReference *nmpReference) {
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -48,8 +106,8 @@ long _getVideoWidth(BirdgeContext *context) {
     return mp->getVideoWidth();
 }
 
-long _getVideoHeight(BirdgeContext *context) {
-    MediaPlayer *mp = getMediaPlayer(context);
+long _getVideoHeight(_NMPReference *nmpReference) {
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -58,8 +116,8 @@ long _getVideoHeight(BirdgeContext *context) {
     return mp->getVideoHeight();
 }
 
-bool _isPlaying(BirdgeContext *context) {
-    MediaPlayer *mp = getMediaPlayer(context);
+bool _isPlaying(_NMPReference *nmpReference) {
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -68,8 +126,8 @@ bool _isPlaying(BirdgeContext *context) {
     return mp->isPlaying();
 }
 
-long _getDuration(BirdgeContext *context) {
-    MediaPlayer *mp = getMediaPlayer(context);
+long _getDuration(_NMPReference *nmpReference) {
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -78,8 +136,8 @@ long _getDuration(BirdgeContext *context) {
     return mp->getDuration();
 }
 
-long _getCurrentPosition(BirdgeContext *context) {
-    MediaPlayer *mp = getMediaPlayer(context);
+long _getCurrentPosition(_NMPReference *nmpReference) {
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -88,19 +146,25 @@ long _getCurrentPosition(BirdgeContext *context) {
     return mp->getCurrentPosition();
 }
 
-void _create(BirdgeContext *context) {
+void _create(_NMPReference *nmpReference, _SMPReference *smpReference) {
+
+    if (IOS_DEBUG) {
+        ALOGD(TAG, "[%s] _postFromNative=%p ", __func__, _postFromNative);
+    }
 
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
 
     MediaPlayer *mp = iOSMediaPlayer::Builder{}
-            .withAudioDevice(nullptr)
-            .withVideoDevice(nullptr)
-            .withMediaSync(nullptr)
-            .withMessageListener(nullptr)
+            .withAudioDevice(new iOSAudioDevice())
+            .withVideoDevice(new iOSVideoDevice())
+            .withMediaSync(new iOSMediaSync())
+            .withMessageListener(new MessageListener(nmpReference, smpReference, _postFromNative))
             .withDebug(IOS_DEBUG)
             .build();
+
+    _postFromNative = nullptr;
 
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
@@ -124,14 +188,15 @@ void _create(BirdgeContext *context) {
         ALOGD(TAG, "[%s] media player created", __func__);
     }
 
-    setMediaPlayer(context, mp);
+    setMediaPlayer(nmpReference, mp);
 }
 
-void _destroy(BirdgeContext *context) {
+void _destroy(_NMPReference *nmpReference) {
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    MediaPlayer *mp = getMediaPlayer(context);
+    _postFromNative = nullptr;
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp != nullptr) {
         mp->destroy();
         delete mp;
@@ -139,11 +204,11 @@ void _destroy(BirdgeContext *context) {
     }
 }
 
-void _start(BirdgeContext *context) {
+void _start(_NMPReference *nmpReference) {
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    MediaPlayer *mp = getMediaPlayer(context);
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -152,11 +217,11 @@ void _start(BirdgeContext *context) {
     mp->start();
 }
 
-void _play(BirdgeContext *context) {
+void _play(_NMPReference *nmpReference) {
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    MediaPlayer *mp = getMediaPlayer(context);
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -165,11 +230,11 @@ void _play(BirdgeContext *context) {
     mp->play();
 }
 
-void _pause(BirdgeContext *context) {
+void _pause(_NMPReference *nmpReference) {
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    MediaPlayer *mp = getMediaPlayer(context);
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -178,11 +243,11 @@ void _pause(BirdgeContext *context) {
     mp->pause();
 }
 
-void _stop(BirdgeContext *context) {
+void _stop(_NMPReference *nmpReference) {
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    MediaPlayer *mp = getMediaPlayer(context);
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -191,11 +256,11 @@ void _stop(BirdgeContext *context) {
     mp->stop();
 }
 
-void _reset(BirdgeContext *context) {
+void _reset(_NMPReference *nmpReference) {
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
     }
-    MediaPlayer *mp = getMediaPlayer(context);
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -204,11 +269,11 @@ void _reset(BirdgeContext *context) {
     mp->stop();
 }
 
-void _seekTo(BirdgeContext *context, float timeMs) {
+void _seekTo(_NMPReference *nmpReference, float timeMs) {
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s] timeMs=%ld", __func__, timeMs);
     }
-    MediaPlayer *mp = getMediaPlayer(context);
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -217,11 +282,11 @@ void _seekTo(BirdgeContext *context, float timeMs) {
     mp->seekTo(timeMs);
 }
 
-void _setVolume(BirdgeContext *context, float leftVolume, float rightVolume) {
+void _setVolume(_NMPReference *nmpReference, float leftVolume, float rightVolume) {
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s] leftVolume=%lf rightVolume=%lf", __func__, leftVolume, rightVolume);
     }
-    MediaPlayer *mp = getMediaPlayer(context);
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -230,11 +295,11 @@ void _setVolume(BirdgeContext *context, float leftVolume, float rightVolume) {
     mp->setVolume(leftVolume, rightVolume);
 }
 
-void _setMute(BirdgeContext *context, bool mute) {
+void _setMute(_NMPReference *nmpReference, bool mute) {
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s] mute=%d", __func__, mute);
     }
-    MediaPlayer *mp = getMediaPlayer(context);
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -243,11 +308,11 @@ void _setMute(BirdgeContext *context, bool mute) {
     mp->setMute(mute);
 }
 
-void _setRate(BirdgeContext *context, float rate) {
+void _setRate(_NMPReference *nmpReference, float rate) {
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s] speed=%lf", __func__, rate);
     }
-    MediaPlayer *mp = getMediaPlayer(context);
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -256,11 +321,11 @@ void _setRate(BirdgeContext *context, float rate) {
     mp->setRate(rate);
 }
 
-void _setPitch(BirdgeContext *context, float pitch) {
+void _setPitch(_NMPReference *nmpReference, float pitch) {
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s] pitch=%lf", __func__, pitch);
     }
-    MediaPlayer *mp = getMediaPlayer(context);
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -269,11 +334,11 @@ void _setPitch(BirdgeContext *context, float pitch) {
     mp->setPitch(pitch);
 }
 
-void _setLooping(BirdgeContext *context, bool looping) {
+void _setLooping(_NMPReference *nmpReference, bool looping) {
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s] looping=%d", __func__, looping);
     }
-    MediaPlayer *mp = getMediaPlayer(context);
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -282,8 +347,8 @@ void _setLooping(BirdgeContext *context, bool looping) {
     mp->setLooping(looping);
 }
 
-bool _isLooping(BirdgeContext *context) {
-    MediaPlayer *mp = getMediaPlayer(context);
+bool _isLooping(_NMPReference *nmpReference) {
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
@@ -292,12 +357,12 @@ bool _isLooping(BirdgeContext *context) {
     return mp->isLooping() != 0;
 }
 
-void _setDataSource(BirdgeContext *context, const char *path) {
-    _setDataSourceAndHeaders(context, path, nullptr, nullptr);
+void _setDataSource(_NMPReference *nmpReference, const char *path) {
+    _setDataSourceAndHeaders(nmpReference, path, nullptr, nullptr);
 }
 
-void _setDataSourceAndHeaders(BirdgeContext *context, const char *path, char *keys, void *values) {
-    MediaPlayer *mp = getMediaPlayer(context);
+void _setDataSourceAndHeaders(_NMPReference *nmpReference, const char *path, char *keys, void *values) {
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         // jniThrowException(env, "java/lang/IllegalStateException");
         return;
@@ -307,12 +372,12 @@ void _setDataSourceAndHeaders(BirdgeContext *context, const char *path, char *ke
         // jniThrowException(env, "java/lang/IllegalArgumentException");
         return;
     }
-//
-//    const char *path = env->GetStringUTFChars(path_, 0);
-//    if (path == nullptr) {
-//        return;
-//    }
-//
+    //
+    //    const char *path = env->GetStringUTFChars(path_, 0);
+    //    if (path == nullptr) {
+    //        return;
+    //    }
+    //
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s] path = %s", __func__, path);
     }
@@ -323,55 +388,55 @@ void _setDataSourceAndHeaders(BirdgeContext *context, const char *path, char *ke
         strncpy(restrict_to, "mmsh://", 6);
         puts(path);
     }
-//
-//    char *headers = nullptr;
-//    if (keys && values != nullptr) {
-//        int keysCount = env->GetArrayLength(keys);
-//        int valuesCount = env->GetArrayLength(values);
-//
-//        if (keysCount != valuesCount) {
-//            if (JNI_DEBUG) {
-//                ALOGE(TAG, "[%s] keys and values arrays have different length", __func__);
-//            }
-//            jniThrowException(env, "java/lang/IllegalArgumentException");
-//            return;
-//        }
-//
-//        int i = 0;
-//        const char *rawString = nullptr;
-//        char hdrs[2048];
-//
-//        for (i = 0; i < keysCount; i++) {
-//            jstring key = (jstring) env->GetObjectArrayElement(keys, i);
-//            rawString = env->GetStringUTFChars(key, nullptr);
-//            strcat(hdrs, rawString);
-//            strcat(hdrs, ": ");
-//            env->ReleaseStringUTFChars(key, rawString);
-//
-//            jstring value = (jstring) env->GetObjectArrayElement(values, i);
-//            rawString = env->GetStringUTFChars(value, nullptr);
-//            strcat(hdrs, rawString);
-//            strcat(hdrs, "\r\n");
-//            env->ReleaseStringUTFChars(value, rawString);
-//        }
-//
-//        headers = &hdrs[0];
-//    }
-//
+    //
+    //    char *headers = nullptr;
+    //    if (keys && values != nullptr) {
+    //        int keysCount = env->GetArrayLength(keys);
+    //        int valuesCount = env->GetArrayLength(values);
+    //
+    //        if (keysCount != valuesCount) {
+    //            if (JNI_DEBUG) {
+    //                ALOGE(TAG, "[%s] keys and values arrays have different length", __func__);
+    //            }
+    //            jniThrowException(env, "java/lang/IllegalArgumentException");
+    //            return;
+    //        }
+    //
+    //        int i = 0;
+    //        const char *rawString = nullptr;
+    //        char hdrs[2048];
+    //
+    //        for (i = 0; i < keysCount; i++) {
+    //            jstring key = (jstring) env->GetObjectArrayElement(keys, i);
+    //            rawString = env->GetStringUTFChars(key, nullptr);
+    //            strcat(hdrs, rawString);
+    //            strcat(hdrs, ": ");
+    //            env->ReleaseStringUTFChars(key, rawString);
+    //
+    //            jstring value = (jstring) env->GetObjectArrayElement(values, i);
+    //            rawString = env->GetStringUTFChars(value, nullptr);
+    //            strcat(hdrs, rawString);
+    //            strcat(hdrs, "\r\n");
+    //            env->ReleaseStringUTFChars(value, rawString);
+    //        }
+    //
+    //        headers = &hdrs[0];
+    //    }
+    //
     int result = mp->setDataSource(path, 0, nullptr);
-//    process_media_player_call(env, thiz, result, "java/io/IOException", "setDataSource failed.");
-//    env->ReleaseStringUTFChars(path_, path);
+    //    process_media_player_call(env, thiz, result, "java/io/IOException", "setDataSource failed.");
+    //    env->ReleaseStringUTFChars(path_, path);
 }
 
-void _setOptionS(BirdgeContext *context, long category, const char *type, const char *option) {
-    MediaPlayer *mp = getMediaPlayer(context);
+void _setOptionS(_NMPReference *nmpReference, long category, const char *type, const char *option) {
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
         return;
     }
-//    const char *type = env->GetStringUTFChars(type_, 0);
-//    const char *option = env->GetStringUTFChars(option_, 0);
+    //    const char *type = env->GetStringUTFChars(type_, 0);
+    //    const char *option = env->GetStringUTFChars(option_, 0);
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s] type=%s option=%s", __func__, type, option);
     }
@@ -381,14 +446,14 @@ void _setOptionS(BirdgeContext *context, long category, const char *type, const 
     mp->setOption(category, type, option);
 }
 
-void _setOptionL(BirdgeContext *context, long category, const char *type, long option) {
-    MediaPlayer *mp = getMediaPlayer(context);
+void _setOptionL(_NMPReference *nmpReference, long category, const char *type, long option) {
+    MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
         // jniThrowException(env, "java/lang/IllegalStateException");
         return;
     }
-//    const char *type = env->GetStringUTFChars(type_, 0);
+    //    const char *type = env->GetStringUTFChars(type_, 0);
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s] type=%s option=%d", __func__, type, option);
     }
@@ -398,6 +463,6 @@ void _setOptionL(BirdgeContext *context, long category, const char *type, long o
     mp->setOption(category, type, option);
 }
 
-void _setSurface(BirdgeContext *context) {
+void _setSurface(_NMPReference *nmpReference) {
 
 }
