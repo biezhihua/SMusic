@@ -35,9 +35,6 @@ public:
         if (postReference != nullptr) {
             (postReference)(smpReference, msg, ext1, ext2);
         }
-        if (IOS_DEBUG) {
-            ALOGD(TAG, "[%s] postReference=%p ", __func__, postReference);
-        }
     }
 
     void onMessage(Msg *msg) override {
@@ -83,6 +80,10 @@ static MediaPlayer *getMediaPlayer(_NMPReference *mediaPlayerReference) {
 
 void (*_postFromNative)(_SMPReference *smpReference, int msg, int ext1, int ext2) = nullptr;
 
+void (*_throwException)(const char *_Nullable className) = nullptr;
+
+void (*_throwExceptionWithNameAndMessage)(const char *_Nullable className, const char *_Nullable message) = nullptr;
+
 void _native_init(_NMPReference *nmpReference) {
 }
 
@@ -90,7 +91,7 @@ long _getRotate(_NMPReference *nmpReference) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return 0;
     }
     return mp->getRotate();
@@ -100,7 +101,7 @@ long _getVideoWidth(_NMPReference *nmpReference) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return 0;
     }
     return mp->getVideoWidth();
@@ -110,7 +111,7 @@ long _getVideoHeight(_NMPReference *nmpReference) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return 0;
     }
     return mp->getVideoHeight();
@@ -120,7 +121,7 @@ bool _isPlaying(_NMPReference *nmpReference) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return false;
     }
     return mp->isPlaying();
@@ -130,7 +131,7 @@ long _getDuration(_NMPReference *nmpReference) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return 0L;
     }
     return mp->getDuration();
@@ -140,17 +141,13 @@ long _getCurrentPosition(_NMPReference *nmpReference) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return 0L;
     }
     return mp->getCurrentPosition();
 }
 
 void _create(_NMPReference *nmpReference, _SMPReference *smpReference) {
-
-    if (IOS_DEBUG) {
-        ALOGD(TAG, "[%s] _postFromNative=%p ", __func__, _postFromNative);
-    }
 
     if (IOS_DEBUG) {
         ALOGD(TAG, "[%s]", __func__);
@@ -168,7 +165,7 @@ void _create(_NMPReference *nmpReference, _SMPReference *smpReference) {
 
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
 
@@ -179,7 +176,7 @@ void _create(_NMPReference *nmpReference, _SMPReference *smpReference) {
     int result = mp->create();
 
     if (result < 0) {
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         ALOGE(TAG, "[%s] illegal state exception result=%d", __func__, result);
         return;
     }
@@ -211,7 +208,7 @@ void _start(_NMPReference *nmpReference) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     mp->start();
@@ -224,7 +221,7 @@ void _play(_NMPReference *nmpReference) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     mp->play();
@@ -237,7 +234,7 @@ void _pause(_NMPReference *nmpReference) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     mp->pause();
@@ -250,7 +247,7 @@ void _stop(_NMPReference *nmpReference) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     mp->stop();
@@ -263,7 +260,7 @@ void _reset(_NMPReference *nmpReference) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     mp->stop();
@@ -276,7 +273,7 @@ void _seekTo(_NMPReference *nmpReference, float timeMs) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     mp->seekTo(timeMs);
@@ -289,7 +286,7 @@ void _setVolume(_NMPReference *nmpReference, float leftVolume, float rightVolume
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     mp->setVolume(leftVolume, rightVolume);
@@ -302,7 +299,7 @@ void _setMute(_NMPReference *nmpReference, bool mute) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     mp->setMute(mute);
@@ -315,7 +312,7 @@ void _setRate(_NMPReference *nmpReference, float rate) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     mp->setRate(rate);
@@ -328,7 +325,7 @@ void _setPitch(_NMPReference *nmpReference, float pitch) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     mp->setPitch(pitch);
@@ -341,7 +338,7 @@ void _setLooping(_NMPReference *nmpReference, bool looping) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     mp->setLooping(looping);
@@ -351,7 +348,7 @@ bool _isLooping(_NMPReference *nmpReference) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return false;
     }
     return mp->isLooping() != 0;
@@ -361,15 +358,47 @@ void _setDataSource(_NMPReference *nmpReference, const char *path) {
     _setDataSourceAndHeaders(nmpReference, path, nullptr, nullptr);
 }
 
+// If exception is nullptr and opStatus is not OK, this method sends an error
+// event to the client application; otherwise, if exception is not nullptr and
+// opStatus is not OK, this method throws the given exception to the client
+// application.
+static void process_media_player_call(_NMPReference *nmpReference, int opStatus,
+        const char *exception, const char *message) {
+    if (exception == nullptr) {  // Don't throw exception. Instead, send an event.
+        if (opStatus != SUCCESS) {
+            MediaPlayer *mp = getMediaPlayer(nmpReference);
+            if (mp != nullptr) {
+                mp->notifyMsg(Msg::MSG_ERROR, opStatus);
+            }
+        }
+    } else {  // Throw exception!
+        if (opStatus == ERROR_INVALID_OPERATION) {
+            _throwException("java/lang/IllegalStateException");
+        } else if (opStatus == ERROR_PERMISSION_DENIED) {
+            _throwException("java/lang/SecurityException");
+        } else if (opStatus != SUCCESS) {
+            if (strlen(message) > 230) {
+                // if the message is too long, don't bother displaying the status code
+                _throwExceptionWithNameAndMessage(exception, message);
+            } else {
+                char msg[256];
+                // append the status code to the message
+                sprintf(msg, "%s: status=0x%X", message, opStatus);
+                _throwExceptionWithNameAndMessage(exception, msg);
+            }
+        }
+    }
+}
+
 void _setDataSourceAndHeaders(_NMPReference *nmpReference, const char *path, char *keys, void *values) {
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
 
     if (path == nullptr) {
-        // jniThrowException(env, "java/lang/IllegalArgumentException");
+        _throwException("java/lang/IllegalArgumentException");
         return;
     }
     //
@@ -424,7 +453,7 @@ void _setDataSourceAndHeaders(_NMPReference *nmpReference, const char *path, cha
     //    }
     //
     int result = mp->setDataSource(path, 0, nullptr);
-    //    process_media_player_call(env, thiz, result, "java/io/IOException", "setDataSource failed.");
+    process_media_player_call(nmpReference, result, "java/io/IOException", "setDataSource failed.");
     //    env->ReleaseStringUTFChars(path_, path);
 }
 
@@ -432,7 +461,7 @@ void _setOptionS(_NMPReference *nmpReference, long category, const char *type, c
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     //    const char *type = env->GetStringUTFChars(type_, 0);
@@ -450,7 +479,7 @@ void _setOptionL(_NMPReference *nmpReference, long category, const char *type, l
     MediaPlayer *mp = getMediaPlayer(nmpReference);
     if (mp == nullptr) {
         ALOGE(TAG, "[%s] mp=%p", __func__, mp);
-        // jniThrowException(env, "java/lang/IllegalStateException");
+        _throwException("java/lang/IllegalStateException");
         return;
     }
     //    const char *type = env->GetStringUTFChars(type_, 0);

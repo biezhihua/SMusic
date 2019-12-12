@@ -20,13 +20,33 @@ public class MediaPlayer: IMediaPlayer {
         if (IOS_DEBUG) {
             Log.d(TAG, "init")
         }
+
         _postFromNative = { (reference: UnsafeMutableRawPointer?, msg: Int32, ext1: Int32, ext2: Int32) -> Void in
             if (reference != nil) {
                 let currentReference = reference!.load(as: SMPReference.self)
                 currentReference.mediaPlayer?.runOnUI(msg, ext1, ext2)
             }
         }
-                   
+
+        _throwException = { (name: UnsafePointer<Int8>?) -> Void in
+            if (name != nil) {
+                let className = String(cString: name!)
+                if (IOS_DEBUG) {
+                    Log.d("[Exception]", "throwException className=\(className)")
+                }
+            }
+        }
+
+        _throwExceptionWithNameAndMessage = { (name: UnsafePointer<Int8>?, msg: UnsafePointer<Int8>?) -> Void in
+            if (name != nil && msg != nil) {
+                let className = String(cString: name!)
+                let message = String(cString: msg!)
+                if (IOS_DEBUG) {
+                    Log.d("[Exception]", "throwException className=\(className) message=\(message)")
+                }
+            }
+        }
+
         smpReference.mediaPlayer = self
         _create(&nmpReference, UnsafeMutableRawPointer(&smpReference))
     }
@@ -42,7 +62,6 @@ public class MediaPlayer: IMediaPlayer {
     public func runOnUI(_ msg: Int32, _ ext1: Int32, _  ext2: Int32) {
         DispatchQueue.main.async() {
             if (IOS_DEBUG) {
-
                 Log.d(self.TAG, "runMainThread self = \(Unmanaged.passUnretained(self).toOpaque()) msg = \(msg) ext1 = \(ext1) ext2 = \(ext2)")
             }
         }

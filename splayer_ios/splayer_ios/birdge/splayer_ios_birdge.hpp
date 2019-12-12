@@ -16,7 +16,11 @@ typedef void _SMPReference;
 
 typedef void (*_PostFromNativeReference)(_SMPReference *_Nullable smpReference, int msg, int ext1, int ext2);
 
-extern void (*_postFromNative)(_SMPReference *_Nullable smpReference, int msg, int ext1, int ext2);
+extern void (*_Nonnull _postFromNative)(_SMPReference *_Nullable smpReference, int msg, int ext1, int ext2);
+
+extern void (*_Nonnull _throwException)(const char *_Nullable className);
+
+extern void (*_Nonnull _throwExceptionWithNameAndMessage)(const char *_Nullable className, const char *_Nullable message);
 
 void _create(_NMPReference *_Nullable nmpReference, _SMPReference *_Nullable smpReference);
 
