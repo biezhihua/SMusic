@@ -388,6 +388,8 @@ int Stream::openStream() {
         return ERROR_NOT_FOUND_STREAM_INFO;
     }
 
+    av_dump_format(formatContext, 0, playerState->url, 0);
+
     // 已获取媒体信息
     notifyMsg(Msg::MSG_STREAM_INFO);
 

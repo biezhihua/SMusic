@@ -19,24 +19,45 @@ class ViewController: UIViewController {
     
     var mediaPlayer: MediaPlayer?
     
-    var mediaPlayer2: MediaPlayer?
     
     @IBAction func onCreate() {
         Log.d("Main", "onCreate")
         mediaPlayer = MediaPlayer()
         mediaPlayer?.setSurface(renderView)
         
-        mediaPlayer2 = MediaPlayer()
-        mediaPlayer2?.setSurface(renderView)
+        let videoPath = getTestVideoPath()
+        Log.d("Main", "videoPath=\(videoPath)")
+        mediaPlayer?.setDataSource(path:videoPath)
         
+    }
+    
+    func getTestVideoPath() -> String {
+        let fileManager = FileManager.default
+        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        do {
+            let fileURLs = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil)
+            
+            
+            fileURLs.forEach { (url) in
+                Log.d("Main", url.absoluteString)
+            }
+            
+            
+            return fileURLs.last!.absoluteString
         
+            
+        } catch {
+            print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
+            return ""
+        }
+        return ""
     }
     
     @IBAction func onStart() {
         Log.d("Main", "onStart \(mediaPlayer)")
-        Log.d("Main", "onStart \(mediaPlayer2)")
+        
         mediaPlayer?.start()
-     mediaPlayer2?.start()
+        
     }
     
     @IBAction func onPlay() {
@@ -61,8 +82,12 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        let DocumentDirectory = NSURL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
+        let DirPath = DocumentDirectory.appendingPathComponent("SPLAYER_DEMO")
+        
     }
     
 }
+
+
 

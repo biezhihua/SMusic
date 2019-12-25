@@ -173,10 +173,10 @@ int MediaSync::refreshVideo(double *remaining_time) {
             }
 
             if (ENGINE_DEBUG) {
-//                ALOGD(TAG,
-//                      "[%s] peekCurrentFrame.lastSeekSerial = %d peekNextFrame.lastSeekSerial = %d",
-//                      __func__,
-//                      previousFrame->seekSerial, currentFrame->seekSerial);
+                ALOGD(TAG,
+                      "[%s] peekCurrentFrame.lastSeekSerial = %d peekNextFrame.lastSeekSerial = %d",
+                      __func__,
+                      previousFrame->seekSerial, currentFrame->seekSerial);
             }
 
             // 判断是否需要强制更新帧的时间(seek操作时才会产生变化)
@@ -208,8 +208,8 @@ int MediaSync::refreshVideo(double *remaining_time) {
             if (time < (frameTimer + syncDelay)) {
                 *remaining_time = FFMIN(frameTimer + syncDelay - time, *remaining_time);
                 if (ENGINE_DEBUG) {
-//                    ALOGD(TAG, "[%s] need display pre frame, diff time = %lf remainingTime = %lf",
-//                          __func__, (frameTimer + syncDelay - time), *remaining_time);
+                    ALOGD(TAG, "[%s] need display pre frame, diff time = %lf remainingTime = %lf",
+                          __func__, (frameTimer + syncDelay - time), *remaining_time);
                 }
                 break;
             }
@@ -268,9 +268,9 @@ int MediaSync::refreshVideo(double *remaining_time) {
     // 显示画面
     if (!playerInfoStatus->displayDisable && forceRefresh && videoDecoder &&
         frameQueue->isShownIndex()) {
-//        if (ENGINE_DEBUG) {
-//            ALOGD(TAG, "[%s] render video", __func__);
-//        }
+        if (ENGINE_DEBUG) {
+            ALOGD(TAG, "[%s] render video", __func__);
+        }
         renderVideo();
     }
     forceRefresh = 0;

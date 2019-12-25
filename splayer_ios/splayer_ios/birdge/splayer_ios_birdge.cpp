@@ -158,7 +158,7 @@ void _create(_NMPReference *nmpReference, _SMPReference *smpReference) {
             .withVideoDevice(new iOSVideoDevice())
             .withMediaSync(new iOSMediaSync())
             .withMessageListener(new MessageListener(nmpReference, smpReference, _postFromNative))
-            .withDebug(IOS_DEBUG)
+            .withDebug(true)
             .build();
 
     _postFromNative = nullptr;
@@ -401,15 +401,7 @@ void _setDataSourceAndHeaders(_NMPReference *nmpReference, const char *path, cha
         _throwException("java/lang/IllegalArgumentException");
         return;
     }
-    //
-    //    const char *path = env->GetStringUTFChars(path_, 0);
-    //    if (path == nullptr) {
-    //        return;
-    //    }
-    //
-    if (IOS_DEBUG) {
-        ALOGD(TAG, "[%s] path = %s", __func__, path);
-    }
+
 
     const char *restrict = strstr(path, "mms://");
     char *restrict_to = restrict ? strdup(restrict) : nullptr;
@@ -417,44 +409,14 @@ void _setDataSourceAndHeaders(_NMPReference *nmpReference, const char *path, cha
         strncpy(restrict_to, "mmsh://", 6);
         puts(path);
     }
-    //
-    //    char *headers = nullptr;
-    //    if (keys && values != nullptr) {
-    //        int keysCount = env->GetArrayLength(keys);
-    //        int valuesCount = env->GetArrayLength(values);
-    //
-    //        if (keysCount != valuesCount) {
-    //            if (JNI_DEBUG) {
-    //                ALOGE(TAG, "[%s] keys and values arrays have different length", __func__);
-    //            }
-    //            jniThrowException(env, "java/lang/IllegalArgumentException");
-    //            return;
-    //        }
-    //
-    //        int i = 0;
-    //        const char *rawString = nullptr;
-    //        char hdrs[2048];
-    //
-    //        for (i = 0; i < keysCount; i++) {
-    //            jstring key = (jstring) env->GetObjectArrayElement(keys, i);
-    //            rawString = env->GetStringUTFChars(key, nullptr);
-    //            strcat(hdrs, rawString);
-    //            strcat(hdrs, ": ");
-    //            env->ReleaseStringUTFChars(key, rawString);
-    //
-    //            jstring value = (jstring) env->GetObjectArrayElement(values, i);
-    //            rawString = env->GetStringUTFChars(value, nullptr);
-    //            strcat(hdrs, rawString);
-    //            strcat(hdrs, "\r\n");
-    //            env->ReleaseStringUTFChars(value, rawString);
-    //        }
-    //
-    //        headers = &hdrs[0];
-    //    }
-    //
+
+    if (IOS_DEBUG) {
+        ALOGD(TAG, "[%s] path = %s", __func__, path);
+    }
+
     int result = mp->setDataSource(path, 0, nullptr);
     process_media_player_call(nmpReference, result, "java/io/IOException", "setDataSource failed.");
-    //    env->ReleaseStringUTFChars(path_, path);
+
 }
 
 void _setOptionS(_NMPReference *nmpReference, long category, const char *type, const char *option) {

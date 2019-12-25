@@ -24,9 +24,9 @@ void MessageCenter::executeMsg(bool block) {
     if (ret >= 0 && msg.what != -1) {
         if (ENGINE_DEBUG) {
             ALOGD(TAG, "[%s] what = %d whatName = %s errorCode = %d", __func__,
-                  msg.what,
-                  Msg::getMsgSimpleName(msg.what),
-                  msg.arg1I);
+                    msg.what,
+                    Msg::getMsgSimpleName(msg.what),
+                    msg.arg1I);
         }
         switch (msg.what) {
             case Msg::MSG_REQUEST_START: {
@@ -110,7 +110,9 @@ void MessageCenter::stopMsgQueue() {
     msgQueue->clearMsgQueue(nullptr);
 }
 
-int MessageCenter::notifyMsg(int what) { return msgQueue->notifyMsg(what); }
+int MessageCenter::notifyMsg(int what) {
+    return msgQueue->notifyMsg(what);
+}
 
 int MessageCenter::notifyMsg(int what, int arg1) {
     return msgQueue->notifyMsg(what, arg1);
@@ -124,7 +126,9 @@ int MessageCenter::notifyMsg(int what, int arg1, int arg2) {
     return msgQueue->notifyMsg(what, arg1, arg2);
 }
 
-int MessageCenter::removeMsg(int what) { return msgQueue->removeMsg(what); }
+int MessageCenter::removeMsg(int what) {
+    return msgQueue->removeMsg(what);
+}
 
 PlayerStatus MessageCenter::getStatus(int arg) {
     if (arg == ERRORED) {

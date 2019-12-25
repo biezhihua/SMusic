@@ -3,7 +3,7 @@
 
 #define LOG_TAG "Media"
 
-static bool ENGINE_DEBUG = false;
+static bool ENGINE_DEBUG = true;
 
 #ifdef __ANDROID__
 
